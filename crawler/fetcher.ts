@@ -99,7 +99,7 @@ export interface PageMeta {
 export type MetaCore = Omit<PageMeta, 'internalLinks' | 'externalLinks' | 'images' | 'ttfbMs' | 'totalFetchMs' | 'htmlSize' | 'responseHeaders'>
 
 export function toMetaCore(meta: PageMeta): MetaCore {
-  const { internalLinks, externalLinks, images, ttfbMs, totalFetchMs, htmlSize, responseHeaders, ...core } = meta
+  const { internalLinks: _il, externalLinks: _el, images: _img, ttfbMs: _ttfb, totalFetchMs: _fetch, htmlSize: _size, responseHeaders: _headers, ...core } = meta
   return core
 }
 

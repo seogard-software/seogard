@@ -48,7 +48,7 @@
             <tbody>
               <tr v-for="row in matrixRows" :key="row.action">
                 <td class="permissions-modal__action">{{ row.action }}</td>
-                <td v-for="val in row.roles" :key="val" class="permissions-modal__cell">
+                <td v-for="(val, idx) in row.roles" :key="idx" class="permissions-modal__cell">
                   <span v-if="val" class="permissions-modal__check">
                     <AppIcon name="check" size="sm" />
                   </span>

@@ -63,6 +63,22 @@
 </template>
 
 <script setup lang="ts">
+interface ArticleFull {
+  _id: string
+  title: string
+  description: string
+  slug: string
+  date: string
+  updatedAt: string
+  category: string
+  tags: string[]
+  author: string
+  readingTime: number
+  canonical: string
+  body: string
+  htmlContent: string
+}
+
 definePageMeta({
   layout: 'landing',
   auth: false,
@@ -71,7 +87,7 @@ definePageMeta({
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data: article } = await useFetch(`/api/public/articles/${slug}`)
+const { data: article } = await useFetch<ArticleFull>(`/api/public/articles/${slug}`)
 
 if (!article.value) {
   throw createError({ statusCode: 404, message: 'Article introuvable' })
