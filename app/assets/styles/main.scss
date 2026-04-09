@@ -1,0 +1,120 @@
+@use 'variables' as *;
+@use 'prose';
+@import 'cal-sans';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: $font-family-base;
+  font-size: 16px;
+  color: $color-gray-900;
+  background-color: $surface-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: $color-info;
+  color: $color-white;
+}
+
+body {
+  min-height: 100vh;
+  line-height: $line-height-normal;
+}
+
+// Headings hierarchy
+h1,
+h2,
+h3,
+h4 {
+  font-family: $font-family-heading;
+}
+
+h1 {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-gray-900;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-gray-900;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-snug;
+  color: $color-gray-800;
+}
+
+h4 {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-snug;
+  color: $color-gray-700;
+}
+
+a {
+  color: $color-gray-900;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+code {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  background-color: $color-gray-100;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-sm;
+  color: $color-gray-800;
+}
+
+// Page transitions
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+// Utilities
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.text-accent {
+  color: $color-accent;
+}

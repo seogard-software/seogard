@@ -1,0 +1,93 @@
+# ─────────────────────────────────────────────────────────
+# Seogard Self-Hosted
+#
+# Quick start :
+#   1. cp .env.example .env
+#   2. Editer .env → changer MONGO_PASSWORD et NUXT_JWT_SECRET
+#   3. docker compose -f docker-compose.self-hosted.yml up -d
+#   4. Ouvrir http://localhost:3000
+#
+# Le premier compte créé sera l'administrateur (owner).
+# ─────────────────────────────────────────────────────────
+
+services:
+  # ── Dashboard + API ──────────────────────────────────
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      NUXT_PUBLIC_SELF_HOSTED: "true"
+      DATABASE_URL: mongodb://seogard:${MONGO_PASSWORD:-changeme}@mongo:27017/seogard?authSource=admin
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Crawler workers ──────────────────────────────────
+  # Chaque worker ≈ 1 GB de RAM en activité (Playwright + Chromium)
+  #
+  # Ajustez replicas selon votre serveur :
+  #   4 GB RAM  → 1 worker
+  #   8 GB RAM  → 3 workers
+  #   16 GB RAM → 8 workers
+  #   32 GB RAM → 15 workers
+  #
+  # Changez la valeur ci-dessous ou lancez avec :
+  #   WORKER_REPLICAS=5 docker compose -f docker-compose.self-hosted.yml up -d
+  worker:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+    env_file: .env
+    environment:
+      NUXT_PUBLIC_SELF_HOSTED: "true"
+      DATABASE_URL: mongodb://seogard:${MONGO_PASSWORD:-changeme}@mongo:27017/seogard?authSource=admin
+      REDIS_URL: redis://redis:6379
+    deploy:
+      replicas: ${WORKER_REPLICAS:-2}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Base de données ──────────────────────────────────
+  # Cache RAM MongoDB : 2 GB par défaut (safe pour 4-8 GB RAM)
+  # Augmentez si vous avez plus de RAM et un gros site (ex: 4 pour 16 GB, 8 pour 32 GB)
+  mongo:
+    image: mongo:7
+    command: mongod --auth --wiredTigerCacheSizeGB 2
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: seogard
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+    healthcheck:
+      test: mongosh --eval "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Queue de crawl ──────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  redis-data:

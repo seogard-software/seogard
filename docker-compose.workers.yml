@@ -1,0 +1,192 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: seogard-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  worker-local:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+    restart: unless-stopped
+    env_file: .env.workers
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 3
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  worker-staging:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+    restart: unless-stopped
+    env_file: .env.staging
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 3
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  worker-prod:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+    restart: unless-stopped
+    env_file: .env.prod
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: ${PROD_REPLICAS:-15}
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  log-digest:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+    env_file: .env.workers
+    entrypoint: ["npx", "tsx", "crawler/log-digest.ts"]
+    profiles: ["tools"]
+    stdin_open: true
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: seogard-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      HTTP_USER: admin
+      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: seogard-dozzle
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/users.yml:/data/users.yml:ro
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: seogard-umami
+    restart: unless-stopped
+    ports:
+      - "80:3000"
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/heartbeat"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  umami-db:
+    image: postgres:16-alpine
+    container_name: seogard-umami-db
+    restart: unless-stopped
+    volumes:
+      - umami-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "umami"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  mongo:
+    image: mongo:7
+    container_name: seogard-mongo
+    restart: unless-stopped
+    command: mongod --auth --maxConns ${MONGO_MAX_CONNS:-2000} --wiredTigerCacheSizeGB ${MONGO_CACHE_GB:-4}
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: seogard
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "seogard", "-p", "${MONGO_PASSWORD}", "--authenticationDatabase", "admin"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: seogard-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://seogard:${MONGO_PASSWORD}@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_PASSWORD}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  redis-data:
+  umami-data:
+  mongo-data:

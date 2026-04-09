@@ -1,0 +1,16 @@
+node_modules
+*.log
+.nuxt
+.output
+.env
+.env.*
+!.env.example
+dist
+coverage
+.DS_Store
+*.local
+.data/
+e2e/.auth/
+e2e/.test-ids.json
+playwright-report/
+test-results/
