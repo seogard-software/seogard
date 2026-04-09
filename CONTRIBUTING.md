@@ -21,12 +21,37 @@ yarn test && yarn test:e2e && yarn lint && yarn typecheck
 
 If all green, you're good to go.
 
+## Commit Convention
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+type: short description
+```
+
+| Type | Usage |
+|------|-------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `perf` | Performance improvement |
+| `docs` | Documentation only |
+| `style` | CSS/formatting, no logic change |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `test` | Adding or updating tests |
+| `chore` | Build, CI, dependencies, tooling |
+
+Examples:
+- `feat: add Jira notification support`
+- `fix: crawl status showing failed instead of completed`
+- `perf: reduce MongoDB document size from 26KB to 3KB`
+
 ## Pull Request Guidelines
 
-- Branch from `main`.
+- Fork the repo and branch from `main`.
 - Write tests for new features and bug fixes.
 - One feature or fix per PR.
 - Clear description of what and why.
+- Follow the commit convention above.
 
 ## Code Style
 
