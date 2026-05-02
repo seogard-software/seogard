@@ -47,14 +47,18 @@ registerRule({
   },
 })
 
+// rec_structured_data_incomplete — JSON-LD present mais incomplet (auteur/date/publisher).
+// Migre sur le DOM rende (CSR) car le JSON-LD est souvent injecte par JS (CMS modernes).
 registerRule({
   id: 'rec_structured_data_incomplete',
   run(ctx) {
-    if (ctx.newMeta.jsonLdTypes.length === 0) return [] // no JSON-LD at all (handled by rec_structured_data_missing)
+    if (!ctx.renderedMeta?.jsonLdTypes) return []
+    if (ctx.renderedMeta.jsonLdTypes.length === 0) return [] // no JSON-LD at all (handled by rec_structured_data_missing_audit)
+
     const missing: string[] = []
-    if (!ctx.newMeta.jsonLdAuthor) missing.push('author')
-    if (!ctx.newMeta.jsonLdDatePublished) missing.push('datePublished')
-    if (!ctx.newMeta.jsonLdPublisher) missing.push('publisher')
+    if (!ctx.renderedMeta.jsonLdAuthor) missing.push('author')
+    if (!ctx.renderedMeta.jsonLdDatePublished) missing.push('datePublished')
+    if (!ctx.renderedMeta.jsonLdPublisher) missing.push('publisher')
     if (missing.length === 0) return []
     return [{
       type: 'rec_structured_data_incomplete',
@@ -66,12 +70,16 @@ registerRule({
   },
 })
 
+// rec_faq_schema_missing — FAQPage schema absent sur les pages de contenu.
+// Migre sur le DOM rende.
 registerRule({
   id: 'rec_faq_schema_missing',
   run(ctx) {
-    if (ctx.newMeta.hasFaqSchema) return []
+    if (ctx.renderedMeta?.hasFaqSchema === undefined) return []
+    if (ctx.renderedMeta.hasFaqSchema) return []
     // Only suggest FAQ schema if the page has enough content
-    if (ctx.newMeta.wordCount < 300) return []
+    const wc = ctx.renderedMeta.wordCount ?? ctx.newMeta.wordCount
+    if (wc < 300) return []
     return [{
       type: 'rec_faq_schema_missing',
       severity: 'info',
@@ -82,15 +90,19 @@ registerRule({
   },
 })
 
+// rec_citation_signals_missing — signaux de citation (auteur/date/sources) faibles.
+// Migre sur le DOM rende.
 registerRule({
   id: 'rec_citation_signals_missing',
   run(ctx) {
+    if (!ctx.renderedMeta?.jsonLdTypes) return []
     // Only relevant for content pages (enough text)
-    if (ctx.newMeta.wordCount < 300) return []
+    const wc = ctx.renderedMeta.wordCount ?? ctx.newMeta.wordCount
+    if (wc < 300) return []
     const signals: string[] = []
-    if (!ctx.newMeta.jsonLdAuthor) signals.push('auteur')
-    if (!ctx.newMeta.jsonLdDatePublished) signals.push('date de publication')
-    if (ctx.newMeta.externalLinkCount === 0) signals.push('sources externes')
+    if (!ctx.renderedMeta.jsonLdAuthor) signals.push('auteur')
+    if (!ctx.renderedMeta.jsonLdDatePublished) signals.push('date de publication')
+    if ((ctx.renderedMeta.externalLinkCount ?? 0) === 0) signals.push('sources externes')
     if (signals.length < 2) return [] // at least 2 missing to alert
     return [{
       type: 'rec_citation_signals_missing',
@@ -102,14 +114,18 @@ registerRule({
   },
 })
 
+// rec_content_structure_audit — structure du contenu (H2, listes) peu adaptee aux IA.
+// Migre sur le DOM rende.
 registerRule({
   id: 'rec_content_structure_audit',
   run(ctx) {
-    if (ctx.newMeta.wordCount < 300) return []
+    if (!ctx.renderedMeta?.headings) return []
+    const wc = ctx.renderedMeta.wordCount ?? ctx.newMeta.wordCount
+    if (wc < 300) return []
     const issues: string[] = []
-    const h2Count = ctx.newMeta.headings.filter(h => h.level === 2).length
+    const h2Count = ctx.renderedMeta.headings.filter(h => h.level === 2).length
     if (h2Count === 0) issues.push('pas de H2')
-    if (!ctx.newMeta.hasLists) issues.push('pas de listes (ul/ol)')
+    if (!ctx.renderedMeta.hasLists) issues.push('pas de listes (ul/ol)')
     if (issues.length === 0) return []
     return [{
       type: 'rec_content_structure_audit',

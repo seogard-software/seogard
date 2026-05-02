@@ -50,19 +50,31 @@ const ALERT_TYPES = [
   'redirect_to_homepage',
   // Recommendations (recommendations.ts)
   'rec_img_alt_audit',
+  'rec_img_alt_missing_in_ssr',
   'rec_title_length_audit',
   'rec_description_length_audit',
   'rec_h1_missing_audit',
   'rec_h1_missing_in_ssr',
   'rec_favicon_missing_audit',
   'rec_semantic_structure_audit',
+  'rec_semantic_structure_missing_in_ssr',
   'rec_structured_data_missing_audit',
+  'rec_structured_data_missing_in_ssr',
   'rec_og_missing_audit',
   'rec_internal_links_audit',
-  // Legacy (kept for existing alerts)
-  'backlink_lost',
-  'redirect_added',
-  'redirect_removed',
+  'rec_internal_links_missing_in_ssr',
+  // GEO — monitoring (geo.ts)
+  'llms_txt_removed',
+  'ai_crawlers_blocked_changed',
+  'faq_schema_removed',
+  'structured_data_author_removed',
+  // GEO — recommendations (geo.ts)
+  'rec_llms_txt_missing',
+  'rec_ai_crawlers_blocked',
+  'rec_structured_data_incomplete',
+  'rec_faq_schema_missing',
+  'rec_citation_signals_missing',
+  'rec_content_structure_audit',
 ] as const
 
 const alertSchema = new Schema({

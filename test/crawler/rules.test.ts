@@ -956,86 +956,118 @@ describe('rec_ai_crawlers_blocked', () => {
 })
 
 describe('rec_structured_data_incomplete', () => {
-  it('fires when JSON-LD has no author/datePublished/publisher', () => {
+  it('does not fire in SSR phase (renderedMeta null)', () => {
     const results = runRule('rec_structured_data_incomplete', ctx({
-      newMeta: baseMeta({ jsonLdTypes: ['Article'], jsonLdAuthor: null, jsonLdDatePublished: null, jsonLdPublisher: null }),
+      newMeta: baseMeta({ jsonLdTypes: ['Article'], jsonLdAuthor: null }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when JSON-LD has no author/datePublished/publisher in CSR', () => {
+    const results = runRule('rec_structured_data_incomplete', ctx({
+      renderedMeta: { jsonLdTypes: ['Article'], jsonLdAuthor: null, jsonLdDatePublished: null, jsonLdPublisher: null },
     }))
     expect(results).toHaveLength(1)
     expect(results[0].severity).toBe('info')
   })
 
-  it('does not fire when all fields present', () => {
+  it('does not fire when all fields present in CSR', () => {
     const results = runRule('rec_structured_data_incomplete', ctx({
-      newMeta: baseMeta({ jsonLdTypes: ['Article'], jsonLdAuthor: 'John', jsonLdDatePublished: '2026-01-01', jsonLdPublisher: 'Seogard' }),
+      renderedMeta: { jsonLdTypes: ['Article'], jsonLdAuthor: 'John', jsonLdDatePublished: '2026-01-01', jsonLdPublisher: 'Seogard' },
     }))
     expect(results).toHaveLength(0)
   })
 
   it('does not fire when no JSON-LD at all', () => {
     const results = runRule('rec_structured_data_incomplete', ctx({
-      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: { jsonLdTypes: [] },
     }))
     expect(results).toHaveLength(0)
   })
 })
 
 describe('rec_faq_schema_missing', () => {
-  it('fires on content pages without FAQPage', () => {
+  it('does not fire in SSR phase', () => {
     const results = runRule('rec_faq_schema_missing', ctx({
       newMeta: baseMeta({ wordCount: 500, hasFaqSchema: false }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires on content pages without FAQPage in CSR', () => {
+    const results = runRule('rec_faq_schema_missing', ctx({
+      renderedMeta: { hasFaqSchema: false, wordCount: 500 },
     }))
     expect(results).toHaveLength(1)
   })
 
-  it('does not fire when FAQPage exists', () => {
+  it('does not fire when FAQPage exists in CSR', () => {
     const results = runRule('rec_faq_schema_missing', ctx({
-      newMeta: baseMeta({ wordCount: 500, hasFaqSchema: true }),
+      renderedMeta: { hasFaqSchema: true, wordCount: 500 },
     }))
     expect(results).toHaveLength(0)
   })
 
   it('does not fire on thin pages', () => {
     const results = runRule('rec_faq_schema_missing', ctx({
-      newMeta: baseMeta({ wordCount: 100, hasFaqSchema: false }),
+      renderedMeta: { hasFaqSchema: false, wordCount: 100 },
     }))
     expect(results).toHaveLength(0)
   })
 })
 
 describe('rec_citation_signals_missing', () => {
-  it('fires when 2+ signals are missing', () => {
+  it('does not fire in SSR phase', () => {
     const results = runRule('rec_citation_signals_missing', ctx({
-      newMeta: baseMeta({ wordCount: 500, jsonLdAuthor: null, jsonLdDatePublished: null, externalLinkCount: 0 }),
+      newMeta: baseMeta({ wordCount: 500, jsonLdAuthor: null }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when 2+ signals are missing in CSR', () => {
+    const results = runRule('rec_citation_signals_missing', ctx({
+      renderedMeta: { jsonLdTypes: ['Article'], jsonLdAuthor: null, jsonLdDatePublished: null, externalLinkCount: 0, wordCount: 500 },
     }))
     expect(results).toHaveLength(1)
   })
 
-  it('does not fire when only 1 signal missing', () => {
+  it('does not fire when only 1 signal missing in CSR', () => {
     const results = runRule('rec_citation_signals_missing', ctx({
-      newMeta: baseMeta({ wordCount: 500, jsonLdAuthor: 'John', jsonLdDatePublished: null, externalLinkCount: 3 }),
+      renderedMeta: { jsonLdTypes: ['Article'], jsonLdAuthor: 'John', jsonLdDatePublished: null, externalLinkCount: 3, wordCount: 500 },
     }))
     expect(results).toHaveLength(0)
   })
 
   it('does not fire on thin pages', () => {
     const results = runRule('rec_citation_signals_missing', ctx({
-      newMeta: baseMeta({ wordCount: 100, jsonLdAuthor: null, jsonLdDatePublished: null, externalLinkCount: 0 }),
+      renderedMeta: { jsonLdTypes: ['Article'], jsonLdAuthor: null, jsonLdDatePublished: null, externalLinkCount: 0, wordCount: 100 },
     }))
     expect(results).toHaveLength(0)
   })
 })
 
 describe('rec_content_structure_audit', () => {
-  it('fires when no H2 and no lists', () => {
+  it('does not fire in SSR phase', () => {
     const results = runRule('rec_content_structure_audit', ctx({
-      newMeta: baseMeta({ wordCount: 500, headings: [{ level: 1, text: 'Title' }], hasLists: false }),
+      newMeta: baseMeta({ wordCount: 500, headings: [], hasLists: false }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when no H2 and no lists in CSR', () => {
+    const results = runRule('rec_content_structure_audit', ctx({
+      renderedMeta: { headings: [{ level: 1, text: 'Title' }], hasLists: false, wordCount: 500 },
     }))
     expect(results).toHaveLength(1)
   })
 
-  it('does not fire when H2 and lists exist', () => {
+  it('does not fire when H2 and lists exist in CSR', () => {
     const results = runRule('rec_content_structure_audit', ctx({
-      newMeta: baseMeta({ wordCount: 500, headings: [{ level: 1, text: 'Title' }, { level: 2, text: 'Section' }], hasLists: true }),
+      renderedMeta: { headings: [{ level: 1, text: 'Title' }, { level: 2, text: 'Section' }], hasLists: true, wordCount: 500 },
     }))
     expect(results).toHaveLength(0)
   })
@@ -1258,6 +1290,303 @@ describe('rec_h1_missing_in_ssr', () => {
     const results = runRule('rec_h1_missing_in_ssr', ctx({
       newMeta: baseMeta({ headings: [] }),
       renderedMeta: { headings: [] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// rec_internal_links_audit (CSR-based) and rec_internal_links_missing_in_ssr
+// ============================================================
+
+describe('rec_internal_links_audit', () => {
+  it('does not fire in SSR phase (renderedMeta is null)', () => {
+    const results = runRule('rec_internal_links_audit', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR has < 3 internal links', () => {
+    const results = runRule('rec_internal_links_audit', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: { internalLinkCount: 2 },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('info')
+  })
+
+  it('fires with warning if CSR has 0 internal links', () => {
+    const results = runRule('rec_internal_links_audit', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: { internalLinkCount: 0 },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+  })
+
+  it('does not fire when CSR has >= 3 internal links', () => {
+    const results = runRule('rec_internal_links_audit', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: { internalLinkCount: 5 },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+describe('rec_internal_links_missing_in_ssr', () => {
+  it('does not fire in SSR-only phase', () => {
+    const results = runRule('rec_internal_links_missing_in_ssr', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when SSR < 3 but CSR >= 3', () => {
+    const results = runRule('rec_internal_links_missing_in_ssr', ctx({
+      newMeta: baseMeta({ internalLinkCount: 1 }),
+      renderedMeta: { internalLinkCount: 12 },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('info')
+  })
+
+  it('does not fire when SSR already >= 3', () => {
+    const results = runRule('rec_internal_links_missing_in_ssr', ctx({
+      newMeta: baseMeta({ internalLinkCount: 5 }),
+      renderedMeta: { internalLinkCount: 12 },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('does not fire when CSR < 3 (handled by rec_internal_links_audit)', () => {
+    const results = runRule('rec_internal_links_missing_in_ssr', ctx({
+      newMeta: baseMeta({ internalLinkCount: 0 }),
+      renderedMeta: { internalLinkCount: 1 },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// rec_structured_data_missing_audit (CSR-based) and rec_structured_data_missing_in_ssr
+// ============================================================
+
+describe('rec_structured_data_missing_audit', () => {
+  it('does not fire in SSR phase', () => {
+    const results = runRule('rec_structured_data_missing_audit', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR has no JSON-LD', () => {
+    const results = runRule('rec_structured_data_missing_audit', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: { jsonLdTypes: [] },
+    }))
+    expect(results).toHaveLength(1)
+  })
+
+  it('does not fire when CSR has JSON-LD', () => {
+    const results = runRule('rec_structured_data_missing_audit', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: { jsonLdTypes: ['Article'] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+describe('rec_structured_data_missing_in_ssr', () => {
+  it('does not fire in SSR-only phase', () => {
+    const results = runRule('rec_structured_data_missing_in_ssr', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when SSR has no JSON-LD but CSR has some', () => {
+    const results = runRule('rec_structured_data_missing_in_ssr', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: { jsonLdTypes: ['Article', 'BreadcrumbList'] },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+    expect(results[0].currentValue).toBe('Article, BreadcrumbList')
+  })
+
+  it('does not fire when SSR already has JSON-LD', () => {
+    const results = runRule('rec_structured_data_missing_in_ssr', ctx({
+      newMeta: baseMeta({ jsonLdTypes: ['Organization'] }),
+      renderedMeta: { jsonLdTypes: ['Organization', 'BreadcrumbList'] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('does not fire when CSR has none either', () => {
+    const results = runRule('rec_structured_data_missing_in_ssr', ctx({
+      newMeta: baseMeta({ jsonLdTypes: [] }),
+      renderedMeta: { jsonLdTypes: [] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// rec_img_alt_audit (CSR-based) and rec_img_alt_missing_in_ssr
+// ============================================================
+
+describe('rec_img_alt_audit', () => {
+  it('does not fire in SSR phase', () => {
+    const results = runRule('rec_img_alt_audit', ctx({
+      newMeta: baseMeta({ images: imgsWithoutAlt(5) }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR has images without alt', () => {
+    const results = runRule('rec_img_alt_audit', ctx({
+      newMeta: baseMeta({ images: [] }),
+      renderedMeta: { images: imgsWithoutAlt(3) },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('info')
+  })
+
+  it('fires with warning when CSR has >= 10 images without alt', () => {
+    const results = runRule('rec_img_alt_audit', ctx({
+      newMeta: baseMeta({ images: [] }),
+      renderedMeta: { images: imgsWithoutAlt(15) },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+  })
+
+  it('does not fire when all CSR images have alt', () => {
+    const results = runRule('rec_img_alt_audit', ctx({
+      newMeta: baseMeta({ images: [] }),
+      renderedMeta: {
+        images: [
+          { src: 'a.jpg', alt: 'Alt A', inLink: false },
+          { src: 'b.jpg', alt: 'Alt B', inLink: false },
+        ],
+      },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+describe('rec_img_alt_missing_in_ssr', () => {
+  it('does not fire in SSR-only phase', () => {
+    const results = runRule('rec_img_alt_missing_in_ssr', ctx({
+      newMeta: baseMeta({ images: [] }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR adds new images without alt', () => {
+    const results = runRule('rec_img_alt_missing_in_ssr', ctx({
+      newMeta: baseMeta({ images: [{ src: 'static.jpg', alt: 'Hero', inLink: false }] }),
+      renderedMeta: {
+        images: [
+          { src: 'static.jpg', alt: 'Hero', inLink: false },
+          { src: 'lazy1.jpg', alt: null, inLink: false },
+          { src: 'lazy2.jpg', alt: null, inLink: false },
+        ],
+      },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('info')
+  })
+
+  it('does not fire when CSR images all have alt', () => {
+    const results = runRule('rec_img_alt_missing_in_ssr', ctx({
+      newMeta: baseMeta({ images: [] }),
+      renderedMeta: {
+        images: [{ src: 'lazy.jpg', alt: 'Description', inLink: false }],
+      },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('does not fire when missing-alt images exist already in SSR (handled by rec_img_alt_audit)', () => {
+    const ssrImgs = [{ src: 'a.jpg', alt: null, inLink: false }]
+    const results = runRule('rec_img_alt_missing_in_ssr', ctx({
+      newMeta: baseMeta({ images: ssrImgs }),
+      renderedMeta: { images: ssrImgs },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// rec_semantic_structure_audit (CSR-based) and rec_semantic_structure_missing_in_ssr
+// ============================================================
+
+describe('rec_semantic_structure_audit', () => {
+  it('does not fire in SSR phase', () => {
+    const results = runRule('rec_semantic_structure_audit', ctx({
+      newMeta: baseMeta({ hasMain: false, hasHeader: false, hasFooter: false }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR is missing main', () => {
+    const results = runRule('rec_semantic_structure_audit', ctx({
+      newMeta: baseMeta({ hasMain: true, hasHeader: true, hasFooter: true }),
+      renderedMeta: { hasMain: false, hasHeader: true, hasFooter: true },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].currentValue).toBe('<main>')
+  })
+
+  it('does not fire when CSR has all 3 tags', () => {
+    const results = runRule('rec_semantic_structure_audit', ctx({
+      newMeta: baseMeta({ hasMain: false, hasHeader: false, hasFooter: false }),
+      renderedMeta: { hasMain: true, hasHeader: true, hasFooter: true },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+describe('rec_semantic_structure_missing_in_ssr', () => {
+  it('does not fire in SSR-only phase', () => {
+    const results = runRule('rec_semantic_structure_missing_in_ssr', ctx({
+      newMeta: baseMeta({ hasMain: false, hasHeader: false, hasFooter: false }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR has main but SSR doesn\'t', () => {
+    const results = runRule('rec_semantic_structure_missing_in_ssr', ctx({
+      newMeta: baseMeta({ hasMain: false, hasHeader: false, hasFooter: false }),
+      renderedMeta: { hasMain: true, hasHeader: true, hasFooter: true },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('info')
+    expect(results[0].currentValue).toBe('<main>, <header>, <footer>')
+  })
+
+  it('does not fire when SSR already has all tags', () => {
+    const results = runRule('rec_semantic_structure_missing_in_ssr', ctx({
+      newMeta: baseMeta({ hasMain: true, hasHeader: true, hasFooter: true }),
+      renderedMeta: { hasMain: true, hasHeader: true, hasFooter: true },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('does not fire when CSR is also missing tags (handled by rec_semantic_structure_audit)', () => {
+    const results = runRule('rec_semantic_structure_missing_in_ssr', ctx({
+      newMeta: baseMeta({ hasMain: false, hasHeader: false, hasFooter: false }),
+      renderedMeta: { hasMain: false, hasHeader: false, hasFooter: false },
     }))
     expect(results).toHaveLength(0)
   })

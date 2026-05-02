@@ -44,15 +44,31 @@ export type AlertType =
   | 'meta_description_changed'
   // Recommendations (audit)
   | 'rec_img_alt_audit'
+  | 'rec_img_alt_missing_in_ssr'
   | 'rec_title_length_audit'
   | 'rec_description_length_audit'
   | 'rec_h1_missing_audit'
   | 'rec_h1_missing_in_ssr'
   | 'rec_favicon_missing_audit'
   | 'rec_semantic_structure_audit'
+  | 'rec_semantic_structure_missing_in_ssr'
   | 'rec_structured_data_missing_audit'
+  | 'rec_structured_data_missing_in_ssr'
   | 'rec_og_missing_audit'
   | 'rec_internal_links_audit'
+  | 'rec_internal_links_missing_in_ssr'
+  // GEO — monitoring
+  | 'llms_txt_removed'
+  | 'ai_crawlers_blocked_changed'
+  | 'faq_schema_removed'
+  | 'structured_data_author_removed'
+  // GEO — recommendations
+  | 'rec_llms_txt_missing'
+  | 'rec_ai_crawlers_blocked'
+  | 'rec_structured_data_incomplete'
+  | 'rec_faq_schema_missing'
+  | 'rec_citation_signals_missing'
+  | 'rec_content_structure_audit'
 
 export interface Alert {
   _id: string

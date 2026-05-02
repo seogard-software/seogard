@@ -84,14 +84,87 @@ async function extractRenderedMeta(page: Page): Promise<Partial<PageMeta>> {
     const getProp = (p) => { const e = document.querySelector('meta[property="' + p + '"]'); return e ? e.content : null }
     const getLink = (r) => { const e = document.querySelector('link[rel="' + r + '"]'); return e ? e.href : null }
 
-    // Extract all headings from the rendered DOM (after JS hydration)
+    // ─── Headings (rendered DOM, after JS hydration) ───
     const headings = []
-    const headingNodes = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
-    headingNodes.forEach((el) => {
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((el) => {
       const level = parseInt(el.tagName.substring(1), 10)
       const text = (el.textContent || '').trim()
       headings.push({ level, text })
     })
+
+    // ─── Links (internal vs external, rendered DOM) ───
+    let internalLinkCount = 0
+    let externalLinkCount = 0
+    const pageHost = window.location.hostname
+    document.querySelectorAll('a[href]').forEach((a) => {
+      const href = a.getAttribute('href') || ''
+      if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return
+      try {
+        const u = new URL(href, window.location.href)
+        if (u.hostname === pageHost) internalLinkCount++
+        else externalLinkCount++
+      } catch (e) {}
+    })
+
+    // ─── Images (rendered DOM, with alt) ───
+    const images = []
+    document.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src') || ''
+      const alt = img.getAttribute('alt')
+      const inLink = !!img.closest('a')
+      images.push({ src, alt: alt === null || alt === undefined ? null : alt, inLink })
+    })
+    const imgCount = images.length
+
+    // ─── JSON-LD structured data (rendered DOM) ───
+    const jsonLdTypes = []
+    let jsonLdAuthor = null
+    let jsonLdDatePublished = null
+    let jsonLdPublisher = null
+    let hasFaqSchema = false
+    let jsonLdValid = true
+    let hasJsonLd = false
+
+    const extractFields = (data) => {
+      if (!data || typeof data !== 'object') return
+      if (data['@type']) {
+        const type = String(data['@type'])
+        jsonLdTypes.push(type)
+        if (type === 'FAQPage') hasFaqSchema = true
+      }
+      if (!jsonLdAuthor && data.author) {
+        jsonLdAuthor = typeof data.author === 'string' ? data.author : (data.author && data.author.name ? String(data.author.name) : null)
+      }
+      if (!jsonLdDatePublished && data.datePublished) jsonLdDatePublished = String(data.datePublished)
+      if (!jsonLdPublisher && data.publisher) {
+        jsonLdPublisher = typeof data.publisher === 'string' ? data.publisher : (data.publisher && data.publisher.name ? String(data.publisher.name) : null)
+      }
+    }
+
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((s) => {
+      hasJsonLd = true
+      try {
+        const data = JSON.parse(s.textContent || '')
+        extractFields(data)
+        if (Array.isArray(data['@graph'])) data['@graph'].forEach(extractFields)
+      } catch (e) { jsonLdValid = false }
+    })
+    if (!hasJsonLd) jsonLdValid = true
+
+    // ─── Semantic structure (rendered DOM) ───
+    const hasMain = !!document.querySelector('main')
+    const hasHeader = !!document.querySelector('header')
+    const hasFooter = !!document.querySelector('footer')
+    const hasNav = !!document.querySelector('nav')
+    const hasArticle = !!document.querySelector('article')
+
+    // ─── Lists (rendered DOM) ───
+    const hasLists = !!document.querySelector('ul, ol')
+    const hasDefinitionLists = !!document.querySelector('dl')
+
+    // ─── Word count (rendered DOM body text) ───
+    const bodyText = (document.body && document.body.innerText) || ''
+    const wordCount = bodyText.trim().split(/\\s+/).filter(Boolean).length
 
     return {
       title: document.title || null,
@@ -102,6 +175,24 @@ async function extractRenderedMeta(page: Page): Promise<Partial<PageMeta>> {
       ogDescription: getProp('og:description'),
       ogImage: getProp('og:image'),
       headings,
+      internalLinkCount,
+      externalLinkCount,
+      images,
+      imgCount,
+      jsonLdTypes,
+      jsonLdValid,
+      jsonLdAuthor,
+      jsonLdDatePublished,
+      jsonLdPublisher,
+      hasFaqSchema,
+      hasMain,
+      hasHeader,
+      hasFooter,
+      hasNav,
+      hasArticle,
+      hasLists,
+      hasDefinitionLists,
+      wordCount,
     }
   })()`)
 }

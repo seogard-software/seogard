@@ -36,8 +36,8 @@ const RULES = [
   { id: 'lang_attribute_changed', severity: 'warning', type: 'cross-crawl', file: 'i18n.ts', priority: 'P3', description: 'L\'attribut lang a changé (ex : fr → en). Peut casser le ciblage linguistique si c\'est accidentel.' },
   { id: 'word_count_changed', severity: 'info', type: 'cross-crawl', file: 'content.ts', priority: 'P3', description: 'Le volume de contenu a changé de 30 à 50%. Changement notable mais pas catastrophique — à vérifier.' },
   { id: 'charset_missing', severity: 'warning', type: 'cross-crawl', file: 'technical.ts', priority: 'P3', description: 'La déclaration charset a disparu. Risque de caractères mal affichés (accents, emojis) sur certains navigateurs.' },
-  { id: 'ssr_title_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'Le titre dans le HTML serveur (SSR) est différent du titre affiché par le navigateur (CSR). Google indexe la version SSR.' },
-  { id: 'ssr_meta_description_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'La meta description SSR est différente de celle rendue côté navigateur. Google utilise la version SSR.' },
+  { id: 'ssr_title_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'Le titre dans le HTML brut (envoyé par le serveur) est différent du titre affiché après chargement JavaScript. Google indexe la version du HTML brut.' },
+  { id: 'ssr_meta_description_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'La meta description du HTML brut est différente de celle rendue après chargement JavaScript. Google utilise la version du HTML brut.' },
   { id: 'meta_title_changed', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P3', description: 'Le meta title a été modifié. Peut être voulu (A/B test, rebrand) ou accidentel (bug de template).' },
   { id: 'meta_description_changed', severity: 'info', type: 'cross-crawl', file: 'meta.ts', priority: 'P3', description: 'La meta description a été modifiée. Rarement un problème — souvent une mise à jour éditoriale.' },
   { id: 'ssr_blocked', severity: 'warning', type: 'within-crawl', file: 'worker.ts', priority: 'P3', description: 'Le crawler a reçu une page de challenge anti-bot (Cloudflare, Akamai, etc.) au lieu du vrai contenu. Les données de cette page ne sont pas fiables.' },
@@ -51,7 +51,11 @@ const RULES = [
   { id: 'rec_title_length_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Le meta title est trop court (< 15 caractères) ou trop long (> 60 caractères). Google risque de le tronquer ou de le réécrire.' },
   { id: 'rec_description_length_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'La meta description est trop courte (< 50 caractères) ou trop longue (> 160 caractères). Idéalement entre 120 et 155 caractères.' },
   { id: 'rec_h1_missing_audit', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Aucun H1 sur la page (vérifié sur le DOM rendu après hydratation JavaScript). Le titre principal est un signal SEO fort — chaque page devrait en avoir un.' },
-  { id: 'rec_h1_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Le H1 est absent ou vide dans le HTML serveur (SSR) mais rempli côté navigateur (CSR). Google peut le voir avec un délai de plusieurs heures à plusieurs semaines. Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.' },
+  { id: 'rec_h1_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Le H1 est absent ou vide dans le HTML brut envoyé par votre serveur mais rempli après chargement JavaScript. Google peut le voir avec un délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.' },
+  { id: 'rec_internal_links_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Vos liens internes ne sont pas dans le HTML brut envoyé par votre serveur mais apparaissent uniquement après chargement JavaScript. Google découvre vos pages plus lentement. Solution : rendre les liens de menu, footer et navigation côté serveur (SSR).' },
+  { id: 'rec_structured_data_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Données structurées (JSON-LD) injectées par JavaScript uniquement. Les IA (ChatGPT, Perplexity, Claude) ne les voient probablement pas — elles lisent surtout le HTML brut. Pour une meilleure visibilité IA, rendez le JSON-LD côté serveur.' },
+  { id: 'rec_img_alt_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Des images ajoutées par JavaScript n\'ont pas d\'attribut alt. Google Image Search ne les indexera probablement pas (il lit le HTML brut), et les utilisateurs malvoyants ne pourront pas les comprendre. Solution : ajouter un attribut alt et rendre les images côté serveur si possible.' },
+  { id: 'rec_semantic_structure_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Balises sémantiques (main, header, footer) absentes du HTML brut envoyé par votre serveur — elles apparaissent uniquement après chargement JavaScript. Google et les lecteurs d\'écran (accessibilité) comprennent mieux la structure de votre page quand ces balises sont présentes dès le premier rendu. Solution : structurer votre layout avec ces balises côté serveur.' },
   { id: 'rec_favicon_missing_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Pas de favicon détecté. Impact mineur mais visible dans les onglets du navigateur et les résultats Google.' },
   { id: 'rec_semantic_structure_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Balises sémantiques manquantes (main, header, footer). Améliore l\'accessibilité et aide les moteurs à comprendre la structure.' },
   { id: 'rec_structured_data_missing_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Aucune donnée structurée (JSON-LD) détectée. Vous passez à côté des rich snippets dans les résultats Google.' },
@@ -83,11 +87,13 @@ const PRIORITY_META: Record<string, { label: string; description: string }> = {
 export default defineEventHandler(() => {
   const groups: Record<string, { label: string; description: string; rules: typeof RULES }> = {}
   for (const rule of RULES) {
-    if (!groups[rule.priority]) {
-      const meta = PRIORITY_META[rule.priority]
-      groups[rule.priority] = { ...meta, rules: [] }
+    let group = groups[rule.priority]
+    if (!group) {
+      const meta = PRIORITY_META[rule.priority] ?? { label: rule.priority, description: '' }
+      group = { ...meta, rules: [] }
+      groups[rule.priority] = group
     }
-    groups[rule.priority].rules.push(rule)
+    group.rules.push(rule)
   }
 
   return {
