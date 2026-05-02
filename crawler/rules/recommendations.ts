@@ -54,17 +54,54 @@ registerRule({
   },
 })
 
+// rec_h1_missing_audit — fire si AUCUN H1 utile (texte non vide) dans le DOM rendu (CSR).
+// Ne tourne qu'en phase CSR pour ne pas crier au loup sur les SPA qui injectent leur H1 par JS.
+// Si la page n'a vraiment aucun H1, le CSR le confirmera et l'alerte fire.
 registerRule({
   id: 'rec_h1_missing_audit',
   run(ctx) {
-    const h1s = ctx.newMeta.headings?.filter(h => h.level === 1) ?? []
-    if (h1s.length > 0) return []
+    // Skip en phase SSR : on attend le CSR pour avoir l'etat final
+    if (!ctx.renderedMeta?.headings) return []
+
+    const h1sWithText = ctx.renderedMeta.headings.filter(h => h.level === 1 && h.text.length > 0)
+    if (h1sWithText.length > 0) return []
     return [{
       type: 'rec_h1_missing_audit',
       severity: 'warning',
       message: 'Aucun H1 trouvé sur la page',
       previousValue: null,
       currentValue: '0 H1',
+    }]
+  },
+})
+
+// rec_h1_missing_in_ssr — fire si le H1 est absent ou vide en SSR (HTML brut)
+// MAIS rempli en CSR (apres hydration JavaScript).
+// C'est un probleme SEO : Google indexe le SSR au premier crawl, le H1 est manque
+// pendant des heures/jours avant le rendering. Les LLM lisent quasi exclusivement
+// le HTML brut donc ne verront jamais ce H1.
+registerRule({
+  id: 'rec_h1_missing_in_ssr',
+  run(ctx) {
+    // Necessite une comparaison SSR vs CSR
+    if (!ctx.renderedMeta?.headings) return []
+
+    const ssrH1s = ctx.newMeta.headings?.filter(h => h.level === 1 && h.text.length > 0) ?? []
+    const csrH1s = ctx.renderedMeta.headings.filter(h => h.level === 1 && h.text.length > 0)
+
+    // SSR a un H1 utile → pas de probleme
+    if (ssrH1s.length > 0) return []
+    // CSR n'a pas de H1 non plus → c'est rec_h1_missing_audit qui prend le relais
+    if (csrH1s.length === 0) return []
+
+    // SSR sans H1 utile MAIS CSR avec H1 → probleme specifique
+    const csrH1Text = csrH1s[0].text
+    return [{
+      type: 'rec_h1_missing_in_ssr',
+      severity: 'warning',
+      message: `H1 absent ou vide en SSR mais rempli côté JavaScript ("${csrH1Text}"). Google peut le voir avec délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.`,
+      previousValue: null,
+      currentValue: csrH1Text,
     }]
   },
 })

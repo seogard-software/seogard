@@ -377,6 +377,10 @@ function extractLinkHref(html: string, rel: string): string | null {
 
 // --- Headings ---
 
+// Garde TOUS les H1-H6 même vides (texte vide).
+// Un <h1></h1> vide en SSR mais rempli en CSR est un signal SEO important :
+// Google indexe le SSR au premier crawl, le H1 vide impacte le ranking.
+// On garde donc la balise et son texte (même vide) pour permettre les comparaisons SSR vs CSR.
 export function extractAllHeadings(html: string): { level: number; text: string }[] {
   const results: { level: number; text: string }[] = []
   const regex = /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi
@@ -384,7 +388,7 @@ export function extractAllHeadings(html: string): { level: number; text: string 
   while ((match = regex.exec(html)) !== null) {
     const level = Number(match[1])
     const text = match[2].replace(/<[^>]+>/g, '').trim()
-    if (text) results.push({ level, text })
+    results.push({ level, text })
   }
   return results
 }

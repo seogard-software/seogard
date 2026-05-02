@@ -83,6 +83,16 @@ async function extractRenderedMeta(page: Page): Promise<Partial<PageMeta>> {
     const getMeta = (n) => { const e = document.querySelector('meta[name="' + n + '"]'); return e ? e.content : null }
     const getProp = (p) => { const e = document.querySelector('meta[property="' + p + '"]'); return e ? e.content : null }
     const getLink = (r) => { const e = document.querySelector('link[rel="' + r + '"]'); return e ? e.href : null }
+
+    // Extract all headings from the rendered DOM (after JS hydration)
+    const headings = []
+    const headingNodes = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
+    headingNodes.forEach((el) => {
+      const level = parseInt(el.tagName.substring(1), 10)
+      const text = (el.textContent || '').trim()
+      headings.push({ level, text })
+    })
+
     return {
       title: document.title || null,
       description: getMeta('description'),
@@ -91,6 +101,7 @@ async function extractRenderedMeta(page: Page): Promise<Partial<PageMeta>> {
       ogTitle: getProp('og:title'),
       ogDescription: getProp('og:description'),
       ogImage: getProp('og:image'),
+      headings,
     }
   })()`)
 }

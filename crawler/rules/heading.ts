@@ -4,12 +4,15 @@ import { truncate } from './helpers'
 
 // --- Helpers to derive old fields from headings[] ---
 
+// Retourne le texte du premier H1 non vide (ignore les <h1></h1>)
 function getH1(meta: PageMeta | null): string | null {
-  return meta?.headings?.find(h => h.level === 1)?.text ?? null
+  const h1 = meta?.headings?.find(h => h.level === 1 && h.text.length > 0)
+  return h1?.text ?? null
 }
 
+// Compte uniquement les H1 avec du texte (les H1 vides ne comptent pas comme H1 utiles)
 function getH1Count(meta: PageMeta | null): number {
-  return meta?.headings?.filter(h => h.level === 1).length ?? 0
+  return meta?.headings?.filter(h => h.level === 1 && h.text.length > 0).length ?? 0
 }
 
 function getHeadingLevels(meta: PageMeta | null): number[] {

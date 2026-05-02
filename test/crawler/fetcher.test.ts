@@ -36,10 +36,15 @@ describe('extractAllHeadings', () => {
     expect(result[1].text).toBe('Second H1')
   })
 
-  it('skips empty headings', () => {
+  it('keeps empty headings (needed to detect SSR-empty H1 hydrated by JS)', () => {
     const html = '<h1></h1><h2>   </h2><h3>Real</h3>'
     const result = extractAllHeadings(html)
-    expect(result).toEqual([{ level: 3, text: 'Real' }])
+    // Empty headings are kept with text=''. Whitespace-only is also normalized to ''.
+    expect(result).toEqual([
+      { level: 1, text: '' },
+      { level: 2, text: '' },
+      { level: 3, text: 'Real' },
+    ])
   })
 
   it('returns empty array for no headings', () => {

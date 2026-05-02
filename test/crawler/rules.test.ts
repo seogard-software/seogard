@@ -15,6 +15,7 @@ import '../../crawler/rules/technical'
 import '../../crawler/rules/opengraph'
 import '../../crawler/rules/i18n'
 import '../../crawler/rules/redirect'
+import '../../crawler/rules/recommendations'
 import '../../crawler/rules/geo'
 
 // --- Test helpers ---
@@ -1173,6 +1174,90 @@ describe('structured_data_author_removed', () => {
     const results = runRule('structured_data_author_removed', ctx({
       oldMeta: null,
       newMeta: baseMeta({ jsonLdAuthor: null }),
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// rec_h1_missing_audit (CSR-based) and rec_h1_missing_in_ssr
+// ============================================================
+
+describe('rec_h1_missing_audit', () => {
+  it('does not fire in SSR phase (renderedMeta is null)', () => {
+    const results = runRule('rec_h1_missing_audit', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when CSR has no H1 with text', () => {
+    const results = runRule('rec_h1_missing_audit', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: { headings: [] },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+  })
+
+  it('fires when CSR has only empty H1s', () => {
+    const results = runRule('rec_h1_missing_audit', ctx({
+      newMeta: baseMeta({ headings: [{ level: 1, text: '' }] }),
+      renderedMeta: { headings: [{ level: 1, text: '' }] },
+    }))
+    expect(results).toHaveLength(1)
+  })
+
+  it('does not fire when CSR has at least one H1 with text', () => {
+    const results = runRule('rec_h1_missing_audit', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: { headings: [{ level: 1, text: 'Hello' }] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+})
+
+describe('rec_h1_missing_in_ssr', () => {
+  it('does not fire in SSR-only phase (renderedMeta null)', () => {
+    const results = runRule('rec_h1_missing_in_ssr', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: null,
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('fires when SSR has empty H1 but CSR has filled H1', () => {
+    const results = runRule('rec_h1_missing_in_ssr', ctx({
+      newMeta: baseMeta({ headings: [{ level: 1, text: '' }] }),
+      renderedMeta: { headings: [{ level: 1, text: 'Hydrated H1' }] },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+    expect(results[0].currentValue).toBe('Hydrated H1')
+  })
+
+  it('fires when SSR has no H1 but CSR has filled H1', () => {
+    const results = runRule('rec_h1_missing_in_ssr', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: { headings: [{ level: 1, text: 'Injected by JS' }] },
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].currentValue).toBe('Injected by JS')
+  })
+
+  it('does not fire when SSR already has filled H1', () => {
+    const results = runRule('rec_h1_missing_in_ssr', ctx({
+      newMeta: baseMeta({ headings: [{ level: 1, text: 'SSR H1' }] }),
+      renderedMeta: { headings: [{ level: 1, text: 'SSR H1' }] },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('does not fire when both SSR and CSR are empty (rec_h1_missing_audit handles this)', () => {
+    const results = runRule('rec_h1_missing_in_ssr', ctx({
+      newMeta: baseMeta({ headings: [] }),
+      renderedMeta: { headings: [] },
     }))
     expect(results).toHaveLength(0)
   })
