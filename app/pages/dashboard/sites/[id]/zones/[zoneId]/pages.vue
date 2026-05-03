@@ -60,6 +60,15 @@
       </NuxtLink>
     </div>
 
+    <!-- Sitemap invalid hostname banner -->
+    <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapInvalidHostname" class="zone-pages__waf-banner">
+      <AppIcon name="alert-triangle" size="sm" />
+      <div class="zone-pages__waf-text">
+        <span class="zone-pages__waf-title">Sitemap pointe vers le mauvais hostname</span>
+        <span class="zone-pages__waf-sub">Certaines URLs du sitemap ont un hostname différent du site monitoré et sont ignorées par le crawl.</span>
+      </div>
+    </div>
+
     <!-- Muted rules info banner (viewers only) -->
     <div v-if="mutedRulesCount > 0" class="zone-pages__muted-banner">
       <AppIcon name="bell" size="sm" />

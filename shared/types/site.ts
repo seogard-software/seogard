@@ -12,6 +12,7 @@ export interface Site {
   crawlStatus: 'completed' | 'running' | null
   discovering: 'idle' | 'pending' | 'running'
   sitemapBlocked: boolean
+  sitemapInvalidHostname: boolean
   createdAt: string
   updatedAt: string
 }
