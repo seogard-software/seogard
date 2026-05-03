@@ -134,6 +134,33 @@ export async function findSitemapUrls(siteUrl: string, opts?: FetchOptions): Pro
   return urls
 }
 
+// Some site generators (Astro, Next.js) emit sitemaps with the build hostname
+// (e.g. https://build.local/) when the production `site:` config is missing.
+// Crawling those URLs always fails — keep only entries whose hostname matches
+// the monitored site (with `www.` tolerance).
+export function filterUrlsByHost(urls: string[], siteUrl: string): { kept: string[]; dropped: string[] } {
+  const siteHost = getBaseHost(siteUrl)
+  if (!siteHost) return { kept: urls, dropped: [] }
+
+  const kept: string[] = []
+  const dropped: string[] = []
+  for (const url of urls) {
+    const host = getBaseHost(url)
+    if (host && host === siteHost) kept.push(url)
+    else dropped.push(url)
+  }
+  return { kept, dropped }
+}
+
+function getBaseHost(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, '').toLowerCase()
+  }
+  catch {
+    return null
+  }
+}
+
 export function buildCandidateUrls(siteUrl: string, robotsSitemapUrls: string[]): string[] {
   const candidates: string[] = [...robotsSitemapUrls]
   const seen = new Set(candidates)

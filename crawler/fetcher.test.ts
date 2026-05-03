@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
+import { fetchPage } from './fetcher'
+
 vi.mock('./logger', () => ({
   createLogger: () => ({
     debug: vi.fn(),
@@ -9,8 +11,6 @@ vi.mock('./logger', () => ({
     fatal: vi.fn(),
   }),
 }))
-
-import { fetchPage } from './fetcher'
 
 function mockResponse(
   status: number,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractUrls, buildCandidateUrls, normalizePageUrl } from './sitemap'
+import { extractUrls, buildCandidateUrls, normalizePageUrl, filterUrlsByHost } from './sitemap'
 
 // ---------------------------------------------------------------------------
 // extractUrls — all sitemap formats
@@ -425,5 +425,58 @@ describe('normalizePageUrl', () => {
       'https://example.com/blog',
       'https://example.com/about',
     ])
+  })
+})
+
+describe('filterUrlsByHost', () => {
+  it('keeps URLs matching the site hostname', () => {
+    const result = filterUrlsByHost(
+      ['https://example.com/', 'https://example.com/about'],
+      'https://example.com',
+    )
+    expect(result.kept).toEqual(['https://example.com/', 'https://example.com/about'])
+    expect(result.dropped).toEqual([])
+  })
+
+  it('drops URLs with foreign hostname (Astro build.local case)', () => {
+    const result = filterUrlsByHost(
+      ['https://build.local/', 'https://build.local/mariages', 'https://example.com/keep'],
+      'https://example.com',
+    )
+    expect(result.kept).toEqual(['https://example.com/keep'])
+    expect(result.dropped).toEqual(['https://build.local/', 'https://build.local/mariages'])
+  })
+
+  it('treats www. and bare hostname as the same site', () => {
+    const result = filterUrlsByHost(
+      ['https://www.example.com/a', 'https://example.com/b'],
+      'https://example.com',
+    )
+    expect(result.kept).toEqual(['https://www.example.com/a', 'https://example.com/b'])
+    expect(result.dropped).toEqual([])
+  })
+
+  it('considers subdomains as foreign', () => {
+    const result = filterUrlsByHost(
+      ['https://example.com/a', 'https://blog.example.com/b'],
+      'https://example.com',
+    )
+    expect(result.kept).toEqual(['https://example.com/a'])
+    expect(result.dropped).toEqual(['https://blog.example.com/b'])
+  })
+
+  it('drops malformed URLs', () => {
+    const result = filterUrlsByHost(
+      ['https://example.com/a', 'not-a-url', '/relative/path'],
+      'https://example.com',
+    )
+    expect(result.kept).toEqual(['https://example.com/a'])
+    expect(result.dropped).toEqual(['not-a-url', '/relative/path'])
+  })
+
+  it('returns urls as-is if siteUrl is malformed', () => {
+    const result = filterUrlsByHost(['https://example.com/a'], 'not-a-url')
+    expect(result.kept).toEqual(['https://example.com/a'])
+    expect(result.dropped).toEqual([])
   })
 })

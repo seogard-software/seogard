@@ -28,6 +28,7 @@ const LABELS: Record<string, string> = {
   'daily-digest-ok': 'Rapport quotidien (tout OK)',
   'log-digest': 'Digest logs workers',
   'sitemap-blocked': 'Sitemap bloqué (WAF)',
+  'sitemap-invalid-hostname': 'Sitemap mauvais hostname',
   'crawler-blocked': 'Crawler bloqué (WAF)',
   'reset-password': 'Réinitialisation mot de passe',
   'sitemap-estimate': 'Estimation sitemap (lead)',

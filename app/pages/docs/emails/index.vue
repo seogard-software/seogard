@@ -26,7 +26,7 @@ if (import.meta.server && process.env.NODE_ENV === 'production') {
 useHead({ title: 'Emails' })
 useSeoMeta({
   title: 'Emails — Seogard',
-  description: 'Prévisualisez les 11 templates d\'email envoyés par Seogard : alertes, digest, estimation, facturation.',
+  description: 'Prévisualisez les 13 templates d\'email envoyés par Seogard : alertes, digest, estimation, facturation.',
 })
 
 const templates = [
@@ -36,6 +36,7 @@ const templates = [
   { id: 'daily-digest-ok', label: 'Rapport quotidien (tout OK)' },
   { id: 'log-digest', label: 'Digest logs workers' },
   { id: 'sitemap-blocked', label: 'Sitemap bloqué (WAF)' },
+  { id: 'sitemap-invalid-hostname', label: 'Sitemap mauvais hostname' },
   { id: 'crawler-blocked', label: 'Crawler bloqué (WAF)' },
   { id: 'reset-password', label: 'Réinitialisation mot de passe' },
   { id: 'sitemap-estimate', label: 'Estimation sitemap (lead)' },

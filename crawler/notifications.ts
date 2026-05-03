@@ -1,6 +1,6 @@
 import { createLogger } from './logger'
 import { EmailLog } from '../server/database/models'
-import { alertCriticalTemplate, crawlerBlockedTemplate, sitemapBlockedTemplate, sitemapEstimateTemplate } from '../server/utils/email-templates'
+import { alertCriticalTemplate, crawlerBlockedTemplate, sitemapBlockedTemplate, sitemapInvalidHostnameTemplate, sitemapEstimateTemplate } from '../server/utils/email-templates'
 import type { SitemapEstimateData } from '../server/utils/email-templates'
 
 const log = createLogger('notifications')
@@ -87,6 +87,42 @@ export async function sendEmailNotification(
       to, subject, type: 'alert_critical', status: 'failed', bodyHtml: html,
       userId: notification.userId || null, siteId: notification.siteId, error: errorMsg,
     }).catch(e => log.error({ errorCode: 'EMAIL_LOG_FAILED', error: (e as Error).message }, 'failed to log email'))
+  }
+}
+
+export async function sendSitemapInvalidHostnameNotification(
+  to: string,
+  siteName: string,
+  siteUrl: string,
+  foreignHostnames: string[],
+  foreignUrlCount: number,
+): Promise<void> {
+  const resendApiKey = process.env.RESEND_API_KEY
+  if (!resendApiKey) {
+    log.warn('RESEND_API_KEY not configured, skipping sitemap invalid hostname email')
+    return
+  }
+
+  const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${getFromDomain()}>`
+  const { subject, html } = sitemapInvalidHostnameTemplate({ siteName, siteUrl, foreignHostnames, foreignUrlCount })
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: fromEmail, to, subject, html }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      log.error({ errorCode: 'SITEMAP_INVALID_HOST_EMAIL_FAILED', error: errorText }, 'failed to send sitemap invalid hostname email')
+      return
+    }
+
+    log.info({ to, siteName, foreignHostnames }, 'sitemap invalid hostname notification sent')
+  }
+  catch (error) {
+    log.error({ errorCode: 'SITEMAP_INVALID_HOST_EMAIL_ERROR', error: (error as Error).message }, 'sitemap invalid hostname email error')
   }
 }
 

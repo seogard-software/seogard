@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import {
+  setAuthCookies,
+  clearAuthCookies,
+  AUTH_COOKIE_NAME,
+  REFRESH_COOKIE_NAME,
+} from './auth'
+import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/constants'
+
 const mockSetCookie = vi.fn()
 const mockDeleteCookie = vi.fn()
 
@@ -15,14 +23,6 @@ vi.mock('./logger', () => ({
     debug: vi.fn(),
   }),
 }))
-
-import {
-  setAuthCookies,
-  clearAuthCookies,
-  AUTH_COOKIE_NAME,
-  REFRESH_COOKIE_NAME,
-} from './auth'
-import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/constants'
 
 const fakeEvent = { context: {} } as any
 

@@ -6,6 +6,7 @@ import {
   buildCandidateUrls,
   fetchSitemapHttp,
   parseSitemapXml,
+  filterUrlsByHost,
   type FetchOptions,
 } from '../shared/utils/sitemap'
 
@@ -27,6 +28,8 @@ export function setBrowser(b: Browser): void {
 export interface DiscoverResult {
   urls: string[]
   sitemapBlocked: boolean
+  foreignHostnames: string[]
+  foreignUrlCount: number
 }
 
 export async function discoverPages(siteUrl: string): Promise<DiscoverResult> {
@@ -53,8 +56,22 @@ export async function discoverPages(siteUrl: string): Promise<DiscoverResult> {
   }
 
   if (allUrls.size > 0) {
-    log.info({ siteUrl, pagesFound: allUrls.size, sitemapsScanned: candidates.length }, 'all sitemaps merged and deduplicated')
-    return { urls: [...allUrls], sitemapBlocked: false }
+    const { kept, dropped } = filterUrlsByHost([...allUrls], siteUrl)
+    const foreignHostnames = uniqueHostnames(dropped)
+
+    if (dropped.length > 0) {
+      log.warn({ siteUrl, droppedCount: dropped.length, foreignHostnames, sample: dropped.slice(0, 3) },
+        'sitemap entries with foreign hostname skipped (likely misconfigured site: in Astro/Next/etc.)')
+    }
+
+    if (kept.length === 0) {
+      log.error({ siteUrl, droppedCount: dropped.length, foreignHostnames, sample: dropped.slice(0, 3) },
+        'sitemap is 100% cross-domain — falling back to homepage')
+      return { urls: [siteUrl], sitemapBlocked: false, foreignHostnames, foreignUrlCount: dropped.length }
+    }
+
+    log.info({ siteUrl, pagesFound: kept.length, sitemapsScanned: candidates.length, dropped: dropped.length }, 'all sitemaps merged and deduplicated')
+    return { urls: kept, sitemapBlocked: false, foreignHostnames, foreignUrlCount: dropped.length }
   }
 
   if (sawBlocked) {
@@ -64,7 +81,15 @@ export async function discoverPages(siteUrl: string): Promise<DiscoverResult> {
     log.warn({ siteUrl }, 'no sitemap found after all attempts, falling back to homepage')
   }
 
-  return { urls: [siteUrl], sitemapBlocked: sawBlocked }
+  return { urls: [siteUrl], sitemapBlocked: sawBlocked, foreignHostnames: [], foreignUrlCount: 0 }
+}
+
+function uniqueHostnames(urls: string[]): string[] {
+  const set = new Set<string>()
+  for (const url of urls) {
+    try { set.add(new URL(url).hostname.toLowerCase()) } catch {}
+  }
+  return [...set]
 }
 
 interface TrySitemapResult {

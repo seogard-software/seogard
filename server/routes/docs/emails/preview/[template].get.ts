@@ -4,6 +4,7 @@ import {
   dailyDigestTemplate,
   logDigestTemplate,
   sitemapBlockedTemplate,
+  sitemapInvalidHostnameTemplate,
   crawlerBlockedTemplate,
   resetPasswordTemplate,
   sitemapEstimateTemplate,
@@ -84,6 +85,15 @@ export default defineEventHandler((event) => {
       result = sitemapBlockedTemplate({
         siteName: 'Mon E-commerce',
         siteUrl: 'https://www.monsite.fr',
+      })
+      break
+
+    case 'sitemap-invalid-hostname':
+      result = sitemapInvalidHostnameTemplate({
+        siteName: 'Fleurs d\'Aujourd\'hui',
+        siteUrl: 'https://fleursdaujourdhui.fr',
+        foreignHostnames: ['build.local'],
+        foreignUrlCount: 6,
       })
       break
 

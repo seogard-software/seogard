@@ -104,6 +104,7 @@ const emailTemplates = [
   { id: 'daily-digest-ok', label: 'Digest (tout OK)' },
   { id: 'log-digest', label: 'Digest logs workers' },
   { id: 'sitemap-blocked', label: 'Sitemap bloqué' },
+  { id: 'sitemap-invalid-hostname', label: 'Sitemap mauvais hostname' },
   { id: 'crawler-blocked', label: 'Crawler bloqué' },
   { id: 'reset-password', label: 'Reset mot de passe' },
   { id: 'sitemap-estimate', label: 'Estimation sitemap' },

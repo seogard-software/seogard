@@ -273,6 +273,30 @@ export interface SitemapBlockedData {
   siteUrl: string
 }
 
+export interface SitemapInvalidHostnameData {
+  siteName: string
+  siteUrl: string
+  foreignHostnames: string[]
+  foreignUrlCount: number
+}
+
+export function sitemapInvalidHostnameTemplate(data: SitemapInvalidHostnameData): { subject: string; html: string } {
+  const sample = data.foreignHostnames.slice(0, 3).map(h => `<code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">${h}</code>`).join(', ')
+  return {
+    subject: `[ACTION REQUISE] Sitemap mal configuré — ${data.siteName}`,
+    html: layout(`
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Sitemap pointe vers le mauvais hostname</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">Le sitemap de <strong>${data.siteName}</strong> liste <strong>${data.foreignUrlCount} URLs</strong> avec un hostname différent de celui monitoré (<code style="background:${C.gray100};padding:2px 6px;border-radius:4px;font-size:13px;">${data.siteUrl}</code>).</p>
+
+      <p style="margin:0 0 20px;color:${C.gray700};">Hostnames étrangers détectés : ${sample}.</p>
+
+      ${infoBox(`<strong>Conséquence :</strong> ces URLs sont ignorées par le crawl et seule la homepage est analysée — vos régressions SEO sur les autres pages peuvent passer inaperçues.`, C.warning, C.warningBg)}
+
+      <p style="margin:0;color:${C.gray500};font-size:13px;">Une fois votre sitemap corrigé, le prochain crawl détectera vos pages automatiquement.</p>
+    `),
+  }
+}
+
 export function sitemapBlockedTemplate(data: SitemapBlockedData): { subject: string; html: string } {
   return {
     subject: `[ACTION REQUISE] Sitemap bloqué — crawl incomplet sur ${data.siteName}`,

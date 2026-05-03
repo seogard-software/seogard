@@ -13,6 +13,7 @@ const siteSchema = new Schema({
   discovering: { type: String, enum: ['idle', 'pending', 'running'], default: 'idle' },
   discoveryStartedAt: { type: Date, default: null },
   sitemapBlocked: { type: Boolean, default: false },
+  sitemapInvalidHostname: { type: Boolean, default: false },
 }, { timestamps: true })
 
 siteSchema.index({ orgId: 1, url: 1 }, { unique: true })

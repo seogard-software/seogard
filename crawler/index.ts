@@ -1,19 +1,17 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import { connectDB } from './db'
-import { Site, Crawl, MonitoredPage, Organization, User, Zone } from '../server/database/models'
+import { Site, Crawl, MonitoredPage, Organization, User, Zone, Lead  } from '../server/database/models'
 import { extractPathname } from '../server/database/models/monitored-page'
 import { createLogger } from './logger'
 import { initBrowser, closeBrowser, getBrowser } from './renderer'
 import { initCrawl, processPages } from './worker'
-import { sendSitemapBlockedNotification } from './notifications'
+import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification, sendEstimateEmail  } from './notifications'
 import { getRedis, disconnectRedis, getActiveCrawls, addActiveCrawl, removeActiveCrawl, claimDistributionLock, clearDistributionLock, pushPages, getRemainingPages, getProgress } from './redis'
 import { discoverPages, setBrowser } from './sitemap'
 import { discoverSitemapHttp } from '../shared/utils/sitemap'
 import { matchesPatterns } from '../shared/utils/zone'
 import { calculateCloudPrice } from '../shared/utils/pricing'
-import { sendEstimateEmail } from './notifications'
-import { Lead } from '../server/database/models'
 
 const log = createLogger('main')
 
@@ -196,7 +194,7 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
   await initCrawl(crawlId, siteId, site.name)
 
   // Discover all pages from sitemap (with page limit enforcement)
-  const { urls: pageUrls, pagesSkipped, sitemapBlocked } = await syncMonitoredPages(siteId, site.url, site.orgId.toString())
+  const { urls: pageUrls, pagesSkipped, sitemapBlocked, foreignHostnames, foreignUrlCount } = await syncMonitoredPages(siteId, site.url, site.orgId.toString())
 
   // Filter URLs by zone pattern
   const crawlDoc = await Crawl.findById(crawlId).select('zoneId').lean()
@@ -233,6 +231,28 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
     }
     catch (error) {
       log.error({ crawlId, siteId, errorCode: 'SITEMAP_BLOCKED_NOTIFICATION_ERROR', error: (error as Error).message }, 'failed to send sitemap blocked notification')
+    }
+  }
+
+  // Sitemap with foreign hostname (e.g. Astro build.local). Notify only on
+  // first detection — flag is cleared when fixed so a future regression renotifies.
+  const hasForeignHosts = foreignHostnames.length > 0
+  if (hasForeignHosts !== site.sitemapInvalidHostname) {
+    await Site.updateOne({ _id: siteId }, { sitemapInvalidHostname: hasForeignHosts })
+    if (hasForeignHosts) {
+      log.warn({ crawlId, siteId, siteName: site.name, foreignHostnames }, 'sitemap has foreign hostnames, notifying site owner')
+      try {
+        if (site.notifyEmail) {
+          const org = await Organization.findById(site.orgId).select('ownerId').lean()
+          const user = org ? await User.findById(org.ownerId).select('email') : null
+          if (user) {
+            await sendSitemapInvalidHostnameNotification(user.email, site.name, site.url, foreignHostnames, foreignUrlCount)
+          }
+        }
+      }
+      catch (error) {
+        log.error({ crawlId, siteId, errorCode: 'SITEMAP_INVALID_HOST_NOTIFICATION_ERROR', error: (error as Error).message }, 'failed to send sitemap invalid hostname notification')
+      }
     }
   }
 
@@ -275,8 +295,8 @@ async function pickCrawl() {
   )
 }
 
-async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string): Promise<{ urls: string[], pagesSkipped: number, sitemapBlocked: boolean }> {
-  const { urls: sitemapUrls, sitemapBlocked } = await discoverPages(siteUrl)
+async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string): Promise<{ urls: string[], pagesSkipped: number, sitemapBlocked: boolean, foreignHostnames: string[], foreignUrlCount: number }> {
+  const { urls: sitemapUrls, sitemapBlocked, foreignHostnames, foreignUrlCount } = await discoverPages(siteUrl)
 
   const existingPages = await MonitoredPage.find({ siteId }).select('url').lean()
   const existingUrls = new Set(existingPages.map(p => p.url))
@@ -302,7 +322,13 @@ async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string
     log.info({ siteId, newPages: newUrls.length, totalPages: existingUrls.size + newUrls.length }, 'new pages discovered')
   }
 
-  return { urls: [...existingUrls, ...newUrls], pagesSkipped: 0, sitemapBlocked }
+  return {
+    urls: [...existingUrls, ...newUrls],
+    pagesSkipped: 0,
+    sitemapBlocked,
+    foreignHostnames,
+    foreignUrlCount,
+  }
 }
 
 /**
