@@ -2,7 +2,7 @@ import { Alert, MutedRule } from '../../../../database/models'
 
 export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
-  await requireSiteAccess(event, siteId, 'admin')
+  await requireSiteOrAnyZoneAccess(event, siteId, 'admin')
   const user = await requireAuth(event)
 
   const body = await readBody(event) || {}

@@ -2,7 +2,7 @@ import { Alert } from '../../../../database/models'
 
 export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
-  await requireSiteAccess(event, siteId, 'member')
+  await requireSiteOrAnyZoneAccess(event, siteId, 'member')
 
   const body = await readBody(event) || {}
   if (!body.ruleId || typeof body.ruleId !== 'string') {

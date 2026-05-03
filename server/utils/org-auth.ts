@@ -86,9 +86,10 @@ export async function requireSiteOrAnyZoneAccess(event: H3Event, siteId: string,
     throw createError({ statusCode: 404, message: 'Site non trouvé' })
   }
 
-  // Check org-level role first
+  // Owner bypasses all zone checks. `member` is a membership marker, not a
+  // permission grant — they must have a zoneRole to access this resource.
   const orgRole = member.role as OrgRole
-  if (hasMinRole(orgRole, minRole)) {
+  if (orgRole === 'owner') {
     return { site, role: orgRole }
   }
 
