@@ -40,8 +40,11 @@ export default defineEventHandler(async (event) => {
   const drill = typeof query.drill === 'string' ? query.drill : '/'
   const limit = typeof query.limit === 'string' ? Math.max(1, Math.min(500, parseInt(query.limit, 10) || 50)) : 50
 
-  // Cache key includes zoneId
-  const cacheKey = `${id}:${zoneId}`
+  // Cache key includes zoneId + lastCrawlAt so a finished crawl invalidates
+  // entries naturally (the crawler updates lastCrawlAt in finalizeCrawl, and
+  // the cache lives in the Nuxt process — they can't invalidate cross-process).
+  const lastCrawlVersion = (site as { lastCrawlAt?: Date }).lastCrawlAt?.getTime() ?? 0
+  const cacheKey = `${id}:${zoneId}:${lastCrawlVersion}`
   const cached = getTreeCache(cacheKey, drill, limit)
   if (cached) {
     log.info({ siteId: id, zoneId, drill, limit, durationMs: Date.now() - start, cached: true }, 'zone tree response served')
