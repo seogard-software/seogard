@@ -54,7 +54,7 @@
       <p>Cette obligation d'indemnisation survit à la résiliation du compte.</p>
 
       <h2>8. Propriété intellectuelle</h2>
-      <p>Le Service, son interface, ses algorithmes et son code source (hors version self-hosted open-source) sont la propriété exclusive de l'Éditeur. L'Utilisateur dispose d'un droit d'utilisation personnel, non exclusif et non transférable, pour la durée de son inscription.</p>
+      <p>Le Service, son interface, ses algorithmes et son code source (hors version self-hosted distribuée sous licence BSL 1.1) sont la propriété exclusive de l'Éditeur. L'Utilisateur dispose d'un droit d'utilisation personnel, non exclusif et non transférable, pour la durée de son inscription.</p>
 
       <h2>9. Disponibilité du Service</h2>
       <p>L'Éditeur s'efforce d'assurer la disponibilité du Service 24h/24, 7j/7. Des interruptions pour maintenance ou mise à jour peuvent survenir. L'Éditeur ne garantit pas une disponibilité ininterrompue et ne pourra être tenu responsable des interruptions temporaires.</p>

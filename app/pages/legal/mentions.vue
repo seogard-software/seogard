@@ -25,7 +25,7 @@
       </p>
 
       <h2>3. Propriété intellectuelle</h2>
-      <p>L'ensemble du contenu du site seogard.io (textes, images, graphismes, logo, icônes, logiciels) est la propriété exclusive de SAVEPNP, sauf mention contraire. Le code source de la version self-hosted est distribué sous licence open-source.</p>
+      <p>L'ensemble du contenu du site seogard.io (textes, images, graphismes, logo, icônes, logiciels) est la propriété exclusive de SAVEPNP, sauf mention contraire. Le code source de la version self-hosted est distribué sous licence Business Source License 1.1 (BSL 1.1, code source disponible). La licence évoluera vers Apache 2.0 le 2 avril 2029.</p>
 
       <h2>4. Données personnelles</h2>
       <p>Consultez notre <NuxtLink to="/legal/privacy">Politique de confidentialité</NuxtLink> pour le détail du traitement de vos données personnelles.</p>

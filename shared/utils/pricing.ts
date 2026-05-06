@@ -50,7 +50,7 @@ export interface PricingRow {
 export const PRICING_ROWS: PricingRow[] = [
   // Shared features (all plans)
   { label: 'Comparaison HTML brut vs rendu JS', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Des centaines de règles SEO + GEO (visibilité IA)', selfHosted: true, cloud: true, enterprise: true },
+  { label: '60+ règles SEO et GEO (visibilité IA)', selfHosted: true, cloud: true, enterprise: true },
   { label: 'Alertes instantanées et intelligentes (Email, Slack, Teams, Jira)', selfHosted: true, cloud: true, enterprise: true },
   { label: 'Diff exact avant/après sur chaque régression', selfHosted: true, cloud: true, enterprise: true },
   { label: 'Détection meta disparues, canonicals cassés, noindex', selfHosted: true, cloud: true, enterprise: true },

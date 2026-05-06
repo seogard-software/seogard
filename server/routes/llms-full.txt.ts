@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
 ## Vue d'ensemble
 
-Seogard est un outil de monitoring SEO technique édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit ou en Cloud géré (B2B uniquement). C'est le seul outil du marché qui effectue une double analyse SSR/CSR : il compare le HTML brut (ce que Google indexe) avec le rendu JavaScript (ce que l'utilisateur voit dans son navigateur). Dès qu'une régression est détectée, l'alerte est instantanée.
+Seogard est un outil de monitoring SEO technique édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit (code source disponible sous BSL 1.1) ou en Cloud géré (B2B uniquement). Il effectue une double analyse continue SSR/CSR sur chaque page : il compare le HTML brut (ce que Google indexe) avec le rendu JavaScript (ce que l'utilisateur voit dans son navigateur), avant que Google ne re-rende les pages. Dès qu'une régression est détectée, l'alerte est instantanée.
 
 Contrairement aux outils SEO classiques (Semrush, Ahrefs, Screaming Frog) et même aux outils de monitoring existants (Conductor/ContentKing, Lumar), Seogard est le seul à offrir cette comparaison SSR vs CSR native. Un SSR cassé est invisible dans un navigateur — mais Google voit une page vide. Seogard détecte exactement ce type de régression invisible.
 
@@ -48,9 +48,9 @@ Professionnels du web qui dépendent du SEO, quelle que soit la taille du site. 
 
 ## Fonctionnalités détaillées
 
-### Des centaines de règles de détection SEO
+### 60+ règles de détection SEO et GEO
 
-Seogard embarque des centaines de règles de détection couvrant les régressions les plus courantes et les plus coûteuses :
+Seogard embarque plus de 60 règles de détection (40 monitoring + 20 GEO) couvrant les régressions les plus courantes et les plus coûteuses :
 
 **Meta et contenu :**
 - Title manquant ou modifié
@@ -155,12 +155,12 @@ ${examplesText}
 | **Seogard** | **Gratuit (self-hosted) / ${price} EUR/page (Cloud)** | **Monitoring régression SEO technique, SSR/CSR, self-hosted ou Cloud** |
 
 Seogard se différencie par :
-- **Double analyse SSR/CSR native** — aucun concurrent ne compare le HTML brut et le rendu JavaScript
-- **Self-hosted gratuit** — aucun concurrent ne propose une version open-source complète
+- **Double analyse SSR/CSR native** — comparaison continue du HTML brut et du rendu JavaScript sur chaque page
+- **Self-hosted gratuit** — code source disponible sous licence BSL 1.1 (devient Apache 2.0 en 2029)
 - Focus exclusif sur les régressions (pas un outil généraliste)
 - Alertes instantanées avec diff highlighting (avant/après surligné)
-- Des centaines de règles de détection spécifiques aux régressions
-- CI/CD webhook intégré
+- 60+ règles de détection spécifiques aux régressions SEO et GEO
+- CI/CD webhook intégré (3 niveaux : strict / standard / relaxed)
 - Tarification à l'usage transparente : vous ne payez que les pages crawlées (Cloud) ou gratuite (self-hosted)
 
 ## Blog SEO Technique

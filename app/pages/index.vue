@@ -11,7 +11,7 @@
       <div class="landing__container">
         <div class="hero__badge">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-          Seul outil avec double analyse HTML brut + rendu JavaScript
+          Double analyse HTML brut + rendu JavaScript en continu
         </div>
         <h1 class="hero__title">
           Détectez les régressions SEO<br>
@@ -34,7 +34,7 @@
             Découvrir
           </a>
         </div>
-        <p class="hero__no-cc">Gratuit et open-source. Cloud dès {{ cloudPriceDisplay }} €/mois/page. Essai gratuit 14 jours — sans carte bancaire.</p>
+        <p class="hero__no-cc">Self-hosted gratuit, code source disponible (BSL 1.1). Cloud dès {{ cloudPriceDisplay }} €/mois/page. Essai gratuit 14 jours — sans carte bancaire.</p>
       </div>
     </section>
 
@@ -78,7 +78,7 @@
         <span class="section-label">Fonctionnalités</span>
         <h2 class="section-title">Ce que Seogard surveille pour vous</h2>
         <p class="section-desc">
-          Des centaines de règles de détection appliquées à chaque page, chaque jour. Alerte instantanée dès qu'une régression apparaît.
+          60+ règles de détection appliquées à chaque page, chaque jour. Alerte instantanée dès qu'une régression apparaît.
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
@@ -92,8 +92,9 @@
               alors que tout semble normal dans votre navigateur.
             </p>
             <p class="features__hero-desc">
-              Seogard est le seul outil qui compare automatiquement les deux versions
-              de chaque page, à chaque crawl.
+              Seogard compare automatiquement les deux versions de chaque page,
+              en continu, à chaque crawl. Détecte les régressions avant que Google
+              ne re-rende vos pages.
             </p>
           </div>
           <div class="features__hero-visual">
@@ -175,7 +176,7 @@
         <span class="section-label">Pourquoi Seogard</span>
         <h2 class="section-title">Ce que les autres ne font pas</h2>
         <p class="section-desc">
-          Le seul outil open-source avec comparaison HTML brut vs rendu JS native, intégration CI/CD et version self-hosted gratuite.
+          L'un des rares outils avec comparaison HTML brut vs rendu JS native, intégration CI/CD et version self-hosted gratuite à code source disponible.
         </p>
 
         <!-- Desktop table -->
@@ -247,7 +248,7 @@
       <div class="landing__container">
         <h2 class="final-cta__title">Ne découvrez pas vos régressions SEO<br>3 semaines trop tard.</h2>
         <p class="final-cta__desc">
-          Gratuit et open-source. Cloud sans engagement. Premier crawl offert.
+          Self-hosted gratuit, code source disponible (BSL 1.1). Cloud sans engagement. Premier crawl offert.
         </p>
         <div class="final-cta__buttons">
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
@@ -259,7 +260,7 @@
           </NuxtLink>
         </div>
         <div class="final-cta__trust">
-          <span>Open-source (BSL 1.1)</span>
+          <span>Code source disponible (BSL 1.1)</span>
           <span>Données exportables</span>
           <span>Sans engagement</span>
         </div>
@@ -281,11 +282,11 @@ const cloudPriceDisplay = formatCloudPrice()
 const FAQ_ITEMS = [
   {
     q: 'Qu\'est-ce que Seogard surveille exactement ?',
-    a: 'Plus d\'une centaine de règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
+    a: '60+ règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
   },
   {
     q: 'Seogard est-il gratuit ?',
-    a: 'La version self-hosted est gratuite, open-source (licence BSL 1.1) et sans limite de pages. Vous l\'installez sur votre serveur avec Docker. La version Cloud est facturée à l\'usage pour ceux qui préfèrent ne pas gérer l\'infrastructure.',
+    a: 'La version self-hosted est gratuite, sous licence BSL 1.1 (code source disponible) et sans limite de pages. Vous l\'installez sur votre serveur avec Docker. La version Cloud est facturée à l\'usage pour ceux qui préfèrent ne pas gérer l\'infrastructure.',
   },
   {
     q: 'En quoi Seogard est différent d\'un crawler classique ?',
@@ -319,7 +320,7 @@ const COMPARISON_ROWS = [
   { feature: 'Monitoring 24/7', seogard: true, contentking: true, lumar: false, botify: false },
   { feature: 'Optimisation GEO & visibilité IA', seogard: true, contentking: false, lumar: false, botify: false },
   { feature: 'Crawl on deploy (CI/CD)', seogard: true, contentking: false, lumar: true, botify: false },
-  { feature: 'Open-source (BSL 1.1)', seogard: true, contentking: false, lumar: false, botify: false },
+  { feature: 'Code source disponible (BSL 1.1)', seogard: true, contentking: false, lumar: false, botify: false },
   { feature: 'Self-hosted gratuit', seogard: true, contentking: false, lumar: false, botify: false },
   { feature: 'Prix', seogard: 'Gratuit', contentking: 'Sur devis', lumar: 'Dès 250 $/mois', botify: 'Dès 500 $/mois' },
 ]
@@ -394,7 +395,7 @@ useHead({
               'Alertes instantanées email, Slack, Teams, Jira',
               'Crawl quotidien automatique',
               'Dashboard temps réel',
-              'Des centaines de règles de détection SEO et GEO',
+              '60+ règles de détection SEO et GEO',
               'Optimisation GEO et visibilité IA',
               'Version self-hosted gratuite',
               'CI/CD webhook intégré',
@@ -432,9 +433,9 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO technique : compare HTML brut et rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Des centaines de règles, alerte instantanée.`,
+  description: `Monitoring SEO technique : compare HTML brut et rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. 60+ règles SEO et GEO, alerte instantanée.`,
   ogTitle: 'Seogard — Monitoring SEO technique | Alerte instantanée',
-  ogDescription: `Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Compare ce que Google voit (HTML brut) et ce que l'utilisateur voit (rendu JS). Des centaines de règles, alerte instantanée.`,
+  ogDescription: `Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Compare ce que Google voit (HTML brut) et ce que l'utilisateur voit (rendu JS). 60+ règles SEO et GEO, alerte instantanée.`,
   ogType: 'website',
   ogUrl: 'https://seogard.io',
   ogImage: 'https://seogard.io/og-image.png',

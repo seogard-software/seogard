@@ -13,7 +13,7 @@ export default defineEventHandler((event) => {
 
 > Monitoring SEO technique. Compare HTML brut et rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${price} EUR/page crawlée/mois.
 
-Seogard est un gardien de régression SEO technique édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). C'est le seul outil du marché qui effectue une double analyse SSR (HTML brut, ce que Google voit) vs CSR (rendu JavaScript, ce que l'utilisateur voit) pour détecter les régressions invisibles dans un navigateur classique. Alerte instantanée par email et Slack dès qu'un problème est détecté.
+Seogard est un gardien de régression SEO technique édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Il effectue une double analyse continue SSR (HTML brut, ce que Google voit) vs CSR (rendu JavaScript, ce que l'utilisateur voit) sur chaque page pour détecter les régressions invisibles dans un navigateur classique, avant que Google ne re-rende les pages. Alerte instantanée par email et Slack dès qu'un problème est détecté.
 
 **Service B2B** : Seogard Cloud est exclusivement destiné aux professionnels (agences SEO, équipes tech, éditeurs, e-commerce).
 
@@ -33,8 +33,8 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 
 ## Fonctionnalités
 
-- Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — unique sur le marché
-- Des centaines de règles de détection SEO (meta, SSR, canonicals, status codes, noindex, soft 404)
+- Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — comparaison continue sur chaque page
+- 60+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
 - Crawl quotidien automatique
 - Alertes instantanées par email et Slack dès qu'une régression est détectée
 - Diff highlighting : visualisation exacte de ce qui a changé (avant/après)

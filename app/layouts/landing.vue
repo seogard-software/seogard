@@ -56,7 +56,7 @@
           <div class="layout-landing__footer-brand">
             <AppLogo size="sm" />
             <p class="layout-landing__footer-tagline">
-              <strong>Seogard</strong> est un logiciel open-source édité par SAVEPNP (SAS). Tous droits réservés.
+              <strong>Seogard</strong> est un logiciel à code source disponible (licence BSL 1.1) édité par SAVEPNP SAS. Code distribué selon les termes de la BSL — tous autres droits réservés.
             </p>
             <p class="layout-landing__footer-tagline">
               Notre mission est de protéger chaque page indexée contre les régressions SEO invisibles — avant que Google ne les découvre.<br>Objectif&nbsp;: 100&nbsp;000 sites monitorés d'ici 2028.
@@ -101,15 +101,15 @@ const isLoggedIn = computed(() => !!authStore.currentUser)
 const FOOTER_FAQ = [
   {
     q: 'Qu\'est-ce que Seogard surveille exactement ?',
-    a: 'Plus d\'une centaine de règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
+    a: '60+ règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
   },
   {
     q: 'Seogard est-il gratuit ?',
-    a: 'La version self-hosted est gratuite, open-source et sans limite de pages. La version Cloud est facturée à l\'usage pour ceux qui préfèrent ne pas gérer l\'infrastructure.',
+    a: 'La version self-hosted est gratuite, à code source disponible (licence BSL 1.1) et sans limite de pages. La version Cloud est facturée à l\'usage pour ceux qui préfèrent ne pas gérer l\'infrastructure.',
   },
   {
     q: 'En quoi Seogard est différent d\'un crawler classique ?',
-    a: 'Seogard est le seul outil qui compare automatiquement le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez). Un SSR cassé passe inaperçu dans le navigateur — Seogard le détecte.',
+    a: 'Seogard compare automatiquement et en continu le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez), sur chaque page. Un SSR cassé passe inaperçu dans le navigateur — Seogard le détecte avant que Google ne re-rende vos pages.',
   },
   {
     q: 'Comment fonctionnent les alertes ?',

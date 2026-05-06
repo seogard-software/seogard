@@ -1,6 +1,6 @@
 <h1 align="center">Seogard.io</h1>
 <p align="center">
-  Open-source SEO & GEO monitoring — catches regressions before Google does.
+  Source-available SEO & GEO monitoring (BSL 1.1) — catches regressions before Google does.
 </p>
 
 <p align="center">
@@ -21,9 +21,9 @@ SEOGARD monitors every page, every day. SSR and CSR. Alerts you in real-time whe
 
 ## Features
 
-- **SSR + CSR comparison** — the only tool that compares server-rendered HTML vs JavaScript-rendered output on every page
+- **SSR + CSR comparison** — continuous comparison of server-rendered HTML vs JavaScript-rendered output on every page
 - **Real-time alerts** — email, Slack, Teams, Jira when a regression is detected
-- **Hundreds of SEO & GEO rules** — meta tags, canonical, noindex, redirects, structured data, headings, content, AI readiness (llms.txt, robots.txt AI crawlers)
+- **60+ SEO & GEO rules** — meta tags, canonical, noindex, redirects, structured data, headings, content, AI readiness (llms.txt, robots.txt AI crawlers like GPTBot/ClaudeBot/PerplexityBot)
 - **CI/CD webhook** — block deploys that break SEO
 - **Multi-site, multi-zone** — monitor different sections of your site with different rules
 - **Self-hosted or Cloud** — your infra or ours
