@@ -11,15 +11,14 @@
       <div class="landing__container">
         <div class="hero__badge">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-          Double analyse HTML brut + rendu JavaScript en continu
+          Monitoring SEO & GEO continu — Détection des régressions en temps réel
         </div>
         <h1 class="hero__title">
           Détectez les régressions SEO<br>
           <span class="hero__title-accent">avant Google.</span>
         </h1>
         <p class="hero__subtitle">
-          Seogard compare le HTML brut (ce que Google indexe) et le rendu JavaScript
-          (ce que vous voyez). Metas, canonicals, noindex, status codes — et bien plus encore. Alerte instantanée.
+          Monitoring continu de chaque page de votre site. Détection des régressions SSR/CSR, metas, canonicals, noindex. Alertes temps réel par Email, Slack, Teams ou Jira — avant que Google n'indexe le problème.
         </p>
         <div class="hero__ctas">
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
@@ -76,9 +75,9 @@
     <section id="features" class="landing__section features">
       <div class="landing__container">
         <span class="section-label">Fonctionnalités</span>
-        <h2 class="section-title">Ce que Seogard surveille pour vous</h2>
+        <h2 class="section-title">Ce que Seogard monitore en continu pour vous</h2>
         <p class="section-desc">
-          60+ règles de détection appliquées à chaque page, chaque jour. Alerte instantanée dès qu'une régression apparaît.
+          60+ règles de détection appliquées en temps réel sur chaque page. Alertes instantanées dès qu'une régression apparaît.
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
@@ -248,7 +247,7 @@
       <div class="landing__container">
         <h2 class="final-cta__title">Ne découvrez pas vos régressions SEO<br>3 semaines trop tard.</h2>
         <p class="final-cta__desc">
-          Self-hosted gratuit, code source disponible (BSL 1.1). Cloud sans engagement. Premier crawl offert.
+          Monitoring continu. Alertes temps réel. Self-hosted gratuit, Cloud sans engagement.
         </p>
         <div class="final-cta__buttons">
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
@@ -281,8 +280,8 @@ const cloudPriceDisplay = formatCloudPrice()
 
 const FAQ_ITEMS = [
   {
-    q: 'Qu\'est-ce que Seogard surveille exactement ?',
-    a: '60+ règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
+    q: 'Que monitore Seogard exactement ?',
+    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque régression déclenche une alerte temps réel par Email, Slack, Teams ou Jira, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -326,7 +325,7 @@ const COMPARISON_ROWS = [
 ]
 
 useHead({
-  title: 'Seogard — Monitoring SEO technique | Alerte instantanée',
+  title: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
   titleTemplate: '%s',
   link: [
     { rel: 'canonical', href: 'https://seogard.io' },
@@ -433,16 +432,16 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO technique : compare HTML brut et rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. 60+ règles SEO et GEO, alerte instantanée.`,
-  ogTitle: 'Seogard — Monitoring SEO technique | Alerte instantanée',
-  ogDescription: `Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Compare ce que Google voit (HTML brut) et ce que l'utilisateur voit (rendu JS). 60+ règles SEO et GEO, alerte instantanée.`,
+  description: `Monitoring SEO & GEO continu. Détection des régressions SSR/CSR, metas, canonicals. Alertes temps réel Email/Slack/Teams. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  ogTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
+  ogDescription: `Monitoring SEO & GEO continu avec détection des régressions SSR/CSR et alertes temps réel. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',
   ogUrl: 'https://seogard.io',
   ogImage: 'https://seogard.io/og-image.png',
   twitterCard: 'summary_large_image',
   twitterImage: 'https://seogard.io/og-image.png',
-  twitterTitle: 'Seogard — Monitoring SEO technique | HTML brut vs rendu JS',
-  twitterDescription: `Self-hosted gratuit. Cloud dès ${cloudPriceDisplay} €/mois/page. Détecte les régressions SEO invisibles. Alerte instantanée.`,
+  twitterTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
+  twitterDescription: `Monitoring continu. Détection régressions. Alertes temps réel. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   robots: 'index, follow',
 })
 </script>

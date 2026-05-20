@@ -4,7 +4,7 @@
       <span class="section-label">Tarifs</span>
       <h2 class="section-title">Self-hosted <span class="landing-pricing__highlight">gratuit</span>. Cloud à l'usage.</h2>
       <p class="section-desc">
-        Même moteur de détection partout. Choisissez le niveau de support, de sécurité et d'accompagnement qui vous convient.
+        Même moteur de monitoring continu partout. Choisissez le niveau de support, de sécurité et d'accompagnement qui vous convient.
       </p>
 
       <!-- Desktop table -->

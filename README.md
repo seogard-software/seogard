@@ -1,6 +1,9 @@
 <h1 align="center">Seogard.io</h1>
 <p align="center">
-  Source-available SEO & GEO monitoring (BSL 1.1) — catches regressions before Google does.
+  Continuous SEO & GEO monitoring — regression detection and real-time alerts, before Google.
+</p>
+<p align="center">
+  Source-available (BSL 1.1).
 </p>
 
 <p align="center">

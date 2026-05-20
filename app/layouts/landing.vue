@@ -100,8 +100,8 @@ const isLoggedIn = computed(() => !!authStore.currentUser)
 
 const FOOTER_FAQ = [
   {
-    q: 'Qu\'est-ce que Seogard surveille exactement ?',
-    a: '60+ règles : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), SSR cassé, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque règle est classée par sévérité : critique, warning ou info.',
+    q: 'Que monitore Seogard exactement ?',
+    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque régression déclenche une alerte temps réel par Email, Slack, Teams ou Jira, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',

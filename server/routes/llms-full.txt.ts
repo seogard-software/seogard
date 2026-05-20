@@ -14,11 +14,15 @@ export default defineEventHandler(async (event) => {
 
   const content = `# Seogard — Documentation complète
 
-> Monitoring SEO technique. Compare HTML brut et rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${price} EUR/page crawlée/mois.
+> Monitoring SEO & GEO continu. Détection des régressions et alertes temps réel, avant Google. Self-hosted gratuit ou Cloud dès ${price} EUR/page monitorée/mois.
 
 ## Vue d'ensemble
 
-Seogard est un outil de monitoring SEO technique édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit (code source disponible sous BSL 1.1) ou en Cloud géré (B2B uniquement). Il effectue une double analyse continue SSR/CSR sur chaque page : il compare le HTML brut (ce que Google indexe) avec le rendu JavaScript (ce que l'utilisateur voit dans son navigateur), avant que Google ne re-rende les pages. Dès qu'une régression est détectée, l'alerte est instantanée.
+Seogard est un outil de **monitoring SEO et GEO continu** édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit (code source disponible sous BSL 1.1) ou en Cloud géré (B2B uniquement).
+
+Seogard surveille en continu chaque page d'un site et **alerte en temps réel** par Email, Slack, Teams ou Jira dès qu'une régression est détectée — avant que Google ne re-rende les pages.
+
+Différenciateur unique : Seogard effectue une **double analyse continue SSR/CSR** sur chaque page (HTML brut vs rendu JavaScript), détectant les régressions invisibles aux outils sans rendu JS (Oseox, etc.) et aux outils d'audit ponctuel (Screaming Frog, Sitebulb).
 
 Contrairement aux outils SEO classiques (Semrush, Ahrefs, Screaming Frog) et même aux outils de monitoring existants (Conductor/ContentKing, Lumar), Seogard est le seul à offrir cette comparaison SSR vs CSR native. Un SSR cassé est invisible dans un navigateur — mais Google voit une page vide. Seogard détecte exactement ce type de régression invisible.
 
