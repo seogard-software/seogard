@@ -59,7 +59,7 @@
               <strong>Seogard</strong> est un logiciel à code source disponible (licence BSL 1.1) édité par SAVEPNP SAS. Code distribué selon les termes de la BSL — tous autres droits réservés.
             </p>
             <p class="layout-landing__footer-tagline">
-              Notre mission est de protéger chaque page indexée contre les régressions SEO invisibles — avant que Google ne les découvre.<br>Objectif&nbsp;: 100&nbsp;000 sites monitorés d'ici 2028.
+              Notre mission est de protéger chaque page indexée contre les régressions SEO invisibles — avant que Google ne les découvre.<br>Objectif&nbsp;: 10&nbsp;000 sites monitorés d'ici 2028.
             </p>
             <p class="layout-landing__footer-tagline">
               Besoin d'aide ? <a href="mailto:support@seogard.io" class="layout-landing__footer-contact">support@seogard.io</a>

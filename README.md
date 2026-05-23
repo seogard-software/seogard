@@ -28,7 +28,9 @@ SEOGARD monitors every page, every day. SSR and CSR. Alerts you in real-time whe
 - **Real-time alerts** — email, Slack, Teams, Jira when a regression is detected
 - **60+ SEO & GEO rules** — meta tags, canonical, noindex, redirects, structured data, headings, content, AI readiness (llms.txt, robots.txt AI crawlers like GPTBot/ClaudeBot/PerplexityBot)
 - **CI/CD webhook** — block deploys that break SEO
+- **Scheduled crawls (no CI/CD needed)** — pick a frequency (daily, weekly, biweekly, monthly) and an UTC hour per zone. Seogard runs the crawl automatically and notifies on regressions.
 - **Multi-site, multi-zone** — monitor different sections of your site with different rules
+- **Granular permissions** — owner / zone admin / member / viewer roles with read-only and action-restricted access
 - **Self-hosted or Cloud** — your infra or ours
 
 ## Self-Hosted
