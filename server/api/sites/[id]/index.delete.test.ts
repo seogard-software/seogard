@@ -9,6 +9,9 @@ const mockAlertDeleteMany = vi.fn()
 const mockCrawlDeleteMany = vi.fn()
 const mockMonitoredPageDeleteMany = vi.fn()
 const mockPageSnapshotDeleteMany = vi.fn()
+const mockZoneDeleteMany = vi.fn()
+const mockCrawlScheduleDeleteMany = vi.fn()
+const mockMutedRuleDeleteMany = vi.fn()
 
 vi.mock('../../../database/models', () => ({
   Site: {
@@ -26,6 +29,15 @@ vi.mock('../../../database/models', () => ({
   },
   PageSnapshot: {
     deleteMany: (...args: unknown[]) => mockPageSnapshotDeleteMany(...args),
+  },
+  Zone: {
+    deleteMany: (...args: unknown[]) => mockZoneDeleteMany(...args),
+  },
+  CrawlSchedule: {
+    deleteMany: (...args: unknown[]) => mockCrawlScheduleDeleteMany(...args),
+  },
+  MutedRule: {
+    deleteMany: (...args: unknown[]) => mockMutedRuleDeleteMany(...args),
   },
 }))
 
@@ -60,6 +72,9 @@ describe('site.delete — security', () => {
     mockAlertDeleteMany.mockResolvedValue({})
     mockCrawlDeleteMany.mockResolvedValue({})
     mockMonitoredPageDeleteMany.mockResolvedValue({})
+    mockZoneDeleteMany.mockResolvedValue({})
+    mockCrawlScheduleDeleteMany.mockResolvedValue({})
+    mockMutedRuleDeleteMany.mockResolvedValue({})
 
     await handler(fakeEvent)
 
@@ -79,6 +94,9 @@ describe('site.delete — security', () => {
     mockCrawlDeleteMany.mockResolvedValue({})
     mockMonitoredPageDeleteMany.mockResolvedValue({})
     mockPageSnapshotDeleteMany.mockResolvedValue({})
+    mockZoneDeleteMany.mockResolvedValue({})
+    mockCrawlScheduleDeleteMany.mockResolvedValue({})
+    mockMutedRuleDeleteMany.mockResolvedValue({})
 
     const result = await handler(fakeEvent)
 
@@ -86,6 +104,9 @@ describe('site.delete — security', () => {
     expect(mockAlertDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
     expect(mockCrawlDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
     expect(mockMonitoredPageDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
+    expect(mockZoneDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
+    expect(mockCrawlScheduleDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
+    expect(mockMutedRuleDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
     expect(mockPageSnapshotDeleteMany).toHaveBeenCalledWith({ pageId: { $in: ['p1', 'p2'] } })
   })
 })

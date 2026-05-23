@@ -45,7 +45,7 @@ describe('api-key.post handler', () => {
     expect(mockSiteFindOneAndUpdate).toHaveBeenCalledWith(
       { _id: 'site456' },
       { apiKey: 'new-uuid-1234' },
-      { new: true, projection: { apiKey: 1 } },
+      { returnDocument: 'after', projection: { apiKey: 1 } },
     )
   })
 

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const site = await Site.findOneAndUpdate(
     { _id: id },
     { apiKey: newKey },
-    { new: true, projection: { apiKey: 1 } },
+    { returnDocument: 'after', projection: { apiKey: 1 } },
   )
 
   if (!site) {

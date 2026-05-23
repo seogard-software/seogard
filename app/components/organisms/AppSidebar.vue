@@ -112,6 +112,15 @@
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(defaultZoneId!, 'admin')"
+            :to="`/dashboard/sites/${activeSiteId}/zones/${defaultZoneId}/schedule`"
+            class="app-sidebar__link app-sidebar__zone-sub-link"
+            active-class="app-sidebar__link--active"
+          >
+            <AppIcon name="clock" size="sm" />
+            Planification
+          </NuxtLink>
+          <NuxtLink
+            v-if="hasMinZoneRole(defaultZoneId!, 'admin')"
             :to="`/dashboard/sites/${activeSiteId}/zones/${defaultZoneId}/webhook`"
             class="app-sidebar__link app-sidebar__zone-sub-link"
             active-class="app-sidebar__link--active"
@@ -158,6 +167,15 @@
           >
             <AppIcon name="radar" size="sm" />
             Overview
+          </NuxtLink>
+          <NuxtLink
+            v-if="hasMinZoneRole(zone._id, 'admin')"
+            :to="`/dashboard/sites/${activeSiteId}/zones/${zone._id}/schedule`"
+            class="app-sidebar__link app-sidebar__zone-sub-link"
+            active-class="app-sidebar__link--active"
+          >
+            <AppIcon name="clock" size="sm" />
+            Planification
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(zone._id, 'admin')"

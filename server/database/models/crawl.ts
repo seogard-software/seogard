@@ -4,7 +4,7 @@ const crawlSchema = new Schema({
   siteId: { type: Types.ObjectId, ref: 'Site', required: true, index: true },
   zoneId: { type: Types.ObjectId, ref: 'Zone', default: null },
   status: { type: String, enum: ['pending', 'running', 'completed', 'failed', 'cancelled'], default: 'pending' },
-  trigger: { type: String, enum: ['manual', 'webhook'], default: 'manual' },
+  trigger: { type: String, enum: ['manual', 'webhook', 'scheduled'], default: 'manual' },
   pagesScanned: { type: Number, default: 0 },
   pagesFailed: { type: Number, default: 0 },
   pagesBlocked: { type: Number, default: 0 },

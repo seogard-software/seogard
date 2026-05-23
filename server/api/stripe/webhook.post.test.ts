@@ -110,7 +110,7 @@ describe('webhook.post — checkout.session.completed', () => {
         currentPeriodStart: new Date(1700000000 * 1000),
         currentPeriodEnd: new Date(1702600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -140,7 +140,7 @@ describe('webhook.post — checkout.session.completed', () => {
         currentPeriodStart: new Date(1700000000 * 1000),
         currentPeriodEnd: new Date(1702600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 })
@@ -181,7 +181,7 @@ describe('webhook.post — customer.subscription.updated', () => {
         currentPeriodStart: new Date(1700000000 * 1000),
         currentPeriodEnd: new Date(1702600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -210,7 +210,7 @@ describe('webhook.post — customer.subscription.updated', () => {
         currentPeriodStart: new Date(1700000000 * 1000),
         currentPeriodEnd: new Date(1702600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 })
@@ -494,7 +494,7 @@ describe('webhook.post — customer.subscription.deleted', () => {
     expect(mockSubscriptionFindOneAndUpdate).toHaveBeenCalledWith(
       { stripeSubscriptionId: 'sub_stripe_1' },
       { stripeStatus: 'canceled' },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -519,7 +519,7 @@ describe('webhook.post — customer.subscription.deleted', () => {
     expect(mockSubscriptionFindOneAndUpdate).toHaveBeenCalledWith(
       { stripeSubscriptionId: 'sub_unknown' },
       { stripeStatus: 'canceled' },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 })
@@ -703,7 +703,7 @@ describe('webhook.post — edge cases', () => {
         currentPeriodStart: new Date(1710000000 * 1000),
         currentPeriodEnd: new Date(1712600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -737,7 +737,7 @@ describe('webhook.post — edge cases', () => {
         stripeSubscriptionId: 'sub_stripe_no_period',
         stripeStatus: 'trialing',
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -795,7 +795,7 @@ describe('webhook.post — edge cases', () => {
     expect(mockSubscriptionFindOneAndUpdate).toHaveBeenCalledWith(
       { stripeSubscriptionId: 'sub_unknown_update' },
       expect.objectContaining({ stripeStatus: 'active' }),
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 
@@ -826,7 +826,7 @@ describe('webhook.post — edge cases', () => {
         currentPeriodStart: new Date(1710000000 * 1000),
         currentPeriodEnd: new Date(1712600000 * 1000),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
   })
 

@@ -52,6 +52,13 @@ export default defineNuxtConfig({
     '/blog/**': { swr: 3600 },
   },
 
+  nitro: {
+    experimental: { tasks: true },
+    scheduledTasks: {
+      '* * * * *': ['crawl:scheduler'],
+    },
+  },
+
   typescript: {
     strict: true,
   },

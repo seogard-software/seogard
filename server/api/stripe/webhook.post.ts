@@ -90,7 +90,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       ...(periodStart && { currentPeriodStart: new Date(periodStart * 1000) }),
       ...(periodEnd && { currentPeriodEnd: new Date(periodEnd * 1000) }),
     },
-    { new: true },
+    { returnDocument: 'after' },
   )
 
   if (!sub) {
@@ -255,7 +255,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       ...(periodStart && { currentPeriodStart: new Date(periodStart * 1000) }),
       ...(periodEnd && { currentPeriodEnd: new Date(periodEnd * 1000) }),
     },
-    { new: true },
+    { returnDocument: 'after' },
   )
 
   if (!sub) {
@@ -270,7 +270,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const sub = await Subscription.findOneAndUpdate(
     { stripeSubscriptionId: subscription.id },
     { stripeStatus: 'canceled' },
-    { new: true },
+    { returnDocument: 'after' },
   )
 
   if (!sub) {

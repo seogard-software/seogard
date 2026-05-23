@@ -1,4 +1,4 @@
-import { Site, MonitoredPage, Crawl, Alert, PageSnapshot } from '../../../database/models'
+import { Site, MonitoredPage, Crawl, Alert, PageSnapshot, Zone, CrawlSchedule, MutedRule } from '../../../database/models'
 
 export default defineEventHandler(async (event) => {
   const log = useRequestLog(event, 'api.sites')
@@ -19,6 +19,9 @@ export default defineEventHandler(async (event) => {
     Alert.deleteMany({ siteId: id }),
     Crawl.deleteMany({ siteId: id }),
     MonitoredPage.deleteMany({ siteId: id }),
+    Zone.deleteMany({ siteId: id }),
+    CrawlSchedule.deleteMany({ siteId: id }),
+    MutedRule.deleteMany({ siteId: id }),
     pageIds.length > 0 ? PageSnapshot.deleteMany({ pageId: { $in: pageIds } }) : Promise.resolve(),
   ])
 

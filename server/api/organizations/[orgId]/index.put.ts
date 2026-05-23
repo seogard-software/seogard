@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     if (body.enforceSSO !== undefined) update.enforceSSO = body.enforceSSO
   }
 
-  const updated = await Organization.findByIdAndUpdate(orgId, update, { new: true }).lean()
+  const updated = await Organization.findByIdAndUpdate(orgId, update, { returnDocument: 'after' }).lean()
   if (!updated) {
     throw createError({ statusCode: 404, message: 'Organisation non trouvée' })
   }

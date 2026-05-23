@@ -1,5 +1,19 @@
 export type ZoneRole = 'owner' | 'admin' | 'member' | 'viewer'
 
+export type CrawlScheduleFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
+
+export interface CrawlSchedule {
+  _id?: string
+  enabled: boolean
+  frequency: CrawlScheduleFrequency
+  dayOfWeek: number | null
+  dayOfMonth: number | null
+  lastDayOfMonth: boolean
+  hour: number
+  lastCrawledAt: string | null
+  nextCrawlAt: string | null
+}
+
 export interface Zone {
   _id: string
   siteId: string

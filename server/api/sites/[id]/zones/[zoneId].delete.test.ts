@@ -6,6 +6,7 @@ const mockRequireZoneAccess = vi.fn()
 const mockZoneFindOne = vi.fn()
 const mockZoneDeleteOne = vi.fn()
 const mockOrgMemberUpdateMany = vi.fn()
+const mockCrawlScheduleDeleteMany = vi.fn()
 
 vi.mock('~~/server/database/models', () => ({
   Zone: {
@@ -14,6 +15,9 @@ vi.mock('~~/server/database/models', () => ({
   },
   OrgMember: {
     updateMany: (...args: unknown[]) => mockOrgMemberUpdateMany(...args),
+  },
+  CrawlSchedule: {
+    deleteMany: (...args: unknown[]) => mockCrawlScheduleDeleteMany(...args),
   },
 }))
 
@@ -42,6 +46,7 @@ describe('zone.delete — security', () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: false })
     mockZoneDeleteOne.mockResolvedValue({})
     mockOrgMemberUpdateMany.mockResolvedValue({})
+    mockCrawlScheduleDeleteMany.mockResolvedValue({})
 
     await handler(fakeEvent)
 
@@ -60,10 +65,11 @@ describe('zone.delete — security', () => {
     await expect(handler(fakeEvent)).rejects.toThrow('Zone introuvable')
   })
 
-  it('deletes custom zone and cascades zoneRoles', async () => {
+  it('deletes custom zone and cascades zoneRoles and schedules', async () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: false })
     mockZoneDeleteOne.mockResolvedValue({})
     mockOrgMemberUpdateMany.mockResolvedValue({})
+    mockCrawlScheduleDeleteMany.mockResolvedValue({})
 
     const result = await handler(fakeEvent)
 
@@ -73,5 +79,6 @@ describe('zone.delete — security', () => {
       { orgId: 'org123' },
       { $pull: { zoneRoles: { zoneId: 'zone789' } } },
     )
+    expect(mockCrawlScheduleDeleteMany).toHaveBeenCalledWith({ zoneId: 'zone789' })
   })
 })

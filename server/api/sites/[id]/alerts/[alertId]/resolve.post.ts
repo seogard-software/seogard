@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const alert = await Alert.findOneAndUpdate(
     { _id: alertId, siteId, status: 'open' },
     { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'user' },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean()
 
   if (!alert) {

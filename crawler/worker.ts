@@ -501,7 +501,7 @@ async function sendNotifications(
     })),
   }
 
-  if (site.notifyEmail && criticalCount > 0) {
+  if (site.notifyEmail && (criticalCount > 0 || warningCount > 0)) {
     // Collect recipients: org owner + zone admin/member (not viewer)
     const emails = new Set<string>()
 

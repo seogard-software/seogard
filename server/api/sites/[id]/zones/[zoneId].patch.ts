@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     return zone
   }
 
-  const updated = await Zone.findByIdAndUpdate(zoneId, { $set: update }, { new: true }).lean()
+  const updated = await Zone.findByIdAndUpdate(zoneId, { $set: update }, { returnDocument: 'after' }).lean()
 
   // Invalidate tree cache for this site (zone patterns changed)
   if (update.patterns) {

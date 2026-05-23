@@ -1,4 +1,4 @@
-import { Zone, OrgMember } from '~~/server/database/models'
+import { Zone, OrgMember, CrawlSchedule } from '~~/server/database/models'
 
 export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
@@ -18,11 +18,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'La zone par défaut ne peut pas être supprimée' })
   }
 
-  // Cascade: remove zoneRoles referencing this zone from all org members
-  await OrgMember.updateMany(
-    { orgId: (site as any).orgId },
-    { $pull: { zoneRoles: { zoneId: zone._id } } },
-  )
+  // Cascade: remove zoneRoles referencing this zone from all org members,
+  // and drop any scheduled crawl bound to it.
+  await Promise.all([
+    OrgMember.updateMany(
+      { orgId: (site as any).orgId },
+      { $pull: { zoneRoles: { zoneId: zone._id } } },
+    ),
+    CrawlSchedule.deleteMany({ zoneId: zone._id }),
+  ])
 
   await Zone.deleteOne({ _id: zoneId })
 

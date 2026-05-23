@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   const updated = await Site.findOneAndUpdate(
     { _id: id },
     update,
-    { new: true },
+    { returnDocument: 'after' },
   ).lean()
 
   if (!updated) {
