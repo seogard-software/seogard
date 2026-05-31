@@ -22,11 +22,14 @@
         </div>
       </div>
 
-      <div v-if="node.isLeaf && node.pageId" class="tree-side-panel__perf">
-        <PerfChart :site-id="props.siteId" :page-id="node.pageId" />
-      </div>
-
       <div class="tree-side-panel__tabs">
+        <button
+          v-if="node.pageId"
+          :class="['tree-side-panel__tab', activeTab === 'performance' && 'tree-side-panel__tab--active']"
+          @click="activeTab = 'performance'"
+        >
+          Performance
+        </button>
         <button
           :class="['tree-side-panel__tab', activeTab === 'regressions' && 'tree-side-panel__tab--active']"
           @click="activeTab = 'regressions'"
@@ -44,25 +47,30 @@
       </div>
 
       <div class="tree-side-panel__content">
-        <div v-if="alertsLoading" class="tree-side-panel__loading">
-          <AppSpinner size="sm" />
-        </div>
-        <div v-else-if="groups.length === 0" class="tree-side-panel__empty">
-          <AppIcon name="shield-check" size="sm" />
-          <span>{{ activeTab === 'regressions' ? 'Aucune régression' : 'Aucune recommandation' }}</span>
-        </div>
-        <AlertGroupCard
-          v-for="group in groups"
-          :key="group.ruleId"
-          :group="group"
-          :loading="loadingRules.has(group.ruleId)"
-          :can-resolve="props.canResolve"
-          :can-ignore="props.canAdmin"
-          @expand="loadAlertsForRule"
-          @resolve-all="resolveAllByRule"
-          @ignore-all="ignoreAllByRule"
-          @resolve="resolveAlert"
-        />
+        <template v-if="activeTab === 'performance' && node.pageId">
+          <PerfChart :key="node.pageId" :site-id="props.siteId" :page-id="node.pageId" />
+        </template>
+        <template v-else>
+          <div v-if="alertsLoading" class="tree-side-panel__loading">
+            <AppSpinner size="sm" />
+          </div>
+          <div v-else-if="groups.length === 0" class="tree-side-panel__empty">
+            <AppIcon name="shield-check" size="sm" />
+            <span>{{ activeTab === 'regressions' ? 'Aucune régression' : 'Aucune recommandation' }}</span>
+          </div>
+          <AlertGroupCard
+            v-for="group in groups"
+            :key="group.ruleId"
+            :group="group"
+            :loading="loadingRules.has(group.ruleId)"
+            :can-resolve="props.canResolve"
+            :can-ignore="props.canAdmin"
+            @expand="loadAlertsForRule"
+            @resolve-all="resolveAllByRule"
+            @ignore-all="ignoreAllByRule"
+            @resolve="resolveAlert"
+          />
+        </template>
       </div>
       </div>
     </div>
@@ -92,7 +100,17 @@ defineEmits<{
 
 const props = defineProps<Props>()
 
-const activeTab = ref<'regressions' | 'recommendations'>('regressions')
+// Onglet par défaut : une régression prime (on la montre direct) ; sinon, si la page
+// a des métriques de perf, on ouvre Performance ; sinon Régressions (vide).
+// Le panneau est remonté à chaque changement de page (key sur le parent), donc ce
+// calcul à l'initialisation suffit — pas besoin de watch.
+function initialTab(): 'regressions' | 'recommendations' | 'performance' {
+  if (props.node && props.node.regressionCount > 0) return 'regressions'
+  if (props.node?.pageId) return 'performance'
+  return 'regressions'
+}
+
+const activeTab = ref<'regressions' | 'recommendations' | 'performance'>(initialTab())
 const alertsLoading = ref(false)
 const copied = ref(false)
 
@@ -384,11 +402,6 @@ onMounted(() => {
     color: $color-gray-400;
   }
 
-  &__perf {
-    padding: $spacing-4 $spacing-5;
-    border-bottom: 1px solid $color-gray-200;
-    flex-shrink: 0;
-  }
 
   &__tabs {
     display: flex;

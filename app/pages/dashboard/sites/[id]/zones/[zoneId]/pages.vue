@@ -142,7 +142,6 @@
                 :data="child"
                 :never-crawled="neverCrawled"
                 @drill="drillInto"
-                @select="selectNode"
               />
             </template>
             <button

@@ -45,7 +45,6 @@ interface Props {
 
 defineEmits<{
   drill: [id: string]
-  select: [id: string]
 }>()
 
 const props = defineProps<Props>()

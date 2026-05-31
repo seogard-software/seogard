@@ -178,6 +178,10 @@ export default defineEventHandler(async (event) => {
             },
           },
           _isDirectChild: { $eq: [{ $size: '$_segments' }, { $add: [drillDepth, 1] }] },
+          // Page sise EXACTEMENT au chemin du groupe : l'index d'un segment
+          // (size==drillDepth+1) OU la page du groupe null (size==drillDepth, ex /blog
+          // quand on a drillé dedans, ou la home à la racine). Exactement 1 par groupe.
+          _isExactPage: { $in: [{ $size: '$_segments' }, [drillDepth, drillDepth + 1]] },
         },
       },
       {
@@ -185,10 +189,12 @@ export default defineEventHandler(async (event) => {
           _id: '$_childSegment',
           path: { $first: '$_childPath' },
           totalPageCount: { $sum: 1 },
-          leafUrl: { $first: { $cond: [{ $and: ['$_isDirectChild', { $ne: ['$_childSegment', null] }] }, '$url', null] } },
-          leafPageId: { $first: { $cond: ['$_isDirectChild', '$_id', null] } },
-          leafStatusCode: { $first: { $cond: ['$_isDirectChild', '$lastStatusCode', null] } },
-          leafMetaTitle: { $first: { $cond: ['$_isDirectChild', '$lastMeta.title', null] } },
+          // $max sur _isExactPage : ignore les null des autres docs et renvoie toujours
+          // la valeur de l'unique page exacte du groupe (page-index incluse), quel que
+          // soit l'ordre du pipeline. $first/_isDirectChild rataient le groupe null.
+          leafPageId: { $max: { $cond: ['$_isExactPage', '$_id', null] } },
+          leafStatusCode: { $max: { $cond: ['$_isExactPage', '$lastStatusCode', null] } },
+          leafMetaTitle: { $max: { $cond: ['$_isExactPage', '$lastMeta.title', null] } },
           directChildCount: { $sum: { $cond: ['$_isDirectChild', 1, 0] } },
         },
       },
@@ -314,6 +320,9 @@ export default defineEventHandler(async (event) => {
 
   const children: TreeNode[] = []
   let drillNodePageCount = 0
+  // pageId de la page qui existe exactement au chemin drillé (page-index de section,
+  // ex /blog) → permet d'afficher sa perf même quand on a drillé dedans (centerNode).
+  let drillNodePageId: string | null = null
 
   for (const group of pageAgg) {
     const segment = group._id as string | null
@@ -334,6 +343,7 @@ export default defineEventHandler(async (event) => {
 
     if (segment === null) {
       drillNodePageCount = group.totalPageCount
+      drillNodePageId = group.leafPageId ? String(group.leafPageId) : null
       // Add the drill-level page(s) as a leaf node (e.g. "/" when drilling "/")
       if (group.totalPageCount > 0) {
         const drillLabel = drill === '/' ? '/' : drill.split('/').pop()!
@@ -372,7 +382,9 @@ export default defineEventHandler(async (event) => {
       healthScore: calcHealthScore(group.totalPageCount, regressions, recommendations, worstSeverity),
       statusCode: isLeaf ? (group.leafStatusCode ?? null) : null,
       metaTitle: isLeaf ? (group.leafMetaTitle ?? null) : null,
-      pageId: isLeaf && group.leafPageId ? String(group.leafPageId) : null,
+      // pageId dès qu'une page existe exactement à ce chemin (page-index de section
+      // comme /blog), pas seulement pour les feuilles → permet d'afficher sa perf.
+      pageId: group.leafPageId ? String(group.leafPageId) : null,
       childrenLoaded: false,
       childrenIds: [],
     })
@@ -408,7 +420,7 @@ export default defineEventHandler(async (event) => {
     healthScore: calcHealthScore(rootTotalPages, rootRegressions, rootRecommendations, rootWorstSeverity),
     statusCode: null,
     metaTitle: null,
-    pageId: null,
+    pageId: drillNodePageId,
     childrenLoaded: true,
     childrenIds,
   }

@@ -1,7 +1,5 @@
 <template>
   <div class="perf-chart">
-    <h4 class="perf-chart__title">Performance</h4>
-
     <div v-if="loading" class="perf-chart__state">Chargement…</div>
     <div v-else-if="error" class="perf-chart__state">{{ error }}</div>
     <div v-else-if="!current" class="perf-chart__state">Pas encore de mesure de performance pour cette page.</div>
@@ -142,13 +140,6 @@ if (import.meta.client) {
 @use '~/assets/styles/variables' as *;
 
 .perf-chart {
-  &__title {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $color-gray-800;
-    margin: 0 0 $spacing-3;
-  }
-
   &__state {
     font-size: $font-size-sm;
     color: $color-gray-500;
