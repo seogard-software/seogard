@@ -1,6 +1,8 @@
 import { chromium, type Browser, type Page } from 'playwright'
 import { createLogger } from './logger'
 import type { PageMeta } from './fetcher'
+import type { PerfMetrics } from '../shared/types/perf'
+import { WEB_VITALS_INIT_SCRIPT, extractPerf } from './perf'
 
 const log = createLogger('renderer')
 
@@ -30,50 +32,68 @@ export async function closeBrowser(): Promise<void> {
 export interface RenderResult {
   renderedMeta: Partial<PageMeta>
   csrContentLength: number
+  perf: PerfMetrics
 }
 
-export async function renderPage(url: string, timeoutMs = 15_000): Promise<RenderResult> {
+// Render complet unique (iso-Google) : on ne bloque AUCUNE ressource (images,
+// fonts, trackers tous chargés) afin de mesurer la performance réelle telle que
+// Google la voit, tout en servant la comparaison SSR/CSR existante.
+// Le ttfbMs vient du fetch HTTP amont (déjà mesuré).
+export async function renderPage(url: string, ttfbMs: number, timeoutMs = 25_000): Promise<RenderResult> {
   if (!browser) await initBrowser()
 
   const start = Date.now()
   const page = await browser!.newPage()
 
   try {
-    // Block heavy resources that slow down rendering and aren't needed for SEO
-    await page.route(/\.(png|jpe?g|gif|webp|avif|svg|woff2?|ttf|eot)(\?.*)?$/i, route => route.abort())
-    await page.route(reqUrl => {
-      const hostname = reqUrl.hostname
-      return hostname.includes('googletagmanager') ||
-        hostname.includes('google-analytics') ||
-        hostname.includes('doubleclick') ||
-        hostname.includes('facebook') ||
-        hostname.includes('hotjar') ||
-        hostname.includes('segment') ||
-        hostname.includes('hubspot')
-    }, route => route.abort())
+    // Injecte la lib web-vitals AVANT navigation pour capter LCP/CLS dès le chargement.
+    await page.addInitScript(WEB_VITALS_INIT_SCRIPT)
 
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: timeoutMs,
-    })
-
-    // Attend que le JS finisse de s'executer (hydration React, Vue, etc.)
-    // networkidle = pas de requete reseau pendant 500ms → le framework a fini de charger
-    // Timeout 3s max : les pages rapides finissent en 100-500ms, les lentes ne bloquent pas
-    await page.waitForLoadState('networkidle', { timeout: 3_000 }).catch(() => {})
+    // domcontentloaded est rapide et fiable : le render ne doit jamais échouer
+    // parce qu'une pub/image pend. On laisse ensuite 'load' + networkidle se faire
+    // au mieux (catch) pour charger les ressources nécessaires à la perf.
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs })
+    await page.waitForLoadState('load', { timeout: 8_000 }).catch(() => {})
+    await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {})
+    // Settle : laisse le LCP/CLS se stabiliser sur la dernière frame.
+    await page.waitForTimeout(1_000)
 
     const html = await page.content()
     const renderedMeta = await extractRenderedMeta(page)
+    // La perf est un bonus best-effort : son échec ne doit JAMAIS casser le render
+    // SEO (comparaison SSR/CSR), qui est le cœur du produit.
+    const perf = await safeExtractPerf(page, ttfbMs)
     const durationMs = Date.now() - start
 
-    log.debug({ url, durationMs, csrContentLength: html.length }, 'page rendered')
+    log.debug({ url, durationMs, csrContentLength: html.length, lcpMs: perf.lcpMs, weightTotalKb: perf.weightTotalKb }, 'page rendered')
 
     return {
       renderedMeta,
       csrContentLength: html.length,
+      perf,
     }
   } finally {
     await page.close()
+  }
+}
+
+async function safeExtractPerf(page: Page, ttfbMs: number): Promise<PerfMetrics> {
+  try {
+    // Force le flush final des web-vitals : LCP se fige quand la page passe en hidden.
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    return await extractPerf(page, ttfbMs)
+  }
+  catch (error) {
+    log.warn({ error: (error as Error).message }, 'perf extraction failed, keeping TTFB only')
+    return {
+      ttfbMs,
+      lcpMs: null, cls: null,
+      weightTotalKb: null, weightHtmlKb: null, weightCssKb: null, weightJsKb: null,
+      weightImgKb: null, weightFontKb: null, weightOtherKb: null, requestCount: null,
+    }
   }
 }
 

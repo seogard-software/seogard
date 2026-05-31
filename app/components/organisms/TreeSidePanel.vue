@@ -22,6 +22,10 @@
         </div>
       </div>
 
+      <div v-if="node.isLeaf && node.pageId" class="tree-side-panel__perf">
+        <PerfChart :site-id="props.siteId" :page-id="node.pageId" />
+      </div>
+
       <div class="tree-side-panel__tabs">
         <button
           :class="['tree-side-panel__tab', activeTab === 'regressions' && 'tree-side-panel__tab--active']"
@@ -378,6 +382,12 @@ onMounted(() => {
   &__header-meta {
     font-size: $font-size-xs;
     color: $color-gray-400;
+  }
+
+  &__perf {
+    padding: $spacing-4 $spacing-5;
+    border-bottom: 1px solid $color-gray-200;
+    flex-shrink: 0;
   }
 
   &__tabs {

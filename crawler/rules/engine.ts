@@ -1,4 +1,5 @@
 import type { PageMeta } from '../fetcher'
+import type { PerfMetrics } from '../../shared/types/perf'
 
 export interface RuleContext {
   pageUrl: string
@@ -12,6 +13,9 @@ export interface RuleContext {
   renderedMeta: Partial<PageMeta> | null
   ssrContentLength: number
   csrContentLength: number | null
+  // Performance (mesuré pendant le render CSR, null en phase SSR)
+  oldPerf?: PerfMetrics | null
+  newPerf?: PerfMetrics | null
   // Site-level context (set once per crawl, shared across pages)
   siteContext?: {
     hasLlmsTxt: boolean

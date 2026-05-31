@@ -1,5 +1,6 @@
 import { createLogger } from './logger'
 import type { PageMeta } from './fetcher'
+import type { PerfMetrics } from '../shared/types/perf'
 import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
 // Import rules for side-effect registration
@@ -16,6 +17,7 @@ import './rules/i18n'
 import './rules/redirect'
 import './rules/recommendations'
 import './rules/geo'
+import './rules/performance'
 
 const log = createLogger('comparator')
 
@@ -31,6 +33,8 @@ export interface CompareInput {
   renderedMeta?: Partial<PageMeta> | null
   ssrContentLength: number
   csrContentLength?: number | null
+  oldPerf?: PerfMetrics | null
+  newPerf?: PerfMetrics | null
   siteContext?: RuleContext['siteContext']
 }
 
@@ -46,6 +50,8 @@ export function compareSnapshots(input: CompareInput): AlertData[] {
     finalUrl: input.finalUrl ?? input.pageUrl,
     renderedMeta: input.renderedMeta ?? null,
     csrContentLength: input.csrContentLength ?? null,
+    oldPerf: input.oldPerf ?? null,
+    newPerf: input.newPerf ?? null,
     siteContext: input.siteContext,
   }
 

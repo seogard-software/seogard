@@ -186,6 +186,7 @@ export default defineEventHandler(async (event) => {
           path: { $first: '$_childPath' },
           totalPageCount: { $sum: 1 },
           leafUrl: { $first: { $cond: [{ $and: ['$_isDirectChild', { $ne: ['$_childSegment', null] }] }, '$url', null] } },
+          leafPageId: { $first: { $cond: ['$_isDirectChild', '$_id', null] } },
           leafStatusCode: { $first: { $cond: ['$_isDirectChild', '$lastStatusCode', null] } },
           leafMetaTitle: { $first: { $cond: ['$_isDirectChild', '$lastMeta.title', null] } },
           directChildCount: { $sum: { $cond: ['$_isDirectChild', 1, 0] } },
@@ -349,6 +350,7 @@ export default defineEventHandler(async (event) => {
           healthScore: calcHealthScore(group.totalPageCount, regressions, recommendations, worstSeverity),
           statusCode: group.leafStatusCode ?? null,
           metaTitle: group.leafMetaTitle ?? null,
+          pageId: group.leafPageId ? String(group.leafPageId) : null,
           childrenLoaded: false,
           childrenIds: [],
         })
@@ -370,6 +372,7 @@ export default defineEventHandler(async (event) => {
       healthScore: calcHealthScore(group.totalPageCount, regressions, recommendations, worstSeverity),
       statusCode: isLeaf ? (group.leafStatusCode ?? null) : null,
       metaTitle: isLeaf ? (group.leafMetaTitle ?? null) : null,
+      pageId: isLeaf && group.leafPageId ? String(group.leafPageId) : null,
       childrenLoaded: false,
       childrenIds: [],
     })
@@ -405,6 +408,7 @@ export default defineEventHandler(async (event) => {
     healthScore: calcHealthScore(rootTotalPages, rootRegressions, rootRecommendations, rootWorstSeverity),
     statusCode: null,
     metaTitle: null,
+    pageId: null,
     childrenLoaded: true,
     childrenIds,
   }

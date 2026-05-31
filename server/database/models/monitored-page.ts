@@ -1,4 +1,5 @@
 import { Schema, model, Types } from 'mongoose'
+import { perfSchema } from './perf-schema'
 
 const metaSchema = new Schema({
   title: String,
@@ -26,6 +27,7 @@ const monitoredPageSchema = new Schema({
   pathname: { type: String, default: '/' },
   lastStatusCode: Number,
   lastMeta: metaSchema,
+  lastPerf: { type: perfSchema, default: null },
   lastRenderedAt: Date,
   lastCheckedAt: Date,
 }, { timestamps: true })

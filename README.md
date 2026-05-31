@@ -26,7 +26,8 @@ SEOGARD monitors every page, every day. SSR and CSR. Alerts you in real-time whe
 
 - **SSR + CSR comparison** — continuous comparison of server-rendered HTML vs JavaScript-rendered output on every page
 - **Real-time alerts** — email, Slack, Teams, Jira when a regression is detected
-- **60+ SEO & GEO rules** — meta tags, canonical, noindex, redirects, structured data, headings, content, AI readiness (llms.txt, robots.txt AI crawlers like GPTBot/ClaudeBot/PerplexityBot)
+- **68+ SEO, GEO & performance rules** — meta tags, canonical, noindex, redirects, structured data, headings, content, AI readiness (llms.txt, robots.txt AI crawlers like GPTBot/ClaudeBot/PerplexityBot)
+- **Core Web Vitals monitoring** — LCP, CLS, server response time (TTFB) and page weight measured on every page, with regression and absolute-threshold alerts using official Google thresholds
 - **CI/CD webhook** — block deploys that break SEO
 - **Scheduled crawls (no CI/CD needed)** — pick a frequency (daily, weekly, biweekly, monthly) and an UTC hour per zone. Seogard runs the crawl automatically and notifies on regressions.
 - **Multi-site, multi-zone** — monitor different sections of your site with different rules

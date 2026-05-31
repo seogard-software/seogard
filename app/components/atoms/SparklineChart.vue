@@ -6,12 +6,12 @@
         v-for="(value, i) in data"
         :key="i"
         class="sparkline-chart__bar-wrapper"
+        :title="barTitles[i]"
       >
         <div
           class="sparkline-chart__bar"
           :style="{ height: barHeight(value) }"
         />
-        <span class="sparkline-chart__day">{{ days[i] }}</span>
       </div>
     </div>
   </div>
@@ -21,13 +21,18 @@
 interface Props {
   data: number[]
   label?: string
+  // Infobulle au survol de chaque barre (ex : "12 mai : 2,3 s").
+  // Pas de libellé visible sous les barres : les points de données sont des crawls
+  // irréguliers, pas des jours fixes — un libellé jour/semaine n'aurait pas de sens.
+  barTitles?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: undefined,
+  barTitles: () => [],
 })
 
-const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+const barTitles = computed<string[]>(() => props.barTitles)
 
 const maxValue = computed(() => Math.max(...props.data, 1))
 
@@ -71,12 +76,6 @@ function barHeight(value: number): string {
     background: $color-accent;
     border-radius: $radius-sm $radius-sm 0 0;
     transition: height $transition-slow;
-  }
-
-  &__day {
-    font-size: $font-size-xs;
-    color: $color-gray-400;
-    margin-top: $spacing-1;
   }
 }
 </style>

@@ -2,6 +2,7 @@ import { Types } from 'mongoose'
 import { Site, Crawl, MonitoredPage, Alert, PageSnapshot, User, Organization, Zone, OrgMember, MutedRule } from '../server/database/models'
 import { createLogger } from './logger'
 import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContext } from './fetcher'
+import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
 import { isSsrBlocked } from './rules/helpers'
@@ -353,6 +354,8 @@ interface PageProcessResult {
   ssrContentLength: number
   ssrMeta: Record<string, string | null>
   ssrBlocked: boolean
+  ttfbMs: number
+  oldPerf: PerfMetrics | null
 }
 
 async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: string, siteCtx?: { current?: SiteContext, old?: SiteContext }, mutedRuleIds?: Set<string>): Promise<PageProcessResult> {
@@ -390,6 +393,8 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
       ssrContentLength: fetchResult.contentLength,
       ssrMeta: fetchResult.meta,
       ssrBlocked: true,
+      ttfbMs: fetchResult.meta.ttfbMs,
+      oldPerf: null,
     }
   }
 
@@ -445,11 +450,13 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
     ssrContentLength: fetchResult.contentLength,
     ssrMeta: fetchResult.meta,
     ssrBlocked: false,
+    ttfbMs: fetchResult.meta.ttfbMs,
+    oldPerf: page.lastPerf ? (page.lastPerf.toObject() as PerfMetrics) : null,
   }
 }
 
 async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, ssrData: PageProcessResult, mutedRuleIds?: Set<string>): Promise<void> {
-  const renderResult = await renderPage(pageUrl)
+  const renderResult = await renderPage(pageUrl, ssrData.ttfbMs)
 
   const csrAlerts = compareSnapshots({
     pageUrl,
@@ -460,6 +467,10 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
     renderedMeta: renderResult.renderedMeta,
     ssrContentLength: ssrData.ssrContentLength,
     csrContentLength: renderResult.csrContentLength,
+    // Régression perf : compare la mesure courante à celle du crawl précédent.
+    // Pas de baseline au 1er crawl → les règles event ne fire pas.
+    oldPerf: ssrData.isFirstCrawl ? null : ssrData.oldPerf,
+    newPerf: renderResult.perf,
   })
 
   if (csrAlerts.length > 0) {
@@ -468,11 +479,12 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
 
   await PageSnapshot.findOneAndUpdate(
     { pageId: ssrData.pageId, crawlId },
-    { csrRendered: true, csrContentLength: renderResult.csrContentLength },
+    { csrRendered: true, csrContentLength: renderResult.csrContentLength, perf: renderResult.perf },
   )
 
   await MonitoredPage.findByIdAndUpdate(ssrData.pageId, {
     lastRenderedAt: new Date(),
+    lastPerf: renderResult.perf,
   })
 }
 

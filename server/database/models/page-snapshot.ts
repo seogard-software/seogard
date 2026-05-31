@@ -1,4 +1,5 @@
 import { Schema, model, Types } from 'mongoose'
+import { perfSchema } from './perf-schema'
 
 const pageSnapshotSchema = new Schema({
   pageId: { type: Types.ObjectId, ref: 'MonitoredPage', required: true, index: true },
@@ -8,6 +9,7 @@ const pageSnapshotSchema = new Schema({
   csrRendered: { type: Boolean, default: false },
   ssrContentLength: { type: Number, required: true },
   csrContentLength: Number,
+  perf: { type: perfSchema, default: null },
 }, { timestamps: true })
 
 // Auto-delete snapshots older than 12 months

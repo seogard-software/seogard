@@ -11,6 +11,7 @@ export interface TreeNode {
   healthScore: number
   statusCode: number | null
   metaTitle: string | null
+  pageId: string | null
   childrenLoaded: boolean
   childrenIds: string[]
 }
