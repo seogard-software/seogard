@@ -54,7 +54,7 @@
             {{ m.label }}
           </button>
         </div>
-        <SparklineChart :data="trend" :bar-titles="trendTitles" :label="`${activeMetricLabel} — 30 derniers jours`" />
+        <SparklineChart :data="trend" :point-titles="trendTitles" :label="`${activeMetricLabel} — 30 derniers jours`" />
       </div>
     </template>
   </div>
@@ -105,7 +105,7 @@ function formatMetric(key: MetricKey, val: number): string {
   return weight(val)
 }
 
-// Infobulle de chaque barre : la date réelle du crawl + la valeur (les crawls sont
+// Infobulle de chaque point : la date réelle du crawl + la valeur (les crawls sont
 // irréguliers, la date est la seule info pertinente, pas un jour de semaine).
 const trendTitles = computed(() => history.value.map((p) => {
   const date = new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
@@ -147,9 +147,9 @@ if (import.meta.client) {
   }
 
   &__badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-2;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-3;
   }
 
   &__note {
@@ -162,10 +162,14 @@ if (import.meta.client) {
     margin-top: $spacing-5;
   }
 
+  // Segmented control : conteneur gris, onglet actif "surélevé" en blanc.
   &__trend-tabs {
-    display: flex;
-    gap: $spacing-1;
-    margin-bottom: $spacing-3;
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    margin-bottom: $spacing-4;
+    background: $color-gray-100;
+    border-radius: $radius-md;
   }
 
   &__trend-tab {
@@ -173,18 +177,18 @@ if (import.meta.client) {
     font-weight: $font-weight-medium;
     color: $color-gray-500;
     background: none;
-    border: 1px solid transparent;
-    border-radius: $radius-md;
+    border: none;
+    border-radius: $radius-sm;
     padding: $spacing-1 $spacing-3;
     cursor: pointer;
-    transition: all $transition-fast;
+    transition: color $transition-fast, background-color $transition-fast, box-shadow $transition-fast;
 
-    &:hover { color: $color-gray-700; }
+    &:hover:not(.perf-chart__trend-tab--active) { color: $color-gray-800; }
 
     &--active {
       color: $color-gray-900;
-      border-color: $color-gray-200;
-      background-color: $color-gray-100;
+      background: $surface-card;
+      box-shadow: $shadow-sm;
     }
   }
 }
