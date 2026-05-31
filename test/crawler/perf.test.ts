@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aggregateWeights, classifyResourceType } from '../../crawler/perf'
+import { aggregateWeights, classifyResourceType, resolveTtfb } from '../../crawler/perf'
 
 describe('classifyResourceType', () => {
   it('classe par initiatorType en priorité', () => {
@@ -51,5 +51,19 @@ describe('aggregateWeights', () => {
     const w = aggregateWeights([], 15 * 1024)
     expect(w.weightTotalKb).toBe(15)
     expect(w.requestCount).toBe(1)
+  })
+})
+
+describe('resolveTtfb', () => {
+  it('utilise le responseStart de la navigation (render chaud) et l\'arrondit', () => {
+    expect(resolveTtfb(236.7, 4000)).toBe(237)
+  })
+
+  it('retombe sur le TTFB SSR si responseStart est null (navigation timing absente)', () => {
+    expect(resolveTtfb(null, 4000)).toBe(4000)
+  })
+
+  it('retombe sur le TTFB SSR si responseStart vaut 0 (mesure invalide)', () => {
+    expect(resolveTtfb(0, 850)).toBe(850)
   })
 })

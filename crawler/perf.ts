@@ -80,23 +80,40 @@ export function aggregateWeights(resources: RawResource[], navTransferSize: numb
   }
 }
 
+// TTFB iso-Google : on prend responseStart de la navigation Playwright (définition
+// canonique de web-vitals.onTTFB), pas le TTFB du fetch SSR amont. Raison : le fetch
+// SSR a déjà réchauffé le cache serveur juste avant ce render → cette mesure est
+// "chaude", représentative du p75 CrUX des vrais visiteurs, et stable crawl-à-crawl.
+// Fallback sur le TTFB SSR si la navigation timing est indisponible (responseStart = 0).
+export function resolveTtfb(navResponseStart: number | null, fallbackMs: number): number {
+  if (navResponseStart != null && navResponseStart > 0) return Math.round(navResponseStart)
+  return fallbackMs
+}
+
 // Lit les métriques de perf depuis la page rendue (après settle).
-// Le TTFB vient du fetch HTTP amont (déjà mesuré), passé en argument.
-export async function extractPerf(page: Page, ttfbMs: number): Promise<PerfMetrics> {
+// fallbackTtfbMs = TTFB du fetch SSR amont, utilisé seulement si la navigation
+// timing du render est indisponible (voir resolveTtfb).
+export async function extractPerf(page: Page, fallbackTtfbMs: number): Promise<PerfMetrics> {
   const raw = await page.evaluate(() => {
     const vitals = (window as unknown as { __seogardPerf?: { lcp: number | null, cls: number | null } }).__seogardPerf
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceResourceTiming | undefined
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     const resources = performance.getEntriesByType('resource').map((e) => {
       const r = e as PerformanceResourceTiming
       return { name: r.name, initiatorType: r.initiatorType, transferSize: r.transferSize, encodedBodySize: r.encodedBodySize }
     })
-    return { lcp: vitals?.lcp ?? null, cls: vitals?.cls ?? null, navTransferSize: nav?.transferSize ?? 0, resources }
+    return {
+      lcp: vitals?.lcp ?? null,
+      cls: vitals?.cls ?? null,
+      navTransferSize: nav?.transferSize ?? 0,
+      navResponseStart: nav?.responseStart ?? null,
+      resources,
+    }
   })
 
   const weights = aggregateWeights(raw.resources, raw.navTransferSize)
 
   return {
-    ttfbMs,
+    ttfbMs: resolveTtfb(raw.navResponseStart, fallbackTtfbMs),
     lcpMs: raw.lcp !== null ? Math.round(raw.lcp) : null,
     cls: raw.cls !== null ? Math.round(raw.cls * 1000) / 1000 : null,
     ...weights,
