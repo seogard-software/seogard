@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 import { MonitoredPage, Alert, Zone } from '~~/server/database/models'
 import { createLogger } from '~~/server/utils/logger'
-import { getTreeCache, setTreeCache } from '~~/server/utils/tree-cache'
+import { getTreeCache, setTreeCache, treeCacheVersion } from '~~/server/utils/tree-cache'
 
 const log = createLogger('web', 'api.zone-tree')
 
@@ -40,11 +40,10 @@ export default defineEventHandler(async (event) => {
   const drill = typeof query.drill === 'string' ? query.drill : '/'
   const limit = typeof query.limit === 'string' ? Math.max(1, Math.min(500, parseInt(query.limit, 10) || 50)) : 50
 
-  // Cache key includes zoneId + lastCrawlAt so a finished crawl invalidates
-  // entries naturally (the crawler updates lastCrawlAt in finalizeCrawl, and
-  // the cache lives in the Nuxt process — they can't invalidate cross-process).
-  const lastCrawlVersion = (site as { lastCrawlAt?: Date }).lastCrawlAt?.getTime() ?? 0
-  const cacheKey = `${id}:${zoneId}:${lastCrawlVersion}`
+  // Clé de cache versionnée (max de lastCrawlAt + pagesUpdatedAt) → un crawl OU une
+  // discovery sitemap invalide naturellement le cache cross-process (le crawler écrit
+  // ces dates dans Mongo, le web les lit ; pas d'invalidation cross-process possible).
+  const cacheKey = `${id}:${zoneId}:${treeCacheVersion(site)}`
   const cached = getTreeCache(cacheKey, drill, limit)
   if (cached) {
     log.info({ siteId: id, zoneId, drill, limit, durationMs: Date.now() - start, cached: true }, 'zone tree response served')

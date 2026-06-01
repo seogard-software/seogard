@@ -31,6 +31,14 @@ export function setTreeCache(siteId: string, drill: string, limit: number, data:
   cache.set(key, { data, expiry: Date.now() + DEFAULT_TTL_MS })
 }
 
+// Version d'invalidation cross-process du cache tree : on l'intègre à la clé de cache.
+// Le crawler (autre process) écrit lastCrawlAt (fin de crawl) et pagesUpdatedAt (fin de
+// discovery sitemap) dans Mongo ; le web les lit → la clé change → cache busté sans
+// appel cross-process. On prend le max des deux : toute évolution des pages invalide.
+export function treeCacheVersion(site: { lastCrawlAt?: Date | null, pagesUpdatedAt?: Date | null }): number {
+  return Math.max(site.lastCrawlAt?.getTime() ?? 0, site.pagesUpdatedAt?.getTime() ?? 0)
+}
+
 export function invalidateTreeCache(siteId: string): void {
   let count = 0
   for (const key of cache.keys()) {

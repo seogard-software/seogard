@@ -263,16 +263,6 @@ async function finalizeCrawl(crawlId: string, siteId: string): Promise<void> {
       pagesFailed: finalProgress.failed,
     })
 
-    // Save site context for next crawl's regression detection
-    const siteUpdate: Record<string, unknown> = { lastCrawlAt: new Date() }
-    if (ctx?.siteContext) {
-      siteUpdate.siteContext = {
-        hasLlmsTxt: ctx.siteContext.hasLlmsTxt,
-        aiCrawlersBlocked: ctx.siteContext.aiCrawlersBlocked,
-      }
-    }
-    await Site.findByIdAndUpdate(siteId, siteUpdate)
-
     log.info({ crawlId, siteId, siteName: ctx?.siteName, pagesScanned: finalProgress.scanned, alertsGenerated: finalProgress.alerts, durationMs }, 'crawl completed')
 
     // Auto-resolve STATE alerts whose page was crawled but problem not re-detected
@@ -304,6 +294,18 @@ async function finalizeCrawl(crawlId: string, siteId: string): Promise<void> {
     catch (error) {
       log.error({ crawlId, siteId, errorCode: 'AUTO_RESOLVE_ERROR', error: (error as Error).message }, 'auto-resolve failed')
     }
+
+    // lastCrawlAt / pagesUpdatedAt posés APRÈS l'auto-resolve : la version du cache tree
+    // ne change qu'une fois TOUTES les alertes finalisées (alertes du crawl + résolutions).
+    // Sinon le cache se purge sur des données intermédiaires → vieilles régressions servies ~30s.
+    const siteUpdate: Record<string, unknown> = { lastCrawlAt: new Date(), pagesUpdatedAt: new Date() }
+    if (ctx?.siteContext) {
+      siteUpdate.siteContext = {
+        hasLlmsTxt: ctx.siteContext.hasLlmsTxt,
+        aiCrawlersBlocked: ctx.siteContext.aiCrawlersBlocked,
+      }
+    }
+    await Site.findByIdAndUpdate(siteId, siteUpdate)
 
     // Send notifications (zone-scoped)
     try {

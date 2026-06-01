@@ -10,6 +10,9 @@ const siteSchema = new Schema({
   apiKey: { type: String, default: () => randomUUID() },
   ciStrictness: { type: String, enum: ['strict', 'standard', 'relaxed'], default: 'standard' },
   lastCrawlAt: Date,
+  // Bumped quand les pages changent SANS crawl (discovery sitemap). Avec lastCrawlAt,
+  // sert de version pour invalider le cache tree cross-process (web ↔ crawler).
+  pagesUpdatedAt: Date,
   discovering: { type: String, enum: ['idle', 'pending', 'running'], default: 'idle' },
   discoveryStartedAt: { type: Date, default: null },
   sitemapBlocked: { type: Boolean, default: false },

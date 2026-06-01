@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 import { MonitoredPage, Alert } from '../../../database/models'
 import { createLogger } from '../../../utils/logger'
-import { getTreeCache, setTreeCache } from '../../../utils/tree-cache'
+import { getTreeCache, setTreeCache, treeCacheVersion } from '../../../utils/tree-cache'
 
 const log = createLogger('web', 'api.tree')
 
@@ -30,8 +30,9 @@ export default defineEventHandler(async (event) => {
   const drill = typeof query.drill === 'string' ? query.drill : '/'
   const limit = typeof query.limit === 'string' ? Math.max(1, Math.min(500, parseInt(query.limit, 10) || 50)) : 50
 
-  // Check cache
-  const cached = getTreeCache(id, drill, limit)
+  // Clé de cache versionnée (crawl + discovery) → invalidation cross-process.
+  const cacheKey = `${id}:${treeCacheVersion(site)}`
+  const cached = getTreeCache(cacheKey, drill, limit)
   if (cached) {
     log.info({ siteId: id, drill, limit, durationMs: Date.now() - start, cached: true }, 'tree response served')
     return cached
@@ -396,7 +397,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Cache result
-  setTreeCache(id, drill, limit, result)
+  setTreeCache(cacheKey, drill, limit, result)
 
   const totalMs = Date.now() - start
   log.info({ siteId: id, drill, limit, totalPages: rootTotalPages, childrenCount: totalChildrenCount, durationMs: totalMs, cached: false }, 'tree response served')

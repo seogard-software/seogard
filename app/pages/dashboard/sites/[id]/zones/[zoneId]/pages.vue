@@ -76,6 +76,27 @@
       <button v-if="canAdmin" class="zone-pages__muted-link" @click="openSiteSettings">Gérer</button>
     </div>
 
+    <!-- First-crawl CTA : pages découvertes mais jamais crawlées → on pousse à lancer
+         le premier crawl (sans crawl, l'utilisateur ne voit pas la valeur du produit). -->
+    <div v-if="showFirstCrawlCta" class="zone-pages__first-crawl">
+      <div class="zone-pages__first-crawl-icon">
+        <AppIcon name="radar" size="md" />
+      </div>
+      <div class="zone-pages__first-crawl-text">
+        <span class="zone-pages__first-crawl-title">Lancez votre premier crawl</span>
+        <span class="zone-pages__first-crawl-sub">
+          {{ centerNode!.totalPageCount.toLocaleString('fr-FR') }} pages découvertes via le sitemap.
+          Lancez un crawl pour détecter les régressions SEO, la performance et les recommandations.
+        </span>
+      </div>
+      <AppButton variant="accent" :loading="crawlLoading" :disabled="!!crawlDisabledReason" @click="launchCrawl">
+        <template #icon-left>
+          <AppIcon name="radar" size="sm" />
+        </template>
+        Lancer le premier crawl
+      </AppButton>
+    </div>
+
     <CrawlProgress v-if="activeCrawl" :crawl="activeCrawl" :progress="crawlProgress" />
 
     <!-- Breadcrumb navigation -->
@@ -425,6 +446,17 @@ async function handleDeleteSite() {
 // Sitemap discovery polling
 const isDiscovering = ref(false)
 let discoveryInterval: ReturnType<typeof setInterval> | null = null
+
+// CTA premier crawl : pages découvertes (sitemap) mais site jamais crawlé → on pousse
+// à lancer le 1er crawl, sinon l'utilisateur ne voit pas la valeur du produit.
+const showFirstCrawlCta = computed(() =>
+  canCrawl.value
+  && neverCrawled.value
+  && !isDiscovering.value
+  && !activeCrawl.value
+  && !billingRequired.value
+  && (centerNode.value?.totalPageCount ?? 0) > 0,
+)
 
 function startDiscoveryPolling() {
   if (discoveryInterval) return

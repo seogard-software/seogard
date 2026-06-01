@@ -358,7 +358,9 @@ async function runDiscovery(siteId: string, siteUrl: string): Promise<void> {
       log.info({ siteId }, 'discovery found no pages')
     }
 
-    await Site.updateOne({ _id: siteId }, { discovering: 'idle', discoveryStartedAt: null, sitemapBlocked })
+    // pagesUpdatedAt bumpé : invalide le cache tree (clé cross-process) pour que les
+    // pages du sitemap apparaissent immédiatement, sans attendre un crawl.
+    await Site.updateOne({ _id: siteId }, { discovering: 'idle', discoveryStartedAt: null, sitemapBlocked, pagesUpdatedAt: new Date() })
   }
   catch (err) {
     log.error({ siteId, errorCode: 'DISCOVERY_ERROR', error: (err as Error).message }, 'discovery failed')
