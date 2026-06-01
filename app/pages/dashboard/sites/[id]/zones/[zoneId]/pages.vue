@@ -274,7 +274,10 @@ const patternsLabel = computed(() => zone.value?.patterns.join(', ') ?? '')
 
 useHead({ title: computed(() => zoneName.value) })
 
-const neverCrawled = computed(() => !currentSite.value?.lastCrawlAt)
+// Basé sur sitesStore.currentSite (rafraîchi par fetchSite au mount ET pendant le polling
+// de discovery), PAS sur activeSite (dérivé de la liste sites, non rafraîchie par le polling)
+// — sinon le CTA premier crawl ne s'actualise pas à la fin de la discovery sans reload.
+const neverCrawled = computed(() => !sitesStore.currentSite?.lastCrawlAt)
 
 const { isSelfHosted } = useDeployment()
 
@@ -367,6 +370,10 @@ setOnCrawlCompleted(async () => {
   await Promise.all([
     fetchTree(),
     authStore.fetchMe(),
+    // Rafraîchit currentSite (lastCrawlAt) → neverCrawled passe à false → le CTA
+    // premier crawl ne réapparaît pas après le crawl. Non-critique (le tree est
+    // l'essentiel) : on avale l'erreur pour ne pas casser le toast de succès.
+    sitesStore.fetchSite(siteId.value).catch(() => {}),
   ])
   if (userTriggeredCrawl.value) {
     toast.success('Crawl terminé !')
