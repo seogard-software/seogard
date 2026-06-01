@@ -1,14 +1,15 @@
 import { createLogger } from './logger'
 import type { PageMeta } from './fetcher'
 import type { PerfMetrics } from '../shared/types/perf'
+import { rateCls, rateLcp, ratePageWeight, rateTtfb } from '../shared/types/perf'
 import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
+import { getH1, getH1Count, getHeadingLevels, hasHierarchySkip } from './rules/heading'
 // Import rules for side-effect registration
 import './rules/meta'
 import './rules/indexing'
 import './rules/status-code'
 import './rules/ssr-csr'
-import './rules/heading'
 import './rules/content'
 import './rules/structured-data'
 import './rules/technical'
@@ -38,11 +39,65 @@ export interface CompareInput {
   siteContext?: RuleContext['siteContext']
 }
 
-export function compareSnapshots(input: CompareInput): AlertData[] {
+export interface CompareResult {
+  alerts: AlertData[]
+  // Règles de régression dont le défaut est RÉPARÉ sur ce crawl → leurs alertes
+  // ouvertes peuvent être auto-résolues (liste blanche RESOLVE_WHEN ci-dessous).
+  clearedRuleIds: string[]
+}
+
+// Prédicats de récupération « la page est-elle SAINE maintenant ? » par règle event.
+// Liste blanche STRICTE de 21 règles.
+// Détection (run()) inchangée : ceci ne sert QU'À résoudre, jamais à créer. Donnée
+// absente → false → alerte conservée (résolution conservatrice, zéro fermeture à tort).
+//
+// VOLONTAIREMENT ABSENTES (résolution MANUELLE — validation humaine) :
+//  - tous les *_changed (title/description/canonical/h1/hreflang/lang/robots/ai_crawlers/word_count)
+//  - canonical_missing, status_code_changed, noindex_added (critiques)
+//  - content_removed : règle RELATIVE — le « réparé » exigerait le nb de mots d'avant
+//    la chute (uniquement dans previousValue, une chaîne d'affichage). On refuse de
+//    parser une chaîne d'affichage pour décider de fermer une alerte → manuel.
+export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
+  // Éléments « disparus » → sains si revenus
+  meta_title_missing: ctx => !!ctx.newMeta.title,
+  meta_description_missing: ctx => !!ctx.newMeta.description,
+  h1_missing: ctx => getH1Count(ctx.newMeta) >= 1,
+  charset_missing: ctx => !!ctx.newMeta.charset,
+  viewport_missing: ctx => !!ctx.newMeta.viewport,
+  lang_attribute_missing: ctx => !!ctx.newMeta.lang,
+  og_image_removed: ctx => !!ctx.newMeta.ogImage,
+  og_title_removed: ctx => !!ctx.newMeta.ogTitle,
+  structured_data_removed: ctx => (ctx.newMeta.jsonLdTypes?.length ?? 0) > 0,
+  structured_data_author_removed: ctx => !!ctx.newMeta.jsonLdAuthor,
+  faq_schema_removed: ctx => ctx.newMeta.hasFaqSchema === true,
+  hreflang_removed: ctx => (ctx.newMeta.hreflangs?.length ?? 0) > 0,
+  llms_txt_removed: ctx => ctx.siteContext?.hasLlmsTxt === true,
+  // Défauts de qualité → sains si corrigés
+  h1_multiple: ctx => getH1Count(ctx.newMeta) <= 1,
+  heading_hierarchy_broken: ctx => !hasHierarchySkip(getHeadingLevels(ctx.newMeta)),
+  title_duplicate_of_h1: (ctx) => {
+    const h1 = getH1(ctx.newMeta)
+    if (!ctx.newMeta.title || !h1) return true // pas de doublon possible → sain
+    return ctx.newMeta.title.trim().toLowerCase() !== h1.trim().toLowerCase()
+  },
+  thin_content: ctx => (ctx.newMeta.wordCount ?? 0) >= 200,
+  // Régressions perf → saines si la métrique est de nouveau « bonne » (seuil Google)
+  perf_lcp_degradation: ctx => ctx.newPerf?.lcpMs != null && rateLcp(ctx.newPerf.lcpMs) === 'good',
+  perf_cls_degradation: ctx => ctx.newPerf?.cls != null && rateCls(ctx.newPerf.cls) === 'good',
+  perf_ttfb_increase: ctx => ctx.newPerf != null && rateTtfb(ctx.newPerf.ttfbMs) === 'good',
+  perf_page_weight_explosion: ctx => ctx.newPerf?.weightTotalKb != null && ratePageWeight(ctx.newPerf.weightTotalKb) === 'good',
+}
+
+// Règles event saines sur ce crawl → leurs alertes ouvertes seront auto-résolues.
+export function clearedRuleIds(ctx: RuleContext): string[] {
+  return Object.keys(RESOLVE_WHEN).filter(id => RESOLVE_WHEN[id]!(ctx))
+}
+
+export function compareSnapshots(input: CompareInput): CompareResult {
   // Skip 429 — rate limiting from the target server, not a real site issue
   if (input.newStatusCode === 429) {
     log.debug({ pageUrl: input.pageUrl }, 'skipping comparison — 429 rate limited')
-    return []
+    return { alerts: [], clearedRuleIds: [] }
   }
 
   const ctx: RuleContext = {
@@ -61,5 +116,8 @@ export function compareSnapshots(input: CompareInput): AlertData[] {
     log.info({ pageUrl: input.pageUrl, alertCount: results.length }, 'alerts generated')
   }
 
-  return results.map(r => ({ ...r, pageUrl: input.pageUrl, category: getRuleCategory(r.type) }))
+  return {
+    alerts: results.map(r => ({ ...r, pageUrl: input.pageUrl, category: getRuleCategory(r.type) })),
+    clearedRuleIds: clearedRuleIds(ctx),
+  }
 }

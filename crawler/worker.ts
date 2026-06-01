@@ -8,7 +8,7 @@ import { compareSnapshots, type AlertData } from './comparator'
 import { isSsrBlocked } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification } from './notifications'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress, getRemainingPages } from './redis'
-import { getRuleCategory, STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
+import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
 
 const log = createLogger('worker')
 
@@ -73,6 +73,19 @@ async function upsertAlerts(siteId: string, crawlId: string, alerts: AlertData[]
   catch (error) {
     log.error({ siteId, crawlId, alertCount: alerts.length, errorCode: 'UPSERT_ALERTS_ERROR', error: (error as Error).message }, 'bulkWrite alerts failed')
   }
+}
+
+// Auto-resolve sélectif des régressions (event) dont le défaut est réparé sur ce crawl.
+// Chemin SÉPARÉ de l'auto-resolve STATE/REC (finalizeCrawl) et de la détection (run()) :
+// on ne fait QUE fermer des alertes ouvertes pour des règles de la liste blanche
+// (cf. RESOLVE_WHEN dans comparator). content_removed en est volontairement EXCLU
+// (règle relative → résolution manuelle).
+async function resolveRecoveredAlerts(siteId: string, pageUrl: string, ruleIds: string[]): Promise<void> {
+  if (ruleIds.length === 0) return
+  await Alert.updateMany(
+    { siteId, pageUrl, ruleId: { $in: ruleIds }, status: 'open' },
+    { $set: { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto' } },
+  )
 }
 
 /**
@@ -398,7 +411,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
     }
   }
 
-  const pageAlerts = compareSnapshots({
+  const { alerts: pageAlerts, clearedRuleIds } = compareSnapshots({
     pageUrl,
     finalUrl: fetchResult.finalUrl,
     oldMeta: page.lastMeta as any,
@@ -419,6 +432,12 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 
   if (pageAlerts.length > 0) {
     await upsertAlerts(siteId, crawlId, pageAlerts, mutedRuleIds)
+  }
+
+  // Auto-resolve sélectif (phase SSR : règles meta/contenu/heading/og/structured/i18n/llms).
+  // Hors 1er crawl : une page neuve n'a pas d'alerte antérieure à résoudre.
+  if (!isFirstCrawl) {
+    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds)
   }
 
   // Stocker MetaCore (version allegee sans les tableaux volumineux : links, images)
@@ -458,7 +477,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, ssrData: PageProcessResult, mutedRuleIds?: Set<string>): Promise<void> {
   const renderResult = await renderPage(pageUrl, ssrData.ttfbMs)
 
-  const csrAlerts = compareSnapshots({
+  const { alerts: csrAlerts, clearedRuleIds } = compareSnapshots({
     pageUrl,
     oldMeta: null,
     newMeta: ssrData.ssrMeta as PageMeta,
@@ -475,6 +494,11 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
 
   if (csrAlerts.length > 0) {
     await upsertAlerts(siteId, crawlId, csrAlerts, mutedRuleIds)
+  }
+
+  // Auto-resolve sélectif (phase CSR : règles perf, dont la métrique est mesurée ici).
+  if (!ssrData.isFirstCrawl) {
+    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds)
   }
 
   await PageSnapshot.findOneAndUpdate(

@@ -5,17 +5,18 @@ import { truncate } from './helpers'
 // --- Helpers to derive old fields from headings[] ---
 
 // Retourne le texte du premier H1 non vide (ignore les <h1></h1>)
-function getH1(meta: PageMeta | null): string | null {
+// Exportés pour réutilisation par les prédicats de récupération (auto-resolve).
+export function getH1(meta: PageMeta | null): string | null {
   const h1 = meta?.headings?.find(h => h.level === 1 && h.text.length > 0)
   return h1?.text ?? null
 }
 
 // Compte uniquement les H1 avec du texte (les H1 vides ne comptent pas comme H1 utiles)
-function getH1Count(meta: PageMeta | null): number {
+export function getH1Count(meta: PageMeta | null): number {
   return meta?.headings?.filter(h => h.level === 1 && h.text.length > 0).length ?? 0
 }
 
-function getHeadingLevels(meta: PageMeta | null): number[] {
+export function getHeadingLevels(meta: PageMeta | null): number[] {
   return meta?.headings?.map(h => h.level) ?? []
 }
 
@@ -128,7 +129,7 @@ registerRule({
   },
 })
 
-function hasHierarchySkip(levels: number[]): boolean {
+export function hasHierarchySkip(levels: number[]): boolean {
   for (let i = 1; i < levels.length; i++) {
     if (levels[i] > levels[i - 1] + 1) return true
   }
