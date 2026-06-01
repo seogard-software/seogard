@@ -10,7 +10,7 @@
         </template>
         Modifier
       </AppButton>
-      <span v-if="canCrawl" :title="crawlDisabledReason ?? undefined">
+      <span v-if="canCrawl && !showFirstCrawlCta" :title="crawlDisabledReason ?? undefined">
         <AppButton data-testid="crawl-button" variant="accent" :loading="crawlLoading" :disabled="!!activeCrawl || !!crawlDisabledReason" @click="launchCrawl">
           <template #icon-left>
             <AppIcon name="radar" size="sm" />
