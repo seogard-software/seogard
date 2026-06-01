@@ -5,7 +5,113 @@ import {
   extractAllImages,
   extractSemanticStructure,
   extractFavicon,
+  extractMetaByName,
+  extractMetaByProperty,
 } from '../../crawler/fetcher'
+import { normalizeForCompare } from '../../crawler/rules/helpers'
+
+// ============================================================
+// Robustesse aux guillemets : une valeur en "..." peut contenir une apostrophe
+// (et inversement). Régression historique : la description SSR était tronquée à
+// la 1re apostrophe (« robot d » au lieu de « robot d'analyse… ») → faux positif
+// ssr_meta_description_mismatch.
+// ============================================================
+
+describe('extraction d\'attributs — apostrophe dans une valeur entre guillemets doubles', () => {
+  it('meta description : ne tronque PAS à l\'apostrophe', () => {
+    const html = `<meta name="description" content="Notre robot d'analyse SEO technique. Guide pour Cloudflare, Akamai et autres pare-feu.">`
+    expect(extractMetaByName(html, 'description')).toBe("Notre robot d'analyse SEO technique. Guide pour Cloudflare, Akamai et autres pare-feu.")
+  })
+
+  it('meta description : ordre content-puis-name', () => {
+    const html = `<meta content="L'outil qui détecte les régressions" name="description">`
+    expect(extractMetaByName(html, 'description')).toBe("L'outil qui détecte les régressions")
+  })
+
+  it('og:description : apostrophe préservée', () => {
+    const html = `<meta property="og:description" content="Détectez l'instant où votre SEO casse.">`
+    expect(extractMetaByProperty(html, 'og:description')).toBe("Détectez l'instant où votre SEO casse.")
+  })
+
+  it('valeur en simple quote contenant un guillemet double', () => {
+    const html = `<meta name="description" content='Il a dit "bonjour" puis est parti'>`
+    expect(extractMetaByName(html, 'description')).toBe('Il a dit "bonjour" puis est parti')
+  })
+
+  it('alt d\'image : apostrophe préservée', () => {
+    const { images } = extractAllImages(`<img src="/p.jpg" alt="Photo d'un coucher de soleil">`)
+    expect(images[0]?.alt).toBe("Photo d'un coucher de soleil")
+  })
+
+  it('valeur absente → null (inchangé)', () => {
+    expect(extractMetaByName('<meta name="robots" content="index">', 'description')).toBeNull()
+  })
+})
+
+describe('extraction d\'attributs — cas tordus (guillemets / apostrophes / entités)', () => {
+  it('1. plusieurs apostrophes dans une valeur en guillemets doubles', () => {
+    const html = `<meta name="description" content="l'outil d'analyse qu'on a conçu pour l'équipe">`
+    expect(extractMetaByName(html, 'description')).toBe("l'outil d'analyse qu'on a conçu pour l'équipe")
+  })
+
+  it('2. apostrophe collée juste avant le guillemet fermant', () => {
+    expect(extractMetaByName(`<meta name="description" content="c'est fini'">`, 'description')).toBe("c'est fini'")
+  })
+
+  it('3. apostrophe en tout début de valeur', () => {
+    expect(extractMetaByName(`<meta name="description" content="'tis la saison des soldes">`, 'description')).toBe("'tis la saison des soldes")
+  })
+
+  it('4. valeur en simple quote contenant plusieurs guillemets doubles', () => {
+    expect(extractMetaByName(`<meta name="description" content='il a dit "a" puis "b" puis "c"'>`, 'description')).toBe('il a dit "a" puis "b" puis "c"')
+  })
+
+  it('5. valeur vide → "" (présente, pas null)', () => {
+    expect(extractMetaByName(`<meta name="description" content="">`, 'description')).toBe('')
+  })
+
+  it('6. entité &#39; conservée BRUTE par l\'extraction (décodée plus tard par normalizeForCompare)', () => {
+    expect(extractMetaByName(`<meta name="description" content="l&#39;outil d&#39;analyse">`, 'description')).toBe('l&#39;outil d&#39;analyse')
+  })
+
+  it('7. entité &amp; conservée brute', () => {
+    expect(extractMetaByName(`<meta name="description" content="Tom &amp; Jerry & Cie">`, 'description')).toBe('Tom &amp; Jerry & Cie')
+  })
+
+  it('8. PAS de débordement sur l\'attribut suivant (lazy s\'arrête au bon guillemet)', () => {
+    const html = `<meta name="description" content="a'b'c" data-foo="ne doit PAS être capturé">`
+    expect(extractMetaByName(html, 'description')).toBe("a'b'c")
+  })
+
+  it('9. ordre inversé content-puis-name, avec apostrophes', () => {
+    expect(extractMetaByName(`<meta content="d'eau pure qu'on aime" name="description">`, 'description')).toBe("d'eau pure qu'on aime")
+  })
+
+  it('10. og:description (property) avec apostrophes', () => {
+    expect(extractMetaByProperty(`<meta property="og:description" content="qu'il s'agit d'un test">`, 'og:description')).toBe("qu'il s'agit d'un test")
+  })
+
+  it('11. og:title (property) en simple quote avec guillemets doubles', () => {
+    expect(extractMetaByProperty(`<meta property="og:title" content='Le "meilleur" outil'>`, 'og:title')).toBe('Le "meilleur" outil')
+  })
+
+  it('12. alt d\'image avec plusieurs apostrophes', () => {
+    const { images } = extractAllImages(`<img src="/x.jpg" alt="photo d'un coucher qu'on adore">`)
+    expect(images[0]?.alt).toBe("photo d'un coucher qu'on adore")
+  })
+
+  it('13. valeur sur plusieurs lignes (retour ligne dans le contenu)', () => {
+    const html = `<meta name="description" content="ligne un\nligne deux d'affilée">`
+    expect(extractMetaByName(html, 'description')).toBe("ligne un\nligne deux d'affilée")
+  })
+
+  it('round-trip anti-faux-positif : extraction brute (entité) PUIS normalizeForCompare == valeur décodée', () => {
+    const ssrRaw = extractMetaByName(`<meta name="description" content="l&#39;outil &amp; l&#39;équipe">`, 'description')
+    const csrDom = "l'outil & l'équipe" // ce que renvoie le DOM (déjà décodé)
+    expect(ssrRaw).toBe('l&#39;outil &amp; l&#39;équipe')
+    expect(normalizeForCompare(ssrRaw!)).toBe(normalizeForCompare(csrDom)) // pas de mismatch
+  })
+})
 
 // ============================================================
 // extractAllHeadings

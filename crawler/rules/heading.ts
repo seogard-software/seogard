@@ -1,6 +1,6 @@
 import type { PageMeta } from '../fetcher'
 import { registerRule } from './engine'
-import { truncate } from './helpers'
+import { normalizeForCompare, truncate } from './helpers'
 
 // --- Helpers to derive old fields from headings[] ---
 
@@ -66,7 +66,8 @@ registerRule({
     const oldH1 = getH1(ctx.oldMeta)
     const newH1 = getH1(ctx.newMeta)
     if (!oldH1 || !newH1) return []
-    if (oldH1 !== newH1) {
+    // Compare normalisé (entités + espaces) → ignore le cosmétique.
+    if (normalizeForCompare(oldH1) !== normalizeForCompare(newH1)) {
       return [{
         type: 'h1_changed',
         severity: 'info',

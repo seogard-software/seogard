@@ -1,5 +1,5 @@
 import { registerRule } from './engine'
-import { truncate } from './helpers'
+import { normalizeForCompare, truncate } from './helpers'
 
 registerRule({
   id: 'meta_title_missing',
@@ -22,7 +22,9 @@ registerRule({
   id: 'meta_title_changed',
   run(ctx) {
     if (!ctx.oldMeta?.title || !ctx.newMeta.title) return []
-    if (ctx.newMeta.title !== ctx.oldMeta.title) {
+    // Compare normalisé (entités décodées + espaces) → ignore le bruit cosmétique,
+    // ne fire que sur un vrai changement de titre.
+    if (normalizeForCompare(ctx.newMeta.title) !== normalizeForCompare(ctx.oldMeta.title)) {
       return [{
         type: 'meta_title_changed',
         severity: 'warning',
@@ -56,7 +58,8 @@ registerRule({
   id: 'meta_description_changed',
   run(ctx) {
     if (!ctx.oldMeta?.description || !ctx.newMeta.description) return []
-    if (ctx.newMeta.description !== ctx.oldMeta.description) {
+    // Compare normalisé (entités + espaces) → ignore le cosmétique.
+    if (normalizeForCompare(ctx.newMeta.description) !== normalizeForCompare(ctx.oldMeta.description)) {
       return [{
         type: 'meta_description_changed',
         severity: 'info',
@@ -90,7 +93,8 @@ registerRule({
   id: 'canonical_changed',
   run(ctx) {
     if (!ctx.oldMeta?.canonical) return []
-    if (!ctx.newMeta.canonical || ctx.newMeta.canonical === ctx.oldMeta.canonical) return []
+    // Compare normalisé : décode &amp; des query strings (comparaison sémantique d'URL) + trim.
+    if (!ctx.newMeta.canonical || normalizeForCompare(ctx.newMeta.canonical) === normalizeForCompare(ctx.oldMeta.canonical)) return []
     return [{
       type: 'canonical_changed',
       severity: 'warning',

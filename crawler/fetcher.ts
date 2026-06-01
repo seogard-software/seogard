@@ -343,36 +343,45 @@ function extractTagContent(html: string, regex: RegExp): string | null {
   return match ? match[1].trim() : null
 }
 
-function extractMetaByName(html: string, name: string): string | null {
-  const r1 = new RegExp(`<meta[^>]+name=["']${name}["'][^>]+content=["']([^"']*)["']`, 'i')
-  const m1 = r1.exec(html)
-  if (m1) return m1[1]
-
-  const r2 = new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+name=["']${name}["']`, 'i')
-  const m2 = r2.exec(html)
-  return m2 ? m2[1] : null
+// Valeur d'un attribut entre guillemets, robuste : on capture le guillemet d'ouverture
+// (groupe 1) puis on le référence (\1) pour fermer. Une valeur en "..." peut donc contenir
+// des apostrophes (et inversement) sans être tronquée. La valeur est dans le groupe 2.
+// Sous-pattern réutilisé dans les regex ci-dessous ; m[idx] = valeur (idx = numéro du groupe suivant le guillemet).
+function extractAttr(tag: string, attr: string): string | null {
+  const m = new RegExp(`${attr}=(["'])([\\s\\S]*?)\\1`, 'i').exec(tag)
+  return m ? m[2] : null
 }
 
-function extractMetaByProperty(html: string, property: string): string | null {
+export function extractMetaByName(html: string, name: string): string | null {
+  const r1 = new RegExp(`<meta[^>]+name=["']${name}["'][^>]+content=(["'])([\\s\\S]*?)\\1`, 'i')
+  const m1 = r1.exec(html)
+  if (m1) return m1[2]
+
+  const r2 = new RegExp(`<meta[^>]+content=(["'])([\\s\\S]*?)\\1[^>]+name=["']${name}["']`, 'i')
+  const m2 = r2.exec(html)
+  return m2 ? m2[2] : null
+}
+
+export function extractMetaByProperty(html: string, property: string): string | null {
   const escaped = property.replace(':', '\\:')
 
-  const r1 = new RegExp(`<meta[^>]+property=["']${escaped}["'][^>]+content=["']([^"']*)["']`, 'i')
+  const r1 = new RegExp(`<meta[^>]+property=["']${escaped}["'][^>]+content=(["'])([\\s\\S]*?)\\1`, 'i')
   const m1 = r1.exec(html)
-  if (m1) return m1[1]
+  if (m1) return m1[2]
 
-  const r2 = new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+property=["']${escaped}["']`, 'i')
+  const r2 = new RegExp(`<meta[^>]+content=(["'])([\\s\\S]*?)\\1[^>]+property=["']${escaped}["']`, 'i')
   const m2 = r2.exec(html)
-  return m2 ? m2[1] : null
+  return m2 ? m2[2] : null
 }
 
 function extractLinkHref(html: string, rel: string): string | null {
-  const r1 = new RegExp(`<link[^>]+rel=["']${rel}["'][^>]+href=["']([^"']*)["']`, 'i')
+  const r1 = new RegExp(`<link[^>]+rel=["']${rel}["'][^>]+href=(["'])([\\s\\S]*?)\\1`, 'i')
   const m1 = r1.exec(html)
-  if (m1) return m1[1]
+  if (m1) return m1[2]
 
-  const r2 = new RegExp(`<link[^>]+href=["']([^"']*)["'][^>]+rel=["']${rel}["']`, 'i')
+  const r2 = new RegExp(`<link[^>]+href=(["'])([\\s\\S]*?)\\1[^>]+rel=["']${rel}["']`, 'i')
   const m2 = r2.exec(html)
-  return m2 ? m2[1] : null
+  return m2 ? m2[2] : null
 }
 
 // --- Headings ---
@@ -414,15 +423,13 @@ export function extractLinks(html: string, pageUrl: string): {
   let match
   while ((match = regex.exec(html)) !== null) {
     const tag = match[0]
-    const hrefMatch = /href=["']([^"']*)["']/i.exec(tag)
-    if (!hrefMatch) continue
+    const rawHref = extractAttr(tag, 'href')
+    if (rawHref === null) continue
 
-    const rawHref = hrefMatch[1]
     // Skip anchors, javascript:, mailto:, tel:
     if (rawHref.startsWith('#') || rawHref.startsWith('javascript:') || rawHref.startsWith('mailto:') || rawHref.startsWith('tel:')) continue
 
-    const relMatch = /rel=["']([^"']*)["']/i.exec(tag)
-    const rel = relMatch ? relMatch[1] : null
+    const rel = extractAttr(tag, 'rel')
 
     // Extract anchor text (content between <a> and </a>)
     const anchorRegex = new RegExp(`${escapeRegex(tag)}([\\s\\S]*?)<\\/a>`, 'i')
@@ -471,14 +478,13 @@ export function extractAllImages(html: string): { images: { src: string; alt: st
   let match
   while ((match = imgRegex.exec(html)) !== null) {
     const tag = match[0]
-    const srcMatch = /src=["']([^"']*)["']/i.exec(tag)
-    if (!srcMatch) continue
+    const src = extractAttr(tag, 'src')
+    if (src === null) continue
 
-    const altMatch = /alt=["']([^"']*)["']/i.exec(tag)
-    const alt = altMatch ? altMatch[1] : null
+    const alt = extractAttr(tag, 'alt')
     const inLink = linkRanges.some(r => match!.index >= r.start && match!.index < r.end)
 
-    images.push({ src: srcMatch[1], alt, inLink })
+    images.push({ src, alt, inLink })
   }
 
   return { images, imgCount: images.length }
@@ -518,8 +524,8 @@ export function extractFavicon(html: string): string | null {
 // --- Existing extraction functions ---
 
 function extractLang(html: string): string | null {
-  const match = /<html[^>]+lang=["']([^"']*)["']/i.exec(html)
-  return match ? match[1] : null
+  const match = /<html[^>]+lang=(["'])([\s\S]*?)\1/i.exec(html)
+  return match ? match[2] : null
 }
 
 function extractCharset(html: string): string | null {
@@ -534,10 +540,10 @@ function extractHreflangs(html: string): { lang: string; href: string }[] {
   while ((match = regex.exec(html)) !== null) {
     const tag = match[0]
     if (!/rel=["']alternate["']/i.test(tag)) continue
-    const hreflangMatch = /hreflang=["']([^"']*)["']/i.exec(tag)
-    const hrefMatch = /href=["']([^"']*)["']/i.exec(tag)
-    if (hreflangMatch && hrefMatch) {
-      results.push({ lang: hreflangMatch[1], href: hrefMatch[1] })
+    const lang = extractAttr(tag, 'hreflang')
+    const href = extractAttr(tag, 'href')
+    if (lang !== null && href !== null) {
+      results.push({ lang, href })
     }
   }
   return results
