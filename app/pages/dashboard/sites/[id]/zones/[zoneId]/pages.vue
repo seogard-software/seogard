@@ -565,6 +565,49 @@ if (import.meta.client) {
     color: $color-warning;
   }
 
+  // CTA premier crawl (variante accent, positive)
+  &__first-crawl {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-4 $spacing-5;
+    margin-bottom: $spacing-4;
+    background: $color-white;
+    border-radius: $radius-lg;
+    box-shadow: 0 0 0 1px rgba($color-accent, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  &__first-crawl-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    background: rgba($color-accent, 0.08);
+    color: $color-accent;
+    flex-shrink: 0;
+  }
+
+  &__first-crawl-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__first-crawl-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-gray-900;
+  }
+
+  &__first-crawl-sub {
+    font-size: $font-size-xs;
+    color: $color-gray-500;
+  }
+
   &__waf-text {
     display: flex;
     flex-direction: column;
