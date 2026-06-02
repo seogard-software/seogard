@@ -7,7 +7,8 @@ import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
 import { isSsrBlocked } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification } from './notifications'
-import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress, getRemainingPages } from './redis'
+import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
+import { isCrawlComplete, claimCrawlFinalization } from './crawl-completion'
 import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
 
 const log = createLogger('worker')
@@ -235,10 +236,12 @@ export async function processPages(crawlId: string): Promise<void> {
     alertsGenerated: finalProgress.alerts,
   })
 
-  // Check if crawl is fully complete (all pages processed by all workers)
-  const remaining = await getRemainingPages(crawlId)
-
-  if (remaining === 0) {
+  // Crawl terminé = toutes les pages ANALYSÉES (scanned ≥ total), PAS file Redis vide :
+  // la file se vide au pop, avant le traitement du dernier batch. Sur la file, on finaliserait
+  // prématurément (alertes du dernier batch pas encore écrites → compteurs qui montent au
+  // refresh) et plusieurs workers finaliseraient (mails en masse). Le claim ci-dessous
+  // garantit en plus l'exactly-once si deux workers franchissent ce point en même temps.
+  if (isCrawlComplete(finalProgress)) {
     await finalizeCrawl(crawlId, siteId)
   }
 }
@@ -246,22 +249,25 @@ export async function processPages(crawlId: string): Promise<void> {
 /**
  * Called once when crawl is fully complete. Handles final stats, auto-resolve, notifications.
  */
-async function finalizeCrawl(crawlId: string, siteId: string): Promise<void> {
+export async function finalizeCrawl(crawlId: string, siteId: string): Promise<void> {
   const ctx = crawlContexts.get(crawlId)
   const durationMs = ctx ? Date.now() - ctx.startedAt : 0
+  let claimed = false
 
   try {
     // Lire les compteurs finaux depuis Redis (pas de countDocuments MongoDB)
     const finalProgress = await getProgress(crawlId)
 
-    await Crawl.findByIdAndUpdate(crawlId, {
-      status: 'completed',
-      completedAt: new Date(),
-      pagesScanned: finalProgress.scanned,
-      alertsGenerated: finalProgress.alerts,
-      pagesBlocked: finalProgress.blocked,
-      pagesFailed: finalProgress.failed,
+    // Claim atomique exactly-once : seul le premier worker passe ce point. Les autres (qui
+    // voient aussi le crawl terminé) reçoivent false et s'arrêtent → un seul auto-resolve,
+    // un seul mail. Robuste cancel-and-restart (statut terminal jamais re-finalisé).
+    claimed = await claimCrawlFinalization(crawlId, {
+      scanned: finalProgress.scanned,
+      alerts: finalProgress.alerts,
+      blocked: finalProgress.blocked,
+      failed: finalProgress.failed,
     })
+    if (!claimed) return
 
     log.info({ crawlId, siteId, siteName: ctx?.siteName, pagesScanned: finalProgress.scanned, alertsGenerated: finalProgress.alerts, durationMs }, 'crawl completed')
 
@@ -349,11 +355,16 @@ async function finalizeCrawl(crawlId: string, siteId: string): Promise<void> {
   }
   catch (error) {
     log.error({ crawlId, siteId, errorCode: 'FINALIZE_CRAWL_ERROR', error: (error as Error).message, durationMs }, 'finalize crawl failed')
-    await Crawl.findByIdAndUpdate(crawlId, {
-      status: 'failed',
-      completedAt: new Date(),
-      error: (error as Error).message,
-    }).catch(() => {})
+    // Ne JAMAIS rétrograder en 'failed' un crawl déjà claim-é 'completed' : il a réellement
+    // abouti (pages scannées, alertes écrites), l'erreur porte sur une étape annexe de
+    // finalisation (déjà loggée). On ne marque 'failed' que si l'échec précède le claim.
+    if (!claimed) {
+      await Crawl.findByIdAndUpdate(crawlId, {
+        status: 'failed',
+        completedAt: new Date(),
+        error: (error as Error).message,
+      }).catch(() => {})
+    }
   }
   finally {
     crawlContexts.delete(crawlId)

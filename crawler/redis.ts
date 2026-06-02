@@ -44,8 +44,9 @@ export async function pushPages(crawlId: string, siteId: string, urls: string[])
   const redis = getRedis()
   const pipeline = redis.pipeline()
 
-  // Store crawl metadata
-  pipeline.hset(CRAWL_META(crawlId), { siteId, totalPages: urls.length.toString() })
+  // Store crawl metadata. lastProgressAt = horodatage de la dernière progression (heartbeat
+  // du watchdog) : initialisé à la création pour servir de base si aucun batch n'avance.
+  pipeline.hset(CRAWL_META(crawlId), { siteId, totalPages: urls.length.toString(), lastProgressAt: Date.now().toString() })
   pipeline.expire(CRAWL_META(crawlId), 86400) // 24h TTL
 
   // Initialize progress counters
@@ -93,6 +94,9 @@ export async function popPageBatch(crawlId: string, count: number): Promise<stri
 
 export async function incrementProgress(crawlId: string, count: number = 1): Promise<number> {
   const redis = getRedis()
+  // Heartbeat de progression : mis à jour à chaque batch analysé. Permet au watchdog de
+  // détecter un crawl figé (workers morts) sans jamais clôturer un crawl encore actif.
+  await redis.hset(CRAWL_META(crawlId), 'lastProgressAt', Date.now().toString())
   return redis.incrby(CRAWL_PROGRESS(crawlId), count)
 }
 
@@ -111,7 +115,7 @@ export async function incrementAlerts(crawlId: string, count: number = 1): Promi
   return redis.incrby(CRAWL_ALERTS(crawlId), count)
 }
 
-export async function getProgress(crawlId: string): Promise<{ scanned: number, dequeued: number, total: number, blocked: number, failed: number, alerts: number }> {
+export async function getProgress(crawlId: string): Promise<{ scanned: number, dequeued: number, total: number, blocked: number, failed: number, alerts: number, lastProgressAt: number }> {
   const redis = getRedis()
   const [scanned, dequeued, blocked, failed, alerts, meta] = await Promise.all([
     redis.get(CRAWL_PROGRESS(crawlId)),
@@ -129,6 +133,7 @@ export async function getProgress(crawlId: string): Promise<{ scanned: number, d
     blocked: Number(blocked) || 0,
     failed: Number(failed) || 0,
     alerts: Number(alerts) || 0,
+    lastProgressAt: Number(meta.lastProgressAt) || 0,
   }
 }
 

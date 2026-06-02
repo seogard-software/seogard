@@ -5,7 +5,8 @@ import { Site, Crawl, MonitoredPage, Organization, User, Zone, Lead  } from '../
 import { extractPathname } from '../server/database/models/monitored-page'
 import { createLogger } from './logger'
 import { initBrowser, closeBrowser, getBrowser } from './renderer'
-import { initCrawl, processPages } from './worker'
+import { initCrawl, processPages, finalizeCrawl } from './worker'
+import { isCrawlStalled } from './crawl-completion'
 import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification, sendEstimateEmail  } from './notifications'
 import { getRedis, disconnectRedis, getActiveCrawls, addActiveCrawl, removeActiveCrawl, claimDistributionLock, clearDistributionLock, pushPages, getRemainingPages, getProgress } from './redis'
 import { discoverPages, setBrowser } from './sitemap'
@@ -16,6 +17,11 @@ import { calculateCloudPrice } from '../shared/utils/pricing'
 const log = createLogger('main')
 
 const POLL_INTERVAL_MS = 1_000
+
+// Watchdog : un crawl dont toutes les pages sont dépilées mais dont l'analyse reste figée
+// sous le total depuis 3 min = workers morts en plein batch. On le clôture quand même
+// (claim atomique → un seul mail). Assez long pour ne jamais couper un gros batch lent.
+const CRAWL_STALE_MS = 3 * 60 * 1000
 
 async function main() {
   log.info({ pollIntervalMs: POLL_INTERVAL_MS }, 'crawler worker starting')
@@ -72,6 +78,17 @@ async function main() {
             if (remaining === 0) {
               const progress = await getProgress(crawlId)
               if (progress.total > 0 && progress.dequeued >= progress.total) {
+                // Watchdog crash : pages dépilées mais analyse figée sous le total depuis
+                // CRAWL_STALE_MS → un worker est mort en plein batch (le déclencheur normal
+                // scanned≥total ne se produira jamais). On finalise quand même via le claim
+                // atomique (sûr, un seul mail). Jamais déclenché en marche normale.
+                if (isCrawlStalled(progress, Date.now(), CRAWL_STALE_MS)) {
+                  const stuck = await Crawl.findById(crawlId).select('siteId').lean()
+                  if (stuck) {
+                    log.warn({ crawlId, scanned: progress.scanned, total: progress.total }, 'crawl stalled (worker crash?) — finalizing via watchdog')
+                    await finalizeCrawl(crawlId, stuck.siteId.toString())
+                  }
+                }
                 await removeActiveCrawl(crawlId)
                 log.info({ crawlId, dequeued: progress.dequeued, scanned: progress.scanned, total: progress.total }, 'crawl fully complete')
               }
