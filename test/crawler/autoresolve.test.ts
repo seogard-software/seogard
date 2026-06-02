@@ -43,6 +43,7 @@ describe('RESOLVE_WHEN — liste blanche figée', () => {
       'hreflang_changed', 'lang_attribute_changed', 'robots_txt_changed',
       'ai_crawlers_blocked_changed', 'word_count_changed',
       'canonical_missing', 'status_code_changed', 'noindex_added', 'content_removed',
+      'robots_blocks_googlebot',
     ]
     for (const id of forbidden) expect(RESOLVE_WHEN[id]).toBeUndefined()
   })

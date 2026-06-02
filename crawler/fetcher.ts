@@ -196,6 +196,9 @@ const AI_CRAWLERS = ['GPTBot', 'ChatGPT-User', 'Anthropic-AI', 'ClaudeBot', 'CCB
 export interface SiteContext {
   hasLlmsTxt: boolean
   aiCrawlersBlocked: string[]
+  // Chemins Disallow non vides qui s'appliquent à Googlebot (groupe `Googlebot` s'il existe,
+  // sinon groupe `*`). Vide = rien bloqué. Sert à détecter une désindexation de section.
+  googlebotBlockedPaths: string[]
   robotsTxtRaw: string | null
 }
 
@@ -204,6 +207,7 @@ export async function fetchSiteContext(siteUrl: string): Promise<SiteContext> {
   let hasLlmsTxt = false
   let robotsTxtRaw: string | null = null
   const aiCrawlersBlocked: string[] = []
+  let googlebotBlockedPaths: string[] = []
 
   // Check /llms.txt
   try {
@@ -230,35 +234,70 @@ export async function fetchSiteContext(siteUrl: string): Promise<SiteContext> {
           aiCrawlersBlocked.push(crawler)
         }
       }
+      googlebotBlockedPaths = getGooglebotDisallows(robotsTxtRaw)
     }
   }
   catch {
     // ignore
   }
 
-  return { hasLlmsTxt, aiCrawlersBlocked, robotsTxtRaw }
+  return { hasLlmsTxt, aiCrawlersBlocked, googlebotBlockedPaths, robotsTxtRaw }
 }
 
-function isDisallowedInRobotsTxt(robotsTxt: string, userAgent: string): boolean {
-  const lines = robotsTxt.split('\n').map(l => l.trim().toLowerCase())
-  let inBlock = false
+// Parse robots.txt en groupes { user-agents, disallows }. Gère les commentaires et les
+// groupes multi-agents. Ne modélise PAS la précédence Allow/Disallow intra-groupe (hors scope).
+function parseRobotsGroups(robotsTxt: string): { agents: string[], disallows: string[] }[] {
+  const groups: { agents: string[], disallows: string[] }[] = []
+  let current: { agents: string[], disallows: string[] } | null = null
+  let lastWasAgent = false
 
-  for (const line of lines) {
-    if (line.startsWith('user-agent:')) {
-      const ua = line.slice('user-agent:'.length).trim()
-      inBlock = ua === userAgent.toLowerCase() || ua === '*'
+  for (const raw of robotsTxt.split('\n')) {
+    const line = raw.replace(/#.*$/, '').trim()
+    if (!line) continue
+    const idx = line.indexOf(':')
+    if (idx === -1) continue
+    const field = line.slice(0, idx).trim().toLowerCase()
+    const value = line.slice(idx + 1).trim()
+
+    if (field === 'user-agent') {
+      // Nouvelle directive user-agent après des règles → nouveau groupe.
+      if (current && !lastWasAgent) {
+        groups.push(current)
+        current = null
+      }
+      if (!current) current = { agents: [], disallows: [] }
+      current.agents.push(value.toLowerCase())
+      lastWasAgent = true
     }
-    else if (line.startsWith('disallow:') && inBlock) {
-      const path = line.slice('disallow:'.length).trim()
-      if (path === '/' || path === '/*') return true
-    }
-    else if (line === '' && inBlock) {
-      // Only reset if we were in a specific UA block (not *)
-      if (inBlock) inBlock = false
+    else {
+      lastWasAgent = false
+      if (field === 'disallow' && current && value) current.disallows.push(value)
     }
   }
+  if (current) groups.push(current)
+  return groups
+}
 
-  return false
+// Chemins Disallow non vides qui s'appliquent à Googlebot. Précédence : un groupe `Googlebot`
+// dédié l'emporte sur le groupe `*` (Googlebot ignore alors `*`). Évite le faux positif où `*`
+// bloque mais un groupe Googlebot dédié autorise.
+export function getGooglebotDisallows(robotsTxt: string): string[] {
+  const groups = parseRobotsGroups(robotsTxt)
+  const googlebot = groups.find(g => g.agents.includes('googlebot'))
+  if (googlebot) return [...new Set(googlebot.disallows)]
+  const wildcard = groups.find(g => g.agents.includes('*'))
+  if (wildcard) return [...new Set(wildcard.disallows)]
+  return []
+}
+
+// Un crawler (IA) est-il entièrement bloqué (Disallow: / ou /*) ? Réutilise le MÊME parser
+// que getGooglebotDisallows (un seul parser robots.txt). Considère le groupe du crawler ET le
+// groupe `*` (un blocage `*` s'applique au crawler s'il n'a pas de groupe dédié).
+export function isDisallowedInRobotsTxt(robotsTxt: string, userAgent: string): boolean {
+  const ua = userAgent.toLowerCase()
+  return parseRobotsGroups(robotsTxt)
+    .filter(g => g.agents.includes(ua) || g.agents.includes('*'))
+    .some(g => g.disallows.some(p => p === '/' || p === '/*'))
 }
 
 // --- Core extraction ---

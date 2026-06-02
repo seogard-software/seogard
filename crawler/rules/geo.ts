@@ -187,6 +187,28 @@ registerRule({
   },
 })
 
+// Désindexation de section : un Disallow couvrant Googlebot (groupe `Googlebot` dédié ou `*`)
+// apparaît sur un chemin précédemment autorisé. Critique : Google peut désindexer la section.
+registerRule({
+  id: 'robots_blocks_googlebot',
+  run(ctx) {
+    if (!ctx.siteContext) return []
+    if (!isSiteAnchor(ctx)) return []
+    const oldPaths = ctx.siteContext.oldGooglebotBlockedPaths
+    if (oldPaths === undefined) return [] // pas de baseline (1er crawl avec ce suivi)
+    const newPaths = ctx.siteContext.googlebotBlockedPaths ?? []
+    const newlyBlocked = newPaths.filter(p => !oldPaths.includes(p))
+    if (newlyBlocked.length === 0) return []
+    return [{
+      type: 'robots_blocks_googlebot',
+      severity: 'critical',
+      message: `robots.txt bloque désormais Googlebot sur : ${newlyBlocked.join(', ')} — risque de désindexation de cette section`,
+      previousValue: oldPaths.length > 0 ? oldPaths.join(', ') : 'aucun blocage',
+      currentValue: newPaths.length > 0 ? newPaths.join(', ') : 'aucun blocage',
+    }]
+  },
+})
+
 registerRule({
   id: 'faq_schema_removed',
   run(ctx) {

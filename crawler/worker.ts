@@ -314,6 +314,7 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
       siteUpdate.siteContext = {
         hasLlmsTxt: ctx.siteContext.hasLlmsTxt,
         aiCrawlersBlocked: ctx.siteContext.aiCrawlersBlocked,
+        googlebotBlockedPaths: ctx.siteContext.googlebotBlockedPaths,
       }
     }
     await Site.findByIdAndUpdate(siteId, siteUpdate)
@@ -437,6 +438,8 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
       oldHasLlmsTxt: siteCtx.old?.hasLlmsTxt,
       aiCrawlersBlocked: siteCtx.current.aiCrawlersBlocked,
       oldAiCrawlersBlocked: siteCtx.old?.aiCrawlersBlocked,
+      googlebotBlockedPaths: siteCtx.current.googlebotBlockedPaths,
+      oldGooglebotBlockedPaths: siteCtx.old?.googlebotBlockedPaths,
       robotsTxtRaw: siteCtx.current.robotsTxtRaw,
       siteRootUrl: siteCtx.rootUrl,
     } : undefined,

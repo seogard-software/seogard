@@ -7,6 +7,8 @@ import {
   extractFavicon,
   extractMetaByName,
   extractMetaByProperty,
+  getGooglebotDisallows,
+  isDisallowedInRobotsTxt,
 } from '../../crawler/fetcher'
 import { normalizeForCompare } from '../../crawler/rules/helpers'
 
@@ -383,5 +385,77 @@ describe('extractFavicon', () => {
   it('handles favicon with type attribute', () => {
     const html = '<link rel="icon" type="image/png" href="/favicon.png">'
     expect(extractFavicon(html)).toBe('/favicon.png')
+  })
+})
+
+describe('getGooglebotDisallows', () => {
+  it('Disallow: / sous User-agent: * → ["/"]', () => {
+    expect(getGooglebotDisallows('User-agent: *\nDisallow: /')).toEqual(['/'])
+  })
+
+  it('Disallow sous User-agent: Googlebot → chemins du groupe Googlebot', () => {
+    expect(getGooglebotDisallows('User-agent: Googlebot\nDisallow: /private\nDisallow: /admin')).toEqual(['/private', '/admin'])
+  })
+
+  it('aucun blocage → []', () => {
+    expect(getGooglebotDisallows('User-agent: *\nDisallow:')).toEqual([])
+    expect(getGooglebotDisallows('User-agent: *\nAllow: /')).toEqual([])
+    expect(getGooglebotDisallows('')).toEqual([])
+  })
+
+  it('précédence : groupe Googlebot dédié l\'emporte sur * (évite le faux positif)', () => {
+    // * bloque tout, mais Googlebot a son propre groupe qui autorise → Googlebot n'est PAS bloqué.
+    const robots = 'User-agent: *\nDisallow: /\n\nUser-agent: Googlebot\nDisallow:'
+    expect(getGooglebotDisallows(robots)).toEqual([])
+  })
+
+  it('précédence : groupe Googlebot avec ses propres Disallow', () => {
+    const robots = 'User-agent: *\nDisallow: /tout\n\nUser-agent: Googlebot\nDisallow: /interdit-google'
+    expect(getGooglebotDisallows(robots)).toEqual(['/interdit-google'])
+  })
+
+  it('ignore les commentaires et tolère la casse', () => {
+    const robots = '# commentaire\nUSER-AGENT: *\nDISALLOW: /x # inline\n'
+    expect(getGooglebotDisallows(robots)).toEqual(['/x'])
+  })
+
+  it('groupe multi-agents (Googlebot listé avec d\'autres)', () => {
+    const robots = 'User-agent: Googlebot\nUser-agent: Bingbot\nDisallow: /shared'
+    expect(getGooglebotDisallows(robots)).toEqual(['/shared'])
+  })
+
+  it('dédoublonne les chemins répétés', () => {
+    expect(getGooglebotDisallows('User-agent: *\nDisallow: /a\nDisallow: /a')).toEqual(['/a'])
+  })
+
+  it('Allow seul (sans Disallow) → []', () => {
+    expect(getGooglebotDisallows('User-agent: Googlebot\nAllow: /public')).toEqual([])
+  })
+})
+
+describe('isDisallowedInRobotsTxt (crawlers IA — blocage complet)', () => {
+  it('crawler entièrement bloqué via son propre groupe → true', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: GPTBot\nDisallow: /', 'GPTBot')).toBe(true)
+  })
+
+  it('crawler bloqué via le groupe * → true', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: *\nDisallow: /', 'GPTBot')).toBe(true)
+  })
+
+  it('blocage partiel (chemin précis, pas /) → false (on ne flag que le blocage complet)', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: GPTBot\nDisallow: /private', 'GPTBot')).toBe(false)
+  })
+
+  it('non bloqué → false', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: *\nDisallow:', 'GPTBot')).toBe(false)
+    expect(isDisallowedInRobotsTxt('', 'GPTBot')).toBe(false)
+  })
+
+  it('groupe multi-agents (le crawler listé avec d\'autres) → true', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: ClaudeBot\nUser-agent: GPTBot\nDisallow: /', 'GPTBot')).toBe(true)
+  })
+
+  it('Disallow: /* compte aussi comme blocage complet', () => {
+    expect(isDisallowedInRobotsTxt('User-agent: *\nDisallow: /*', 'CCBot')).toBe(true)
   })
 })

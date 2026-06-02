@@ -59,6 +59,7 @@ export type AlertType =
   // GEO — monitoring
   | 'llms_txt_removed'
   | 'ai_crawlers_blocked_changed'
+  | 'robots_blocks_googlebot'
   | 'faq_schema_removed'
   | 'structured_data_author_removed'
   // GEO — recommendations

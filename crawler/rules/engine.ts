@@ -22,6 +22,8 @@ export interface RuleContext {
     oldHasLlmsTxt?: boolean
     aiCrawlersBlocked: string[]
     oldAiCrawlersBlocked?: string[]
+    googlebotBlockedPaths?: string[]
+    oldGooglebotBlockedPaths?: string[]
     robotsTxtRaw: string | null
     // URL racine enregistrée du site (normalisée) — ancre des règles site-level.
     siteRootUrl?: string

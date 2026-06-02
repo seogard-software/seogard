@@ -49,6 +49,7 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   // GEO — monitoring
   llms_txt_removed: '/llms.txt supprimé',
   ai_crawlers_blocked_changed: 'Crawlers IA bloqués',
+  robots_blocks_googlebot: 'robots.txt bloque Googlebot',
   faq_schema_removed: 'FAQ schema supprimé',
   structured_data_author_removed: 'Auteur supprimé (JSON-LD)',
   // Recommendations

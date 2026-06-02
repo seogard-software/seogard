@@ -43,6 +43,7 @@ const RULES = [
   // GEO — monitoring
   { id: 'llms_txt_removed', severity: 'info', type: 'site-level', file: 'geo.ts', priority: 'GEO', description: 'Le fichier /llms.txt a été supprimé. Fichier optionnel : aucun grand LLM ne confirme le consommer à ce jour (proposition non adoptée) — utile surtout pour la documentation et les agents, pas un facteur de citation.' },
   { id: 'ai_crawlers_blocked_changed', severity: 'warning', type: 'site-level', file: 'geo.ts', priority: 'GEO', description: 'Le robots.txt bloque de nouveaux crawlers IA. Peut être volontaire (RGPD, contenu premium) ou accidentel.' },
+  { id: 'robots_blocks_googlebot', severity: 'critical', type: 'site-level', file: 'geo.ts', priority: 'P0', description: 'Le robots.txt s\'est mis à bloquer Googlebot (Disallow sous User-agent: Googlebot ou *) sur un chemin auparavant autorisé. Risque de désindexation de toute une section.' },
   { id: 'faq_schema_removed', severity: 'warning', type: 'cross-crawl', file: 'geo.ts', priority: 'GEO', description: 'Le schema FAQPage a été supprimé. Perte de visibilité dans les AI Overviews et les rich snippets FAQ de Google.' },
   { id: 'structured_data_author_removed', severity: 'warning', type: 'cross-crawl', file: 'geo.ts', priority: 'GEO', description: 'L\'auteur a disparu des données structurées. Les IA citent moins les contenus anonymes — perte de crédibilité.' },
   // Recommendations

@@ -1245,6 +1245,72 @@ describe('ai_crawlers_blocked_changed', () => {
   })
 })
 
+describe('robots_blocks_googlebot', () => {
+  const base = { hasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null }
+
+  it('fire quand un Disallow couvrant Googlebot apparaît (auparavant rien)', () => {
+    const r = runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, oldGooglebotBlockedPaths: [], googlebotBlockedPaths: ['/'] },
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('critical')
+    expect(r[0].message).toContain('/')
+  })
+
+  it('ne liste que les chemins NOUVELLEMENT bloqués', () => {
+    const r = runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, oldGooglebotBlockedPaths: ['/old'], googlebotBlockedPaths: ['/old', '/new'] },
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].message).toContain('/new')
+    expect(r[0].message).not.toContain('/old')
+  })
+
+  it('pas de baseline (1er crawl avec ce suivi) → pas de fire', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, googlebotBlockedPaths: ['/'] }, // oldGooglebotBlockedPaths undefined
+    }))).toHaveLength(0)
+  })
+
+  it('aucun changement (mêmes chemins) → pas de fire', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, oldGooglebotBlockedPaths: ['/admin'], googlebotBlockedPaths: ['/admin'] },
+    }))).toHaveLength(0)
+  })
+
+  it('blocage retiré → pas de fire', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, oldGooglebotBlockedPaths: ['/admin'], googlebotBlockedPaths: [] },
+    }))).toHaveLength(0)
+  })
+
+  it('blocage IA uniquement (Googlebot non concerné) → pas de fire', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { ...base, aiCrawlersBlocked: ['GPTBot'], oldGooglebotBlockedPaths: [], googlebotBlockedPaths: [] },
+    }))).toHaveLength(0)
+  })
+
+  it('ne fire pas sur une page non-racine', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/blog',
+      siteContext: { ...base, oldGooglebotBlockedPaths: [], googlebotBlockedPaths: ['/'] },
+    }))).toHaveLength(0)
+  })
+
+  it('fire sur l\'ancre /fr/ via siteRootUrl', () => {
+    expect(runRule('robots_blocks_googlebot', ctx({
+      pageUrl: 'https://example.com/fr/',
+      siteContext: { ...base, siteRootUrl: 'https://example.com/fr/', oldGooglebotBlockedPaths: [], googlebotBlockedPaths: ['/fr/private'] },
+    }))).toHaveLength(1)
+  })
+})
+
 describe('faq_schema_removed', () => {
   it('fires when FAQPage is removed', () => {
     const results = runRule('faq_schema_removed', ctx({

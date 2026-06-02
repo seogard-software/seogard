@@ -17,6 +17,14 @@ const siteSchema = new Schema({
   discoveryStartedAt: { type: Date, default: null },
   sitemapBlocked: { type: Boolean, default: false },
   sitemapInvalidHostname: { type: Boolean, default: false },
+  // Contexte site-level (GEO) du dernier crawl, comparé au crawl suivant pour détecter les
+  // régressions site-level (llms.txt supprimé, crawler IA / Googlebot nouvellement bloqué).
+  // DOIT être déclaré : sinon Mongoose (strict) le strippe à l'écriture → la détection ne marche pas.
+  siteContext: {
+    hasLlmsTxt: Boolean,
+    aiCrawlersBlocked: [String],
+    googlebotBlockedPaths: [String],
+  },
 }, { timestamps: true })
 
 siteSchema.index({ orgId: 1, url: 1 }, { unique: true })
