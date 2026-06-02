@@ -74,15 +74,8 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   rec_faq_schema_missing: 'FAQ schema manquant',
   rec_citation_signals_missing: 'Signaux de citation faibles',
   rec_content_structure_audit: 'Structure de contenu (GEO)',
-  // Performance — régression
-  perf_ttfb_increase: 'Serveur plus lent (TTFB)',
-  perf_lcp_degradation: 'Affichage ralenti (LCP)',
-  perf_cls_degradation: 'Stabilité visuelle dégradée (CLS)',
+  // Performance — poids de page uniquement (LCP/CLS/TTFB = monitoring, sans alerte)
   perf_page_weight_explosion: 'Poids de page en hausse',
-  // Performance — audit absolu
-  rec_perf_lcp_poor: 'Affichage lent (LCP)',
-  rec_perf_cls_poor: 'Page instable (CLS)',
-  rec_perf_ttfb_slow: 'Serveur lent (TTFB)',
   rec_perf_page_heavy: 'Page trop lourde',
 }
 
@@ -106,9 +99,8 @@ export const RECOMMENDATION_RULES: Set<string> = new Set([
   'rec_llms_txt_missing', 'rec_ai_crawlers_blocked',
   'rec_structured_data_incomplete', 'rec_faq_schema_missing',
   'rec_citation_signals_missing', 'rec_content_structure_audit',
-  // Performance — audit absolu (les 4 perf_* sans préfixe rec_ sont des event)
-  'rec_perf_lcp_poor', 'rec_perf_cls_poor',
-  'rec_perf_ttfb_slow', 'rec_perf_page_heavy',
+  // Performance — audit poids uniquement (LCP/CLS/TTFB = monitoring, sans alerte)
+  'rec_perf_page_heavy',
 ])
 
 export function getRuleCategory(ruleId: string): AlertCategory {

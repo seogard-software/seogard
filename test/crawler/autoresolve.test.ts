@@ -20,20 +20,20 @@ const HEALTHY = ctx(
   { siteContext: { hasLlmsTxt: true }, newPerf: { lcpMs: 1000, cls: 0.02, ttfbMs: 200, weightTotalKb: 500 } },
 )
 
-// Les 21 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
-// accidentel (notamment des règles à validation humaine).
+// Les 18 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
+// accidentel. LCP/CLS/TTFB n'y sont PAS : ce sont du monitoring, sans alerte donc rien à
+// auto-résoudre. Seul perf_page_weight_explosion (poids déterministe) reste côté perf.
 const EXPECTED_KEYS = [
   'charset_missing', 'faq_schema_removed', 'h1_missing', 'h1_multiple',
   'heading_hierarchy_broken', 'hreflang_removed', 'lang_attribute_missing',
   'llms_txt_removed', 'meta_description_missing', 'meta_title_missing',
-  'og_image_removed', 'og_title_removed', 'perf_cls_degradation',
-  'perf_lcp_degradation', 'perf_page_weight_explosion', 'perf_ttfb_increase',
+  'og_image_removed', 'og_title_removed', 'perf_page_weight_explosion',
   'structured_data_author_removed', 'structured_data_removed', 'thin_content',
   'title_duplicate_of_h1', 'viewport_missing',
 ].sort()
 
 describe('RESOLVE_WHEN — liste blanche figée', () => {
-  it('contient EXACTEMENT les 21 règles attendues', () => {
+  it('contient EXACTEMENT les 18 règles attendues', () => {
     expect(Object.keys(RESOLVE_WHEN).sort()).toEqual(EXPECTED_KEYS)
   })
 
@@ -49,7 +49,7 @@ describe('RESOLVE_WHEN — liste blanche figée', () => {
 })
 
 describe('clearedRuleIds — agrégation', () => {
-  it('état 100 % sain (avec perf) → les 21 règles', () => {
+  it('état 100 % sain (avec perf) → les 18 règles', () => {
     expect(clearedRuleIds(HEALTHY).sort()).toEqual(EXPECTED_KEYS)
   })
 
@@ -68,7 +68,7 @@ describe('clearedRuleIds — agrégation', () => {
     const cleared = clearedRuleIds(broken)
     // h1_missing/h1_multiple/heading/title_duplicate restent "sains" sur une page sans titre ni H1
     // (pas de défaut de ce type), mais AUCUNE des règles "présence/perf" cassées n'est fermée :
-    for (const id of ['meta_title_missing', 'meta_description_missing', 'charset_missing', 'viewport_missing', 'lang_attribute_missing', 'og_image_removed', 'og_title_removed', 'structured_data_removed', 'structured_data_author_removed', 'faq_schema_removed', 'hreflang_removed', 'thin_content', 'perf_lcp_degradation', 'perf_cls_degradation', 'perf_ttfb_increase', 'perf_page_weight_explosion']) {
+    for (const id of ['meta_title_missing', 'meta_description_missing', 'charset_missing', 'viewport_missing', 'lang_attribute_missing', 'og_image_removed', 'og_title_removed', 'structured_data_removed', 'structured_data_author_removed', 'faq_schema_removed', 'hreflang_removed', 'thin_content', 'perf_page_weight_explosion']) {
       expect(cleared).not.toContain(id)
     }
   })
@@ -166,25 +166,6 @@ describe('RESOLVE_WHEN — prédicats (sain → true, cassé → false, donnée 
     expect(RESOLVE_WHEN.thin_content!(ctx({ wordCount: 250 }))).toBe(true)
     expect(RESOLVE_WHEN.thin_content!(ctx({ wordCount: 200 }))).toBe(true) // borne incluse
     expect(RESOLVE_WHEN.thin_content!(ctx({ wordCount: 199 }))).toBe(false)
-  })
-
-  it('perf_lcp_degradation (good < 2,5 s)', () => {
-    expect(RESOLVE_WHEN.perf_lcp_degradation!(ctx({}, { newPerf: { lcpMs: 1800 } }))).toBe(true)
-    expect(RESOLVE_WHEN.perf_lcp_degradation!(ctx({}, { newPerf: { lcpMs: 5000 } }))).toBe(false)
-    expect(RESOLVE_WHEN.perf_lcp_degradation!(ctx({}, { newPerf: { lcpMs: null } }))).toBe(false)
-    expect(RESOLVE_WHEN.perf_lcp_degradation!(ctx({}))).toBe(false)
-  })
-
-  it('perf_cls_degradation (good ≤ 0,1)', () => {
-    expect(RESOLVE_WHEN.perf_cls_degradation!(ctx({}, { newPerf: { cls: 0.05 } }))).toBe(true)
-    expect(RESOLVE_WHEN.perf_cls_degradation!(ctx({}, { newPerf: { cls: 0.4 } }))).toBe(false)
-    expect(RESOLVE_WHEN.perf_cls_degradation!(ctx({}))).toBe(false)
-  })
-
-  it('perf_ttfb_increase (good < 800 ms)', () => {
-    expect(RESOLVE_WHEN.perf_ttfb_increase!(ctx({}, { newPerf: { ttfbMs: 300 } }))).toBe(true)
-    expect(RESOLVE_WHEN.perf_ttfb_increase!(ctx({}, { newPerf: { ttfbMs: 2500 } }))).toBe(false)
-    expect(RESOLVE_WHEN.perf_ttfb_increase!(ctx({}))).toBe(false)
   })
 
   it('perf_page_weight_explosion (good < 1,6 MB)', () => {

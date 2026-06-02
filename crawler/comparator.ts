@@ -1,7 +1,7 @@
 import { createLogger } from './logger'
 import type { PageMeta } from './fetcher'
 import type { PerfMetrics } from '../shared/types/perf'
-import { rateCls, rateLcp, ratePageWeight, rateTtfb } from '../shared/types/perf'
+import { ratePageWeight } from '../shared/types/perf'
 import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
 import { getH1, getH1Count, getHeadingLevels, hasHierarchySkip } from './rules/heading'
@@ -47,7 +47,7 @@ export interface CompareResult {
 }
 
 // Prédicats de récupération « la page est-elle SAINE maintenant ? » par règle event.
-// Liste blanche STRICTE de 21 règles.
+// Liste blanche STRICTE de 18 règles.
 // Détection (run()) inchangée : ceci ne sert QU'À résoudre, jamais à créer. Donnée
 // absente → false → alerte conservée (résolution conservatrice, zéro fermeture à tort).
 //
@@ -81,10 +81,8 @@ export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
     return ctx.newMeta.title.trim().toLowerCase() !== h1.trim().toLowerCase()
   },
   thin_content: ctx => (ctx.newMeta.wordCount ?? 0) >= 200,
-  // Régressions perf → saines si la métrique est de nouveau « bonne » (seuil Google)
-  perf_lcp_degradation: ctx => ctx.newPerf?.lcpMs != null && rateLcp(ctx.newPerf.lcpMs) === 'good',
-  perf_cls_degradation: ctx => ctx.newPerf?.cls != null && rateCls(ctx.newPerf.cls) === 'good',
-  perf_ttfb_increase: ctx => ctx.newPerf != null && rateTtfb(ctx.newPerf.ttfbMs) === 'good',
+  // Régression perf (poids déterministe) → saine si le poids est de nouveau « bon ».
+  // LCP/CLS/TTFB ne sont PAS ici : monitoring pur, sans alerte donc rien à auto-résoudre.
   perf_page_weight_explosion: ctx => ctx.newPerf?.weightTotalKb != null && ratePageWeight(ctx.newPerf.weightTotalKb) === 'good',
 }
 

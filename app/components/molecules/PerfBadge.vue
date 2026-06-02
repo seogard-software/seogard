@@ -27,11 +27,37 @@
     <span class="perf-badge__value">{{ value }}</span>
 
     <div class="perf-badge__foot">
-      <span v-if="abbr" class="perf-badge__abbr">{{ abbr }}</span>
+      <div class="perf-badge__foot-left">
+        <span v-if="abbr" class="perf-badge__abbr">{{ abbr }}</span>
+        <!-- Flag "Synthétique" : uniquement sur les métriques temporelles (LCP/CLS/TTFB),
+             jamais sur le poids (déterministe). Popin explicative au survol / clic. -->
+        <div v-if="synthetic" class="perf-badge__info-wrap">
+          <button
+            type="button"
+            class="perf-badge__flag"
+            :class="{ 'perf-badge__flag--open': openSyn }"
+            aria-label="Qu'est-ce qu'une mesure synthétique ?"
+            @click.stop="openSyn = !openSyn"
+          >
+            Synthétique
+          </button>
+          <div
+            class="perf-badge__popover perf-badge__popover--syn"
+            :class="{ 'perf-badge__popover--open': openSyn }"
+            role="tooltip"
+          >
+            <strong class="perf-badge__popover-abbr">Mesure synthétique</strong>
+            Réalisée par notre crawler en conditions labo (un passage par crawl), pas par vos
+            vrais visiteurs. La valeur varie d'un crawl à l'autre — la carte affiche la médiane,
+            le graphe la tendance. Google classe sur les données terrain (utilisateurs réels) ;
+            INP non mesurable en synthétique.
+          </div>
+        </div>
+      </div>
       <span class="perf-badge__rating" :class="`perf-badge__rating--${rating}`">{{ ratingLabel }}</span>
     </div>
 
-    <div v-if="open" class="perf-badge__backdrop" @click="open = false" />
+    <div v-if="open || openSyn" class="perf-badge__backdrop" @click="open = false; openSyn = false" />
   </div>
 </template>
 
@@ -44,11 +70,13 @@ interface Props {
   rating: WebVitalRating // good / needs-improvement / poor
   hint: string           // explication métier affichée dans le popover
   abbr?: string          // terme technique (LCP, CLS, TTFB), affiché discrètement
+  synthetic?: boolean    // métrique mesurée en synthétique (LCP/CLS/TTFB) → flag + popin
 }
 
-const props = withDefaults(defineProps<Props>(), { abbr: '' })
+const props = withDefaults(defineProps<Props>(), { abbr: '', synthetic: false })
 
 const open = ref(false)
+const openSyn = ref(false)
 
 const RATING_LABELS: Record<WebVitalRating, string> = {
   'good': 'Bon',
@@ -153,6 +181,13 @@ const ratingLabel = computed(() => RATING_LABELS[props.rating])
       visibility: visible;
       transform: translateY(0);
     }
+
+    // Flag synthétique en bas-gauche → popover ancré à gauche, ouvert vers le BAS
+    // (comme le ?), sinon il dépasse le haut du panneau et se fait couper.
+    &--syn {
+      left: 0;
+      right: auto;
+    }
   }
 
   &__popover-abbr {
@@ -172,12 +207,19 @@ const ratingLabel = computed(() => RATING_LABELS[props.rating])
     line-height: $line-height-tight;
   }
 
-  // ── Foot : abréviation + chip d'état ──
+  // ── Foot : abréviation + flag synthétique (gauche) · chip d'état (droite) ──
   &__foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: $spacing-2;
+  }
+
+  &__foot-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    min-width: 0;
   }
 
   &__abbr {
@@ -186,6 +228,25 @@ const ratingLabel = computed(() => RATING_LABELS[props.rating])
     color: $color-gray-400;
     text-transform: uppercase;
     font-weight: $font-weight-medium;
+  }
+
+  &__flag {
+    font-size: 10px;
+    font-weight: $font-weight-medium;
+    letter-spacing: 0.02em;
+    color: $color-gray-500;
+    background: $color-gray-100;
+    border: none;
+    border-radius: $radius-full;
+    padding: 1px 7px;
+    cursor: help;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    &:hover,
+    &--open {
+      background: $color-gray-200;
+      color: $color-gray-700;
+    }
   }
 
   &__rating {

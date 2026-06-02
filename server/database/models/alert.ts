@@ -75,15 +75,8 @@ const ALERT_TYPES = [
   'rec_faq_schema_missing',
   'rec_citation_signals_missing',
   'rec_content_structure_audit',
-  // Performance — régression (performance.ts)
-  'perf_ttfb_increase',
-  'perf_lcp_degradation',
-  'perf_cls_degradation',
+  // Performance — poids de page uniquement (LCP/CLS/TTFB = monitoring, sans alerte)
   'perf_page_weight_explosion',
-  // Performance — audit absolu (performance.ts)
-  'rec_perf_lcp_poor',
-  'rec_perf_cls_poor',
-  'rec_perf_ttfb_slow',
   'rec_perf_page_heavy',
 ] as const
 

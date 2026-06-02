@@ -68,15 +68,8 @@ const RULES = [
   { id: 'rec_faq_schema_missing', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Pas de schema FAQPage alors que la page a du contenu (> 300 mots). Les FAQ augmentent les chances d\'apparaître dans les AI Overviews.' },
   { id: 'rec_citation_signals_missing', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Plusieurs signaux de citation manquent (auteur, date, sources). Les IA privilégient les contenus attribuables et datés.' },
   { id: 'rec_content_structure_audit', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Le contenu n\'a ni sous-titres (H2) ni listes. Les IA extraient mieux l\'information quand le contenu est bien structuré.' },
-  // Performance — régression (vs crawl précédent)
-  { id: 'perf_ttfb_increase', severity: 'warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF', description: 'Le serveur répond plus lentement qu\'au crawl précédent. Un serveur lent ralentit le chargement de toute la page.' },
-  { id: 'perf_lcp_degradation', severity: 'warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF', description: 'L\'affichage du contenu principal (LCP) s\'est dégradé. Au-delà de 2,5 s, Google considère la page comme lente et peut la faire reculer dans les résultats.' },
-  { id: 'perf_cls_degradation', severity: 'warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF', description: 'La page bouge davantage pendant le chargement (CLS dégradé). Mauvais pour l\'expérience visiteur et pénalisé par Google.' },
+  // Performance — poids de page (LCP/CLS/TTFB = monitoring synthétique, sans alerte)
   { id: 'perf_page_weight_explosion', severity: 'warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF', description: 'Le poids de la page a fortement augmenté. Une page lourde charge lentement, surtout sur mobile et en 4G.' },
-  // Performance — audit absolu
-  { id: 'rec_perf_lcp_poor', severity: 'info/warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF-REC', description: 'La page met plus de 2,5 s à afficher son contenu principal (LCP). Une page lente perd des positions Google et des visiteurs.' },
-  { id: 'rec_perf_cls_poor', severity: 'info/warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF-REC', description: 'Le contenu de la page se décale pendant le chargement (CLS). Les visiteurs cliquent au mauvais endroit et Google pénalise les pages instables.' },
-  { id: 'rec_perf_ttfb_slow', severity: 'info', type: 'within-crawl', file: 'performance.ts', priority: 'PERF-REC', description: 'Le serveur met plus de 800 ms à répondre (TTFB). Un hébergement ou un cache plus rapide accélérerait tout le site.' },
   { id: 'rec_perf_page_heavy', severity: 'info/warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF-REC', description: 'La page dépasse 1,6 MB (seuil Lighthouse), excessif au-delà de 5 MB. Compresser les images et alléger le JavaScript accélérerait son chargement.' },
 ].map(r => ({
   ...r,

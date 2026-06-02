@@ -7,27 +7,31 @@
     <template v-else>
       <div class="perf-chart__badges">
         <PerfBadge
-          v-if="current.lcpMs != null"
+          v-if="medianLcp != null"
           label="Affichage du contenu"
           abbr="LCP"
-          hint="Temps avant l'affichage du contenu principal de la page. Bon en dessous de 2,5 s, lent au-delà de 4 s. Facteur de classement Google."
-          :value="seconds(current.lcpMs)"
-          :rating="rateLcp(current.lcpMs)"
+          synthetic
+          hint="Temps avant l'affichage du contenu principal. Bon en dessous de 2,5 s. Facteur de classement Google."
+          :value="seconds(medianLcp)"
+          :rating="rateLcp(medianLcp)"
         />
         <PerfBadge
-          v-if="current.cls != null"
+          v-if="medianCls != null"
           label="Stabilité visuelle"
           abbr="CLS"
+          synthetic
           hint="Mesure si la page bouge pendant le chargement (le contenu qui saute). Bon en dessous de 0,1. Facteur de classement Google."
-          :value="decimal(current.cls)"
-          :rating="rateCls(current.cls)"
+          :value="decimal(medianCls)"
+          :rating="rateCls(medianCls)"
         />
         <PerfBadge
+          v-if="medianTtfb != null"
           label="Réponse serveur"
           abbr="TTFB"
+          synthetic
           hint="Temps que met votre serveur à répondre. Bon en dessous de 800 ms ; un serveur lent ralentit toute la page."
-          :value="`${current.ttfbMs} ms`"
-          :rating="rateTtfb(current.ttfbMs)"
+          :value="`${medianTtfb} ms`"
+          :rating="rateTtfb(medianTtfb)"
         />
         <PerfBadge
           v-if="current.weightTotalKb != null"
@@ -37,10 +41,6 @@
           :rating="ratePageWeight(current.weightTotalKb)"
         />
       </div>
-
-      <p class="perf-chart__note">
-        INP non mesuré : cette métrique nécessite des données de vrais visiteurs (terrain).
-      </p>
 
       <div v-if="trend.length > 1" class="perf-chart__trend">
         <div class="perf-chart__trend-tabs">
@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import type { PerfMetrics } from '~~/shared/types/perf'
 import { ratePageWeight, rateCls, rateLcp, rateTtfb } from '~~/shared/types/perf'
+import { median } from '~~/shared/utils/median'
 
 interface Props {
   siteId: string
@@ -98,6 +99,18 @@ function weight(kb: number): string {
 function decimal(n: number): string {
   return String(n).replace('.', ',')
 }
+
+// Médiane d'une métrique sur la fenêtre affichée. Robuste aux pics aberrants du synthétique
+// one-shot (la moyenne serait faussée par un LCP à 11 s isolé). Fallback sur la dernière
+// mesure si pas d'historique (1er crawl). → carte stable, jamais alarmante.
+function medianMetric(key: 'lcpMs' | 'cls' | 'ttfbMs'): number | null {
+  const vals = history.value.map(p => p.perf[key]).filter((v): v is number => v != null)
+  return median(vals) ?? current.value?.[key] ?? null
+}
+
+const medianLcp = computed(() => { const m = medianMetric('lcpMs'); return m == null ? null : Math.round(m) })
+const medianTtfb = computed(() => { const m = medianMetric('ttfbMs'); return m == null ? null : Math.round(m) })
+const medianCls = computed(() => { const m = medianMetric('cls'); return m == null ? null : Math.round(m * 1000) / 1000 })
 
 function formatMetric(key: MetricKey, val: number): string {
   if (key === 'lcpMs') return seconds(val)
@@ -150,12 +163,6 @@ if (import.meta.client) {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: $spacing-3;
-  }
-
-  &__note {
-    font-size: $font-size-xs;
-    color: $color-gray-400;
-    margin: $spacing-3 0 0;
   }
 
   &__trend {
