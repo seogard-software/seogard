@@ -23,9 +23,7 @@ const templateId = computed(() => route.params.template as string)
 
 const LABELS: Record<string, string> = {
   'welcome': 'Bienvenue',
-  'alert-critical': 'Alertes critiques',
-  'daily-digest': 'Rapport quotidien (avec régressions)',
-  'daily-digest-ok': 'Rapport quotidien (tout OK)',
+  'crawl-report': 'Rapport de crawl (régressions + réparations)',
   'log-digest': 'Digest logs workers',
   'sitemap-blocked': 'Sitemap bloqué (WAF)',
   'sitemap-invalid-hostname': 'Sitemap mauvais hostname',

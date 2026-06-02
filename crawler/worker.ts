@@ -6,7 +6,8 @@ import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
 import { isSsrBlocked } from './rules/helpers'
-import { sendEmailNotification, sendCrawlerBlockedNotification } from './notifications'
+import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification } from './notifications'
+import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
 import { isCrawlComplete, claimCrawlFinalization } from './crawl-completion'
 import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
@@ -81,11 +82,11 @@ async function upsertAlerts(siteId: string, crawlId: string, alerts: AlertData[]
 // on ne fait QUE fermer des alertes ouvertes pour des règles de la liste blanche
 // (cf. RESOLVE_WHEN dans comparator). content_removed en est volontairement EXCLU
 // (règle relative → résolution manuelle).
-async function resolveRecoveredAlerts(siteId: string, pageUrl: string, ruleIds: string[]): Promise<void> {
+async function resolveRecoveredAlerts(siteId: string, pageUrl: string, ruleIds: string[], crawlId: string): Promise<void> {
   if (ruleIds.length === 0) return
   await Alert.updateMany(
     { siteId, pageUrl, ruleId: { $in: ruleIds }, status: 'open' },
-    { $set: { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto' } },
+    { $set: { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto', resolvedCrawlId: crawlId } },
   )
 }
 
@@ -291,7 +292,7 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
       if (toResolve.length > 0) {
         await Alert.updateMany(
           { _id: { $in: toResolve.map(a => a._id) } },
-          { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto' },
+          { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto', resolvedCrawlId: crawlId },
         )
         log.info({ siteId, autoResolved: toResolve.length }, 'auto-resolved state alerts')
       }
@@ -322,19 +323,12 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
         const zoneName = zone && !zone.isDefault ? zone.name : null
         const zoneId = crawlForNotif?.zoneId?.toString() || null
 
-        const allAlerts = await Alert.find({ siteId, lastCrawlId: crawlId }).lean()
-        const criticalOrWarning = allAlerts.filter(a => a.severity === 'critical' || a.severity === 'warning')
+        // Alertes actives de ce crawl + régressions réparées DANS ce crawl (event/state).
+        // Le tri régression/réparée/reco + le déclencheur vivent dans sendNotifications.
+        const allAlerts = await Alert.find({ siteId, lastCrawlId: crawlId }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
+        const fixedAlerts = await Alert.find({ siteId, status: 'resolved', resolvedCrawlId: crawlId, category: { $in: ['event', 'state'] } }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
 
-        if (criticalOrWarning.length > 0) {
-          await sendNotifications(site, allAlerts.map(a => ({
-            pageUrl: a.pageUrl,
-            type: a.ruleId,
-            severity: a.severity as 'critical' | 'warning' | 'info',
-            message: a.message,
-            previousValue: a.previousValue || null,
-            currentValue: a.currentValue || null,
-          })), { zoneName, zoneId })
-        }
+        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId })
 
         // Send "crawler blocked" notification if >10% pages blocked
         if (crawlForNotif && crawlForNotif.pagesTotal > 0 && crawlForNotif.pagesBlocked > 0) {
@@ -450,7 +444,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
   // Auto-resolve sélectif (phase SSR : règles meta/contenu/heading/og/structured/i18n/llms).
   // Hors 1er crawl : une page neuve n'a pas d'alerte antérieure à résoudre.
   if (!isFirstCrawl) {
-    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds)
+    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds, crawlId)
   }
 
   // Stocker MetaCore (version allegee sans les tableaux volumineux : links, images)
@@ -511,7 +505,7 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
 
   // Auto-resolve sélectif (phase CSR : règles perf, dont la métrique est mesurée ici).
   if (!ssrData.isFirstCrawl) {
-    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds)
+    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds, crawlId)
   }
 
   await PageSnapshot.findOneAndUpdate(
@@ -527,57 +521,52 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
 
 async function sendNotifications(
   site: InstanceType<typeof Site>,
-  allAlerts: AlertData[],
+  allAlerts: ReportAlert[],
+  fixedAlerts: ReportAlert[],
   zoneInfo?: { zoneName: string | null, zoneId: string | null },
 ): Promise<void> {
-  const criticalCount = allAlerts.filter(a => a.severity === 'critical').length
-  const warningCount = allAlerts.filter(a => a.severity === 'warning').length
+  // Monitoring-first : construit le rapport (régressions + réparées) et décide SI on envoie.
+  // Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
+  const report = buildCrawlReport(allAlerts, fixedAlerts)
+  if (!site.notifyEmail || !report.shouldSend) return
 
-  const notification = {
+  const notification: CrawlReportNotification = {
     siteId: site._id.toString(),
     siteName: site.name,
     siteUrl: site.url,
-    alertCount: allAlerts.length,
-    criticalCount,
-    warningCount,
     zoneName: zoneInfo?.zoneName || null,
     zoneId: zoneInfo?.zoneId || null,
-    alerts: allAlerts.map(a => ({
-      pageUrl: a.pageUrl,
-      type: a.type,
-      severity: a.severity,
-      message: a.message,
-    })),
+    regressions: report.regressions,
+    fixed: report.fixed,
+    topRecos: report.topRecos,
+    recoCount: report.recoCount,
   }
 
-  if (site.notifyEmail && (criticalCount > 0 || warningCount > 0)) {
-    // Collect recipients: org owner + zone admin/member (not viewer)
-    const emails = new Set<string>()
+  // Collect recipients: org owner + zone admin/member (not viewer)
+  const emails = new Set<string>()
 
-    const org = await Organization.findById(site.orgId).select('ownerId').lean()
-    if (org) {
-      const owner = await User.findById(org.ownerId).select('email').lean()
-      if (owner) emails.add(owner.email)
-    }
+  const org = await Organization.findById(site.orgId).select('ownerId').lean()
+  if (org) {
+    const owner = await User.findById(org.ownerId).select('email').lean()
+    if (owner) emails.add(owner.email)
+  }
 
-    // If zone-scoped, also notify admin/member of this zone
-    if (zoneInfo?.zoneId) {
-      const members = await OrgMember.find({
-        orgId: site.orgId,
-        'zoneRoles.zoneId': zoneInfo.zoneId,
-        'zoneRoles.role': { $in: ['admin', 'member'] },
-      }).select('userId').lean()
+  // If zone-scoped, also notify admin/member of this zone
+  if (zoneInfo?.zoneId) {
+    const members = await OrgMember.find({
+      orgId: site.orgId,
+      'zoneRoles.zoneId': zoneInfo.zoneId,
+      'zoneRoles.role': { $in: ['admin', 'member'] },
+    }).select('userId').lean()
 
-      if (members.length > 0) {
-        const users = await User.find({ _id: { $in: members.map(m => m.userId) } }).select('email').lean()
-        for (const u of users) emails.add(u.email)
-      }
-    }
-
-    const emailList = Array.from(emails)
-    for (let i = 0; i < emailList.length; i++) {
-      await sendEmailNotification(emailList[i], notification)
+    if (members.length > 0) {
+      const users = await User.find({ _id: { $in: members.map(m => m.userId) } }).select('email').lean()
+      for (const u of users) emails.add(u.email)
     }
   }
 
+  const emailList = Array.from(emails)
+  for (let i = 0; i < emailList.length; i++) {
+    await sendEmailNotification(emailList[i], notification)
+  }
 }

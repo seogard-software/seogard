@@ -97,6 +97,9 @@ const alertSchema = new Schema({
   occurrences: { type: Number, default: 1 },
   resolvedAt: Date,
   resolvedBy: { type: String, enum: ['auto', 'user'] },
+  // Crawl qui a résolu l'alerte (auto). Permet de lister les régressions réparées DANS un crawl
+  // donné pour l'email de fin de crawl. null pour les alertes ouvertes ou résolues avant ce champ.
+  resolvedCrawlId: { type: Types.ObjectId, ref: 'Crawl', default: null },
 }, { timestamps: true })
 
 // Un seul alert actif par (site, page, règle)
@@ -109,6 +112,9 @@ alertSchema.index({ siteId: 1, status: 1, category: 1, pageUrl: 1 })
 
 // Notifications post-crawl + polling status crawl
 alertSchema.index({ siteId: 1, lastCrawlId: 1 })
+
+// Email de fin de crawl : régressions réparées DANS ce crawl
+alertSchema.index({ siteId: 1, resolvedCrawlId: 1 })
 
 // Dashboard alertes : countDocuments par severity
 alertSchema.index({ siteId: 1, status: 1, severity: 1 })

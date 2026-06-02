@@ -1,7 +1,8 @@
 import { createLogger } from './logger'
 import { EmailLog } from '../server/database/models'
-import { alertCriticalTemplate, crawlerBlockedTemplate, sitemapBlockedTemplate, sitemapInvalidHostnameTemplate, sitemapEstimateTemplate } from '../server/utils/email-templates'
+import { crawlReportTemplate, crawlerBlockedTemplate, sitemapBlockedTemplate, sitemapInvalidHostnameTemplate, sitemapEstimateTemplate } from '../server/utils/email-templates'
 import type { SitemapEstimateData } from '../server/utils/email-templates'
+import type { TopReco } from '../shared/utils/recommendations'
 
 const log = createLogger('notifications')
 
@@ -13,27 +14,22 @@ function getFromDomain(): string {
   catch { return 'seogard.io' }
 }
 
-interface AlertNotification {
+export interface CrawlReportNotification {
   siteId: string
   siteName: string
   siteUrl: string
-  alertCount: number
-  criticalCount: number
-  warningCount: number
   userId?: string
   zoneName?: string | null
   zoneId?: string | null
-  alerts: {
-    pageUrl: string
-    type: string
-    severity: string
-    message: string
-  }[]
+  regressions: { pageUrl: string, severity: string, message: string }[]
+  fixed: { pageUrl: string, message: string }[]
+  topRecos: TopReco[]
+  recoCount: number
 }
 
 export async function sendEmailNotification(
   to: string,
-  notification: AlertNotification,
+  notification: CrawlReportNotification,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -43,14 +39,15 @@ export async function sendEmailNotification(
 
   const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${getFromDomain()}>`
 
-  const { subject, html } = alertCriticalTemplate({
+  const { subject, html } = crawlReportTemplate({
     siteName: notification.siteName,
     siteId: notification.siteId,
     zoneName: notification.zoneName || null,
     zoneId: notification.zoneId || null,
-    criticalCount: notification.criticalCount,
-    warningCount: notification.warningCount,
-    alerts: notification.alerts,
+    regressions: notification.regressions,
+    fixed: notification.fixed,
+    topRecos: notification.topRecos,
+    recoCount: notification.recoCount,
   })
 
   try {

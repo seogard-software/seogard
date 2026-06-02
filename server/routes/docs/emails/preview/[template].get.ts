@@ -1,7 +1,6 @@
 import {
   welcomeTemplate,
-  alertCriticalTemplate,
-  dailyDigestTemplate,
+  crawlReportTemplate,
   logDigestTemplate,
   sitemapBlockedTemplate,
   sitemapInvalidHostnameTemplate,
@@ -27,44 +26,25 @@ export default defineEventHandler((event) => {
       result = welcomeTemplate()
       break
 
-    case 'alert-critical':
-      result = alertCriticalTemplate({
+    case 'crawl-report':
+      result = crawlReportTemplate({
         siteName: 'Les Numériques',
         siteId: 'site123',
         zoneName: 'Blog',
         zoneId: 'zone456',
-        criticalCount: 3,
-        warningCount: 7,
-        alerts: [
-          { pageUrl: 'https://www.lesnumeriques.com/ordinateur-portable/test.html', type: 'meta_description_missing', severity: 'critical', message: 'Meta description manquante' },
-          { pageUrl: 'https://www.lesnumeriques.com/smartphone/iphone-test.html', type: 'meta_title_missing', severity: 'critical', message: 'Meta title supprimé' },
-          { pageUrl: 'https://www.lesnumeriques.com/tv/samsung.html', type: 'duplicate_title', severity: 'warning', message: 'Titre dupliqué sur 3 pages' },
-        ],
-      })
-      break
-
-    case 'daily-digest':
-      result = dailyDigestTemplate({
-        siteName: 'Presse-Citron',
-        siteId: 'site789',
-        totalPages: 86530,
-        regressionCount: 4,
         regressions: [
-          { type: 'h1_missing', message: 'H1 manquant', pageUrl: 'https://www.presse-citron.net/test-article' },
-          { type: 'canonical_missing', message: 'Canonical manquant', pageUrl: 'https://www.presse-citron.net/guide' },
-          { type: 'slow_ttfb', message: 'TTFB > 1s (1.8s)', pageUrl: 'https://www.presse-citron.net/review' },
-          { type: 'broken_image', message: 'Image cassée', pageUrl: 'https://www.presse-citron.net/news' },
+          { pageUrl: 'https://www.lesnumeriques.com/ordinateur-portable/test.html', severity: 'critical', message: 'La balise canonical a disparu' },
+          { pageUrl: 'https://www.lesnumeriques.com/smartphone/iphone-test.html', severity: 'critical', message: 'Meta title supprimé' },
+          { pageUrl: 'https://www.lesnumeriques.com/tv/samsung.html', severity: 'warning', message: 'Le titre a changé' },
         ],
-      })
-      break
-
-    case 'daily-digest-ok':
-      result = dailyDigestTemplate({
-        siteName: 'Seogard.io',
-        siteId: 'site000',
-        totalPages: 42,
-        regressionCount: 0,
-        regressions: [],
+        fixed: [
+          { pageUrl: 'https://www.lesnumeriques.com/audio/casque.html', message: 'Erreur 503 résolue' },
+        ],
+        topRecos: [
+          { ruleId: 'rec_llms_txt_missing', label: '/llms.txt manquant', pagesAffected: 1, siteLevel: true, hint: 'visibilité IA (ChatGPT, Claude, Perplexity)' },
+          { ruleId: 'rec_title_length_audit', label: 'Longueur du title', pagesAffected: 340, siteLevel: false, hint: null },
+        ],
+        recoCount: 412,
       })
       break
 

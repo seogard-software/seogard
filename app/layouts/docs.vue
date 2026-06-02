@@ -99,9 +99,7 @@ const sidebarOpen = ref(false)
 
 const emailTemplates = [
   { id: 'welcome', label: 'Bienvenue' },
-  { id: 'alert-critical', label: 'Alertes critiques' },
-  { id: 'daily-digest', label: 'Digest (régressions)' },
-  { id: 'daily-digest-ok', label: 'Digest (tout OK)' },
+  { id: 'crawl-report', label: 'Rapport de crawl' },
   { id: 'log-digest', label: 'Digest logs workers' },
   { id: 'sitemap-blocked', label: 'Sitemap bloqué' },
   { id: 'sitemap-invalid-hostname', label: 'Sitemap mauvais hostname' },

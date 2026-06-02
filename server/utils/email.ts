@@ -1,14 +1,13 @@
 import { EmailLog } from '../database/models'
 import {
   welcomeTemplate,
-  alertCriticalTemplate,
   dailyDigestTemplate,
   resetPasswordTemplate,
   paymentFailedTemplate,
   sitemapEstimateTemplate,
   inviteTemplate,
 } from './email-templates'
-import type { AlertCriticalData, DailyDigestData, SitemapEstimateData } from './email-templates'
+import type { DailyDigestData, SitemapEstimateData } from './email-templates'
 
 const log = createLogger('web', 'email')
 
@@ -131,11 +130,6 @@ async function sendEmail(params: SendEmailParams): Promise<void> {
 export async function sendWelcomeEmail(to: string, userId: string): Promise<void> {
   const { subject, html } = welcomeTemplate()
   await sendEmail({ to, subject, html, type: 'welcome', userId })
-}
-
-export async function sendAlertCriticalEmail(to: string, userId: string, siteId: string, data: AlertCriticalData): Promise<void> {
-  const { subject, html } = alertCriticalTemplate(data)
-  await sendEmail({ to, subject, html, type: 'alert_critical', userId, siteId })
 }
 
 export async function sendDailyDigestEmail(to: string, userId: string, siteId: string, data: DailyDigestData): Promise<void> {

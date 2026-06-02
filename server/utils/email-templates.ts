@@ -1,3 +1,5 @@
+import type { TopReco } from '../../shared/utils/recommendations'
+
 const APP_URL = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
 
 // Design tokens — alignés sur variables.scss
@@ -112,9 +114,9 @@ export function welcomeTemplate(): { subject: string; html: string } {
           <span style="font-size:13px;color:${C.gray700};">Metas, canonicals, H1, SSR/CSR, noindex — analysés sur chaque page.</span>
         </td></tr>
         <tr><td style="padding:12px 16px;">
-          <span style="font-size:13px;color:${C.gray500};font-weight:600;">ÉTAPE 3</span><br>
-          <span style="font-size:14px;color:${C.gray900};font-weight:500;">Activez les alertes</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Recevez un email ou Slack dès qu'une régression est détectée.</span>
+          <span style="font-size:13px;color:${C.gray500};font-weight:600;">ENSUITE, AUTOMATIQUE</span><br>
+          <span style="font-size:14px;color:${C.gray900};font-weight:500;">On vous alerte</span><br>
+          <span style="font-size:13px;color:${C.gray700};">Dès qu'une régression est détectée, vous recevez un email. Rien à configurer.</span>
         </td></tr>
       </table>
 
@@ -125,55 +127,94 @@ export function welcomeTemplate(): { subject: string; html: string } {
   }
 }
 
-export interface AlertCriticalData {
+export interface CrawlReportData {
   siteName: string
   siteId: string
   zoneName?: string | null
   zoneId?: string | null
-  criticalCount: number
-  warningCount: number
-  alerts: { pageUrl: string; type: string; severity: string; message: string }[]
+  regressions: { pageUrl: string; severity: string; message: string }[]
+  fixed: { pageUrl: string; message: string }[]
+  topRecos: TopReco[]
+  recoCount: number
 }
 
-export function alertCriticalTemplate(data: AlertCriticalData): { subject: string; html: string } {
+function plural(n: number): string {
+  return n > 1 ? 's' : ''
+}
+
+// Une ligne d'alerte (pastille colorée + message + URL).
+function reportRow(message: string, pageUrl: string, dotColor: string): string {
+  return `<tr><td style="padding:10px 14px;border-bottom:1px solid ${C.gray100};font-size:13px;">
+    <div style="display:flex;align-items:flex-start;">
+      <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background-color:${dotColor};margin-right:8px;flex-shrink:0;margin-top:4px;"></span>
+      <div><span style="color:${C.gray900};font-weight:500;">${message}</span><br>
+      <span style="color:${C.gray500};font-size:12px;">${pageUrl}</span></div>
+    </div></td></tr>`
+}
+
+/**
+ * Rapport de fin de crawl, monitoring-first : régressions détectées (🔴) + régressions réparées
+ * (🟢) dans le même mail. Les recommandations d'audit ne déclenchent jamais ce mail et tiennent
+ * en une ligne discrète. Le mail n'est construit que si regressions>0 OU fixed>0.
+ */
+export function crawlReportTemplate(data: CrawlReportData): { subject: string; html: string } {
   const label = data.zoneName ? `${data.siteName} › ${data.zoneName}` : data.siteName
   const alertsUrl = data.zoneId
     ? `${APP_URL}/dashboard/sites/${data.siteId}/zones/${data.zoneId}/alerts`
     : `${APP_URL}/dashboard/sites/${data.siteId}`
 
-  const criticalBadge = data.criticalCount > 0
-    ? `<span style="display:inline-block;padding:3px 10px;background-color:${C.dangerBg};color:${C.danger};border-radius:4px;font-size:12px;font-weight:600;margin-right:6px;">${data.criticalCount} critical</span>`
+  const regCount = data.regressions.length
+  const fixCount = data.fixed.length
+
+  const subject = regCount > 0
+    ? `🔴 ${regCount} régression${plural(regCount)} détectée${plural(regCount)}${fixCount > 0 ? ` · ${fixCount} réparée${plural(fixCount)}` : ''} — ${label}`
+    : `🟢 ${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)} — ${label}`
+
+  // Régressions : critiques d'abord, 8 listées max.
+  const sortedReg = [...data.regressions].sort((a, b) =>
+    (a.severity === 'critical' ? 0 : 1) - (b.severity === 'critical' ? 0 : 1))
+  const regRows = sortedReg.slice(0, 8)
+    .map(r => reportRow(r.message, r.pageUrl, r.severity === 'critical' ? C.danger : C.warning))
+    .join('')
+  const regMore = regCount > 8
+    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">+${regCount - 8} autres régressions dans le dashboard</td></tr>`
     : ''
-  const warningBadge = data.warningCount > 0
-    ? `<span style="display:inline-block;padding:3px 10px;background-color:${C.warningBg};color:${C.warning};border-radius:4px;font-size:12px;font-weight:600;">${data.warningCount} warning</span>`
+  const regBlock = regCount > 0
+    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">🔴 <strong>${regCount} régression${plural(regCount)} détectée${plural(regCount)}</strong> depuis le dernier crawl :</p>
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">${regRows}${regMore}</table>`
     : ''
 
-  const alertRows = data.alerts.slice(0, 5).map(a => {
-    const isC = a.severity === 'critical'
-    const dot = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background-color:${isC ? C.danger : C.warning};margin-right:8px;flex-shrink:0;margin-top:4px;"></span>`
-    return `<tr><td style="padding:10px 14px;border-bottom:1px solid ${C.gray100};font-size:13px;">
-      <div style="display:flex;align-items:flex-start;">${dot}<div>
-        <span style="color:${C.gray900};font-weight:500;">${a.message}</span><br>
-        <span style="color:${C.gray500};font-size:12px;">${a.pageUrl}</span>
-      </div></div>
-    </td></tr>`
-  }).join('')
+  // Réparées (vert) : 8 listées max.
+  const fixRows = data.fixed.slice(0, 8).map(f => reportRow(f.message, f.pageUrl, C.success)).join('')
+  const fixMore = fixCount > 8
+    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">+${fixCount - 8} autres dans le dashboard</td></tr>`
+    : ''
+  const fixBlock = fixCount > 0
+    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">🟢 <strong>${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)}</strong> depuis le dernier crawl${regCount === 0 ? ' — beau travail.' : ''} :</p>
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.successBorder};border-radius:8px;overflow:hidden;margin:0 0 24px;background-color:${C.successBg};">${fixRows}${fixMore}</table>`
+    : ''
 
-  const more = data.alerts.length > 5
-    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">+${data.alerts.length - 5} autres alertes dans le dashboard</td></tr>`
+  // Ligne recommandations (discrète, jamais déclencheur) : top reco(s) + reste en compteur.
+  const shownPages = data.topRecos.reduce((sum, r) => sum + r.pagesAffected, 0)
+  const others = data.recoCount - shownPages
+  const recoItems = data.topRecos.map((r) => {
+    const hint = r.hint ? ` — ${r.hint}` : ''
+    const pages = r.siteLevel ? '' : ` (${r.pagesAffected} page${plural(r.pagesAffected)})`
+    return `${r.label}${hint}${pages}`
+  }).join(' · ')
+  const recoRest = others > 0 ? ` · + ${others} autre${plural(others)} recommandation${plural(others)}` : ''
+  const recoLine = data.recoCount > 0
+    ? `<p style="margin:8px 0 0;font-size:13px;color:${C.gray500};line-height:1.6;">💡 <strong style="color:${C.gray700};">Recommandation${plural(data.topRecos.length)} d'audit (non bloquante${plural(data.topRecos.length)}) :</strong> ${recoItems}${recoRest} — <a href="${alertsUrl}" style="color:${C.gray700};">voir le dashboard →</a></p>`
     : ''
 
   return {
-    subject: `[ALERTE] ${data.criticalCount} critical · ${data.warningCount} warning — ${label}`,
+    subject,
     html: layout(`
-      <h2 style="margin:0 0 8px;font-size:19px;font-weight:700;color:${C.gray900};">${label}</h2>
-      <p style="margin:0 0 20px;">${criticalBadge}${warningBadge}</p>
-
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">
-        ${alertRows}${more}
-      </table>
-
-      ${button(alertsUrl, 'Voir et résoudre les alertes →')}
+      <h2 style="margin:0 0 20px;font-size:19px;font-weight:700;color:${C.gray900};">${label}</h2>
+      ${regBlock}
+      ${fixBlock}
+      ${button(alertsUrl, regCount > 0 ? 'Voir et résoudre les régressions →' : 'Voir le dashboard →')}
+      ${recoLine}
     `),
   }
 }
