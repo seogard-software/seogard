@@ -13,7 +13,7 @@ export default defineEventHandler((event) => {
 
 > Monitoring SEO & GEO continu. Détection des régressions et alertes temps réel, avant Google. Self-hosted gratuit ou Cloud dès ${price} EUR/page monitorée/mois.
 
-Seogard est un outil de monitoring SEO et GEO continu édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Il surveille en continu chaque page d'un site pour détecter les régressions (metas, canonicals, SSR/CSR, noindex, llms.txt, AI crawlers) et alerte en temps réel par Email, Slack, Teams ou Jira — avant que Google n'indexe le problème.
+Seogard est un outil de monitoring SEO et GEO continu édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Il surveille en continu chaque page d'un site pour détecter les régressions (metas, canonicals, SSR/CSR, noindex, llms.txt, AI crawlers) et alerte en temps réel par email — avant que Google n'indexe le problème.
 
 Différenciateur unique : seul outil de monitoring qui compare en continu le HTML brut (ce que Google voit) et le rendu JavaScript (ce que l'utilisateur voit) sur chaque page, détectant les régressions SSR/CSR invisibles aux outils sans rendu JS.
 
@@ -37,8 +37,9 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 
 - Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — comparaison continue sur chaque page
 - 60+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
+- Performance Web monitorée sur chaque page : Core Web Vitals (LCP, CLS), temps de réponse serveur (TTFB) et poids de page ; alerte sur les régressions de poids de page
 - Crawl quotidien automatique
-- Alertes instantanées par email et Slack dès qu'une régression est détectée
+- Alertes instantanées par email dès qu'une régression est détectée
 - Diff highlighting : visualisation exacte de ce qui a changé (avant/après)
 - Dashboard temps réel
 - CI/CD webhook intégré (crawl à chaque déploiement)

@@ -7,31 +7,31 @@
     <template v-else>
       <div class="perf-chart__badges">
         <PerfBadge
-          v-if="medianLcp != null"
+          v-if="lastLcp != null"
           label="Affichage du contenu"
           abbr="LCP"
           synthetic
           hint="Temps avant l'affichage du contenu principal. Bon en dessous de 2,5 s. Facteur de classement Google."
-          :value="seconds(medianLcp)"
-          :rating="rateLcp(medianLcp)"
+          :value="seconds(lastLcp)"
+          :rating="rateLcp(lastLcp)"
         />
         <PerfBadge
-          v-if="medianCls != null"
+          v-if="lastCls != null"
           label="Stabilité visuelle"
           abbr="CLS"
           synthetic
           hint="Mesure si la page bouge pendant le chargement (le contenu qui saute). Bon en dessous de 0,1. Facteur de classement Google."
-          :value="decimal(medianCls)"
-          :rating="rateCls(medianCls)"
+          :value="decimal(lastCls)"
+          :rating="rateCls(lastCls)"
         />
         <PerfBadge
-          v-if="medianTtfb != null"
+          v-if="lastTtfb != null"
           label="Réponse serveur"
           abbr="TTFB"
           synthetic
           hint="Temps que met votre serveur à répondre. Bon en dessous de 800 ms ; un serveur lent ralentit toute la page."
-          :value="`${medianTtfb} ms`"
-          :rating="rateTtfb(medianTtfb)"
+          :value="`${lastTtfb} ms`"
+          :rating="rateTtfb(lastTtfb)"
         />
         <PerfBadge
           v-if="current.weightTotalKb != null"
@@ -63,7 +63,6 @@
 <script setup lang="ts">
 import type { PerfMetrics } from '~~/shared/types/perf'
 import { ratePageWeight, rateCls, rateLcp, rateTtfb } from '~~/shared/types/perf'
-import { median } from '~~/shared/utils/median'
 
 interface Props {
   siteId: string
@@ -100,17 +99,13 @@ function decimal(n: number): string {
   return String(n).replace('.', ',')
 }
 
-// Médiane d'une métrique sur la fenêtre affichée. Robuste aux pics aberrants du synthétique
-// one-shot (la moyenne serait faussée par un LCP à 11 s isolé). Fallback sur la dernière
-// mesure si pas d'historique (1er crawl). → carte stable, jamais alarmante.
-function medianMetric(key: 'lcpMs' | 'cls' | 'ttfbMs'): number | null {
-  const vals = history.value.map(p => p.perf[key]).filter((v): v is number => v != null)
-  return median(vals) ?? current.value?.[key] ?? null
-}
-
-const medianLcp = computed(() => { const m = medianMetric('lcpMs'); return m == null ? null : Math.round(m) })
-const medianTtfb = computed(() => { const m = medianMetric('ttfbMs'); return m == null ? null : Math.round(m) })
-const medianCls = computed(() => { const m = medianMetric('cls'); return m == null ? null : Math.round(m * 1000) / 1000 })
+// Dernière mesure (crawl le plus récent). Affichée telle quelle : le synthétique one-shot
+// varie d'un crawl à l'autre, mais c'est la valeur la plus à jour — un correctif poussé après
+// un déploiement est visible immédiatement. Le flag "Synthétique" assume la variance, le
+// graphe 30j la montre. (Le vrai lissage fiable viendra des données terrain CrUX.)
+const lastLcp = computed(() => { const v = current.value?.lcpMs; return v == null ? null : Math.round(v) })
+const lastTtfb = computed(() => { const v = current.value?.ttfbMs; return v == null ? null : Math.round(v) })
+const lastCls = computed(() => { const v = current.value?.cls; return v == null ? null : Math.round(v * 1000) / 1000 })
 
 function formatMetric(key: MetricKey, val: number): string {
   if (key === 'lcpMs') return seconds(val)

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
 Seogard est un outil de **monitoring SEO et GEO continu** édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit (code source disponible sous BSL 1.1) ou en Cloud géré (B2B uniquement).
 
-Seogard surveille en continu chaque page d'un site et **alerte en temps réel** par Email, Slack, Teams ou Jira dès qu'une régression est détectée — avant que Google ne re-rende les pages.
+Seogard surveille en continu chaque page d'un site et **alerte en temps réel** par email dès qu'une régression est détectée — avant que Google ne re-rende les pages.
 
 Différenciateur unique : Seogard effectue une **double analyse continue SSR/CSR** sur chaque page (HTML brut vs rendu JavaScript), détectant les régressions invisibles aux outils sans rendu JS (Oseox, etc.) et aux outils d'audit ponctuel (Screaming Frog, Sitebulb).
 
@@ -81,8 +81,7 @@ Seogard embarque plus de 60 règles de détection (40 monitoring + 20 GEO) couvr
 - Meta description SSR différente du CSR
 
 **Performance et structure :**
-- Temps de réponse dégradé
-- Taille du HTML modifiée significativement
+- Poids de page en forte hausse (régression de performance)
 - Schema.org supprimé ou modifié
 
 ### Comparaison SSR vs CSR
@@ -92,6 +91,16 @@ Seogard effectue une double analyse de chaque page :
 2. **Rendu JavaScript (CSR)** : utilise un navigateur headless (Playwright/Chromium) pour exécuter le JavaScript et capturer le DOM final
 
 La comparaison des deux permet de détecter quand le SSR casse silencieusement — un problème invisible dans un navigateur classique mais catastrophique pour le SEO, car Googlebot ne voit pas toujours le contenu rendu côté client.
+
+### Performance Web
+
+Seogard mesure la performance de chaque page à chaque crawl, sur le rendu complet (toutes ressources chargées, iso-Google) :
+
+- **Core Web Vitals** : LCP (affichage du contenu) et CLS (stabilité visuelle), mesurés via la librairie officielle web-vitals.
+- **TTFB** : temps de réponse serveur.
+- **Poids de page** : poids total téléchargé + répartition (HTML, JS, CSS, images, polices).
+
+Seuils officiels Google (Lighthouse). LCP, CLS et TTFB sont **monitorés et affichés** (dernière mesure + graphe d'évolution sur 30 jours) : mesurés en synthétique « one-shot », ils varient trop pour servir de signal d'alerte fiable — Google lui-même classe sur les données terrain (CrUX p75). En revanche, le **poids de page** est déterministe : sa forte hausse déclenche une régression (et peut bloquer un déploiement en mode strict). C'est la seule régression de performance.
 
 ### Crawl quotidien automatique
 
@@ -104,7 +113,6 @@ Seogard s'intègre dans votre pipeline CI/CD : un webhook POST déclenche un cra
 ### Alertes instantanées
 
 - **Email** : alerte instantanée dès qu'un problème critique est détecté
-- **Slack** : intégration webhook avec messages détaillés et diff highlighting
 - **Niveaux de sévérité** : critical (action immédiate), warning (à surveiller), info (changement non critique)
 - **Diff highlighting** : chaque alerte montre exactement ce qui a changé (avant/après) avec les différences surlignées
 

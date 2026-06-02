@@ -48,9 +48,9 @@
           >
             <strong class="perf-badge__popover-abbr">Mesure synthétique</strong>
             Réalisée par notre crawler en conditions labo (un passage par crawl), pas par vos
-            vrais visiteurs. La valeur varie d'un crawl à l'autre — la carte affiche la médiane,
-            le graphe la tendance. Google classe sur les données terrain (utilisateurs réels) ;
-            INP non mesurable en synthétique.
+            vrais visiteurs. La valeur varie d'un crawl à l'autre — la carte affiche la dernière
+            mesure, le graphe montre la variance sur 30 j. Google classe sur les données terrain
+            (utilisateurs réels) ; INP non mesurable en synthétique.
           </div>
         </div>
       </div>

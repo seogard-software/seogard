@@ -18,7 +18,7 @@
           <span class="hero__title-accent">avant Google.</span>
         </h1>
         <p class="hero__subtitle">
-          Monitoring continu de chaque page de votre site. Détection des régressions SSR/CSR, metas, canonicals, noindex. Alertes temps réel par Email, Slack, Teams ou Jira — avant que Google n'indexe le problème.
+          Monitoring continu de chaque page de votre site. Détection des régressions SSR/CSR, metas, canonicals, noindex. Alertes temps réel par email — avant que Google n'indexe le problème.
         </p>
         <div class="hero__ctas">
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
@@ -125,7 +125,7 @@
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
             <div>
               <strong class="features__item-title">Alertes instantanées</strong>
-              <span class="features__item-desc">Email et Slack, diff exact avant/après avec sévérité</span>
+              <span class="features__item-desc">Email, diff exact avant/après avec sévérité</span>
             </div>
           </div>
           <div class="features__item">
@@ -150,6 +150,13 @@
             </div>
           </div>
           <div class="features__item">
+            <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+            <div>
+              <strong class="features__item-title">Performance Web</strong>
+              <span class="features__item-desc">Core Web Vitals (LCP, CLS), TTFB et poids de page — sur chaque page</span>
+            </div>
+          </div>
+          <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
             <div>
               <strong class="features__item-title">CI/CD webhook</strong>
@@ -161,6 +168,13 @@
             <div>
               <strong class="features__item-title">Dashboard temps réel</strong>
               <span class="features__item-desc">Tous vos sites, alertes et crawls en un coup d'oeil</span>
+            </div>
+          </div>
+          <div class="features__item">
+            <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            <div>
+              <strong class="features__item-title">Visibilité IA (GEO)</strong>
+              <span class="features__item-desc">llms.txt, crawlers IA (GPTBot, ClaudeBot…), FAQ & données structurées</span>
             </div>
           </div>
         </div>
@@ -281,7 +295,7 @@ const cloudPriceDisplay = formatCloudPrice()
 const FAQ_ITEMS = [
   {
     q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque régression déclenche une alerte temps réel par Email, Slack, Teams ou Jira, classée par sévérité.',
+    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -293,7 +307,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Comment fonctionnent les alertes ?',
-    a: 'Chaque page est crawlée quotidiennement. Dès qu\'un changement est détecté, une alerte avec le diff exact avant/après est envoyée par email, Slack, Teams ou Jira. Chaque alerte inclut la page concernée, la règle déclenchée et le niveau de sévérité.',
+    a: 'Chaque page est crawlée quotidiennement. Dès qu\'un changement est détecté, une alerte avec le diff exact avant/après est envoyée par email. Chaque alerte inclut la page concernée, la règle déclenchée et le niveau de sévérité.',
   },
   {
     q: 'Comment intégrer Seogard dans un pipeline CI/CD ?',
@@ -309,7 +323,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Quelles intégrations sont disponibles ?',
-    a: 'Email et Slack nativement, avec le diff avant/après pour chaque alerte. D\'autres intégrations (Teams, Jira) sont également disponibles. Le webhook CI/CD permet aussi de connecter Seogard à n\'importe quel pipeline de déploiement.',
+    a: 'Email, avec le diff avant/après pour chaque alerte. Le webhook CI/CD permet aussi de connecter Seogard à n\'importe quel pipeline de déploiement.',
   },
 ]
 
@@ -317,6 +331,7 @@ const COMPARISON_ROWS = [
   { feature: 'Comparaison HTML brut vs rendu JS', seogard: 'Auto', contentking: false, lumar: 'Partiel', botify: 'Partiel' },
   { feature: 'Rendu JavaScript (navigateur)', seogard: true, contentking: true, lumar: true, botify: true },
   { feature: 'Monitoring 24/7', seogard: true, contentking: true, lumar: false, botify: false },
+  { feature: 'Performance Web (Core Web Vitals + poids)', seogard: true, contentking: true, lumar: true, botify: true },
   { feature: 'Optimisation GEO & visibilité IA', seogard: true, contentking: false, lumar: false, botify: false },
   { feature: 'Crawl on deploy (CI/CD)', seogard: true, contentking: false, lumar: true, botify: false },
   { feature: 'Code source disponible (BSL 1.1)', seogard: true, contentking: false, lumar: false, botify: false },
@@ -391,7 +406,7 @@ useHead({
               'Comparaison HTML brut vs rendu JavaScript',
               'Monitoring meta et canonicals',
               'Détection noindex accidentels',
-              'Alertes instantanées email, Slack, Teams, Jira',
+              'Alertes instantanées par email',
               'Crawl quotidien automatique',
               'Dashboard temps réel',
               '60+ règles de détection SEO et GEO',
@@ -432,7 +447,7 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO & GEO continu. Détection des régressions SSR/CSR, metas, canonicals. Alertes temps réel Email/Slack/Teams. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  description: `Monitoring SEO & GEO continu. Détection des régressions SSR/CSR, metas, canonicals. Alertes temps réel par email. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   ogTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
   ogDescription: `Monitoring SEO & GEO continu avec détection des régressions SSR/CSR et alertes temps réel. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',
