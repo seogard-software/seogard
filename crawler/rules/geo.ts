@@ -1,11 +1,20 @@
-import { registerRule } from './engine'
+import { registerRule, type RuleContext } from './engine'
+import { normalizeUrl } from './helpers'
 
-// Site-level rules should only fire once per crawl.
-// We use the homepage (root URL) as the anchor — skip non-root pages.
-function isSiteRoot(pageUrl: string): boolean {
+// Les règles site-level ne doivent fire qu'UNE fois par crawl, sur la page racine du site.
+// Ancre = l'URL racine ENREGISTRÉE du site (couvre les sites servis sous un chemin comme /fr/
+// ou dont la home n'est pas exactement '/'), avec repli sur pathname '/' si elle est absente.
+function isSiteAnchor(ctx: RuleContext): boolean {
+  // On compare l'URL REQUISE (normalisée comme siteRootUrl côté worker), pas finalUrl :
+  // finalUrl peut pointer vers une redirection/canonical différente de l'URL enregistrée.
+  // Comparaison INSENSIBLE au slash final : `normalizeUrl` ne le pose que sur la racine,
+  // donc `https://x.com/fr` (site.url sans slash) doit matcher `https://x.com/fr/` (page).
+  const url = ctx.pageUrl
+  const root = ctx.siteContext?.siteRootUrl
+  if (root && normalizeUrl(url).replace(/\/$/, '') === root.replace(/\/$/, '')) return true
   try {
-    const url = new URL(pageUrl)
-    return url.pathname === '/' || url.pathname === ''
+    const pathname = new URL(url).pathname
+    return pathname === '/' || pathname === ''
   }
   catch {
     return false
@@ -18,7 +27,7 @@ registerRule({
   id: 'rec_llms_txt_missing',
   run(ctx) {
     if (!ctx.siteContext) return []
-    if (!isSiteRoot(ctx.pageUrl)) return []
+    if (!isSiteAnchor(ctx)) return []
     if (ctx.siteContext.hasLlmsTxt) return []
     return [{
       type: 'rec_llms_txt_missing',
@@ -34,7 +43,7 @@ registerRule({
   id: 'rec_ai_crawlers_blocked',
   run(ctx) {
     if (!ctx.siteContext) return []
-    if (!isSiteRoot(ctx.pageUrl)) return []
+    if (!isSiteAnchor(ctx)) return []
     if (ctx.siteContext.aiCrawlersBlocked.length === 0) return []
     const blocked = ctx.siteContext.aiCrawlersBlocked.join(', ')
     return [{
@@ -143,7 +152,7 @@ registerRule({
   id: 'llms_txt_removed',
   run(ctx) {
     if (!ctx.siteContext) return []
-    if (!isSiteRoot(ctx.pageUrl)) return []
+    if (!isSiteAnchor(ctx)) return []
     if (ctx.siteContext.oldHasLlmsTxt === undefined) return [] // no previous data
     if (!ctx.siteContext.oldHasLlmsTxt) return [] // wasn't there before
     if (ctx.siteContext.hasLlmsTxt) return [] // still there
@@ -161,7 +170,7 @@ registerRule({
   id: 'ai_crawlers_blocked_changed',
   run(ctx) {
     if (!ctx.siteContext) return []
-    if (!isSiteRoot(ctx.pageUrl)) return []
+    if (!isSiteAnchor(ctx)) return []
     if (!ctx.siteContext.oldAiCrawlersBlocked) return [] // no previous data
     const oldBlocked = ctx.siteContext.oldAiCrawlersBlocked
     const newBlocked = ctx.siteContext.aiCrawlersBlocked

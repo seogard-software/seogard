@@ -23,6 +23,8 @@ export interface RuleContext {
     aiCrawlersBlocked: string[]
     oldAiCrawlersBlocked?: string[]
     robotsTxtRaw: string | null
+    // URL racine enregistrée du site (normalisée) — ancre des règles site-level.
+    siteRootUrl?: string
   }
 }
 

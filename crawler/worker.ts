@@ -5,7 +5,7 @@ import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContex
 import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
-import { isSsrBlocked } from './rules/helpers'
+import { isSsrBlocked, normalizeUrl } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
@@ -25,7 +25,7 @@ function normalizePageUrl(url: string): string {
 }
 
 // In-memory crawl context (set by initCrawl, shared across processPages calls)
-const crawlContexts = new Map<string, { siteId: string, siteName: string, startedAt: number, siteContext?: SiteContext, oldSiteContext?: SiteContext, mutedRuleIds?: Set<string> }>()
+const crawlContexts = new Map<string, { siteId: string, siteName: string, startedAt: number, siteContext?: SiteContext, oldSiteContext?: SiteContext, siteRootUrl?: string, mutedRuleIds?: Set<string> }>()
 
 /**
  * Called by the orchestrator worker to register crawl metadata.
@@ -120,6 +120,10 @@ export async function processPages(crawlId: string): Promise<void> {
         ctx.siteContext = await fetchSiteContext(site.url)
         // Load previous site context for regression detection
         ctx.oldSiteContext = (site as any).siteContext ?? undefined
+        // Ancre des règles site-level : l'URL racine ENREGISTRÉE du site (et pas seulement
+        // pathname '/'), pour couvrir les sites servis sous un chemin (ex. /fr/) ou dont la
+        // home n'est pas exactement '/'.
+        ctx.siteRootUrl = normalizeUrl(site.url)
         log.info({ siteId, hasLlmsTxt: ctx.siteContext.hasLlmsTxt, aiCrawlersBlocked: ctx.siteContext.aiCrawlersBlocked }, 'site GEO context fetched')
       }
     }
@@ -181,7 +185,7 @@ export async function processPages(crawlId: string): Promise<void> {
     let batchFailed = 0
 
     const results = await Promise.allSettled(
-      urls.map(pageUrl => processPageSSR(siteId, crawlId, pageUrl, { current: ctx.siteContext, old: ctx.oldSiteContext }, ctx.mutedRuleIds)),
+      urls.map(pageUrl => processPageSSR(siteId, crawlId, pageUrl, { current: ctx.siteContext, old: ctx.oldSiteContext, rootUrl: ctx.siteRootUrl }, ctx.mutedRuleIds)),
     )
 
     for (let i = 0; i < results.length; i++) {
@@ -378,7 +382,7 @@ interface PageProcessResult {
   oldPerf: PerfMetrics | null
 }
 
-async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: string, siteCtx?: { current?: SiteContext, old?: SiteContext }, mutedRuleIds?: Set<string>): Promise<PageProcessResult> {
+async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: string, siteCtx?: { current?: SiteContext, old?: SiteContext, rootUrl?: string }, mutedRuleIds?: Set<string>): Promise<PageProcessResult> {
   // Normalize: ensure trailing slash on root URLs (https://example.com → https://example.com/)
   const pageUrl = normalizePageUrl(rawPageUrl)
   const fetchResult = await fetchPage(pageUrl)
@@ -434,6 +438,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
       aiCrawlersBlocked: siteCtx.current.aiCrawlersBlocked,
       oldAiCrawlersBlocked: siteCtx.old?.aiCrawlersBlocked,
       robotsTxtRaw: siteCtx.current.robotsTxtRaw,
+      siteRootUrl: siteCtx.rootUrl,
     } : undefined,
   })
 

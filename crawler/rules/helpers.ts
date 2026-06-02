@@ -5,6 +5,18 @@ export function truncate(str: string, max = 80): string {
   return str.length > max ? str.substring(0, max) + '...' : str
 }
 
+// Normalise une URL pour comparaison (trailing slash sur la racine :
+// https://x.com → https://x.com/). Utilisé pour ancrer les règles site-level sur
+// l'URL racine enregistrée du site, identiquement côté worker et côté règles.
+export function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.pathname === '') parsed.pathname = '/'
+    return parsed.toString()
+  }
+  catch { return url }
+}
+
 export function decodeEntities(str: string): string {
   return he.decode(str)
 }

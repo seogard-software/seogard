@@ -1095,6 +1095,50 @@ describe('llms_txt_removed', () => {
   })
 })
 
+// SEOG-1 — ancre des règles site-level sur l'URL racine ENREGISTRÉE du site (siteRootUrl),
+// pas seulement pathname '/'. Couvre les sites servis sous un chemin (ex. /fr/).
+describe('site-level anchor (siteRootUrl)', () => {
+  it('fire sur la home servie sous un chemin (/fr/) quand elle matche siteRootUrl', () => {
+    const results = runRule('llms_txt_removed', ctx({
+      pageUrl: 'https://example.com/fr/',
+      siteContext: { hasLlmsTxt: false, oldHasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null, siteRootUrl: 'https://example.com/fr/' },
+    }))
+    expect(results).toHaveLength(1)
+  })
+
+  it('ne fire PAS sur une page interne même avec siteRootUrl défini', () => {
+    const results = runRule('llms_txt_removed', ctx({
+      pageUrl: 'https://example.com/fr/blog',
+      siteContext: { hasLlmsTxt: false, oldHasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null, siteRootUrl: 'https://example.com/fr/' },
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('match insensible au slash final (site.url sans slash, page avec)', () => {
+    const results = runRule('llms_txt_removed', ctx({
+      pageUrl: 'https://example.com/fr/',
+      siteContext: { hasLlmsTxt: false, oldHasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null, siteRootUrl: 'https://example.com/fr' },
+    }))
+    expect(results).toHaveLength(1)
+  })
+
+  it('repli sur pathname / quand siteRootUrl est absent (rétro-compat)', () => {
+    const results = runRule('llms_txt_removed', ctx({
+      pageUrl: 'https://example.com/',
+      siteContext: { hasLlmsTxt: false, oldHasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null },
+    }))
+    expect(results).toHaveLength(1)
+  })
+
+  it('ai_crawlers_blocked_changed fire aussi sur l\'ancre /fr/', () => {
+    const results = runRule('ai_crawlers_blocked_changed', ctx({
+      pageUrl: 'https://example.com/fr/',
+      siteContext: { hasLlmsTxt: true, aiCrawlersBlocked: ['GPTBot'], oldAiCrawlersBlocked: [], robotsTxtRaw: null, siteRootUrl: 'https://example.com/fr/' },
+    }))
+    expect(results).toHaveLength(1)
+  })
+})
+
 describe('ai_crawlers_blocked_changed', () => {
   it('fires when new AI crawlers are blocked', () => {
     const results = runRule('ai_crawlers_blocked_changed', ctx({
