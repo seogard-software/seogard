@@ -2,7 +2,7 @@ import { ALERT_TYPE_LABELS, getRuleCategory } from '../../../shared/utils/consta
 
 const RULES = [
   // P0 — Deindexation
-  { id: 'noindex_added', severity: 'critical', type: 'cross-crawl', file: 'indexing.ts', priority: 'P0', description: 'Une directive noindex a été ajoutée. La page va disparaître des résultats Google sous quelques jours.' },
+  { id: 'noindex_added', severity: 'critical', type: 'cross-crawl', file: 'indexing.ts', priority: 'P0', description: 'Une directive noindex a été ajoutée (balise meta robots/googlebot ou en-tête HTTP X-Robots-Tag). La page va disparaître des résultats Google sous quelques jours.' },
   { id: 'status_code_changed', severity: 'critical/warning', type: 'cross-crawl', file: 'status-code.ts', priority: 'P0', description: 'Le code HTTP a changé (ex : 200 → 404 ou 301). Critical si erreur serveur (4xx/5xx), warning si redirection (3xx).' },
   { id: 'canonical_missing', severity: 'critical', type: 'cross-crawl', file: 'meta.ts', priority: 'P0', description: 'La balise canonical a disparu. Risque de contenu dupliqué — Google ne sait plus quelle URL indexer.' },
   { id: 'canonical_changed', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P0', description: 'La balise canonical pointe vers une URL différente. Peut être voulu (migration) ou accidentel.' },

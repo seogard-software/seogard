@@ -6,6 +6,8 @@ const metaSchema = new Schema({
   description: String,
   canonical: String,
   robots: String,
+  robotsGooglebot: String,
+  xRobotsTag: String,
   ogTitle: String,
   ogDescription: String,
   ogImage: String,

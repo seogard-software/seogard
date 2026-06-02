@@ -10,6 +10,11 @@ export interface PageMeta {
   description: string | null
   canonical: string | null
   robots: string | null
+  // Directive robots ciblée Googlebot (<meta name="googlebot">) + en-tête HTTP X-Robots-Tag.
+  // Top-level (et non dans responseHeaders) pour être conservés dans MetaCore → comparables
+  // d'un crawl à l'autre, afin de détecter un noindex porté par l'en-tête HTTP.
+  robotsGooglebot: string | null
+  xRobotsTag: string | null
 
   // Open Graph
   ogTitle: string | null
@@ -279,6 +284,8 @@ function extractMeta(
     description: extractMetaByName(html, 'description'),
     canonical: extractLinkHref(html, 'canonical'),
     robots: extractMetaByName(html, 'robots'),
+    robotsGooglebot: extractMetaByName(html, 'googlebot'),
+    xRobotsTag: responseHeaders.xRobotsTag,
 
     ogTitle: extractMetaByProperty(html, 'og:title'),
     ogDescription: extractMetaByProperty(html, 'og:description'),

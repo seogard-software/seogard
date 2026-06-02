@@ -26,6 +26,8 @@ function baseMeta(overrides: Partial<PageMeta> = {}): PageMeta {
     description: 'A test description that is long enough to be valid and useful for testing.',
     canonical: 'https://example.com/page',
     robots: null,
+    robotsGooglebot: null,
+    xRobotsTag: null,
     ogTitle: 'Test Page',
     ogDescription: 'Test description',
     ogImage: 'https://example.com/img.jpg',
@@ -76,6 +78,14 @@ function baseMeta(overrides: Partial<PageMeta> = {}): PageMeta {
     favicon: null,
     ...overrides,
   }
+}
+
+/** Simule d'anciennes données : les champs robotsGooglebot/xRobotsTag n'existaient pas encore en base. */
+function legacyMeta(overrides: Partial<PageMeta> = {}): PageMeta {
+  const m = baseMeta(overrides) as Partial<PageMeta>
+  delete m.robotsGooglebot
+  delete m.xRobotsTag
+  return m as PageMeta
 }
 
 /** Build headings array from level numbers (convenience) */
@@ -210,6 +220,65 @@ describe('noindex_added', () => {
       oldMeta: baseMeta({ robots: 'noindex' }),
       newMeta: baseMeta({ robots: 'noindex' }),
     }))).toHaveLength(0)
+  })
+
+  // noindex via en-tête HTTP X-Robots-Tag + balise meta googlebot
+  it('fire quand X-Robots-Tag: noindex est ajouté (ni meta ni header avant)', () => {
+    const r = runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ robots: null, xRobotsTag: null }),
+      newMeta: baseMeta({ robots: null, xRobotsTag: 'noindex' }),
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('critical')
+  })
+
+  it('X-Robots-Tag ciblé "googlebot: noindex" → fire', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ xRobotsTag: null }),
+      newMeta: baseMeta({ xRobotsTag: 'googlebot: noindex' }),
+    }))).toHaveLength(1)
+  })
+
+  it('balise <meta googlebot> noindex → fire', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ robotsGooglebot: null }),
+      newMeta: baseMeta({ robotsGooglebot: 'noindex' }),
+    }))).toHaveLength(1)
+  })
+
+  it('meta + header ajoutés ensemble → une seule alerte', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ robots: null, xRobotsTag: null }),
+      newMeta: baseMeta({ robots: 'noindex', xRobotsTag: 'noindex' }),
+    }))).toHaveLength(1)
+  })
+
+  it('header ajouté alors que meta robots était déjà noindex → pas de nouvelle alerte', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ robots: 'noindex', xRobotsTag: null }),
+      newMeta: baseMeta({ robots: 'noindex', xRobotsTag: 'noindex' }),
+    }))).toHaveLength(0)
+  })
+
+  it('header retiré → pas de nouvelle alerte', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ xRobotsTag: 'noindex' }),
+      newMeta: baseMeta({ xRobotsTag: null }),
+    }))).toHaveLength(0)
+  })
+
+  it('migration : legacy (header non suivi) + noindex header-only → pas d\'alerte (baseline)', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: legacyMeta({ robots: null }),
+      newMeta: baseMeta({ robots: null, xRobotsTag: 'noindex' }),
+    }))).toHaveLength(0)
+  })
+
+  it('migration : legacy + noindex via meta robots → alerte (meta robots toujours suivi)', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: legacyMeta({ robots: 'index' }),
+      newMeta: baseMeta({ robots: 'noindex' }),
+    }))).toHaveLength(1)
   })
 })
 
@@ -1095,7 +1164,7 @@ describe('llms_txt_removed', () => {
   })
 })
 
-// SEOG-1 — ancre des règles site-level sur l'URL racine ENREGISTRÉE du site (siteRootUrl),
+// Ancre des règles site-level sur l'URL racine ENREGISTRÉE du site (siteRootUrl),
 // pas seulement pathname '/'. Couvre les sites servis sous un chemin (ex. /fr/).
 describe('site-level anchor (siteRootUrl)', () => {
   it('fire sur la home servie sous un chemin (/fr/) quand elle matche siteRootUrl', () => {
