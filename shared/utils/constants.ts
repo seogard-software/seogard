@@ -26,7 +26,6 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   content_removed: 'Contenu supprimé',
   hreflang_removed: 'Hreflang supprimé',
   hreflang_changed: 'Hreflang modifié',
-  title_duplicate_of_h1: 'Title = H1',
   https_mixed_content: 'Ressources HTTP sur page HTTPS',
   // P2
   meta_description_missing: 'Meta description supprimée',

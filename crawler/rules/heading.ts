@@ -94,39 +94,13 @@ registerRule({
       const skip = findFirstSkip(levels)
       return [{
         type: 'heading_hierarchy_broken',
-        severity: 'warning',
+        severity: 'info',
         message: `Heading hierarchy broken (H${skip.from} → H${skip.to}, skipped H${skip.from + 1})`,
         previousValue: oldLevels.join(','),
         currentValue: levels.join(','),
       }]
     }
     return []
-  },
-})
-
-registerRule({
-  id: 'title_duplicate_of_h1',
-  run(ctx) {
-    if (!ctx.oldMeta) return []
-    const newH1 = getH1(ctx.newMeta)
-    if (!ctx.newMeta.title || !newH1) return []
-    const titleNorm = ctx.newMeta.title.toLowerCase().trim()
-    const h1Norm = newH1.toLowerCase().trim()
-    if (titleNorm !== h1Norm) return []
-    // Only alert if this is new (old title wasn't same as old h1)
-    const oldH1 = getH1(ctx.oldMeta)
-    if (ctx.oldMeta.title && oldH1) {
-      const oldTitleNorm = ctx.oldMeta.title.toLowerCase().trim()
-      const oldH1Norm = oldH1.toLowerCase().trim()
-      if (oldTitleNorm === oldH1Norm) return [] // was already duplicate
-    }
-    return [{
-      type: 'title_duplicate_of_h1',
-      severity: 'info',
-      message: 'Title is identical to H1 — missed ranking opportunity',
-      previousValue: ctx.oldMeta.title,
-      currentValue: ctx.newMeta.title,
-    }]
   },
 })
 

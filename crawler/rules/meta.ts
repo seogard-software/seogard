@@ -44,7 +44,7 @@ registerRule({
     if (!ctx.newMeta.description) {
       return [{
         type: 'meta_description_missing',
-        severity: 'critical',
+        severity: 'warning',
         message: `Meta description removed (was: "${truncate(ctx.oldMeta.description)}")`,
         previousValue: ctx.oldMeta.description,
         currentValue: null,

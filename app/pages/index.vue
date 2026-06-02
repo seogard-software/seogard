@@ -18,7 +18,7 @@
           <span class="hero__title-accent">avant Google.</span>
         </h1>
         <p class="hero__subtitle">
-          Monitoring continu de chaque page de votre site. Détection des régressions SSR/CSR, metas, canonicals, noindex. Alertes temps réel par email — avant que Google n'indexe le problème.
+          Monitoring continu : on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript, et on vous alerte par email avant que le problème ne soit indexé.
         </p>
         <div class="hero__ctas">
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
@@ -447,7 +447,7 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO & GEO continu. Détection des régressions SSR/CSR, metas, canonicals. Alertes temps réel par email. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  description: `Monitoring SEO continu : détectez les régressions (HTML brut vs rendu JS) avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   ogTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
   ogDescription: `Monitoring SEO & GEO continu avec détection des régressions SSR/CSR et alertes temps réel. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',

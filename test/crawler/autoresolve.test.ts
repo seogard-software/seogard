@@ -20,7 +20,7 @@ const HEALTHY = ctx(
   { siteContext: { hasLlmsTxt: true }, newPerf: { lcpMs: 1000, cls: 0.02, ttfbMs: 200, weightTotalKb: 500 } },
 )
 
-// Les 18 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
+// Les 17 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
 // accidentel. LCP/CLS/TTFB n'y sont PAS : ce sont du monitoring, sans alerte donc rien à
 // auto-résoudre. Seul perf_page_weight_explosion (poids déterministe) reste côté perf.
 const EXPECTED_KEYS = [
@@ -29,11 +29,11 @@ const EXPECTED_KEYS = [
   'llms_txt_removed', 'meta_description_missing', 'meta_title_missing',
   'og_image_removed', 'og_title_removed', 'perf_page_weight_explosion',
   'structured_data_author_removed', 'structured_data_removed', 'thin_content',
-  'title_duplicate_of_h1', 'viewport_missing',
+  'viewport_missing',
 ].sort()
 
 describe('RESOLVE_WHEN — liste blanche figée', () => {
-  it('contient EXACTEMENT les 18 règles attendues', () => {
+  it('contient EXACTEMENT les 17 règles attendues', () => {
     expect(Object.keys(RESOLVE_WHEN).sort()).toEqual(EXPECTED_KEYS)
   })
 
@@ -49,14 +49,14 @@ describe('RESOLVE_WHEN — liste blanche figée', () => {
 })
 
 describe('clearedRuleIds — agrégation', () => {
-  it('état 100 % sain (avec perf) → les 18 règles', () => {
+  it('état 100 % sain (avec perf) → les 17 règles', () => {
     expect(clearedRuleIds(HEALTHY).sort()).toEqual(EXPECTED_KEYS)
   })
 
   it('sans données perf → aucune règle perf_* résolue (donnée absente = conservée)', () => {
     const noPerf = ctx({ ...(HEALTHY.newMeta as Record<string, unknown>) }, { siteContext: { hasLlmsTxt: true } })
     const cleared = clearedRuleIds(noPerf)
-    expect(cleared).toHaveLength(17)
+    expect(cleared).toHaveLength(16)
     expect(cleared.some(id => id.startsWith('perf_'))).toBe(false)
   })
 
@@ -154,12 +154,6 @@ describe('RESOLVE_WHEN — prédicats (sain → true, cassé → false, donnée 
     expect(RESOLVE_WHEN.heading_hierarchy_broken!(ctx({ headings: [{ level: 1, text: 'a' }, { level: 2, text: 'b' }] }))).toBe(true)
     expect(RESOLVE_WHEN.heading_hierarchy_broken!(ctx({ headings: [{ level: 1, text: 'a' }, { level: 3, text: 'c' }] }))).toBe(false)
     expect(RESOLVE_WHEN.heading_hierarchy_broken!(ctx({ headings: [] }))).toBe(true)
-  })
-
-  it('title_duplicate_of_h1 (insensible à la casse/espaces)', () => {
-    expect(RESOLVE_WHEN.title_duplicate_of_h1!(ctx({ title: 'Accueil', headings: [h1('Bienvenue')] }))).toBe(true)
-    expect(RESOLVE_WHEN.title_duplicate_of_h1!(ctx({ title: ' Accueil ', headings: [h1('accueil')] }))).toBe(false)
-    expect(RESOLVE_WHEN.title_duplicate_of_h1!(ctx({ title: null, headings: [] }))).toBe(true)
   })
 
   it('thin_content (seuil 200 mots)', () => {

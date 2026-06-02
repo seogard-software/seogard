@@ -24,7 +24,6 @@ const ALERT_TYPES = [
   'h1_multiple',
   'h1_changed',
   'heading_hierarchy_broken',
-  'title_duplicate_of_h1',
   // Content (content.ts)
   'soft_404',
   'thin_content',

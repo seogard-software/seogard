@@ -23,7 +23,7 @@ registerRule({
     return [{
       type: 'rec_llms_txt_missing',
       severity: 'info',
-      message: 'Aucun /llms.txt détecté — les LLM (ChatGPT, Claude, Perplexity) ne peuvent pas comprendre votre site',
+      message: 'Aucun /llms.txt détecté — convention spéculative : son usage par les grands LLM (ChatGPT, Claude, Perplexity) n\'est pas confirmé à ce jour. Utile surtout pour la documentation et les agents, pas un facteur de citation prouvé.',
       previousValue: null,
       currentValue: null,
     }]
@@ -149,8 +149,8 @@ registerRule({
     if (ctx.siteContext.hasLlmsTxt) return [] // still there
     return [{
       type: 'llms_txt_removed',
-      severity: 'critical',
-      message: '/llms.txt supprimé — le site perd sa visibilité pour les LLM (ChatGPT, Claude, Perplexity)',
+      severity: 'info',
+      message: '/llms.txt supprimé — fichier optionnel (non consommé par les grands LLM à ce jour), utile surtout pour la documentation et les agents',
       previousValue: '/llms.txt présent',
       currentValue: null,
     }]
@@ -202,7 +202,7 @@ registerRule({
     if (ctx.newMeta.jsonLdAuthor) return [] // still there
     return [{
       type: 'structured_data_author_removed',
-      severity: 'critical',
+      severity: 'warning',
       message: `Auteur supprimé des données structurées (était : ${ctx.oldMeta.jsonLdAuthor}) — réduit la crédibilité pour les IA`,
       previousValue: ctx.oldMeta.jsonLdAuthor,
       currentValue: null,

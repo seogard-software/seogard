@@ -75,11 +75,6 @@ export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
   // Défauts de qualité → sains si corrigés
   h1_multiple: ctx => getH1Count(ctx.newMeta) <= 1,
   heading_hierarchy_broken: ctx => !hasHierarchySkip(getHeadingLevels(ctx.newMeta)),
-  title_duplicate_of_h1: (ctx) => {
-    const h1 = getH1(ctx.newMeta)
-    if (!ctx.newMeta.title || !h1) return true // pas de doublon possible → sain
-    return ctx.newMeta.title.trim().toLowerCase() !== h1.trim().toLowerCase()
-  },
   thin_content: ctx => (ctx.newMeta.wordCount ?? 0) >= 200,
   // Régression perf (poids déterministe) → saine si le poids est de nouveau « bon ».
   // LCP/CLS/TTFB ne sont PAS ici : monitoring pur, sans alerte donc rien à auto-résoudre.

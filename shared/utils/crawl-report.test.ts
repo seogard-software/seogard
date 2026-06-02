@@ -37,7 +37,8 @@ describe('buildCrawlReport — déclencheur monitoring-first', () => {
     expect(r.recoCount).toBe(2)
   })
 
-  it('les alertes info event/state ne déclenchent pas (monitoring = crit/warning)', () => {
-    expect(buildCrawlReport([a('event', 'info')], []).shouldSend).toBe(false)
+  it('une régression info (event/state) DÉCLENCHE — toute régression notifie, quelle que soit la sévérité', () => {
+    expect(buildCrawlReport([a('event', 'info')], []).shouldSend).toBe(true)
+    expect(buildCrawlReport([a('state', 'info')], []).shouldSend).toBe(true)
   })
 })

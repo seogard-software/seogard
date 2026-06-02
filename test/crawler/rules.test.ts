@@ -154,7 +154,7 @@ describe('meta_description_missing', () => {
       newMeta: baseMeta({ description: null }),
     }))
     expect(results).toHaveLength(1)
-    expect(results[0].severity).toBe('critical')
+    expect(results[0].severity).toBe('warning')
   })
 })
 
@@ -502,23 +502,6 @@ describe('heading_hierarchy_broken', () => {
     expect(runRule('heading_hierarchy_broken', ctx({
       oldMeta: baseMeta({ headings: headingsFrom(1, 2, 3) }),
       newMeta: baseMeta({ headings: headingsFrom(1, 2, 2, 3) }),
-    }))).toHaveLength(0)
-  })
-})
-
-describe('title_duplicate_of_h1', () => {
-  it('fires when title becomes identical to H1', () => {
-    const results = runRule('title_duplicate_of_h1', ctx({
-      oldMeta: baseMeta({ title: 'Different Title', headings: [{ level: 1, text: 'Page Content' }] }),
-      newMeta: baseMeta({ title: 'Same Text', headings: [{ level: 1, text: 'Same Text' }] }),
-    }))
-    expect(results).toHaveLength(1)
-  })
-
-  it('does not fire if was already duplicate', () => {
-    expect(runRule('title_duplicate_of_h1', ctx({
-      oldMeta: baseMeta({ title: 'Same', headings: [{ level: 1, text: 'Same' }] }),
-      newMeta: baseMeta({ title: 'Same', headings: [{ level: 1, text: 'Same' }] }),
     }))).toHaveLength(0)
   })
 })
@@ -1084,7 +1067,7 @@ describe('llms_txt_removed', () => {
       siteContext: { hasLlmsTxt: false, oldHasLlmsTxt: true, aiCrawlersBlocked: [], robotsTxtRaw: null },
     }))
     expect(results).toHaveLength(1)
-    expect(results[0].severity).toBe('critical')
+    expect(results[0].severity).toBe('info')
   })
 
   it('does not fire when llms.txt still exists', () => {
@@ -1183,7 +1166,7 @@ describe('structured_data_author_removed', () => {
       newMeta: baseMeta({ jsonLdAuthor: null }),
     }))
     expect(results).toHaveLength(1)
-    expect(results[0].severity).toBe('critical')
+    expect(results[0].severity).toBe('warning')
   })
 
   it('does not fire when author still exists', () => {

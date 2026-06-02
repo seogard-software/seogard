@@ -22,7 +22,6 @@ export type AlertType =
   | 'content_removed'
   | 'hreflang_removed'
   | 'hreflang_changed'
-  | 'title_duplicate_of_h1'
   | 'https_mixed_content'
   // P2 — CTR / SERP
   | 'meta_description_missing'

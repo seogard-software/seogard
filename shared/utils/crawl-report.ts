@@ -19,9 +19,12 @@ export interface CrawlReport {
   recoCount: number
 }
 
-// Monitoring = régressions (event) + incidents d'état (state), crit/warning uniquement.
+// Monitoring = toute régression : event (quelque chose a changé/cassé/disparu) ou state
+// (problème présent). La SÉVÉRITÉ ne filtre PAS : une régression info reste une régression et
+// doit notifier — c'est la promesse du monitoring. Seules les recommandations (audit) sont
+// exclues (par catégorie). Les règles event ne fire qu'à la transition → pas de spam.
 function isMonitoring(a: ReportAlert): boolean {
-  return (a.category === 'event' || a.category === 'state') && (a.severity === 'critical' || a.severity === 'warning')
+  return a.category === 'event' || a.category === 'state'
 }
 
 /**
