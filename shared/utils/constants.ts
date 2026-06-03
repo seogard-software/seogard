@@ -59,6 +59,7 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   rec_description_length_audit: 'Longueur de la description',
   rec_h1_missing_audit: 'H1 manquant',
   rec_h1_missing_in_ssr: 'H1 absent du HTML brut (rempli par JavaScript)',
+  rec_content_missing_in_ssr: 'Contenu visible seulement après JavaScript',
   rec_favicon_missing_audit: 'Favicon manquant',
   rec_semantic_structure_audit: 'Structure sémantique',
   rec_semantic_structure_missing_in_ssr: 'Balises sémantiques absentes du HTML brut',
@@ -89,7 +90,7 @@ export const STATE_RULES: Set<string> = new Set([
 export const RECOMMENDATION_RULES: Set<string> = new Set([
   'rec_img_alt_audit', 'rec_img_alt_missing_in_ssr',
   'rec_title_length_audit', 'rec_description_length_audit',
-  'rec_h1_missing_audit', 'rec_h1_missing_in_ssr',
+  'rec_h1_missing_audit', 'rec_h1_missing_in_ssr', 'rec_content_missing_in_ssr',
   'rec_favicon_missing_audit',
   'rec_semantic_structure_audit', 'rec_semantic_structure_missing_in_ssr',
   'rec_structured_data_missing_audit', 'rec_structured_data_missing_in_ssr',

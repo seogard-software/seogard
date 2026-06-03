@@ -1,5 +1,9 @@
 import { registerRule } from './engine'
 
+// Seuil « contenu mince » (mots) — SOURCE UNIQUE. Utilisé par la règle thin_content ET par son
+// prédicat d'auto-résolution (RESOLVE_WHEN dans comparator.ts). Changer ici = change partout.
+export const THIN_CONTENT_MIN_WORDS = 200
+
 registerRule({
   id: 'soft_404',
   run(ctx) {
@@ -21,8 +25,8 @@ registerRule({
     if (ctx.oldMeta.wordCount === undefined) return []
     const oldWords = ctx.oldMeta.wordCount ?? 0
     const newWords = ctx.newMeta.wordCount ?? 0
-    if (newWords >= 200) return []
-    if (oldWords < 200) return [] // was already thin
+    if (newWords >= THIN_CONTENT_MIN_WORDS) return []
+    if (oldWords < THIN_CONTENT_MIN_WORDS) return [] // was already thin
     return [{
       type: 'thin_content',
       severity: 'warning',

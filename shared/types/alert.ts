@@ -48,6 +48,7 @@ export type AlertType =
   | 'rec_description_length_audit'
   | 'rec_h1_missing_audit'
   | 'rec_h1_missing_in_ssr'
+  | 'rec_content_missing_in_ssr'
   | 'rec_favicon_missing_audit'
   | 'rec_semantic_structure_audit'
   | 'rec_semantic_structure_missing_in_ssr'

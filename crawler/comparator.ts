@@ -5,6 +5,7 @@ import { ratePageWeight } from '../shared/types/perf'
 import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
 import { getH1, getH1Count, getHeadingLevels, hasHierarchySkip } from './rules/heading'
+import { THIN_CONTENT_MIN_WORDS } from './rules/content'
 // Import rules for side-effect registration
 import './rules/meta'
 import './rules/indexing'
@@ -47,7 +48,7 @@ export interface CompareResult {
 }
 
 // Prédicats de récupération « la page est-elle SAINE maintenant ? » par règle event.
-// Liste blanche STRICTE de 18 règles.
+// Liste blanche STRICTE de 17 règles.
 // Détection (run()) inchangée : ceci ne sert QU'À résoudre, jamais à créer. Donnée
 // absente → false → alerte conservée (résolution conservatrice, zéro fermeture à tort).
 //
@@ -75,7 +76,7 @@ export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
   // Défauts de qualité → sains si corrigés
   h1_multiple: ctx => getH1Count(ctx.newMeta) <= 1,
   heading_hierarchy_broken: ctx => !hasHierarchySkip(getHeadingLevels(ctx.newMeta)),
-  thin_content: ctx => (ctx.newMeta.wordCount ?? 0) >= 200,
+  thin_content: ctx => (ctx.newMeta.wordCount ?? 0) >= THIN_CONTENT_MIN_WORDS,
   // Régression perf (poids déterministe) → saine si le poids est de nouveau « bon ».
   // LCP/CLS/TTFB ne sont PAS ici : monitoring pur, sans alerte donc rien à auto-résoudre.
   perf_page_weight_explosion: ctx => ctx.newPerf?.weightTotalKb != null && ratePageWeight(ctx.newPerf.weightTotalKb) === 'good',

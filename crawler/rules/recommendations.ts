@@ -1,4 +1,6 @@
 import { registerRule } from './engine'
+import { isCsrBlocked } from './helpers'
+import { isSsrError, isSsrContentMismatch, isSsrRenderingFailed } from './ssr-csr'
 
 // Recommendation rules check absolute state (no oldMeta required).
 // They fire on every crawl to surface SEO best-practice issues.
@@ -105,6 +107,46 @@ registerRule({
       message: `H1 absent ou vide en SSR mais rempli côté JavaScript ("${csrH1Text}"). Google peut le voir avec délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.`,
       previousValue: null,
       currentValue: csrH1Text,
+    }]
+  },
+})
+
+// Seuils rec_content_missing_in_ssr — À CALIBRER sur du réel avant de figer (cf. plan SEOG-5).
+// Conservateurs pour ne fire que sur des cas nets (zéro faux positif). Source unique ici.
+const CONTENT_SSR_MIN_RENDERED_WORDS = 300 // en dessous : pas assez de matière pour conclure
+const CONTENT_SSR_MAX_RAW_RATIO = 0.5 // < 50% du texte dans le HTML brut → signal
+const CONTENT_SSR_MIN_ABS_GAP = 200 // écart absolu mini (mots) — évite le bruit de mesure SSR/CSR
+
+// rec_content_missing_in_ssr — une part majoritaire du CORPS DE TEXTE n'apparaît qu'après JS.
+// Les IA lisent le HTML brut → ce texte leur est probablement invisible. Recommandation info.
+// Ne couvre QUE la bande intermédiaire : le cas catastrophique (SSR quasi vide) est déjà géré
+// par ssr_content_mismatch / ssr_rendering_failed → on skip pour ne JAMAIS doublonner.
+registerRule({
+  id: 'rec_content_missing_in_ssr',
+  run(ctx) {
+    if (ctx.renderedMeta?.wordCount == null) return [] // phase CSR requise
+    if (isSsrError(ctx.newStatusCode)) return [] // erreur serveur → donnée non fiable
+    if (isCsrBlocked(ctx.renderedMeta, ctx.csrContentLength)) return [] // anti-bot
+
+    // Anti-doublon : le cas catastrophique est déjà couvert par les règles SSR critiques
+    // (mêmes seuils — source unique dans ssr-csr.ts). On ne vit que dans la bande intermédiaire.
+    if (isSsrContentMismatch(ctx.ssrContentLength, ctx.csrContentLength)) return []
+    if (isSsrRenderingFailed(ctx.ssrContentLength, ctx.csrContentLength)) return []
+
+    const csr = ctx.renderedMeta.wordCount
+    const ssr = ctx.newMeta.wordCount
+    if (csr < CONTENT_SSR_MIN_RENDERED_WORDS) return [] // pas assez de matière
+    if (ssr >= csr) return [] // le brut a autant/plus → rien à signaler
+    if (csr - ssr < CONTENT_SSR_MIN_ABS_GAP) return [] // écart absolu trop faible
+    if (ssr / csr >= CONTENT_SSR_MAX_RAW_RATIO) return [] // l'essentiel du texte est déjà dans le HTML brut
+
+    const missing = csr - ssr
+    return [{
+      type: 'rec_content_missing_in_ssr',
+      severity: 'warning',
+      message: `${missing} mots sur ${csr} ne sont présents qu'après exécution JavaScript. Les robots d'IA (ChatGPT, Perplexity, Claude) lisent le HTML brut et ne verront probablement pas ce contenu.`,
+      previousValue: null,
+      currentValue: `SSR ${ssr} mots / CSR ${csr} mots`,
     }]
   },
 })

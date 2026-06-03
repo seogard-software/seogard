@@ -1457,6 +1457,70 @@ describe('rec_h1_missing_in_ssr', () => {
   })
 })
 
+describe('rec_content_missing_in_ssr', () => {
+  // Bytes non catastrophiques (ratio 0,4) + CSR > 2000o (pas anti-bot) → on est dans la bande intermédiaire.
+  const okBytes = { ssrContentLength: 2000, csrContentLength: 5000 }
+
+  it('fire quand >50% du texte n\'est que dans le rendu JS (info, message en mots absolus)', () => {
+    const r = runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes,
+      newMeta: baseMeta({ wordCount: 300 }),
+      renderedMeta: { wordCount: 760 },
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('warning')
+    expect(r[0].message).toContain('460 mots sur 760')
+    expect(r[0].message).not.toMatch(/%/) // pas de pourcentage présenté comme une mesure
+  })
+
+  it('pas de fire si l\'essentiel du texte est dans le HTML brut (ratio ≥ 0,5)', () => {
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ wordCount: 500 }), renderedMeta: { wordCount: 760 },
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire si moins de 300 mots rendus', () => {
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ wordCount: 50 }), renderedMeta: { wordCount: 250 },
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire si l\'écart absolu < 200 mots', () => {
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ wordCount: 130 }), renderedMeta: { wordCount: 300 },
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire en phase SSR (renderedMeta null)', () => {
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ wordCount: 100 }), renderedMeta: null,
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire si anti-bot (CSR trop court) ou erreur serveur', () => {
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ssrContentLength: 500, csrContentLength: 1000, // < 2000 → isCsrBlocked
+      newMeta: baseMeta({ wordCount: 100 }), renderedMeta: { wordCount: 760 },
+    }))).toHaveLength(0)
+    expect(runRule('rec_content_missing_in_ssr', ctx({
+      ...okBytes, newStatusCode: 503, newMeta: baseMeta({ wordCount: 100 }), renderedMeta: { wordCount: 760 },
+    }))).toHaveLength(0)
+  })
+
+  // ANTI-DOUBLON : une page catastrophique (octets < 10%) ne déclenche QUE ssr_content_mismatch,
+  // jamais aussi rec_content_missing_in_ssr (pas de "deux mismatch" sur la même page).
+  it('ne fire PAS sur une page catastrophique (octets < 10%) — laissée à ssr_content_mismatch', () => {
+    const catastrophic = ctx({
+      ssrContentLength: 400, csrContentLength: 5000, // ratio octets 0,08 < 0,10
+      newMeta: baseMeta({ wordCount: 30 }),
+      renderedMeta: { wordCount: 760 },
+    })
+    expect(runRule('rec_content_missing_in_ssr', catastrophic)).toHaveLength(0)
+    // ...et c'est bien ssr_content_mismatch (critical) qui parle, lui seul :
+    expect(runRule('ssr_content_mismatch', catastrophic)).toHaveLength(1)
+  })
+})
+
 // ============================================================
 // rec_internal_links_audit (CSR-based) and rec_internal_links_missing_in_ssr
 // ============================================================

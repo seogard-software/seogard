@@ -1,9 +1,27 @@
 import { registerRule } from './engine'
 import { isCsrBlocked, normalizeForCompare } from './helpers'
 
+// Seuils SSR/CSR (en octets) — SOURCE UNIQUE. Réutilisés par les règles critiques ci-dessous
+// ET par les gardes anti-doublon des recommandations (rec_content_missing_in_ssr). Changer
+// une valeur ici la change PARTOUT.
+export const SSR_CONTENT_MISMATCH_MAX_RATIO = 0.1
+export const SSR_RENDERING_FAILED_SSR_MAX_BYTES = 200
+export const SSR_RENDERING_FAILED_CSR_MIN_BYTES = 1000
+
 /** SSR returned an error page — comparison with CSR is meaningless */
-function isSsrError(statusCode: number): boolean {
+export function isSsrError(statusCode: number): boolean {
   return statusCode >= 400
+}
+
+/** HTML brut < ratio seuil du rendu → SSR cassé (cas catastrophique, critical). */
+export function isSsrContentMismatch(ssrBytes: number, csrBytes: number | null): boolean {
+  if (!ssrBytes || !csrBytes) return false
+  return ssrBytes / csrBytes < SSR_CONTENT_MISMATCH_MAX_RATIO
+}
+
+/** HTML brut quasi vide alors que le rendu JS est conséquent → rendu SSR échoué (critical). */
+export function isSsrRenderingFailed(ssrBytes: number, csrBytes: number | null): boolean {
+  return !!csrBytes && ssrBytes < SSR_RENDERING_FAILED_SSR_MAX_BYTES && csrBytes > SSR_RENDERING_FAILED_CSR_MIN_BYTES
 }
 
 registerRule({
@@ -14,16 +32,14 @@ registerRule({
     if (!ctx.csrContentLength || !ctx.ssrContentLength) return []
 
     const ratio = ctx.ssrContentLength / ctx.csrContentLength
-    if (ratio < 0.1) {
-      return [{
-        type: 'ssr_content_mismatch',
-        severity: 'critical',
-        message: `SSR content is ${Math.round(ratio * 100)}% of CSR — possible SSR failure`,
-        previousValue: null,
-        currentValue: `SSR: ${ctx.ssrContentLength}b, CSR: ${ctx.csrContentLength}b`,
-      }]
-    }
-    return []
+    if (ratio >= SSR_CONTENT_MISMATCH_MAX_RATIO) return []
+    return [{
+      type: 'ssr_content_mismatch',
+      severity: 'critical',
+      message: `SSR content is ${Math.round(ratio * 100)}% of CSR — possible SSR failure`,
+      previousValue: null,
+      currentValue: `SSR: ${ctx.ssrContentLength}b, CSR: ${ctx.csrContentLength}b`,
+    }]
   },
 })
 
@@ -32,18 +48,15 @@ registerRule({
   run(ctx) {
     if (isSsrError(ctx.newStatusCode)) return []
     if (isCsrBlocked(ctx.renderedMeta, ctx.csrContentLength)) return []
-    if (!ctx.csrContentLength) return []
+    if (!isSsrRenderingFailed(ctx.ssrContentLength, ctx.csrContentLength)) return []
 
-    if (ctx.ssrContentLength < 200 && ctx.csrContentLength > 1000) {
-      return [{
-        type: 'ssr_rendering_failed',
-        severity: 'critical',
-        message: `SSR rendering broken — ${ctx.ssrContentLength}b SSR vs ${ctx.csrContentLength}b CSR`,
-        previousValue: null,
-        currentValue: `SSR: ${ctx.ssrContentLength}b, CSR: ${ctx.csrContentLength}b`,
-      }]
-    }
-    return []
+    return [{
+      type: 'ssr_rendering_failed',
+      severity: 'critical',
+      message: `SSR rendering broken — ${ctx.ssrContentLength}b SSR vs ${ctx.csrContentLength}b CSR`,
+      previousValue: null,
+      currentValue: `SSR: ${ctx.ssrContentLength}b, CSR: ${ctx.csrContentLength}b`,
+    }]
   },
 })
 
