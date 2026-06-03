@@ -174,7 +174,7 @@
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             <div>
               <strong class="features__item-title">Visibilité IA (GEO)</strong>
-              <span class="features__item-desc">llms.txt, crawlers IA (GPTBot, ClaudeBot…), FAQ & données structurées</span>
+              <span class="features__item-desc">llms.txt, crawlers IA de citation (OAI-SearchBot, PerplexityBot…), FAQ & données structurées</span>
             </div>
           </div>
         </div>
@@ -295,7 +295,7 @@ const cloudPriceDisplay = formatCloudPrice()
 const FAQ_ITEMS = [
   {
     q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, AI crawlers (GPTBot, ClaudeBot, PerplexityBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
+    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',

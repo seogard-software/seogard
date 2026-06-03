@@ -1521,6 +1521,103 @@ describe('rec_content_missing_in_ssr', () => {
   })
 })
 
+describe('rec_title_missing_in_ssr', () => {
+  const okBytes = { ssrContentLength: 2000, csrContentLength: 5000 }
+
+  it('fire quand le title est absent du HTML brut mais rempli en CSR (warning)', () => {
+    const r = runRule('rec_title_missing_in_ssr', ctx({
+      ...okBytes,
+      oldMeta: null, // structurel, pas une régression
+      newMeta: baseMeta({ title: null }),
+      renderedMeta: { title: 'Titre injecté par JS' },
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('warning')
+    expect(r[0].currentValue).toBe('Titre injecté par JS')
+  })
+
+  it('pas de fire si le title est déjà dans le HTML brut', () => {
+    expect(runRule('rec_title_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ title: 'Présent en SSR' }), renderedMeta: { title: 'Présent en SSR' },
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire si le title manque aussi en CSR', () => {
+    expect(runRule('rec_title_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ title: null }), renderedMeta: { title: null },
+    }))).toHaveLength(0)
+  })
+
+  // ANTI-DOUBLON : un title qui EXISTAIT et disparaît du HTML brut est une régression
+  // (meta_title_missing, critical + email) → la reco ne doit PAS doublonner.
+  it('ne fire PAS si le title existait avant (laissé à meta_title_missing)', () => {
+    const lost = ctx({
+      ...okBytes,
+      oldMeta: baseMeta({ title: 'Ancien titre' }),
+      newMeta: baseMeta({ title: null }),
+      renderedMeta: { title: 'Toujours rendu par JS' },
+    })
+    expect(runRule('rec_title_missing_in_ssr', lost)).toHaveLength(0)
+    expect(runRule('meta_title_missing', lost)).toHaveLength(1)
+  })
+
+  it('pas de fire en phase SSR (renderedMeta null)', () => {
+    expect(runRule('rec_title_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ title: null }), renderedMeta: null,
+    }))).toHaveLength(0)
+  })
+
+  it('pas de fire si anti-bot (CSR trop court) ou erreur serveur', () => {
+    expect(runRule('rec_title_missing_in_ssr', ctx({
+      ssrContentLength: 500, csrContentLength: 1000,
+      newMeta: baseMeta({ title: null }), renderedMeta: { title: 'X' },
+    }))).toHaveLength(0)
+    expect(runRule('rec_title_missing_in_ssr', ctx({
+      ...okBytes, newStatusCode: 503, newMeta: baseMeta({ title: null }), renderedMeta: { title: 'X' },
+    }))).toHaveLength(0)
+  })
+})
+
+describe('rec_description_missing_in_ssr', () => {
+  const okBytes = { ssrContentLength: 2000, csrContentLength: 5000 }
+
+  it('fire quand la meta description est absente du HTML brut mais rendue en CSR (info)', () => {
+    const r = runRule('rec_description_missing_in_ssr', ctx({
+      ...okBytes,
+      oldMeta: null,
+      newMeta: baseMeta({ description: null }),
+      renderedMeta: { description: 'Description injectée par JS' },
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('info')
+    expect(r[0].currentValue).toBe('Description injectée par JS')
+  })
+
+  it('pas de fire si la description est déjà dans le HTML brut', () => {
+    expect(runRule('rec_description_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ description: 'Présente en SSR' }), renderedMeta: { description: 'Présente en SSR' },
+    }))).toHaveLength(0)
+  })
+
+  // ANTI-DOUBLON : disparition d'une description existante = meta_description_missing (warning).
+  it('ne fire PAS si la description existait avant (laissée à meta_description_missing)', () => {
+    const lost = ctx({
+      ...okBytes,
+      oldMeta: baseMeta({ description: 'Ancienne description' }),
+      newMeta: baseMeta({ description: null }),
+      renderedMeta: { description: 'Toujours rendue par JS' },
+    })
+    expect(runRule('rec_description_missing_in_ssr', lost)).toHaveLength(0)
+    expect(runRule('meta_description_missing', lost)).toHaveLength(1)
+  })
+
+  it('pas de fire en phase SSR (renderedMeta null)', () => {
+    expect(runRule('rec_description_missing_in_ssr', ctx({
+      ...okBytes, newMeta: baseMeta({ description: null }), renderedMeta: null,
+    }))).toHaveLength(0)
+  })
+})
+
 // ============================================================
 // rec_internal_links_audit (CSR-based) and rec_internal_links_missing_in_ssr
 // ============================================================

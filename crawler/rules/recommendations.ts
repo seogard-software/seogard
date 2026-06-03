@@ -111,7 +111,7 @@ registerRule({
   },
 })
 
-// Seuils rec_content_missing_in_ssr — À CALIBRER sur du réel avant de figer (cf. plan SEOG-5).
+// Seuils rec_content_missing_in_ssr — à calibrer sur des sites réels avant de figer.
 // Conservateurs pour ne fire que sur des cas nets (zéro faux positif). Source unique ici.
 const CONTENT_SSR_MIN_RENDERED_WORDS = 300 // en dessous : pas assez de matière pour conclure
 const CONTENT_SSR_MAX_RAW_RATIO = 0.5 // < 50% du texte dans le HTML brut → signal
@@ -147,6 +147,53 @@ registerRule({
       message: `${missing} mots sur ${csr} ne sont présents qu'après exécution JavaScript. Les robots d'IA (ChatGPT, Perplexity, Claude) lisent le HTML brut et ne verront probablement pas ce contenu.`,
       previousValue: null,
       currentValue: `SSR ${ssr} mots / CSR ${csr} mots`,
+    }]
+  },
+})
+
+// rec_title_missing_in_ssr — le <title> est absent du HTML brut mais injecté par JavaScript.
+// Anti-doublon : si le titre EXISTAIT au crawl précédent (oldMeta.title), sa disparition du
+// HTML brut est déjà une régression couverte par meta_title_missing (critical + email) → on
+// laisse ce chemin la traiter. La reco ne couvre que le cas STRUCTUREL (titre jamais présent
+// dans le HTML brut, uniquement injecté côté JS).
+registerRule({
+  id: 'rec_title_missing_in_ssr',
+  run(ctx) {
+    if (!ctx.renderedMeta) return [] // phase CSR requise
+    if (isSsrError(ctx.newStatusCode)) return [] // erreur serveur → donnée non fiable
+    if (isCsrBlocked(ctx.renderedMeta, ctx.csrContentLength)) return [] // anti-bot
+    if (ctx.oldMeta?.title) return [] // disparition = régression (meta_title_missing), pas une reco
+    if (ctx.newMeta.title) return [] // présent dans le HTML brut → rien à signaler
+    const csrTitle = ctx.renderedMeta.title
+    if (!csrTitle) return [] // absent aussi en CSR → ni l'un ni l'autre, hors scope
+    return [{
+      type: 'rec_title_missing_in_ssr',
+      severity: 'warning',
+      message: `Le <title> est absent du HTML brut mais rempli après JavaScript ("${csrTitle}"). Google peut le voir avec délai et les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement pas — ils lisent principalement le HTML brut. Rendez le titre côté serveur (SSR).`,
+      previousValue: null,
+      currentValue: csrTitle,
+    }]
+  },
+})
+
+// rec_description_missing_in_ssr — meta description injectée par JavaScript uniquement.
+// Même garde-fou anti-doublon que ci-dessus (meta_description_missing gère la régression).
+registerRule({
+  id: 'rec_description_missing_in_ssr',
+  run(ctx) {
+    if (!ctx.renderedMeta) return [] // phase CSR requise
+    if (isSsrError(ctx.newStatusCode)) return [] // erreur serveur → donnée non fiable
+    if (isCsrBlocked(ctx.renderedMeta, ctx.csrContentLength)) return [] // anti-bot
+    if (ctx.oldMeta?.description) return [] // disparition = régression (meta_description_missing)
+    if (ctx.newMeta.description) return [] // présente dans le HTML brut → rien à signaler
+    const csrDescription = ctx.renderedMeta.description
+    if (!csrDescription) return [] // absente aussi en CSR → hors scope
+    return [{
+      type: 'rec_description_missing_in_ssr',
+      severity: 'info',
+      message: 'La meta description est absente du HTML brut mais présente après JavaScript. Google et les LLM lisent surtout le HTML brut — votre snippet de recherche et votre visibilité IA peuvent en pâtir. Rendez la meta description côté serveur (SSR).',
+      previousValue: null,
+      currentValue: csrDescription,
     }]
   },
 })

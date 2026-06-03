@@ -49,7 +49,7 @@ registerRule({
     return [{
       type: 'rec_ai_crawlers_blocked',
       severity: 'warning',
-      message: `robots.txt bloque des crawlers IA : ${blocked}`,
+      message: `robots.txt bloque des crawlers IA de citation (${blocked}) — réduit votre visibilité dans les réponses de ChatGPT search, Perplexity et Claude.`,
       previousValue: null,
       currentValue: blocked,
     }]
@@ -180,7 +180,7 @@ registerRule({
     return [{
       type: 'ai_crawlers_blocked_changed',
       severity: 'warning',
-      message: `Nouveaux crawlers IA bloqués dans robots.txt : ${newlyBlocked.join(', ')}`,
+      message: `Nouveaux crawlers IA de citation bloqués dans robots.txt (${newlyBlocked.join(', ')}) — réduit votre visibilité dans ChatGPT search, Perplexity et Claude.`,
       previousValue: oldBlocked.length > 0 ? oldBlocked.join(', ') : 'aucun bloqué',
       currentValue: newBlocked.join(', '),
     }]

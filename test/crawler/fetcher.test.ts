@@ -458,4 +458,10 @@ describe('isDisallowedInRobotsTxt (crawlers IA — blocage complet)', () => {
   it('Disallow: /* compte aussi comme blocage complet', () => {
     expect(isDisallowedInRobotsTxt('User-agent: *\nDisallow: /*', 'CCBot')).toBe(true)
   })
+
+  it('précédence : un groupe dédié qui autorise l\'emporte sur un * bloquant (évite le faux positif)', () => {
+    const robots = 'User-agent: *\nDisallow: /\n\nUser-agent: OAI-SearchBot\nDisallow:'
+    expect(isDisallowedInRobotsTxt(robots, 'OAI-SearchBot')).toBe(false) // groupe dédié autorise → ignore *
+    expect(isDisallowedInRobotsTxt(robots, 'PerplexityBot')).toBe(true) // pas de groupe dédié → subit *
+  })
 })

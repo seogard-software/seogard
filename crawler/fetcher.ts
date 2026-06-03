@@ -191,7 +191,13 @@ export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchR
 
 // --- Site-level context (GEO) ---
 
-const AI_CRAWLERS = ['GPTBot', 'ChatGPT-User', 'Anthropic-AI', 'ClaudeBot', 'CCBot', 'PerplexityBot', 'Bytespider']
+// On ne surveille QUE les crawlers de CITATION (index + browse "live user") dont le blocage
+// réduit la visibilité dans les réponses IA en recherche live — OpenAI, Perplexity, Anthropic.
+// PAS les crawlers d'ENTRAÎNEMENT (GPTBot, ClaudeBot, CCBot, Bytespider, Google-Extended,
+// Applebot-Extended…) : les bloquer est souvent volontaire (droits d'auteur) et n'a AUCUN
+// impact sur la citation → les signaler serait du bruit. (Google-Extended = entraînement Gemini,
+// pas citation.) Liste à maintenir : le paysage des crawlers IA évolue vite.
+const AI_CRAWLERS = ['OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Perplexity-User', 'Claude-SearchBot', 'Claude-User']
 
 export interface SiteContext {
   hasLlmsTxt: boolean
@@ -291,13 +297,16 @@ export function getGooglebotDisallows(robotsTxt: string): string[] {
 }
 
 // Un crawler (IA) est-il entièrement bloqué (Disallow: / ou /*) ? Réutilise le MÊME parser
-// que getGooglebotDisallows (un seul parser robots.txt). Considère le groupe du crawler ET le
-// groupe `*` (un blocage `*` s'applique au crawler s'il n'a pas de groupe dédié).
+// que getGooglebotDisallows (un seul parser robots.txt) ET la MÊME précédence : un groupe dédié
+// au crawler l'emporte sur `*` (le crawler ignore alors `*`). Évite le faux positif où `*`
+// bloque tout mais un groupe dédié autorise explicitement le crawler (pattern « bloquer tout
+// sauf les bots de citation IA »).
 export function isDisallowedInRobotsTxt(robotsTxt: string, userAgent: string): boolean {
   const ua = userAgent.toLowerCase()
-  return parseRobotsGroups(robotsTxt)
-    .filter(g => g.agents.includes(ua) || g.agents.includes('*'))
-    .some(g => g.disallows.some(p => p === '/' || p === '/*'))
+  const groups = parseRobotsGroups(robotsTxt)
+  const applicable = groups.find(g => g.agents.includes(ua)) ?? groups.find(g => g.agents.includes('*'))
+  if (!applicable) return false
+  return applicable.disallows.some(p => p === '/' || p === '/*')
 }
 
 // --- Core extraction ---
