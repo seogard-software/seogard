@@ -36,7 +36,7 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 ## Fonctionnalités
 
 - Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — comparaison continue sur chaque page
-- 60+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
+- 65+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
 - Performance Web monitorée sur chaque page : Core Web Vitals (LCP, CLS), temps de réponse serveur (TTFB) et poids de page ; alerte sur les régressions de poids de page
 - Crawl quotidien automatique
 - Alertes instantanées par email dès qu'une régression est détectée

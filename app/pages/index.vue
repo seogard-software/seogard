@@ -77,7 +77,7 @@
         <span class="section-label">Fonctionnalités</span>
         <h2 class="section-title">Ce que Seogard monitore en continu pour vous</h2>
         <p class="section-desc">
-          60+ règles de détection appliquées en temps réel sur chaque page. Alertes instantanées dès qu'une régression apparaît.
+          65+ règles de détection appliquées en temps réel sur chaque page. Alertes instantanées dès qu'une régression apparaît.
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
@@ -295,7 +295,7 @@ const cloudPriceDisplay = formatCloudPrice()
 const FAQ_ITEMS = [
   {
     q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
+    a: 'Seogard monitore en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -409,7 +409,7 @@ useHead({
               'Alertes instantanées par email',
               'Crawl quotidien automatique',
               'Dashboard temps réel',
-              '60+ règles de détection SEO et GEO',
+              '65+ règles de détection SEO et GEO',
               'Optimisation GEO et visibilité IA',
               'Version self-hosted gratuite',
               'CI/CD webhook intégré',

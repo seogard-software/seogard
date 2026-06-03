@@ -101,7 +101,7 @@ const isLoggedIn = computed(() => !!authStore.currentUser)
 const FOOTER_FAQ = [
   {
     q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 60+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par Email, Slack, Teams ou Jira, classée par sévérité.',
+    a: 'Seogard monitore en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -113,7 +113,7 @@ const FOOTER_FAQ = [
   },
   {
     q: 'Comment fonctionnent les alertes ?',
-    a: 'Chaque page est crawlée quotidiennement. Dès qu\'un changement est détecté (meta modifiée, status code anormal, SSR cassé), une alerte avec le diff avant/après est envoyée par email, Slack, Teams ou Jira.',
+    a: 'Chaque page est crawlée quotidiennement. Dès qu\'un changement est détecté (meta modifiée, status code anormal, SSR cassé), une alerte avec le diff avant/après est envoyée par email.',
   },
 ]
 

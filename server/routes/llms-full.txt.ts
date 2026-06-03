@@ -52,7 +52,7 @@ Professionnels du web qui dépendent du SEO, quelle que soit la taille du site. 
 
 ## Fonctionnalités détaillées
 
-### 60+ règles de détection SEO et GEO
+### 65+ règles de détection SEO et GEO
 
 Seogard embarque plus de 60 règles de détection (40 monitoring + 20 GEO) couvrant les régressions les plus courantes et les plus coûteuses :
 
@@ -171,7 +171,7 @@ Seogard se différencie par :
 - **Self-hosted gratuit** — code source disponible sous licence BSL 1.1 (devient Apache 2.0 en 2029)
 - Focus exclusif sur les régressions (pas un outil généraliste)
 - Alertes instantanées avec diff highlighting (avant/après surligné)
-- 60+ règles de détection spécifiques aux régressions SEO et GEO
+- 65+ règles de détection spécifiques aux régressions SEO et GEO
 - CI/CD webhook intégré (3 niveaux : strict / standard / relaxed)
 - Tarification à l'usage transparente : vous ne payez que les pages crawlées (Cloud) ou gratuite (self-hosted)
 
