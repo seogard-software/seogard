@@ -3,11 +3,7 @@
     <template v-if="article">
       <section class="blog-article__hero">
         <div class="blog-article__hero-inner">
-          <nav class="blog-article__breadcrumb" aria-label="Fil d'ariane">
-            <NuxtLink to="/blog" class="blog-article__breadcrumb-link">Blog</NuxtLink>
-            <span class="blog-article__breadcrumb-sep">/</span>
-            <span class="blog-article__breadcrumb-current">{{ article.category }}</span>
-          </nav>
+          <BlogBreadcrumb :items="breadcrumb" class="blog-article__breadcrumb" />
           <h1 class="blog-article__title">{{ article.title }}</h1>
           <div class="blog-article__meta">
             <span class="blog-article__category">{{ article.category }}</span>
@@ -63,6 +59,9 @@
 </template>
 
 <script setup lang="ts">
+import type { ArticleMeta } from '~~/shared/types/article'
+import { buildBreadcrumbJsonLd } from '~~/shared/utils/blog'
+
 interface ArticleFull {
   _id: string
   title: string
@@ -99,9 +98,44 @@ const formattedDate = computed(() => {
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 })
 
-const { data: relatedArticles } = useFetch('/api/public/articles/related', {
-  params: { category: article.value.category, exclude: slug, limit: '3' },
-  lazy: true,
+// Related en SSR (bloquant, pas de lazy) → liens présents dans le HTML brut pour Google + IA.
+const { data: relatedArticles } = await useFetch<ArticleMeta[]>('/api/public/articles/related', {
+  params: { category: article.value.category, exclude: slug, limit: '6' },
+})
+
+// Hub catégorie : lien crawlable uniquement si la catégorie a un hub (≥ seuil). Sinon texte.
+const { data: categoriesData } = await useFetch('/api/public/articles/categories')
+const categoryHub = computed(() => {
+  const match = (categoriesData.value?.categories ?? []).find(c => c.category === article.value?.category)
+  return match ? `/blog/categorie/${match.slug}` : undefined
+})
+
+const breadcrumb = computed(() => {
+  const items: { name: string, to?: string }[] = [
+    { name: 'Accueil', to: '/' },
+    { name: 'Blog', to: '/blog' },
+  ]
+  // Catégorie affichée UNIQUEMENT si elle a un hub cliquable (pas de texte mort).
+  if (categoryHub.value && article.value) {
+    items.push({ name: article.value.category, to: categoryHub.value })
+  }
+  if (article.value) items.push({ name: article.value.title })
+  return items
+})
+
+// BreadcrumbList JSON-LD (URLs absolues). On n'inclut le hub que s'il existe (pas de lien mort).
+const breadcrumbJsonLd = computed(() => {
+  const items = [
+    { name: 'Accueil', url: 'https://seogard.io/' },
+    { name: 'Blog', url: 'https://seogard.io/blog' },
+  ]
+  if (categoryHub.value && article.value) {
+    items.push({ name: article.value.category, url: `https://seogard.io${categoryHub.value}` })
+  }
+  if (article.value) {
+    items.push({ name: article.value.title, url: article.value.canonical })
+  }
+  return buildBreadcrumbJsonLd(items)
 })
 
 useSeoMeta({
@@ -155,6 +189,10 @@ useHead({
         },
       }),
     },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(breadcrumbJsonLd.value),
+    },
   ],
 })
 </script>
@@ -173,29 +211,7 @@ useHead({
   }
 
   &__breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: $spacing-2;
     margin-bottom: $spacing-6;
-    font-size: $font-size-sm;
-  }
-
-  &__breadcrumb-link {
-    color: $color-gray-500;
-    text-decoration: none;
-
-    &:hover {
-      color: $color-gray-900;
-      text-decoration: none;
-    }
-  }
-
-  &__breadcrumb-sep {
-    color: $color-gray-300;
-  }
-
-  &__breadcrumb-current {
-    color: $color-gray-500;
   }
 
   &__title {

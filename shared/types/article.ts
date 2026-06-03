@@ -18,3 +18,18 @@ export interface Article extends ArticleMeta {
   body: string
   htmlContent: string
 }
+
+/** Catégorie de blog curée (≥ seuil) exposée par /api/public/articles/categories. */
+export interface BlogCategory {
+  category: string
+  slug: string
+  count: number
+}
+
+/** Réponse paginée de /api/public/articles. */
+export interface ArticleListResponse {
+  articles: ArticleMeta[]
+  total: number
+  page: number
+  totalPages: number
+}

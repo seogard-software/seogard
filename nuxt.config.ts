@@ -49,6 +49,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/api/**': { cors: true },
+    '/blog': { swr: 3600 },
     '/blog/**': { swr: 3600 },
   },
 

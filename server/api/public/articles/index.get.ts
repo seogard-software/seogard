@@ -1,8 +1,9 @@
 import { getQuery } from 'h3'
 import { Article } from '~~/server/database/models'
+import { BLOG_PAGE_SIZE } from '~~/shared/utils/blog'
 
 export default defineEventHandler(async (event) => {
-  const { page = '1', limit = '12', category, search } = getQuery(event) as {
+  const { page = '1', limit = String(BLOG_PAGE_SIZE), category, search } = getQuery(event) as {
     page?: string
     limit?: string
     category?: string

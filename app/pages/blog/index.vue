@@ -16,13 +16,30 @@
             class="blog-listing__search-input"
             placeholder="Rechercher un article..."
             aria-label="Rechercher un article"
+            @input="onSearchInput"
           >
         </div>
       </div>
     </section>
 
     <section class="blog-listing__content">
-      <div v-if="isSearching" class="blog-listing__grid">
+      <!-- Hubs catégories : maillage SSR, faible profondeur de clic -->
+      <nav v-if="!isSearchActive && categories.length" class="blog-listing__themes" aria-label="Parcourir par thème">
+        <h2 class="blog-listing__themes-title">Parcourir par thème</h2>
+        <div class="blog-listing__themes-list">
+          <NuxtLink
+            v-for="cat in categories"
+            :key="cat.slug"
+            :to="`/blog/categorie/${cat.slug}`"
+            class="blog-listing__theme"
+          >
+            {{ cat.category }}
+            <span class="blog-listing__theme-count">{{ cat.count }}</span>
+          </NuxtLink>
+        </div>
+      </nav>
+
+      <div v-if="isLoadingSearch" class="blog-listing__grid">
         <div v-for="i in 6" :key="i" class="blog-listing__skeleton">
           <div class="blog-listing__skeleton-meta" />
           <div class="blog-listing__skeleton-title" />
@@ -33,30 +50,18 @@
       </div>
 
       <template v-else-if="displayedArticles.length">
-        <div class="blog-listing__grid">
-          <BlogCard
-            v-for="article in displayedArticles"
-            :key="article.slug"
-            :article="article"
-          />
-        </div>
+        <BlogArticleGrid :articles="displayedArticles" />
 
-        <div v-if="hasMore && !searchQuery" class="blog-listing__load-more">
-          <button
-            class="blog-listing__load-more-btn"
-            :disabled="loadingMore"
-            @click="loadMore"
-          >
-            {{ loadingMore ? 'Chargement...' : 'Charger plus d\'articles' }}
-          </button>
-          <p class="blog-listing__count">
-            {{ displayedArticles.length }} sur {{ totalArticles }} articles
-          </p>
-        </div>
+        <BlogPagination
+          v-if="!isSearchActive"
+          :current-page="1"
+          :total-pages="totalPages"
+          base-path="/blog"
+        />
       </template>
 
       <div v-else class="blog-listing__empty">
-        <p v-if="searchQuery">Aucun article trouvé pour « {{ searchQuery }} »</p>
+        <p v-if="isSearchActive">Aucun article trouvé pour « {{ searchQuery }} »</p>
         <p v-else>Aucun article pour le moment. Revenez bientôt !</p>
       </div>
     </section>
@@ -64,7 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ArticleMeta } from '~~/shared/types/article'
+import type { ArticleListResponse, ArticleMeta, BlogCategory } from '~~/shared/types/article'
+import { BLOG_PAGE_SIZE } from '~~/shared/utils/blog'
 
 definePageMeta({
   layout: 'landing',
@@ -92,68 +98,54 @@ useSeoMeta({
   robots: 'index, follow',
 })
 
-const BATCH_SIZE = 12
-
-// SSR: initial load of 12 articles
-const { data: initialData } = await useFetch('/api/public/articles', {
-  params: { limit: String(BATCH_SIZE) },
+// SSR : page 1 + hubs catégories — tout rendu côté serveur.
+const { data: listing } = await useFetch<ArticleListResponse>('/api/public/articles', {
+  params: { limit: String(BLOG_PAGE_SIZE) },
 })
+const { data: categoriesData } = await useFetch<{ categories: BlogCategory[] }>('/api/public/articles/categories')
 
-const allArticles = ref<ArticleMeta[]>(initialData.value?.articles ?? [])
-const totalArticles = ref(initialData.value?.total ?? 0)
-const currentPage = ref(1)
-const loadingMore = ref(false)
+const articles = computed<ArticleMeta[]>(() => listing.value?.articles ?? [])
+const total = computed(() => listing.value?.total ?? 0)
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / BLOG_PAGE_SIZE)))
+const categories = computed(() => categoriesData.value?.categories ?? [])
 
-const hasMore = computed(() => allArticles.value.length < totalArticles.value)
-
-async function loadMore() {
-  loadingMore.value = true
-  currentPage.value++
-  const { data } = await useFetch('/api/public/articles', {
-    params: { page: String(currentPage.value), limit: String(BATCH_SIZE) },
-    server: false,
-  })
-  if (data.value?.articles) {
-    allArticles.value.push(...data.value.articles)
-    totalArticles.value = data.value.total
-  }
-  loadingMore.value = false
-}
-
-// Search
+// Recherche (client-side, non indexable — logique dans le handler @input, pas de watch).
 const searchQuery = ref('')
 const searchResults = ref<ArticleMeta[] | null>(null)
-const isSearching = ref(false)
+const isLoadingSearch = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-if (import.meta.client) {
-  watchEffect(() => {
-    const query = searchQuery.value
-    if (searchTimeout) clearTimeout(searchTimeout)
+const isSearchActive = computed(() => searchQuery.value.trim().length >= 2)
 
-    if (!query || query.trim().length < 2) {
-      searchResults.value = null
-      isSearching.value = false
-      return
-    }
-
-    isSearching.value = true
-    searchTimeout = setTimeout(async () => {
-      const { data } = await useFetch('/api/public/articles', {
-        params: { search: query.trim(), limit: '100' },
-        server: false,
+function onSearchInput() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  const query = searchQuery.value.trim()
+  if (query.length < 2) {
+    searchResults.value = null
+    isLoadingSearch.value = false
+    return
+  }
+  isLoadingSearch.value = true
+  searchTimeout = setTimeout(async () => {
+    try {
+      const data = await $fetch<{ articles: ArticleMeta[] }>('/api/public/articles', {
+        params: { search: query, limit: '100' },
       })
-      searchResults.value = data.value?.articles ?? []
-      isSearching.value = false
-    }, 300)
-  })
+      searchResults.value = data.articles ?? []
+    }
+    finally {
+      isLoadingSearch.value = false
+    }
+  }, 300)
 }
 
-const displayedArticles = computed(() => {
-  if (searchQuery.value && searchQuery.value.trim().length >= 2) {
-    return searchResults.value ?? []
-  }
-  return allArticles.value
+onUnmounted(() => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+})
+
+const displayedArticles = computed<ArticleMeta[]>(() => {
+  if (isSearchActive.value) return searchResults.value ?? []
+  return articles.value
 })
 </script>
 
@@ -162,7 +154,9 @@ const displayedArticles = computed(() => {
 
 .blog-listing {
   &__hero {
-    padding: calc($spacing-16 + 64px) $spacing-6 $spacing-16;
+    // Garde la marge sous le header fixe (64px) mais compacte le reste
+    // pour que les premiers articles soient visibles sans scroller.
+    padding: calc($spacing-8 + 64px) $spacing-6 $spacing-8;
     text-align: center;
   }
 
@@ -186,7 +180,7 @@ const displayedArticles = computed(() => {
 
   &__search {
     position: relative;
-    margin-top: $spacing-8;
+    margin-top: $spacing-6;
     max-width: 480px;
     margin-left: auto;
     margin-right: auto;
@@ -226,7 +220,52 @@ const displayedArticles = computed(() => {
   &__content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: $spacing-12 $spacing-6;
+    padding: $spacing-8 $spacing-6 $spacing-12;
+  }
+
+  // ── Hubs catégories ──
+  &__themes {
+    margin-bottom: $spacing-8;
+  }
+
+  &__themes-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $color-gray-400;
+    margin-bottom: $spacing-4;
+  }
+
+  &__themes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  &__theme {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    background: $surface-card;
+    border: 1px solid $color-gray-200;
+    border-radius: $radius-full;
+    color: $color-gray-700;
+    font-size: $font-size-sm;
+    text-decoration: none;
+    transition: border-color $transition-fast, color $transition-fast;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-gray-900;
+      text-decoration: none;
+    }
+  }
+
+  &__theme-count {
+    font-size: $font-size-xs;
+    color: $color-gray-400;
   }
 
   &__grid {
@@ -240,41 +279,6 @@ const displayedArticles = computed(() => {
     padding: $spacing-16;
     color: $color-gray-400;
     font-size: $font-size-lg;
-  }
-
-  &__load-more {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-3;
-    margin-top: $spacing-12;
-  }
-
-  &__load-more-btn {
-    padding: $spacing-3 $spacing-8;
-    background: transparent;
-    border: 1px solid $color-gray-200;
-    border-radius: $radius-lg;
-    color: $color-gray-800;
-    font-size: $font-size-base;
-    font-family: $font-family-base;
-    cursor: pointer;
-    transition: border-color $transition-fast, background $transition-fast;
-
-    &:hover:not(:disabled) {
-      border-color: $color-gray-400;
-      background: $surface-card;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__count {
-    font-size: $font-size-sm;
-    color: $color-gray-400;
   }
 
   &__skeleton {

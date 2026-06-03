@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose'
 import { hashPassword } from '../../server/utils/auth'
-import { User, Organization, OrgMember, Subscription, Site, Zone } from '../../server/database/models'
+import { User, Organization, OrgMember, Subscription, Site, Zone, Article } from '../../server/database/models'
 import { patternsToRegexSource } from '../../shared/utils/zone'
 import { TEST_PASSWORD, USERS } from './constants'
 import type { TestIds, UserKey } from './constants'
@@ -175,6 +175,33 @@ export async function seedDatabase(): Promise<TestIds> {
       { zoneId: new Types.ObjectId(trialDefaultZoneId), role: 'member' },
     ],
   })
+
+  // Articles de blog (maillage interne e2e) : 2 catégories, 15 articles au total
+  // → /blog/page/2 existe (>12) et les deux catégories dépassent le seuil de hub (≥3).
+  const articleCategories = [
+    { category: 'Rendering SSR', count: 10 },
+    { category: 'GEO', count: 5 },
+  ]
+  let articleN = 0
+  for (const { category, count } of articleCategories) {
+    for (let i = 0; i < count; i++) {
+      articleN++
+      const slug = `article-test-${articleN}`
+      await Article.create({
+        title: `Article test ${articleN} — ${category}`,
+        description: `Description de l'article test ${articleN} (catégorie ${category}).`,
+        slug,
+        date: new Date(Date.now() - articleN * 86_400_000).toISOString(),
+        category,
+        tags: ['test'],
+        author: 'Equipe Seogard',
+        readingTime: 5,
+        canonical: `https://seogard.io/blog/${slug}`,
+        body: 'Contenu de test pour le maillage interne.',
+        htmlContent: '<p>Contenu de test pour le maillage interne.</p>',
+      })
+    }
+  }
 
   const testIds: TestIds = {
     orgId,
