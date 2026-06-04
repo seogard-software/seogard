@@ -21,16 +21,16 @@
           Monitoring continu : on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript, et on vous alerte par email avant que le problème ne soit indexé.
         </p>
         <div class="hero__ctas">
-          <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
+          <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+            Réserver une démo
+          </a>
+          <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Télécharger gratuitement
           </a>
-          <a href="#estimator" class="hero__cta hero__cta--primary">
+          <a href="#estimator" class="hero__cta hero__cta--ghost">
             Estimer mon tarif Cloud
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </a>
-          <a href="#problem" class="hero__cta hero__cta--ghost">
-            Découvrir
           </a>
         </div>
         <p class="hero__no-cc">Self-hosted gratuit, code source disponible (BSL 1.1). Cloud dès {{ cloudPriceDisplay }} €/mois/page. Essai gratuit 14 jours — sans carte bancaire.</p>
@@ -264,7 +264,11 @@
           Monitoring continu. Alertes temps réel. Self-hosted gratuit, Cloud sans engagement.
         </p>
         <div class="final-cta__buttons">
-          <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
+          <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+            Réserver une démo
+          </a>
+          <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Télécharger gratuitement
           </a>
@@ -291,6 +295,7 @@ const estimatedPages = ref<number | null>(null)
 provide('estimatedPages', estimatedPages)
 
 const cloudPriceDisplay = formatCloudPrice()
+const demoUrl = useRuntimeConfig().public.demoUrl
 
 const FAQ_ITEMS = [
   {

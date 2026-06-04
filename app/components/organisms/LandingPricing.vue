@@ -73,6 +73,7 @@
                 <NuxtLink to="/register" class="landing-pricing__cta landing-pricing__cta--primary">
                   Essai gratuit 14 jours
                 </NuxtLink>
+                <a :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">ou réserver une démo</a>
               </td>
               <td class="landing-pricing__td landing-pricing__td--cta">
                 <a href="mailto:support@seogard.io" class="landing-pricing__cta landing-pricing__cta--ghost">
@@ -113,6 +114,7 @@
           <NuxtLink v-else-if="plan.id === 'cloud'" to="/register" class="landing-pricing__cta landing-pricing__cta--primary">
             Essai gratuit 14 jours
           </NuxtLink>
+          <a v-if="plan.id === 'cloud'" :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">ou réserver une démo</a>
           <a v-else href="mailto:support@seogard.io" class="landing-pricing__cta landing-pricing__cta--ghost">
             Contactez-nous
           </a>
@@ -127,6 +129,7 @@ import { PRICING_ROWS, PRICING_SHARED_COUNT, PRICING_CLOUD_COUNT, formatCloudPri
 
 const estimatedPages = inject<Ref<number | null>>('estimatedPages', ref(null))
 const cloudPriceDisplay = formatCloudPrice()
+const demoUrl = useRuntimeConfig().public.demoUrl
 
 const estimatedCloudPrice = computed(() => {
   if (!estimatedPages.value) return ''
@@ -434,6 +437,19 @@ const mobilePlans = [
         border-color: $color-gray-400;
         text-decoration: none;
       }
+    }
+  }
+
+  &__demo-link {
+    display: block;
+    margin-top: $spacing-2;
+    font-size: $font-size-xs;
+    color: $color-gray-500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: $color-gray-800;
     }
   }
 }

@@ -12,13 +12,13 @@
           <NuxtLink to="/#pricing" class="layout-landing__nav-link">Tarifs</NuxtLink>
           <NuxtLink to="/blog" class="layout-landing__nav-link">Blog</NuxtLink>
           <NuxtLink to="/docs" class="layout-landing__nav-link">Docs</NuxtLink>
-          <NuxtLink to="/#download" class="layout-landing__nav-link">Télécharger</NuxtLink>
           <template v-if="isLoggedIn">
             <NuxtLink to="/dashboard/sites" class="layout-landing__nav-cta">Dashboard</NuxtLink>
           </template>
           <template v-else>
             <NuxtLink to="/login" class="layout-landing__nav-link">Connexion</NuxtLink>
-            <NuxtLink to="/register" class="layout-landing__nav-cta">Tester gratuitement</NuxtLink>
+            <NuxtLink to="/register" class="layout-landing__nav-link">Tester gratuitement</NuxtLink>
+            <a :href="demoUrl" target="_blank" rel="noopener" class="layout-landing__nav-cta">Réserver une démo</a>
           </template>
         </nav>
 
@@ -35,13 +35,13 @@
         <NuxtLink to="/#pricing" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Tarifs</NuxtLink>
         <NuxtLink to="/blog" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Blog</NuxtLink>
         <NuxtLink to="/docs" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Docs</NuxtLink>
-        <NuxtLink to="/#download" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Télécharger</NuxtLink>
         <template v-if="isLoggedIn">
           <NuxtLink to="/dashboard/sites" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Dashboard</NuxtLink>
         </template>
         <template v-else>
           <NuxtLink to="/login" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Connexion</NuxtLink>
-          <NuxtLink to="/register" class="layout-landing__nav-cta" @click="mobileMenuOpen = false">Tester gratuitement</NuxtLink>
+          <NuxtLink to="/register" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Tester gratuitement</NuxtLink>
+          <a :href="demoUrl" target="_blank" rel="noopener" class="layout-landing__nav-cta" @click="mobileMenuOpen = false">Réserver une démo</a>
         </template>
       </nav>
     </header>
@@ -97,6 +97,7 @@
 <script setup lang="ts">
 const authStore = useAuthStore()
 const isLoggedIn = computed(() => !!authStore.currentUser)
+const demoUrl = useRuntimeConfig().public.demoUrl
 
 const FOOTER_FAQ = [
   {
