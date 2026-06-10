@@ -433,7 +433,7 @@ export function sitemapEstimateTemplate(data: SitemapEstimateData): { subject: s
           </td>
           <td style="padding:20px;text-align:center;width:50%;">
             <span style="display:block;font-size:30px;font-weight:700;color:${C.gray900};line-height:1;">${data.price}</span>
-            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">si vous crawlez tout / mois</span>
+            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">si vous crawlez tout / mois (HT)</span>
           </td>
         </tr>
       </table>
@@ -442,7 +442,7 @@ export function sitemapEstimateTemplate(data: SitemapEstimateData): { subject: s
       ${infoBox(
         `<strong style="font-size:14px;color:${C.gray900};">La plupart de nos clients crawlent 10–20% de leurs pages.</strong><br>
         <span style="color:${C.gray700};">Avec les <strong>zones</strong>, ciblez vos pages prioritaires — fiches produits, articles récents, catégories — et ignorez le reste.<br>
-        Exemple : ${zoningEstimate.toLocaleString('fr-FR')} pages → <strong>${zoningPrice} €/mois</strong> au lieu de ${data.price}.</span>`,
+        Exemple : ${zoningEstimate.toLocaleString('fr-FR')} pages → <strong>${zoningPrice} €/mois HT</strong> au lieu de ${data.price}.</span>`,
         C.gray700, C.gray50, C.gray200,
       )}
 
