@@ -1,4 +1,8 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
+
+const configDir = path.dirname(fileURLToPath(import.meta.url))
 
 const BASE_URL = 'http://localhost:3333'
 
@@ -91,12 +95,18 @@ export default defineConfig({
 
   webServer: {
     command: 'npx nuxt dev --port 3333',
+    // OBLIGATOIRE : par défaut Playwright lance la commande depuis e2e/ (dossier du config),
+    // où Nuxt démarre une app VIERGE (welcome page) au lieu de Seogard.
+    cwd: path.resolve(configDir, '..'),
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
       DATABASE_URL: process.env.E2E_DATABASE_URL || '',
       NUXT_JWT_SECRET: 'test-secret-for-e2e',
+      // Vide = sendEmail skip proprement. Sinon nuxt dev charge la vraie clé du .env
+      // → envois réels vers des adresses de test → erreurs non déterministes.
+      RESEND_API_KEY: '',
     },
   },
 })

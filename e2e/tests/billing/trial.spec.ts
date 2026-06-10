@@ -38,7 +38,19 @@ test.describe('Trial billing — API', () => {
     expect(res.status()).toBe(403)
   })
 
-  test('active trial user can trigger crawl', async ({ request }, testInfo) => {
+  test('active trial user can trigger crawl on HIS org', async ({ request }, testInfo) => {
+    test.skip(testInfo.project.name !== 'trial-active')
+    const res = await apiCall(
+      request,
+      'e2e/.auth/trialActive.json',
+      'POST',
+      `/api/sites/${ids.activeTrialSiteId}/zones/${ids.activeTrialZoneId}/crawl`,
+    )
+    // 200 or 201 = authorized
+    expect([200, 201]).toContain(res.status())
+  })
+
+  test('member with fresh trial CANNOT crawl an org whose owner trial expired (anti-farming)', async ({ request }, testInfo) => {
     test.skip(testInfo.project.name !== 'trial-active')
     const res = await apiCall(
       request,
@@ -46,8 +58,8 @@ test.describe('Trial billing — API', () => {
       'POST',
       `/api/sites/${ids.trialSiteId}/zones/${ids.trialDefaultZoneId}/crawl`,
     )
-    // 200 or 201 = authorized
-    expect([200, 201]).toContain(res.status())
+    // L'entitlement vient du OWNER de l'orga (expiré) → 403 même avec un trial perso actif.
+    expect(res.status()).toBe(403)
   })
 })
 
@@ -58,17 +70,17 @@ test.describe('Trial billing — UI', () => {
     test.skip(testInfo.project.name !== 'trial-expired')
     await page.goto(`/dashboard/organizations/${ids.trialOrgId}/billing`)
     await page.waitForLoadState('networkidle')
-    await expect(page.getByText('essai', { exact: false })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText('terminé', { exact: false })).toBeVisible()
-    await expect(page.getByText('Activer la facturation')).toBeVisible()
+    // Texte exact du paragraphe (un getByText('essai') lâche matche aussi le badge « Essai gratuit » → strict violation).
+    await expect(page.getByText('Votre essai de 14 jours est terminé', { exact: false })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: 'Activer la facturation' })).toBeVisible()
   })
 
   test('active trial user sees days remaining on billing page', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'trial-active')
-    await page.goto(`/dashboard/organizations/${ids.trialOrgId}/billing`)
+    await page.goto(`/dashboard/organizations/${ids.activeTrialOrgId}/billing`)
     await page.waitForLoadState('networkidle')
-    await expect(page.getByText('Essai gratuit', { exact: false })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText('restant', { exact: false })).toBeVisible()
+    // Regex sur la phrase complète : « Essai gratuit » seul matche aussi le badge (strict violation).
+    await expect(page.getByText(/Essai gratuit — \d+ jours? restants?/)).toBeVisible({ timeout: 15_000 })
   })
 
   test('expired trial user sees billing banner on zone pages', async ({ page }, testInfo) => {

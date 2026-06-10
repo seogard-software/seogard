@@ -27,7 +27,8 @@ vi.stubGlobal('createError', (opts: { statusCode: number, message: string }) => 
   err.statusCode = opts.statusCode
   return err
 })
-vi.stubGlobal('requireValidId', vi.fn(() => 'site456'))
+vi.stubGlobal('requireValidId', vi.fn((_e: unknown, param?: string) => (param === 'zoneId' ? 'zone-x' : 'site456')))
+vi.stubGlobal('requireAuth', vi.fn(() => 'user123'))
 vi.stubGlobal('getRouterParam', vi.fn(() => 'zone-x'))
 vi.stubGlobal('useRequestLog', vi.fn(() => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() })))
 
@@ -70,11 +71,19 @@ describe('zone crawl.post — auth (clé/session) + garde abonnement + crawl de 
     await expect(handler(fakeEvent)).rejects.toThrow('Zone introuvable')
   })
 
-  it('bloque si essai (owner) expiré', async () => {
+  it('trial : owner de l\'orga expiré → 403, MÊME pour un membre en session avec un trial frais (anti-farming)', async () => {
     mockSubscriptionFindOne.mockResolvedValue({ stripeStatus: 'trialing' })
-    mockUserFindById.mockResolvedValue({ trialEndsAt: pastDate })
+    mockUserFindById.mockResolvedValue({ trialEndsAt: pastDate }) // = trial du OWNER
     await expect(handler(fakeEvent)).rejects.toThrow('essai de 14 jours')
     expect(mockTriggerSiteCrawl).not.toHaveBeenCalled()
+    expect(mockOrgFindById).toHaveBeenCalled() // l'entitlement vient du owner, pas du user courant
+  })
+
+  it('trial : owner actif → crawl autorisé (session comme clé API)', async () => {
+    mockSubscriptionFindOne.mockResolvedValue({ stripeStatus: 'trialing' })
+    mockUserFindById.mockResolvedValue({ trialEndsAt: futureDate })
+    const result = await handler(fakeEvent)
+    expect(result._id).toBe('crawl1')
   })
 
   it('bloque si pas d\'abonnement', async () => {

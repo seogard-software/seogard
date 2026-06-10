@@ -18,16 +18,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Zone introuvable' })
   }
 
-  // Entitlement de l'orga (trial du owner) — vaut pour la session ET la clé API CI.
+  // Entitlement = l'ORGA, jamais l'utilisateur qui clique : trial du OWNER de l'orga pour
+  // tous les chemins (session ET clé API). Sinon un owner expiré pourrait inviter un compte
+  // neuf (trial frais) et relancer des crawls à l'infini sur la même orga.
   if (!isSelfHosted()) {
     const sub = await Subscription.findOne({ orgId: (site as any).orgId }).lean()
-    let ownerTrialEndsAt: Date | null = null
+    let trialEndsAt: Date | null = null
     if ((sub as any)?.stripeStatus === 'trialing') {
       const org = await Organization.findById((site as any).orgId).select('ownerId').lean()
       const owner = org ? await User.findById((org as any).ownerId).select('trialEndsAt').lean() : null
-      ownerTrialEndsAt = (owner as any)?.trialEndsAt ?? null
+      trialEndsAt = (owner as any)?.trialEndsAt ?? null
     }
-    if (!sub || !canUseCrawls((sub as any).stripeStatus, ownerTrialEndsAt)) {
+    if (!sub || !canUseCrawls((sub as any).stripeStatus, trialEndsAt)) {
       throw createError({ statusCode: 403, message: 'Votre essai de 14 jours est terminé. Activez la facturation dans les paramètres pour continuer.' })
     }
   }

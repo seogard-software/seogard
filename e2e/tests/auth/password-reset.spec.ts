@@ -63,7 +63,8 @@ test.describe('Password reset — UI', () => {
     await page.getByPlaceholder('8 caractères minimum').fill('newpassword123')
     await page.getByPlaceholder('Retapez votre mot de passe').fill('newpassword123')
     await page.getByRole('button', { name: 'Réinitialiser le mot de passe' }).click()
-    await expect(page.getByText('expiré', { exact: false })).toBeVisible({ timeout: 10_000 })
+    // .first() : « expiré » peut apparaître à 2 endroits (strict mode violation sinon).
+    await expect(page.getByText('expiré', { exact: false }).first()).toBeVisible({ timeout: 10_000 })
   })
 
   test('login page has forgot password link', async ({ page }) => {

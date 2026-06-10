@@ -23,6 +23,9 @@ export interface TestIds {
   trialOrgId: string
   trialSiteId: string
   trialDefaultZoneId: string
+  activeTrialOrgId: string
+  activeTrialSiteId: string
+  activeTrialZoneId: string
   users: Record<UserKey, string>
 }
 

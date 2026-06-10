@@ -176,6 +176,44 @@ export async function seedDatabase(): Promise<TestIds> {
     ],
   })
 
+  // Org au trial ACTIF (owner = trialActive) : l'entitlement de crawl dépend du OWNER de
+  // l'orga — le cas positif « trial actif peut crawler » se teste sur SA propre orga.
+  const activeTrialOrg = await Organization.create({
+    name: 'Active Trial Org',
+    slug: 'active-trial-org',
+    ownerId: new Types.ObjectId(userIds.trialActive),
+  })
+  const activeTrialOrgId = activeTrialOrg._id.toString()
+
+  await Subscription.create({
+    orgId: new Types.ObjectId(activeTrialOrgId),
+    stripeStatus: 'trialing',
+  })
+
+  const activeTrialSite = await Site.create({
+    orgId: new Types.ObjectId(activeTrialOrgId),
+    name: 'Active Trial Site',
+    url: 'https://active-trial.example.com',
+    discovering: 'idle',
+  })
+  const activeTrialSiteId = activeTrialSite._id.toString()
+
+  const activeTrialZone = await Zone.create({
+    siteId: new Types.ObjectId(activeTrialSiteId),
+    name: null,
+    patterns: ['**'],
+    isDefault: true,
+    _patternsRegex: patternsToRegexSource(['**']),
+  })
+  const activeTrialZoneId = activeTrialZone._id.toString()
+
+  await OrgMember.create({
+    orgId: new Types.ObjectId(activeTrialOrgId),
+    userId: new Types.ObjectId(userIds.trialActive),
+    role: 'owner',
+    zoneRoles: [],
+  })
+
   // Articles de blog (maillage interne e2e) : 2 catégories, 15 articles au total
   // → /blog/page/2 existe (>12) et les deux catégories dépassent le seuil de hub (≥3).
   const articleCategories = [
@@ -211,6 +249,9 @@ export async function seedDatabase(): Promise<TestIds> {
     trialOrgId,
     trialSiteId,
     trialDefaultZoneId,
+    activeTrialOrgId,
+    activeTrialSiteId,
+    activeTrialZoneId,
     users: userIds,
   }
 
