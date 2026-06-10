@@ -54,6 +54,12 @@ export default defineEventHandler(async (event) => {
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId }],
+      // TVA automatique (Stripe Tax) : prix HT (tax_behavior exclusive) → 20% ajoutés pour la
+      // France, autoliquidation 0% pour un B2B UE avec n° de TVA valide, 0% hors UE.
+      automatic_tax: { enabled: true },
+      billing_address_collection: 'required',
+      tax_id_collection: { enabled: true },
+      customer_update: { address: 'auto', name: 'auto' },
       ...(hasTrialRemaining && {
         subscription_data: { trial_end: trialEnd },
       }),

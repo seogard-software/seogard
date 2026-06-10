@@ -41,7 +41,7 @@ export default defineNuxtConfig({
       appName: 'Seogard',
       appUrl: 'https://seogard.io',
       selfHosted: process.env.NUXT_PUBLIC_SELF_HOSTED === 'true',
-      pricePerPage: 0.007,
+      pricePerPage: 0.01,
       demoUrl: 'https://cal.com/seogard-io/demo-seogard-15-min',
       umamiUrl: '',
       umamiId: '',

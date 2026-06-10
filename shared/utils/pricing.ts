@@ -1,7 +1,7 @@
 // Source de verite unique — prix par page crawlée
-// La valeur par défaut (0.007) est overridée par NUXT_PUBLIC_PRICE_PER_PAGE en prod
+// La valeur par défaut (0.01) est overridée par NUXT_PUBLIC_PRICE_PER_PAGE en prod
 // via runtimeConfig.public.pricePerPage (défini dans nuxt.config.ts)
-export const CLOUD_PRICE_PER_PAGE_DEFAULT = 0.007
+export const CLOUD_PRICE_PER_PAGE_DEFAULT = 0.01
 
 export function getCloudPricePerPage(): number {
   try {
@@ -20,7 +20,7 @@ export function calculateCloudPrice(pages: number): number {
 }
 
 export function formatCloudPrice(): string {
-  // Pas d'arrondi — affiche la valeur brute (ex: "0,007")
+  // Pas d'arrondi — affiche la valeur brute (ex: "0,01")
   return String(getCloudPricePerPage()).replace('.', ',')
 }
 

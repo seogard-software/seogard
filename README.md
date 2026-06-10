@@ -43,7 +43,7 @@ Deploy on your own infrastructure in minutes: [seogard.io/docs/self-hosted](http
 Zero setup, zero maintenance. [seogard.io](https://seogard.io)
 
 - Free trial, no credit card required
-- 0,007 EUR/mois/page
+- 0,01 EUR/mois/page
 - On-premise available on request
 
 ## Tech Stack

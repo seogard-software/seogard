@@ -1,4 +1,5 @@
 import type { TopReco } from '../../shared/utils/recommendations'
+import { getCloudPricePerPage } from '../../shared/utils/pricing'
 
 const APP_URL = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
 
@@ -415,7 +416,7 @@ export interface SitemapEstimateData {
 
 export function sitemapEstimateTemplate(data: SitemapEstimateData): { subject: string; html: string } {
   const zoningEstimate = Math.round(data.pageCount * 0.2)
-  const zoningPrice = (zoningEstimate * 0.007).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+  const zoningPrice = (zoningEstimate * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
   const isLargeSite = data.pageCount > 50_000
 
   return {
