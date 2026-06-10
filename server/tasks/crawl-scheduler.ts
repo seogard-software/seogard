@@ -1,5 +1,6 @@
 import { Crawl, CrawlSchedule } from '~~/server/database/models'
 import { computeNextCrawlAt } from '~~/shared/utils/crawl-schedule'
+import { triggerSiteCrawl } from '~~/server/utils/crawl-trigger'
 
 const log = createLogger('web', 'crawl-scheduler')
 
@@ -52,12 +53,7 @@ export default defineTask({
         continue
       }
 
-      await Crawl.create({
-        siteId: schedule.siteId,
-        zoneId: schedule.zoneId,
-        trigger: 'scheduled',
-        status: 'pending',
-      })
+      await triggerSiteCrawl(schedule.siteId, schedule.zoneId, 'scheduled')
       triggered++
     }
 

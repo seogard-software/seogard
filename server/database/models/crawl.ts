@@ -2,7 +2,9 @@ import { Schema, model, Types } from 'mongoose'
 
 const crawlSchema = new Schema({
   siteId: { type: Types.ObjectId, ref: 'Site', required: true, index: true },
-  zoneId: { type: Types.ObjectId, ref: 'Zone', default: null },
+  // Un crawl appartient TOUJOURS à une zone (zone par défaut = site entier). Les anciens
+  // crawls historiques peuvent avoir null ; toute création passe par triggerSiteCrawl.
+  zoneId: { type: Types.ObjectId, ref: 'Zone', required: true },
   status: { type: String, enum: ['pending', 'running', 'completed', 'failed', 'cancelled'], default: 'pending' },
   trigger: { type: String, enum: ['manual', 'webhook', 'scheduled'], default: 'manual' },
   pagesScanned: { type: Number, default: 0 },

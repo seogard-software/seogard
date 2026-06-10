@@ -56,13 +56,6 @@ export function patternsToRegexSource(patterns: string[]): string {
 }
 
 /**
- * Checks if a pathname matches any of the patterns (client-side).
- */
-export function matchesPatterns(pathname: string, patterns: string[]): boolean {
-  return patternsToRegex(patterns).test(pathname)
-}
-
-/**
  * Normalizes a pattern: trims trailing slash, preserves user intent.
  * "/blog"    → "/blog"    (exact page match)
  * "/blog/"   → "/blog"    (trailing slash cleaned)

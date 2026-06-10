@@ -11,7 +11,6 @@ import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification,
 import { getRedis, disconnectRedis, getActiveCrawls, addActiveCrawl, removeActiveCrawl, claimDistributionLock, clearDistributionLock, pushPages, getRemainingPages, getProgress } from './redis'
 import { discoverPages, setBrowser } from './sitemap'
 import { discoverSitemapHttp } from '../shared/utils/sitemap'
-import { matchesPatterns } from '../shared/utils/zone'
 import { calculateCloudPrice } from '../shared/utils/pricing'
 
 const log = createLogger('main')
@@ -213,18 +212,19 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
   // Discover all pages from sitemap (with page limit enforcement)
   const { urls: pageUrls, pagesSkipped, sitemapBlocked, foreignHostnames, foreignUrlCount } = await syncMonitoredPages(siteId, site.url, site.orgId.toString())
 
-  // Filter URLs by zone pattern
+  // Filter URLs by zone pattern — MÊME regex que l'affichage (zone._patternsRegex) → zéro décalage.
   const crawlDoc = await Crawl.findById(crawlId).select('zoneId').lean()
   let filteredUrls = pageUrls
 
   if (crawlDoc?.zoneId) {
-    const zone = await Zone.findById(crawlDoc.zoneId).select('patterns isDefault').lean()
-    if (zone && !zone.isDefault) {
+    const zone = await Zone.findById(crawlDoc.zoneId).select('_patternsRegex isDefault').lean()
+    if (zone && !zone.isDefault && zone._patternsRegex) {
+      const zoneRegex = new RegExp(zone._patternsRegex)
       filteredUrls = pageUrls.filter((url) => {
-        try { return matchesPatterns(new URL(url).pathname, zone.patterns) }
+        try { return zoneRegex.test(new URL(url).pathname) }
         catch { return false }
       })
-      log.info({ crawlId, siteId, totalPages: pageUrls.length, zonePages: filteredUrls.length, patterns: zone.patterns }, 'filtered pages by zone pattern')
+      log.info({ crawlId, siteId, totalPages: pageUrls.length, zonePages: filteredUrls.length }, 'filtered pages by zone pattern')
     }
   }
 

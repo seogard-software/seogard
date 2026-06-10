@@ -165,8 +165,14 @@ const showRegenModal = ref(false)
 const regenerating = ref(false)
 const justCopied = ref<string | null>(null)
 
-// Strictness
-const ciStrictness = ref<'strict' | 'standard' | 'relaxed'>('standard')
+// Strictness DE LA ZONE — override optimiste après clic (par zoneId : l'état survit à une
+// navigation zone A → zone B sans afficher la strictness de la mauvaise zone), sinon la valeur de la zone.
+const strictnessOverride = ref<Record<string, 'strict' | 'standard' | 'relaxed'>>({})
+const ciStrictness = computed<'strict' | 'standard' | 'relaxed'>(
+  () => strictnessOverride.value[zoneId.value]
+    ?? (zone.value as { ciStrictness?: 'strict' | 'standard' | 'relaxed' } | null)?.ciStrictness
+    ?? 'standard',
+)
 const activeTab = ref<'curl' | 'github' | 'vercel' | 'gitlab'>('curl')
 
 const strictnessLevels = [
@@ -333,11 +339,18 @@ seogard:
 }))
 
 async function updateStrictness(value: 'strict' | 'standard' | 'relaxed') {
-  ciStrictness.value = value
-  await $fetch(`/api/sites/${siteId.value}` as string, {
-    method: 'PUT',
-    body: { ciStrictness: value },
-  })
+  const previous = strictnessOverride.value
+  strictnessOverride.value = { ...previous, [zoneId.value]: value }
+  try {
+    await $fetch(`/api/sites/${siteId.value}/zones/${zoneId.value}`, {
+      method: 'PATCH',
+      body: { ciStrictness: value },
+    })
+  }
+  catch {
+    // Échec serveur → on annule l'affichage optimiste (sinon l'UI mentirait).
+    strictnessOverride.value = previous
+  }
 }
 
 async function handleRegenerate() {
@@ -361,15 +374,11 @@ function copy(text: string, id = 'endpoint') {
   }
 }
 
-// Fetch API key and site settings
+// Fetch API key (la strictness vient de la zone via le store useZones).
 async function init() {
   try {
-    const [keyData, siteData] = await Promise.all([
-      $fetch<{ apiKey: string }>(`/api/sites/${siteId.value}/api-key`),
-      $fetch<{ ciStrictness?: string }>(`/api/sites/${siteId.value}`),
-    ])
+    const keyData = await $fetch<{ apiKey: string }>(`/api/sites/${siteId.value}/api-key`)
     if (keyData) apiKey.value = keyData.apiKey
-    if (siteData?.ciStrictness) ciStrictness.value = siteData.ciStrictness as typeof ciStrictness.value
   } catch {
     /* permissions insuffisantes — la clé restera masquée */
   }

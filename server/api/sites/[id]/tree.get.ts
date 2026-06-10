@@ -50,7 +50,6 @@ export default defineEventHandler(async (event) => {
   const drillDepth = drillSegments.length
 
   // Use pathname field with prefix match for efficient filtering
-  const drillPrefix = drill === '/' ? '/' : drill
   const pathnameMatch = drill === '/'
     ? {} // all pages
     : { pathname: { $regex: `^${escapeRegex(drill)}(/|$)` } }

@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
   const update: Record<string, unknown> = {}
   if (body.name !== undefined) update.name = body.name
   if (body.notifyEmail !== undefined) update.notifyEmail = body.notifyEmail
-  if (body.ciStrictness !== undefined && ['strict', 'standard', 'relaxed'].includes(body.ciStrictness)) update.ciStrictness = body.ciStrictness
 
   const updated = await Site.findOneAndUpdate(
     { _id: id },

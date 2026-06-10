@@ -16,12 +16,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Zone introuvable' })
   }
 
-  if (zone.isDefault) {
-    throw createError({ statusCode: 403, message: 'La zone par défaut ne peut pas être modifiée' })
-  }
-
   const body = await readBody(event)
   const update: Record<string, any> = {}
+
+  // La zone par défaut est figée sur nom/patterns ; seule sa strictness CI reste réglable.
+  if (zone.isDefault && (body.name !== undefined || body.patterns !== undefined)) {
+    throw createError({ statusCode: 403, message: 'La zone par défaut ne peut pas être modifiée (nom/patterns)' })
+  }
+
+  if (body.ciStrictness !== undefined) {
+    if (!['strict', 'standard', 'relaxed'].includes(body.ciStrictness)) {
+      throw createError({ statusCode: 400, message: 'Strictness invalide' })
+    }
+    update.ciStrictness = body.ciStrictness
+  }
 
   if (body.name !== undefined) {
     if (typeof body.name !== 'string' || !body.name.trim()) {

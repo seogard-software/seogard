@@ -66,16 +66,6 @@ export default defineEventHandler(async (event) => {
     ? {}
     : { pathname: { $regex: zone._patternsRegex } }
 
-  const pathnameMatch = drill === '/'
-    ? zonePathnameFilter
-    : {
-        pathname: {
-          $regex: `^${escapeRegex(drill)}(/|$)`,
-          ...(zonePathnameFilter.pathname ? {} : {}),
-        },
-        ...zonePathnameFilter,
-      }
-
   // If both drill and zone filters apply, combine with $and
   const pageMatch: Record<string, unknown> = { siteId: siteObjectId }
   if (drill !== '/' && zonePathnameFilter.pathname) {

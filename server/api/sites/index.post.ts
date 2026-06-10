@@ -1,4 +1,5 @@
-import { Site, Zone } from '../../database/models'
+import { Site } from '../../database/models'
+import { createSiteWithDefaultZone } from '../../utils/site-create'
 
 export default defineEventHandler(async (event) => {
   requireAuth(event)
@@ -24,23 +25,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 409, message: 'Ce site est déjà configuré' })
   }
 
-  const site = await Site.create({
-    orgId,
-    name: body.name,
-    url: normalizedUrl,
-    discovering: 'pending',
-  })
-
-  if (!site) throw createError({ statusCode: 500, message: 'Database insert failed' })
-
-  // Create default zone (all pages)
-  await Zone.create({
-    siteId: site._id,
-    name: null,
-    patterns: ['**'],
-    isDefault: true,
-    createdBy: null,
-  })
+  const site = await createSiteWithDefaultZone({ orgId, name: body.name, url: normalizedUrl })
 
   reqLog.info({ siteId: site._id, siteName: site.name, orgId }, 'site created')
 

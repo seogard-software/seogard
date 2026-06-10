@@ -1,4 +1,4 @@
-import { Site, MonitoredPage, Crawl } from '../../../database/models'
+import { MonitoredPage, Crawl } from '../../../database/models'
 
 export default defineEventHandler(async (event) => {
   const id = requireValidId(event)

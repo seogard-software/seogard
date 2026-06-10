@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { patternsToRegex, patternsToRegexSource, matchesPatterns, isValidPattern, normalizePattern } from './zone'
+import { patternsToRegex, patternsToRegexSource, isValidPattern, normalizePattern } from './zone'
 
 describe('patternsToRegex', () => {
   it('matches everything with **', () => {
@@ -75,13 +75,14 @@ describe('patternsToRegexSource', () => {
   })
 })
 
-describe('matchesPatterns', () => {
-  it('delegates to patternsToRegex correctly', () => {
-    expect(matchesPatterns('/blog/article', ['/blog/**'])).toBe(true)
-    expect(matchesPatterns('/produits/xyz', ['/blog/**'])).toBe(false)
-    expect(matchesPatterns('/colis/abc', ['/colis/**', '/envoi/**'])).toBe(true)
-    expect(matchesPatterns('/envoi/xyz', ['/colis/**', '/envoi/**'])).toBe(true)
-    expect(matchesPatterns('/', ['**'])).toBe(true)
+// Matching réel utilisé par l'affichage ET le crawler (via zone._patternsRegex).
+describe('patternsToRegex (matching pathname)', () => {
+  it('matche les bons pathnames', () => {
+    expect(patternsToRegex(['/blog/**']).test('/blog/article')).toBe(true)
+    expect(patternsToRegex(['/blog/**']).test('/produits/xyz')).toBe(false)
+    expect(patternsToRegex(['/colis/**', '/envoi/**']).test('/colis/abc')).toBe(true)
+    expect(patternsToRegex(['/colis/**', '/envoi/**']).test('/envoi/xyz')).toBe(true)
+    expect(patternsToRegex(['**']).test('/')).toBe(true)
   })
 })
 

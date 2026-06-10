@@ -8,6 +8,7 @@ const zoneSchema = new Schema({
   isDefault: { type: Boolean, default: false },
   _patternsRegex: { type: String },
   createdBy: { type: Types.ObjectId, ref: 'User', default: null },
+  ciStrictness: { type: String, enum: ['strict', 'standard', 'relaxed'], default: 'standard' },
 }, { timestamps: true })
 
 // Pre-compile regex on save for efficient MongoDB queries

@@ -1,42 +1,50 @@
-import { Site, Crawl, Subscription, Zone, User } from '~~/server/database/models'
+import { Subscription, Zone, User, Organization, Crawl } from '~~/server/database/models'
 import { canUseCrawls } from '~~/shared/utils/pricing'
 import { isSelfHosted } from '~~/server/utils/deployment'
+import { triggerSiteCrawl } from '~~/server/utils/crawl-trigger'
+import { requireZoneCrawlAccess } from '~~/server/utils/zone-ci-auth'
 
 export default defineEventHandler(async (event) => {
   const log = useRequestLog(event, 'api.zones')
   const siteId = requireValidId(event)
-  const zoneId = getRouterParam(event, 'zoneId')
-  if (!zoneId) {
-    throw createError({ statusCode: 400, message: 'zoneId requis' })
-  }
+  // ObjectId validé → un zoneId malformé (typo CI) répond 400, pas un CastError 500.
+  const zoneId = requireValidId(event, 'zoneId')
 
-  const { site } = await requireZoneAccess(event, siteId, zoneId, 'member')
+  // CI (clé API du site) OU dashboard (session).
+  const { site, viaApiKey } = await requireZoneCrawlAccess(event, siteId, zoneId, 'member')
 
   const zone = await Zone.findOne({ _id: zoneId, siteId }).lean()
   if (!zone) {
     throw createError({ statusCode: 404, message: 'Zone introuvable' })
   }
 
-  const userId = requireAuth(event)
-  const user = await User.findById(userId).select('trialEndsAt').lean()
-
+  // Entitlement de l'orga (trial du owner) — vaut pour la session ET la clé API CI.
   if (!isSelfHosted()) {
     const sub = await Subscription.findOne({ orgId: (site as any).orgId }).lean()
-    if (!sub || !canUseCrawls(sub.stripeStatus, (user as any)?.trialEndsAt)) {
+    let ownerTrialEndsAt: Date | null = null
+    if ((sub as any)?.stripeStatus === 'trialing') {
+      const org = await Organization.findById((site as any).orgId).select('ownerId').lean()
+      const owner = org ? await User.findById((org as any).ownerId).select('trialEndsAt').lean() : null
+      ownerTrialEndsAt = (owner as any)?.trialEndsAt ?? null
+    }
+    if (!sub || !canUseCrawls((sub as any).stripeStatus, ownerTrialEndsAt)) {
       throw createError({ statusCode: 403, message: 'Votre essai de 14 jours est terminé. Activez la facturation dans les paramètres pour continuer.' })
     }
   }
 
-  const crawl = await Crawl.create({
-    siteId,
-    zoneId: zone._id,
-    trigger: 'manual',
-    status: 'pending',
-  })
+  // CI : un nouveau deploy supersède le crawl en cours de CETTE zone (cancel-and-restart).
+  if (viaApiKey) {
+    await Crawl.updateMany(
+      { siteId, zoneId: zone._id, status: { $in: ['pending', 'running'] } },
+      { status: 'cancelled', error: 'Superseded by new deploy webhook' },
+    )
+  }
 
-  if (!crawl) throw createError({ statusCode: 500, message: 'Database insert failed' })
+  // Crawle LA zone affichée (défaut ou custom) ; le crawler scope par patterns (défaut = site entier).
+  // Trigger 'webhook' si déclenché par la CI (clé API), 'manual' depuis le dashboard.
+  const crawl = await triggerSiteCrawl(siteId, zone._id, viaApiKey ? 'webhook' : 'manual')
 
-  log.info({ siteId, zoneName: zone.name, zoneId: zone._id, crawlId: crawl._id }, 'zone crawl requested')
+  log.info({ siteId, zoneName: zone.name, zoneId: zone._id, crawlId: crawl._id, viaApiKey }, 'zone crawl requested')
 
   return crawl
 })

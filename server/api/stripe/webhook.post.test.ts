@@ -31,7 +31,7 @@ vi.mock('../../database/models', () => ({
     findById: (...args: unknown[]) => ({ lean: () => mockUserFindById(...args) }),
   },
   Organization: {
-    findById: (...args: unknown[]) => ({ lean: () => Promise.resolve({ ownerId: 'user123' }) }),
+    findById: () => ({ lean: () => Promise.resolve({ ownerId: 'user123' }) }),
   },
 }))
 
