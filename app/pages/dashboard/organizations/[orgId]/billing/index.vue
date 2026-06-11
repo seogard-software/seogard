@@ -84,7 +84,7 @@
         </div>
       </div>
       <p class="page-billing__how-example">
-        Exemple : un site de 300k pages avec 3 zones de 10k → vous payez <strong>30k pages</strong>. Le mois suivant vous ne crawlez que 10k → vous payez <strong>10k pages</strong>.
+        Exemple : un site de 300k pages avec 3 zones de 10k → vous payez 30k pages, soit <strong>{{ examplePrice30k }} € HT/mois</strong>. Le mois suivant vous ne crawlez que 10k → <strong>{{ examplePrice10k }} € HT/mois</strong>.
       </p>
     </section>
 
@@ -144,6 +144,10 @@ const estimatedMonthlyPrice = computed(() => {
   return (pagesUsed.value * getCloudPricePerPage()).toLocaleString('fr-FR', { minimumFractionDigits: 0 })
 })
 
+// Exemples chiffrés en € (dynamiques : suivent le prix par page) — « 30k pages » seul se lit comme un montant.
+const examplePrice30k = (30_000 * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+const examplePrice10k = (10_000 * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+
 const STATUS_LABELS: Record<string, string> = {
   trialing: 'Essai gratuit',
   active: 'Actif',
@@ -162,18 +166,24 @@ const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'danger' | 'info' 
   incomplete: 'neutral',
 }
 
+const trialDaysLeft = computed(() => getTrialDaysLeft(authStore.trialEndsAt))
+
+// Un trial Stripe « trialing » mais expiré côté produit doit s'afficher « Essai terminé »,
+// pas « Essai gratuit » (incohérent avec le message à côté).
+const isTrialExpired = computed(() => authStore.subscription?.stripeStatus === 'trialing' && trialDaysLeft.value === 0)
+
 const subscriptionLabel = computed(() => {
   const sub = authStore.subscription
   if (!sub) return 'Essai gratuit'
+  if (isTrialExpired.value) return 'Essai terminé'
   return STATUS_LABELS[sub.stripeStatus] ?? sub.stripeStatus
 })
 
 const subscriptionBadgeVariant = computed(() => {
+  if (isTrialExpired.value) return 'warning'
   const status = authStore.subscription?.stripeStatus
   return status ? STATUS_VARIANTS[status] ?? 'neutral' : 'info'
 })
-
-const trialDaysLeft = computed(() => getTrialDaysLeft(authStore.trialEndsAt))
 
 const subscriptionMessage = computed(() => {
   const sub = authStore.subscription

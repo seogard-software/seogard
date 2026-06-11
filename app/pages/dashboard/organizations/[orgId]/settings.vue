@@ -244,13 +244,18 @@ const needsBillingAction = computed(() => {
   return false
 })
 
+// Trial « trialing » côté Stripe mais expiré côté produit → « Essai terminé » (cohérent partout).
+const isTrialExpired = computed(() => isTrialing.value && trialDaysLeft.value === 0)
+
 const subscriptionLabel = computed(() => {
   const sub = authStore.subscription
   if (!sub) return 'Essai gratuit'
+  if (isTrialExpired.value) return 'Essai terminé'
   return STATUS_LABELS[sub.stripeStatus] ?? sub.stripeStatus
 })
 
 const subscriptionBadgeVariant = computed(() => {
+  if (isTrialExpired.value) return 'warning'
   const status = authStore.subscription?.stripeStatus
   return status ? STATUS_VARIANTS[status] ?? 'neutral' : 'info'
 })
