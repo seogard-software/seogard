@@ -1,5 +1,6 @@
 import type { TopReco } from '../../shared/utils/recommendations'
 import { getCloudPricePerPage } from '../../shared/utils/pricing'
+import { zoneReportPath } from '../../shared/utils/report-links'
 
 const APP_URL = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
 
@@ -79,6 +80,15 @@ function button(href: string, label: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
     <tr><td style="background-color:${C.accent};border-radius:8px;">
       <a href="${href}" style="color:${C.white};text-decoration:none;font-weight:600;font-size:14px;display:inline-block;padding:13px 28px;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">${label}</a>
+    </td></tr>
+  </table>`
+}
+
+// Bouton secondaire (contour) : discret mais beau et visible. Pour les CTA complémentaires.
+function ghostButton(href: string, label: string): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+    <tr><td style="border:1.5px solid ${C.gray200};border-radius:8px;">
+      <a href="${href}" style="color:${C.accent};text-decoration:none;font-weight:600;font-size:14px;display:inline-block;padding:11px 26px;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">${label}</a>
     </td></tr>
   </table>`
 }
@@ -163,6 +173,9 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
   const alertsUrl = data.zoneId
     ? `${APP_URL}/dashboard/sites/${data.siteId}/zones/${data.zoneId}/alerts`
     : `${APP_URL}/dashboard/sites/${data.siteId}`
+  const reportUrl = data.zoneId
+    ? `${APP_URL}${zoneReportPath(data.siteId, data.zoneId)}`
+    : null
 
   const regCount = data.regressions.length
   const fixCount = data.fixed.length
@@ -215,6 +228,7 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
       ${regBlock}
       ${fixBlock}
       ${button(alertsUrl, regCount > 0 ? 'Voir et résoudre les régressions →' : 'Voir le dashboard →')}
+      ${reportUrl ? `<p style="margin:0 0 4px;font-size:13px;color:${C.gray500};">📎 PDF de synthèse en pièce jointe. Pour le détail complet (toutes les pages) et l'historique :</p>${ghostButton(reportUrl, 'Voir le détail complet en ligne →')}` : ''}
       ${recoLine}
     `),
   }

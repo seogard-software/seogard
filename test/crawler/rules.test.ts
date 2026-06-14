@@ -1318,7 +1318,8 @@ describe('faq_schema_removed', () => {
       newMeta: baseMeta({ hasFaqSchema: false }),
     }))
     expect(results).toHaveLength(1)
-    expect(results[0].severity).toBe('warning')
+    // info (et non warning) : Google n'affiche plus de rich result FAQ → impact direct faible.
+    expect(results[0].severity).toBe('info')
   })
 
   it('does not fire when FAQPage still exists', () => {

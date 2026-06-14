@@ -10,7 +10,7 @@ const mockSiteFind = vi.fn()
 const mockMonitoredPageCountDocuments = vi.fn()
 const mockUserFindById = vi.fn()
 const mockSubscriptionsRetrieve = vi.fn()
-const mockCreateUsageRecord = vi.fn()
+const mockMeterEventsCreate = vi.fn()
 
 vi.mock('../../database/models', () => ({
   Subscription: {
@@ -43,8 +43,10 @@ vi.mock('../../utils/stripe', () => ({
     subscriptions: {
       retrieve: (...args: unknown[]) => mockSubscriptionsRetrieve(...args),
     },
-    subscriptionItems: {
-      createUsageRecord: (...args: unknown[]) => mockCreateUsageRecord(...args),
+    billing: {
+      meterEvents: {
+        create: (...args: unknown[]) => mockMeterEventsCreate(...args),
+      },
     },
   }),
 }))
@@ -534,7 +536,8 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
     vi.resetModules()
   })
 
-  it('reports usage record with correct page count (only crawled pages)', async () => {
+  it('reports a meter event with correct page count (only crawled pages)', async () => {
+    process.env.STRIPE_METER_EVENT_NAME = 'seogard_pages'
     fakeStripeEvent = {
       type: 'invoice.created',
       id: 'evt_11',
@@ -542,6 +545,7 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
         object: {
           id: 'inv_created_1',
           subscription: 'sub_stripe_1',
+          customer: 'cus_1',
           period_start: 1700000000,
         },
       },
@@ -553,19 +557,42 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
     })
     mockSiteFind.mockResolvedValue([{ _id: 'site1' }, { _id: 'site2' }])
     mockMonitoredPageCountDocuments.mockResolvedValue(350)
-    mockSubscriptionsRetrieve.mockResolvedValue({
-      items: { data: [{ id: 'si_item_1' }] },
-    })
-    mockCreateUsageRecord.mockResolvedValue({})
+    mockMeterEventsCreate.mockResolvedValue({})
 
     const mod = await import('./webhook.post')
     handler = mod.default
     await handler(fakeEvent)
 
-    expect(mockCreateUsageRecord).toHaveBeenCalledWith('si_item_1', {
-      quantity: 350,
-      action: 'set',
+    expect(mockMeterEventsCreate).toHaveBeenCalledWith({
+      event_name: 'seogard_pages',
+      payload: { stripe_customer_id: 'cus_1', value: '350' },
     })
+  })
+
+  it('skips usage and logs when STRIPE_METER_EVENT_NAME is not configured', async () => {
+    delete process.env.STRIPE_METER_EVENT_NAME
+    fakeStripeEvent = {
+      type: 'invoice.created',
+      id: 'evt_11b',
+      data: {
+        object: {
+          id: 'inv_created_1b',
+          subscription: 'sub_stripe_1',
+          customer: 'cus_1',
+          period_start: 1700000000,
+        },
+      },
+    }
+
+    mockSubscriptionFindOne.mockResolvedValue({ _id: 'sub_db_1', orgId: 'org456' })
+    mockSiteFind.mockResolvedValue([{ _id: 'site1' }])
+    mockMonitoredPageCountDocuments.mockResolvedValue(350)
+
+    const mod = await import('./webhook.post')
+    handler = mod.default
+    await handler(fakeEvent)
+
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 
   it('skips usage when no crawled pages in period', async () => {
@@ -592,8 +619,8 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
     handler = mod.default
     await handler(fakeEvent)
 
-    expect(mockSubscriptionsRetrieve).not.toHaveBeenCalled()
-    expect(mockCreateUsageRecord).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 
   it('returns early when subscription not found', async () => {
@@ -616,7 +643,7 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
     await handler(fakeEvent)
 
     expect(mockSiteFind).not.toHaveBeenCalled()
-    expect(mockCreateUsageRecord).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 })
 
@@ -647,7 +674,7 @@ describe('webhook.post — edge cases', () => {
     handler = mod.default
     await handler(fakeEvent)
 
-    expect(mockSubscriptionsRetrieve).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
     expect(mockSubscriptionFindOneAndUpdate).not.toHaveBeenCalled()
   })
 
@@ -668,7 +695,7 @@ describe('webhook.post — edge cases', () => {
     handler = mod.default
     await handler(fakeEvent)
 
-    expect(mockSubscriptionsRetrieve).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
     expect(mockSubscriptionFindOneAndUpdate).not.toHaveBeenCalled()
   })
 
@@ -848,7 +875,7 @@ describe('webhook.post — edge cases', () => {
     await handler(fakeEvent)
 
     expect(mockSubscriptionFindOne).not.toHaveBeenCalled()
-    expect(mockCreateUsageRecord).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 
   it('invoice.created skips usage when org has no sites', async () => {
@@ -876,7 +903,7 @@ describe('webhook.post — edge cases', () => {
 
     // pageCount is 0 when no sites exist (skips countDocuments entirely)
     expect(mockMonitoredPageCountDocuments).not.toHaveBeenCalled()
-    expect(mockSubscriptionsRetrieve).not.toHaveBeenCalled()
-    expect(mockCreateUsageRecord).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 })

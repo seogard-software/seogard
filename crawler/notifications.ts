@@ -27,9 +27,13 @@ export interface CrawlReportNotification {
   recoCount: number
 }
 
+/** Pièce jointe d'email (transport, pas du contenu) — PDF court du crawl en base64. */
+export interface EmailAttachment { filename: string, content: string }
+
 export async function sendEmailNotification(
   to: string,
   notification: CrawlReportNotification,
+  attachment?: EmailAttachment | null,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -50,6 +54,11 @@ export async function sendEmailNotification(
     recoCount: notification.recoCount,
   })
 
+  const body: Record<string, unknown> = { from: fromEmail, to, subject, html }
+  if (attachment) {
+    body.attachments = [{ filename: attachment.filename, content: attachment.content }]
+  }
+
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -57,7 +66,7 @@ export async function sendEmailNotification(
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from: fromEmail, to, subject, html }),
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {

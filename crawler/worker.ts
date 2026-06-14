@@ -6,10 +6,11 @@ import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
 import { isSsrBlocked, normalizeUrl } from './rules/helpers'
-import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification } from './notifications'
+import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
 import { isCrawlComplete, claimCrawlFinalization } from './crawl-completion'
+import { writeCrawlSnapshot, type SnapshotResult } from './crawl-snapshot'
 import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
 
 const log = createLogger('worker')
@@ -319,6 +320,17 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
     }
     await Site.findByIdAndUpdate(siteId, siteUpdate)
 
+    // Snapshot du rapport (fidèle) APRÈS l'auto-resolve : génère .md exhaustif + .pdf court,
+    // les stocke sur R2. Isolé : un échec snapshot ne casse jamais la finalisation. Le PDF
+    // renvoyé sert aussi à le joindre à l'email (pas de re-rendu).
+    let snapshot: SnapshotResult | null = null
+    try {
+      snapshot = await writeCrawlSnapshot(crawlId, siteId)
+    }
+    catch (error) {
+      log.error({ crawlId, siteId, errorCode: 'CRAWL_SNAPSHOT_ERROR', error: (error as Error).message }, 'crawl report snapshot failed')
+    }
+
     // Send notifications (zone-scoped)
     try {
       const site = await Site.findById(siteId)
@@ -333,7 +345,7 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
         const allAlerts = await Alert.find({ siteId, lastCrawlId: crawlId }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
         const fixedAlerts = await Alert.find({ siteId, status: 'resolved', resolvedCrawlId: crawlId, category: { $in: ['event', 'state'] } }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
 
-        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId })
+        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId }, snapshot)
 
         // Send "crawler blocked" notification if >10% pages blocked
         if (crawlForNotif && crawlForNotif.pagesTotal > 0 && crawlForNotif.pagesBlocked > 0) {
@@ -532,11 +544,17 @@ async function sendNotifications(
   allAlerts: ReportAlert[],
   fixedAlerts: ReportAlert[],
   zoneInfo?: { zoneName: string | null, zoneId: string | null },
+  snapshot?: SnapshotResult | null,
 ): Promise<void> {
   // Monitoring-first : construit le rapport (régressions + réparées) et décide SI on envoie.
   // Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
   const report = buildCrawlReport(allAlerts, fixedAlerts)
   if (!site.notifyEmail || !report.shouldSend) return
+
+  // Pièce jointe = le PDF COURT déjà généré par le snapshot (métier, jamais le .md).
+  const attachment: EmailAttachment | null = snapshot
+    ? { filename: snapshot.pdfFilename, content: snapshot.pdf.toString('base64') }
+    : null
 
   const notification: CrawlReportNotification = {
     siteId: site._id.toString(),
@@ -575,6 +593,6 @@ async function sendNotifications(
 
   const emailList = Array.from(emails)
   for (let i = 0; i < emailList.length; i++) {
-    await sendEmailNotification(emailList[i], notification)
+    await sendEmailNotification(emailList[i], notification, attachment)
   }
 }

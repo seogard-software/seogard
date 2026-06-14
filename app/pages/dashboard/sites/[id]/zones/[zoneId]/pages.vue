@@ -10,6 +10,12 @@
         </template>
         Modifier
       </AppButton>
+      <AppButton v-if="!neverCrawled" variant="secondary" size="sm" @click="goToReport">
+        <template #icon-left>
+          <AppIcon name="file" size="sm" />
+        </template>
+        Voir le rapport complet
+      </AppButton>
       <span v-if="canCrawl && !showFirstCrawlCta" :title="crawlDisabledReason ?? undefined">
         <AppButton data-testid="crawl-button" variant="accent" :loading="crawlLoading" :disabled="!!activeCrawl || !!crawlDisabledReason" @click="launchCrawl">
           <template #icon-left>
@@ -248,6 +254,7 @@
 
 <script setup lang="ts">
 import type { Zone } from '~~/shared/types/zone'
+import { zoneReportPath } from '~~/shared/utils/report-links'
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
@@ -255,6 +262,10 @@ useSeoMeta({ robots: 'noindex, nofollow' })
 const route = useRoute()
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
+
+function goToReport() {
+  navigateTo(zoneReportPath(siteId.value, zoneId.value))
+}
 const authStore = useAuthStore()
 const orgStore = useOrganizationStore()
 const toast = useToast()

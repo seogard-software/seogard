@@ -3,9 +3,12 @@
 #
 # Quick start :
 #   1. cp .env.example .env
-#   2. Editer .env → changer MONGO_PASSWORD et NUXT_JWT_SECRET
+#   2. Editer .env → changer MONGO_PASSWORD, NUXT_JWT_SECRET et MINIO_ROOT_PASSWORD
 #   3. docker compose -f docker-compose.self-hosted.yml up -d
 #   4. Ouvrir http://localhost:3000
+#
+# Le stockage des rapports (.md/.pdf) utilise le MinIO embarqué (service minio) — rien à
+# configurer de plus. Pour le désactiver : retirer les services minio/createbuckets.
 #
 # Le premier compte créé sera l'administrateur (owner).
 # ─────────────────────────────────────────────────────────
@@ -21,11 +24,19 @@ services:
       NUXT_PUBLIC_SELF_HOSTED: "true"
       DATABASE_URL: mongodb://seogard:${MONGO_PASSWORD:-changeme}@mongo:27017/seogard?authSource=admin
       REDIS_URL: redis://redis:6379
+      # Stockage objet (rapports figés .md/.pdf) — pointe sur le MinIO local fourni ci-dessous.
+      STORAGE_S3_ENDPOINT: http://minio:9000
+      STORAGE_S3_REGION: auto
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET:-seogard-reports}
+      STORAGE_S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-seogard}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-changeme-minio}
     depends_on:
       mongo:
         condition: service_healthy
       redis:
         condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   # ── Crawler workers ──────────────────────────────────
@@ -48,6 +59,12 @@ services:
       NUXT_PUBLIC_SELF_HOSTED: "true"
       DATABASE_URL: mongodb://seogard:${MONGO_PASSWORD:-changeme}@mongo:27017/seogard?authSource=admin
       REDIS_URL: redis://redis:6379
+      # Le worker GÉNÈRE et stocke les rapports figés → mêmes accès stockage objet que le web.
+      STORAGE_S3_ENDPOINT: http://minio:9000
+      STORAGE_S3_REGION: auto
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET:-seogard-reports}
+      STORAGE_S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-seogard}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-changeme-minio}
     deploy:
       replicas: ${WORKER_REPLICAS:-2}
     depends_on:
@@ -55,6 +72,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   # ── Base de données ──────────────────────────────────
@@ -88,6 +107,31 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # ── Stockage objet (rapports figés .md/.pdf) ─────────
+  # S3-compatible. En self-hosted on fournit MinIO ; en SaaS on pointe sur Cloudflare R2.
+  # Pour désactiver les rapports : retirer minio/createbuckets et les env STORAGE_S3_* ci-dessus.
+  minio:
+    image: minio/minio
+    command: server /data
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-seogard}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-changeme-minio}
+    restart: unless-stopped
+
+  # Crée le bucket au démarrage (one-shot) : poll jusqu'à ce que MinIO réponde, puis s'arrête.
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-seogard} ${MINIO_ROOT_PASSWORD:-changeme-minio}; do echo 'waiting for minio...'; sleep 2; done &&
+      mc mb --ignore-existing local/${STORAGE_S3_BUCKET:-seogard-reports} &&
+      exit 0"
+
 volumes:
   mongo-data:
   redis-data:
+  minio-data:

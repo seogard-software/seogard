@@ -101,8 +101,17 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   log.info({ customerId, subscriptionId, orgId: sub.orgId }, 'checkout completed, subscription active')
 }
 
+// Stripe a déplacé invoice.subscription sous parent.subscription_details selon la version d'API.
+// On lit les deux emplacements pour rester robuste au pinning de version du SDK.
+function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
+  const legacy = (invoice as unknown as { subscription?: string }).subscription
+  const modern = (invoice as unknown as { parent?: { subscription_details?: { subscription?: string } } })
+    .parent?.subscription_details?.subscription
+  return legacy ?? modern ?? null
+}
+
 async function handleInvoiceCreated(stripe: Stripe, invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string
+  const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (!subscriptionId) return
 
   const sub = await Subscription.findOne({ stripeSubscriptionId: subscriptionId }).lean()
@@ -128,23 +137,24 @@ async function handleInvoiceCreated(stripe: Stripe, invoice: Stripe.Invoice) {
     return
   }
 
-  // Find the subscription item to report usage on
-  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId)
-  const itemId = stripeSubscription.items?.data[0]?.id
-  if (!itemId) {
-    log.error({ subscriptionId, errorCode: 'NO_SUBSCRIPTION_ITEM' }, 'no subscription item found')
+  // Remontée d'usage via l'API Billing Meters (createUsageRecord a été supprimé du SDK Stripe).
+  // STRIPE_METER_EVENT_NAME = event_name du meter lié au prix metered, défini côté dashboard Stripe.
+  const eventName = process.env.STRIPE_METER_EVENT_NAME
+  if (!eventName) {
+    log.error({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, errorCode: 'METER_EVENT_NAME_MISSING' }, 'STRIPE_METER_EVENT_NAME non configure - usage NON reporte a Stripe')
     return
   }
 
+  const customerId = invoice.customer as string
   try {
-    await stripe.subscriptionItems.createUsageRecord(itemId, {
-      quantity: pageCount,
-      action: 'set',
+    await stripe.billing.meterEvents.create({
+      event_name: eventName,
+      payload: { stripe_customer_id: customerId, value: String(pageCount) },
     })
-    log.info({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, itemId }, 'usage record reported')
+    log.info({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, customerId }, 'usage meter event reported')
   }
   catch (err) {
-    log.error({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, itemId, errorCode: 'USAGE_RECORD_FAILED', error: (err as Error).message }, 'failed to report usage record')
+    log.error({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, customerId, errorCode: 'USAGE_METER_FAILED', error: (err as Error).message }, 'failed to report usage meter event')
   }
 }
 

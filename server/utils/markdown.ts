@@ -5,17 +5,19 @@ import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import rehypeShiki from '@shikijs/rehype'
 
-let processor: ReturnType<typeof unified> | null = null
+function buildProcessor() {
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeShiki, { theme: 'github-dark' })
+    .use(rehypeStringify)
+}
 
-function getProcessor() {
-  if (!processor) {
-    processor = unified()
-      .use(remarkParse)
-      .use(remarkGfm)
-      .use(remarkRehype)
-      .use(rehypeShiki, { theme: 'github-dark' })
-      .use(rehypeStringify)
-  }
+let processor: ReturnType<typeof buildProcessor> | null = null
+
+function getProcessor(): ReturnType<typeof buildProcessor> {
+  if (!processor) processor = buildProcessor()
   return processor
 }
 

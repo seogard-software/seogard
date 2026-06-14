@@ -452,7 +452,7 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO continu : détectez les régressions (HTML brut vs rendu JS) avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  description: `Monitoring SEO GEO continu : détectez les régressions (HTML brut vs rendu JS) avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   ogTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
   ogDescription: `Monitoring SEO & GEO continu avec détection des régressions SSR/CSR et alertes temps réel. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',

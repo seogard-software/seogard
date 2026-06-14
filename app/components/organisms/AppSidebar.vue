@@ -111,6 +111,14 @@
             Overview
           </NuxtLink>
           <NuxtLink
+            :to="`/dashboard/sites/${activeSiteId}/zones/${defaultZoneId}/report`"
+            class="app-sidebar__link app-sidebar__zone-sub-link"
+            active-class="app-sidebar__link--active"
+          >
+            <AppIcon name="file" size="sm" />
+            Rapport
+          </NuxtLink>
+          <NuxtLink
             v-if="hasMinZoneRole(defaultZoneId!, 'admin')"
             :to="`/dashboard/sites/${activeSiteId}/zones/${defaultZoneId}/schedule`"
             class="app-sidebar__link app-sidebar__zone-sub-link"
@@ -167,6 +175,14 @@
           >
             <AppIcon name="radar" size="sm" />
             Overview
+          </NuxtLink>
+          <NuxtLink
+            :to="`/dashboard/sites/${activeSiteId}/zones/${zone._id}/report`"
+            class="app-sidebar__link app-sidebar__zone-sub-link"
+            active-class="app-sidebar__link--active"
+          >
+            <AppIcon name="file" size="sm" />
+            Rapport
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(zone._id, 'admin')"

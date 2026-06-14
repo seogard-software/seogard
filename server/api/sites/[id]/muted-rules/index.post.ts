@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   // Create mute (upsert to avoid duplicates)
   await MutedRule.updateOne(
     { siteId, ruleId },
-    { $setOnInsert: { siteId, ruleId, mutedBy: user._id } },
+    { $setOnInsert: { siteId, ruleId, mutedBy: user } },
     { upsert: true },
   )
 

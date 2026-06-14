@@ -15,6 +15,12 @@
         </div>
       </div>
 
+      <!-- Fiche règle : pourquoi / action / gain (à la demande) -->
+      <details v-if="knowledge" class="alert-card__knowledge">
+        <summary>Comprendre &amp; corriger</summary>
+        <RuleKnowledgeCard :knowledge="knowledge" class="alert-card__knowledge-card" />
+      </details>
+
       <!-- Footer: URL + meta -->
       <div class="alert-card__footer">
         <button class="alert-card__url-btn" :title="urlCopied ? 'Copié !' : alert.pageUrl" @click="copyUrl">
@@ -79,6 +85,8 @@ async function copyUrl() {
 
 const { computeDiff } = useDiff()
 const diff = computed(() => computeDiff(props.alert.previousValue, props.alert.currentValue))
+
+const knowledge = computed(() => getRuleKnowledge(props.alert.ruleId))
 </script>
 
 <style scoped lang="scss">
@@ -154,6 +162,30 @@ const diff = computed(() => computeDiff(props.alert.previousValue, props.alert.c
     .alert-card__diff-line--added & {
       background-color: rgba($color-success, 0.15);
     }
+  }
+
+  // Fiche règle dépliable
+  &__knowledge {
+    margin-bottom: $spacing-2;
+
+    summary {
+      font-size: 11px;
+      color: $color-gray-400;
+      cursor: pointer;
+      user-select: none;
+      transition: color $transition-fast;
+
+      &:hover {
+        color: $color-gray-600;
+      }
+    }
+  }
+
+  &__knowledge-card {
+    margin-top: $spacing-2;
+    padding: $spacing-3;
+    background: $surface-elevated;
+    border-radius: $radius-md;
   }
 
   // Footer

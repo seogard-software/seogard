@@ -72,6 +72,7 @@ const model = defineModel<boolean>({ required: true })
 
 const matrixRows = [
   { action: 'Voir pages / alertes', roles: [true, true, true, true] },
+  { action: 'Voir / télécharger le rapport', roles: [true, true, true, true] },
   { action: 'Lancer un crawl', roles: [true, true, true, false] },
   { action: 'Résoudre des alertes', roles: [true, true, true, false] },
   { action: 'Désactiver / réactiver une règle', roles: [true, true, false, false] },

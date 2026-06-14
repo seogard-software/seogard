@@ -92,7 +92,7 @@ registerRule({
     return [{
       type: 'rec_faq_schema_missing',
       severity: 'info',
-      message: 'Aucun schema FAQPage — les FAQ sont reprises dans les AI Overviews et les featured snippets',
+      message: 'Page de contenu sans schema FAQPage — si elle traite des questions récurrentes, une structure Q/R claire aide les moteurs de réponse IA',
       previousValue: null,
       currentValue: null,
     }]
@@ -217,8 +217,8 @@ registerRule({
     if (ctx.newMeta.hasFaqSchema) return [] // still there
     return [{
       type: 'faq_schema_removed',
-      severity: 'warning',
-      message: 'Schema FAQPage supprimé — perte potentielle de featured snippets et de visibilité AI Overviews',
+      severity: 'info',
+      message: 'Schema FAQPage supprimé — Google n\'affiche plus de rich result FAQ, impact direct faible ; vérifier que c\'est intentionnel',
       previousValue: 'FAQPage présent',
       currentValue: null,
     }]
