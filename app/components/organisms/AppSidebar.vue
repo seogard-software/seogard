@@ -316,7 +316,9 @@ async function switchOrg(orgId: string) {
   orgStore.setActiveOrg(orgId)
   sitesStore.setActiveSiteId(null)
   onSiteChanged(null)
-  await fetchSites()
+  // Recharge la subscription/essai de la NOUVELLE orga (sinon la banniere facturation
+  // reste sur l'etat de l'orga precedente). setActiveOrg d'abord → le header x-org-id est a jour.
+  await Promise.all([authStore.fetchMe(), fetchSites()])
   await navigateTo('/dashboard/sites')
 }
 
