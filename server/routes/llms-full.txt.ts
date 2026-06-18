@@ -102,9 +102,13 @@ Seogard mesure la performance de chaque page à chaque crawl, sur le rendu compl
 
 Seuils officiels Google (Lighthouse). LCP, CLS et TTFB sont **monitorés et affichés** (dernière mesure + graphe d'évolution sur 30 jours) : mesurés en synthétique « one-shot », ils varient trop pour servir de signal d'alerte fiable — Google lui-même classe sur les données terrain (CrUX p75). En revanche, le **poids de page** est déterministe : sa forte hausse déclenche une régression (et peut bloquer un déploiement en mode strict). C'est la seule régression de performance.
 
-### Crawl quotidien automatique
+### Fréquence de crawl
 
-Après avoir ajouté votre site, Seogard découvre automatiquement vos pages via le sitemap et lance un crawl initial complet. Par la suite, un crawl quotidien vérifie chaque page. Une optimisation par hash SHA-256 permet de ne ré-analyser en profondeur (rendu CSR) que les pages dont le HTML a changé (~5-10% du total), ce qui réduit considérablement le temps de crawl.
+Après ajout du site, Seogard découvre les pages via le sitemap et lance un crawl initial complet. Ensuite, le crawl se déclenche selon trois modes combinables : à chaque déploiement (webhook CI/CD), de façon planifiée (quotidienne à mensuelle, configurable par zone) et à la demande. Chaque page crawlée est analysée en HTML brut (SSR) et en rendu JavaScript (CSR) pour détecter les écarts.
+
+### Zones — monitoring par section du site
+
+Un site peut être découpé en zones, chaque zone étant un ensemble de pages défini par motif d'URL (ex. /blog, /produits, /checkout). La zone par défaut « Toutes les pages » couvre le site entier. Chaque zone a sa propre configuration : règles SEO/GEO activées ou désactivées, fréquence de crawl planifié, niveau de strictness du gate CI/CD, notifications et droits d'accès par membre. Le webhook de déploiement cible une zone précise et ne crawle qu'elle, ce qui accélère le retour CI. On applique ainsi un monitoring plus strict aux pages critiques (tunnel d'achat, pages catégories) qu'au reste du site — une granularité que les outils de monitoring génériques n'offrent pas nativement.
 
 ### CI/CD webhook intégré
 
@@ -132,7 +136,7 @@ Seogard est construit avec :
 - **Playwright** (Chromium headless) pour le rendu CSR
 - **Redis** pour la queue de crawl
 
-Les workers de crawl tournent sur des serveurs dédiés avec 16 vCPU et 32 GB de RAM, capables de traiter 300 000 pages en une nuit pour le crawl initial, puis 30 000 pages en environ 1 heure pour les crawls quotidiens.
+Les workers de crawl tournent sur des serveurs dédiés avec 16 vCPU et 32 GB de RAM, capables de traiter 300 000 pages en une nuit pour le crawl initial, puis 30 000 pages en environ 1 heure pour les crawls planifiés.
 
 Le code source complet est disponible sur GitHub pour la version self-hosted.
 

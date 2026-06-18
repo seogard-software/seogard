@@ -38,11 +38,12 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 - Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — comparaison continue sur chaque page
 - 65+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
 - Performance Web monitorée sur chaque page : Core Web Vitals (LCP, CLS), temps de réponse serveur (TTFB) et poids de page ; alerte sur les régressions de poids de page
-- Crawl quotidien automatique
+- Crawl multi-déclencheur : à chaque déploiement (webhook CI/CD), planifié (quotidien à mensuel, configurable par zone) ou à la demande
+- Multi-zone : segmentez le site par motif d'URL (ex. /blog, /produits) — chaque zone a ses propres règles, fréquence de crawl, strictness CI/CD, notifications et accès ; le webhook peut ne crawler qu'une zone ciblée
 - Alertes instantanées par email dès qu'une régression est détectée
 - Diff highlighting : visualisation exacte de ce qui a changé (avant/après)
 - Dashboard temps réel
-- CI/CD webhook intégré (crawl à chaque déploiement)
+- Gate de déploiement CI/CD natif : webhook qui crawle à chaque mise en production et retourne un verdict pass/fail, avec 3 niveaux de strictness (strict/standard/relaxed) pour bloquer un déploiement régressif — alternative SEO-native aux checks synthétiques génériques (type Checkly), sans script à écrire
 
 ## Tarifs
 

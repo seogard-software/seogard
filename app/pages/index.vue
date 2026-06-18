@@ -134,8 +134,8 @@
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
             <div>
-              <strong class="features__item-title">Monitoring quotidien</strong>
-              <span class="features__item-desc">Chaque page, chaque jour — SSR + CSR complet</span>
+              <strong class="features__item-title">Monitoring continu</strong>
+              <span class="features__item-desc">À chaque déploiement + planifié — SSR + CSR complet</span>
             </div>
           </div>
           <div class="features__item">
@@ -313,11 +313,23 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Comment fonctionnent les alertes ?',
-    a: 'Chaque page est crawlée quotidiennement. Dès qu\'un changement est détecté, une alerte avec le diff exact avant/après est envoyée par email. Chaque alerte inclut la page concernée, la règle déclenchée et le niveau de sévérité.',
+    a: 'Seogard crawle selon trois déclencheurs : à chaque déploiement (via le webhook CI/CD), de façon planifiée (de quotidienne à mensuelle, configurable par zone) et à la demande. Dès qu\'une régression est détectée, une alerte avec le diff exact avant/après est envoyée par email, avec la page concernée, la règle déclenchée et le niveau de sévérité.',
   },
   {
     q: 'Comment intégrer Seogard dans un pipeline CI/CD ?',
-    a: 'Seogard propose un webhook CI/CD natif. Vous déclenchez un crawl via un appel POST après chaque déploiement. Seogard analyse les pages et retourne un verdict pass/fail. Le niveau de strictness est configurable pour bloquer la mise en production en cas de régression critique.',
+    a: 'Seogard fournit un gate de déploiement SEO natif. Un webhook POST déclenche un crawl de la zone à chaque déploiement, et un endpoint GET renvoie un verdict pass/fail. Trois niveaux de strictness (strict, standard, relaxed) permettent de BLOQUER une mise en production qui introduit une régression SEO/SSR. Contrairement aux checks synthétiques génériques (type Checkly) où vous écrivez et maintenez vos propres scripts, Seogard applique nativement 65+ règles SEO/GEO sans aucun script à coder.',
+  },
+  {
+    q: 'Seogard peut-il bloquer un déploiement qui casse le SEO ?',
+    a: 'Oui. Via le webhook CI/CD, Seogard crawle la zone à chaque déploiement et renvoie un verdict pass/fail. En mode strict, toute régression critique bloque la mise en production ; les modes standard et relaxed ajustent le seuil. C\'est un gate de déploiement SEO-natif : aucun script à écrire, contrairement aux outils de monitoring synthétique génériques.',
+  },
+  {
+    q: 'À quelle fréquence Seogard crawle-t-il mon site ?',
+    a: 'Trois déclencheurs combinables : à chaque déploiement (webhook CI/CD), de façon planifiée (quotidienne, hebdomadaire, bimensuelle ou mensuelle, configurable par zone) et à la demande depuis le dashboard. Vous n\'attendez pas un crawl planifié pour détecter une régression post-déploiement : le webhook la détecte au moment du deploy.',
+  },
+  {
+    q: 'Peut-on appliquer des règles et une fréquence différentes par section du site ?',
+    a: 'Oui, grâce aux zones. Une zone regroupe des pages par motif d\'URL (ex. /blog, /produits, /checkout) et possède sa propre configuration : règles SEO/GEO activées ou non, fréquence de crawl planifié, niveau de strictness du gate CI/CD, notifications et accès équipe. Le webhook de déploiement peut ne crawler qu\'une zone ciblée, pour un retour CI plus rapide. Vous surveillez ainsi vos pages critiques (checkout, catégories) plus strictement que le reste du site.',
   },
   {
     q: 'Combien de pages puis-je surveiller ?',
