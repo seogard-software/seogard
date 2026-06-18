@@ -88,9 +88,13 @@
     <div v-if="!isDiscovering && (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 0" class="zone-pages__waf-banner zone-pages__waf-banner--danger">
       <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
       <div class="zone-pages__waf-text">
-        <span class="zone-pages__waf-title">{{ sitesStore.currentSite?.lastCrawlPagesFailed }} page{{ (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 1 ? 's' : '' }} n'ont pas pu être analysées</span>
-        <span class="zone-pages__waf-sub">Échec de connexion au dernier crawl (« fetch failed ») — ces pages n'ont pas été analysées. Vérifiez que le site répond bien en HTTPS (apex vs www, certificat, blocage anti-bot).</span>
+        <span class="zone-pages__waf-title">{{ sitesStore.currentSite?.lastCrawlPagesFailed }} page{{ (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 1 ? 's' : '' }} n'ont pas pu être analysées au dernier crawl</span>
+        <span class="zone-pages__waf-sub">Le serveur a refusé la connexion de notre crawler (rejet ou timeout). Le plus souvent, un pare-feu (Cloudflare, BitNinja…) filtre notre IP — autorisez-la. Sinon, vérifiez l'accès HTTPS de ces URLs.</span>
       </div>
+      <NuxtLink to="/bot" class="zone-pages__waf-link">
+        Autoriser notre crawler
+        <AppIcon name="chevron-right" size="sm" />
+      </NuxtLink>
     </div>
 
     <!-- Muted rules info banner (viewers only) -->
