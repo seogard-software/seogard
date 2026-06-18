@@ -425,14 +425,15 @@ useHead({
           {
             '@type': 'ItemList',
             'name': 'Site Navigation',
+            // Uniquement des pages réelles indexables (aucune ancre #) → cohérent avec la nav HTML,
+            // candidats légitimes aux sitelinks Google.
             'itemListElement': [
-              { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Fonctionnalités', 'url': 'https://seogard.io/#features' },
+              { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Scanner SEO gratuit', 'url': 'https://seogard.io/scanner' },
               { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Tarifs', 'url': 'https://seogard.io/tarifs' },
-              { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Télécharger gratuitement', 'url': 'https://seogard.io/#download' },
-              { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Blog SEO Technique', 'url': 'https://seogard.io/blog' },
-              { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
-              { '@type': 'SiteNavigationElement', 'position': 6, 'name': 'Règles SEO', 'url': 'https://seogard.io/docs/rules' },
-              { '@type': 'SiteNavigationElement', 'position': 7, 'name': 'Self-Hosted', 'url': 'https://seogard.io/docs/self-hosted' },
+              { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
+              { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Règles SEO', 'url': 'https://seogard.io/docs/rules' },
+              { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Self-Hosted', 'url': 'https://seogard.io/docs/self-hosted' },
+              { '@type': 'SiteNavigationElement', 'position': 6, 'name': 'Blog SEO Technique', 'url': 'https://seogard.io/blog' },
             ],
           },
           {
@@ -632,7 +633,7 @@ useSeoMeta({
   }
 
   &__title-accent {
-    background: linear-gradient(135deg, #111827, #374151);
+    background: linear-gradient(120deg, $color-info, $color-success);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

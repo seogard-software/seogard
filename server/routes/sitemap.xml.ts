@@ -66,6 +66,8 @@ export default defineEventHandler(async (event) => {
 
   const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
+    { loc: '/scanner', priority: '0.9', changefreq: 'monthly' },
+    { loc: '/tarifs', priority: '0.8', changefreq: 'monthly' },
     { loc: '/blog', priority: '0.8', changefreq: 'daily' },
     { loc: '/docs', priority: '0.7', changefreq: 'monthly' },
     { loc: '/docs/rules', priority: '0.7', changefreq: 'monthly' },

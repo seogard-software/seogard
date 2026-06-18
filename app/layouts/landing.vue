@@ -38,6 +38,7 @@
             <p class="layout-landing__footer-tagline">
               Besoin d'aide ? <a href="mailto:support@seogard.io" class="layout-landing__footer-contact">support@seogard.io</a>
             </p>
+            <GithubLink label class="layout-landing__footer-github" />
           </div>
           <div class="layout-landing__footer-faq">
             <h4 class="layout-landing__footer-heading">Questions fréquentes</h4>
@@ -222,6 +223,13 @@ onUnmounted(() => {
     &:hover {
       color: #07d;
     }
+  }
+
+  // GithubLink (variante --labeled = padding interne) : on compense le padding gauche
+  // pour aligner l'icône avec le texte de la colonne marque.
+  &__footer-github {
+    margin-top: $spacing-2;
+    margin-left: -$spacing-4;
   }
 
   &__burger {

@@ -217,8 +217,12 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'docs', auth: false })
 
-useHead({ title: 'Guide Self-Hosted' })
-useSeoMeta({ robots: 'noindex, nofollow' })
+useHead({ title: 'Self-Hosted' })
+useSeoMeta({
+  description: 'Installez Seogard en self-hosted (Docker Compose) : monitoring SEO/GEO gratuit sur votre propre infrastructure, code source disponible (BSL 1.1). Guide pas à pas.',
+  ogTitle: 'Self-Hosted — Seogard',
+  robots: 'index, follow',
+})
 
 const config = useRuntimeConfig()
 const appUrl = computed(() => config.public.appUrl || 'https://votre-domaine.com')

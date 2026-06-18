@@ -125,7 +125,7 @@ const breadcrumbJsonLd = computed(() => {
 })
 
 useSeoMeta({
-  title: `${article.value.title} | Seogard`,
+  title: article.value.title,
   description: article.value.description,
   ogTitle: article.value.title,
   ogDescription: article.value.description,

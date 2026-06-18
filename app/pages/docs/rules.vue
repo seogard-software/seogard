@@ -145,7 +145,6 @@ const { data } = await useFetch('/api/public/rules')
 
 useHead({ title: 'Règles SEO' })
 useSeoMeta({
-  title: 'Règles SEO — Seogard',
   description: `${data.value?.total ?? ''} règles SEO vérifiées à chaque crawl : metas, SSR/CSR, status codes, structured data, i18n, GEO.`,
 })
 

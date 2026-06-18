@@ -52,11 +52,12 @@ const authStore = useAuthStore()
 const isLoggedIn = computed(() => !!authStore.currentUser)
 const demoUrl = useRuntimeConfig().public.demoUrl
 
+// Liens stables = base des sitelinks Google → uniquement de VRAIES pages indexables (zéro ancre #).
 const links = [
-  { to: '/#features', label: 'Fonctionnalités' },
+  { to: '/scanner', label: 'Scanner' },
   { to: '/tarifs', label: 'Tarifs' },
-  { to: '/blog', label: 'Blog' },
   { to: '/docs', label: 'Docs' },
+  { to: '/blog', label: 'Blog' },
 ]
 </script>
 
