@@ -210,7 +210,7 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
   await initCrawl(crawlId, siteId, site.name)
 
   // Discover all pages from sitemap (with page limit enforcement)
-  const { urls: pageUrls, pagesSkipped, sitemapBlocked, foreignHostnames, foreignUrlCount } = await syncMonitoredPages(siteId, site.url, site.orgId.toString())
+  const { urls: pageUrls, pagesSkipped, sitemapBlocked, sitemapMissing, foreignHostnames, foreignUrlCount } = await syncMonitoredPages(siteId, site.url, site.orgId.toString())
 
   // Filter URLs by zone pattern — MÊME regex que l'affichage (zone._patternsRegex) → zéro décalage.
   const crawlDoc = await Crawl.findById(crawlId).select('zoneId').lean()
@@ -231,8 +231,9 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
   // Store total page count + skipped + sitemapBlocked for progress tracking
   await Crawl.findByIdAndUpdate(crawlId, { pagesTotal: filteredUrls.length, pagesSkipped, sitemapBlocked })
 
-  // Always sync sitemapBlocked flag on Site (clears the banner when fixed)
-  await Site.updateOne({ _id: siteId }, { sitemapBlocked })
+  // Always sync sitemapBlocked + sitemapMissing on Site (clears/active le bandeau à chaque crawl).
+  // sitemapMissing vient de discoverPages : vrai seulement si aucun sitemap ET non bloqué WAF.
+  await Site.updateOne({ _id: siteId }, { sitemapBlocked, sitemapMissing })
 
   // If sitemap was blocked by WAF, notify the site owner immediately
   if (sitemapBlocked) {
@@ -312,8 +313,8 @@ async function pickCrawl() {
   )
 }
 
-async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string): Promise<{ urls: string[], pagesSkipped: number, sitemapBlocked: boolean, foreignHostnames: string[], foreignUrlCount: number }> {
-  const { urls: sitemapUrls, sitemapBlocked, foreignHostnames, foreignUrlCount } = await discoverPages(siteUrl)
+async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string): Promise<{ urls: string[], pagesSkipped: number, sitemapBlocked: boolean, sitemapMissing: boolean, foreignHostnames: string[], foreignUrlCount: number }> {
+  const { urls: sitemapUrls, sitemapBlocked, sitemapMissing, foreignHostnames, foreignUrlCount } = await discoverPages(siteUrl)
 
   const existingPages = await MonitoredPage.find({ siteId }).select('url').lean()
   const existingUrls = new Set(existingPages.map(p => p.url))
@@ -343,6 +344,7 @@ async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string
     urls: [...existingUrls, ...newUrls],
     pagesSkipped: 0,
     sitemapBlocked,
+    sitemapMissing,
     foreignHostnames,
     foreignUrlCount,
   }
@@ -354,7 +356,7 @@ async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string
  */
 async function runDiscovery(siteId: string, siteUrl: string): Promise<void> {
   try {
-    const { urls, sitemapBlocked } = await discoverPages(siteUrl)
+    const { urls, sitemapBlocked, sitemapMissing } = await discoverPages(siteUrl)
 
     if (urls.length > 0) {
       const BATCH_SIZE = 1000
@@ -377,7 +379,7 @@ async function runDiscovery(siteId: string, siteUrl: string): Promise<void> {
 
     // pagesUpdatedAt bumpé : invalide le cache tree (clé cross-process) pour que les
     // pages du sitemap apparaissent immédiatement, sans attendre un crawl.
-    await Site.updateOne({ _id: siteId }, { discovering: 'idle', discoveryStartedAt: null, sitemapBlocked, pagesUpdatedAt: new Date() })
+    await Site.updateOne({ _id: siteId }, { discovering: 'idle', discoveryStartedAt: null, sitemapBlocked, sitemapMissing, pagesUpdatedAt: new Date() })
   }
   catch (err) {
     log.error({ siteId, errorCode: 'DISCOVERY_ERROR', error: (err as Error).message }, 'discovery failed')

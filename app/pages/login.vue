@@ -2,6 +2,19 @@
   <div class="page-login">
     <!-- Step 1: Email -->
     <form v-if="step === 'email'" class="page-login__form" @submit.prevent="handleCheckEmail">
+      <template v-if="oauthProviders.length > 0">
+        <div class="page-login__oauth">
+          <a v-for="p in oauthProviders" :key="p" :href="`/api/auth/oauth/${p}/authorize`" class="page-login__oauth-btn">
+            <OAuthIcon :provider="p" />
+            Continuer avec {{ oauthLabels[p] }}
+          </a>
+        </div>
+
+        <div class="page-login__divider">
+          <span>ou avec votre email</span>
+        </div>
+      </template>
+
       <AppInput
         v-model="email"
         label="Email"
@@ -17,18 +30,6 @@
       <AppButton type="submit" :loading="loading" size="lg">
         Continuer
       </AppButton>
-
-      <template v-if="oauthProviders.length > 0">
-        <div class="page-login__divider">
-          <span>ou continuer avec</span>
-        </div>
-
-        <div class="page-login__oauth">
-          <a v-for="p in oauthProviders" :key="p" :href="`/api/auth/oauth/${p}/authorize`" class="page-login__oauth-btn">
-            {{ oauthLabels[p] }}
-          </a>
-        </div>
-      </template>
 
       <p class="page-login__link">
         Pas de compte ?
@@ -366,15 +367,16 @@ async function handleTotpVerify() {
 
   &__oauth {
     display: flex;
+    flex-direction: column;
     gap: $spacing-2;
   }
 
   &__oauth-btn {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: $spacing-2 $spacing-3;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-3;
     border: 1px solid $color-gray-200;
     border-radius: $radius-md;
     background: $color-white;

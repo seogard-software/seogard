@@ -1,11 +1,13 @@
 <template>
-  <section id="estimator" class="estimator">
+  <section id="estimator" :class="['estimator', { 'estimator--headless': headless }]">
     <div class="estimator__container">
-      <span class="section-label">Estimateur</span>
-      <h2 class="section-title">Combien coûte le monitoring de votre site ?</h2>
-      <p class="section-desc">
-        Entrez l'URL de votre site et votre email. On analyse votre sitemap et vous envoie une estimation personnalisée.
-      </p>
+      <template v-if="!headless">
+        <span class="section-label">Estimateur</span>
+        <h2 class="section-title">Combien coûte l'audit &amp; le monitoring de votre site ?</h2>
+        <p class="section-desc">
+          Entrez l'URL de votre site et votre email. On analyse votre sitemap et vous envoie une estimation personnalisée.
+        </p>
+      </template>
 
       <div class="estimator__box">
         <!-- Step 1: URL -->
@@ -94,6 +96,10 @@
 </template>
 
 <script setup lang="ts">
+// headless : masque l'en-tête interne (label/titre/desc) quand la page fournit déjà son propre
+// en-tête — évite le doublon visuel sur /tarifs.
+const { headless = false } = defineProps<{ headless?: boolean }>()
+
 type Step = 'url' | 'email' | 'done'
 
 const url = ref('')
@@ -174,6 +180,11 @@ async function submit() {
 
 .estimator {
   padding: 6rem 0;
+
+  // Sur /tarifs la page fournit l'en-tête + l'espacement → on retire le padding de section.
+  &--headless {
+    padding: 0;
+  }
 
   &__container {
     max-width: 1200px;

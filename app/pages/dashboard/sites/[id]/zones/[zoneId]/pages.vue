@@ -55,7 +55,7 @@
 
     <!-- WAF blocked banner -->
     <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapBlocked" class="zone-pages__waf-banner">
-      <AppIcon name="shield-check" size="sm" />
+      <span class="zone-pages__waf-icon"><AppIcon name="shield-check" size="sm" /></span>
       <div class="zone-pages__waf-text">
         <span class="zone-pages__waf-title">Sitemap bloqué par un pare-feu (WAF)</span>
         <span class="zone-pages__waf-sub">Notre crawler n'a pas pu accéder au sitemap. Seule la homepage a été analysée.</span>
@@ -68,10 +68,28 @@
 
     <!-- Sitemap invalid hostname banner -->
     <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapInvalidHostname" class="zone-pages__waf-banner">
-      <AppIcon name="alert-triangle" size="sm" />
+      <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
       <div class="zone-pages__waf-text">
         <span class="zone-pages__waf-title">Sitemap pointe vers le mauvais hostname</span>
         <span class="zone-pages__waf-sub">Certaines URLs du sitemap ont un hostname différent du site monitoré et sont ignorées par le crawl.</span>
+      </div>
+    </div>
+
+    <!-- No sitemap banner -->
+    <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapMissing" class="zone-pages__waf-banner">
+      <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
+      <div class="zone-pages__waf-text">
+        <span class="zone-pages__waf-title">Aucun sitemap trouvé sur ce site</span>
+        <span class="zone-pages__waf-sub">Sans sitemap, les pages orphelines (sans lien interne) et les nouvelles pages peuvent passer inaperçues — y compris pour les moteurs. Leurs dates de mise à jour (lastmod) ne sont pas non plus signalées. Publier un sitemap fiabilise leur découverte.</span>
+      </div>
+    </div>
+
+    <!-- Pages injoignables (fetch échoué) — ne PAS afficher « tout va bien » si le site n'a pas pu être analysé -->
+    <div v-if="!isDiscovering && (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 0" class="zone-pages__waf-banner zone-pages__waf-banner--danger">
+      <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
+      <div class="zone-pages__waf-text">
+        <span class="zone-pages__waf-title">{{ sitesStore.currentSite?.lastCrawlPagesFailed }} page{{ (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 1 ? 's' : '' }} n'ont pas pu être analysées</span>
+        <span class="zone-pages__waf-sub">Échec de connexion au dernier crawl (« fetch failed ») — ces pages n'ont pas été analysées. Vérifiez que le site répond bien en HTTPS (apex vs www, certificat, blocage anti-bot).</span>
       </div>
     </div>
 
@@ -581,6 +599,28 @@ if (import.meta.client) {
     border-radius: $radius-lg;
     box-shadow: 0 0 0 1px rgba($color-warning, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
     color: $color-warning;
+
+    &--danger {
+      box-shadow: 0 0 0 1px rgba($color-danger, 0.2), 0 2px 8px rgba(0, 0, 0, 0.04);
+      color: $color-danger;
+
+      .zone-pages__waf-icon {
+        background: rgba($color-danger, 0.1);
+      }
+    }
+  }
+
+  // Icône encadrée (carré arrondi teinté), même traitement que le bandeau « premier crawl ».
+  // La couleur du glyphe est héritée du bandeau (warning / danger) ; le fond reprend la teinte.
+  &__waf-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    background: rgba($color-warning, 0.1);
+    flex-shrink: 0;
   }
 
   // CTA premier crawl (variante accent, positive)

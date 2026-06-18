@@ -13,6 +13,8 @@ export interface Site {
   discovering: 'idle' | 'pending' | 'running'
   sitemapBlocked: boolean
   sitemapInvalidHostname: boolean
+  sitemapMissing: boolean
+  lastCrawlPagesFailed: number
   createdAt: string
   updatedAt: string
 }

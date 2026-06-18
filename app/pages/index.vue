@@ -11,15 +11,18 @@
       <div class="landing__container">
         <div class="hero__badge">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-          Monitoring SEO & GEO continu — Détection des régressions en temps réel
+          Audit & monitoring SEO/GEO en continu
         </div>
         <h1 class="hero__title">
           Détectez les régressions SEO<br>
           <span class="hero__title-accent">avant Google.</span>
         </h1>
         <p class="hero__subtitle">
-          Monitoring continu : on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript, et on vous alerte par email avant que le problème ne soit indexé.
+          À chaque crawl, on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript. Une régression cassée en prod ? Alerte email avant l'indexation.
         </p>
+        <div class="hero__scan">
+          <ScanBar size="hero" />
+        </div>
         <div class="hero__ctas">
           <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
@@ -29,9 +32,9 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Télécharger gratuitement
           </a>
-          <a href="#estimator" class="hero__cta hero__cta--ghost">
-            Estimer mon tarif Cloud
-          </a>
+          <NuxtLink to="/tarifs" class="hero__cta hero__cta--ghost">
+            Voir les tarifs
+          </NuxtLink>
         </div>
         <p class="hero__no-cc">Self-hosted gratuit, code source disponible (BSL 1.1). Cloud dès {{ cloudPriceDisplay }} €/mois/page. Essai gratuit 14 jours — sans carte bancaire.</p>
       </div>
@@ -75,9 +78,9 @@
     <section id="features" class="landing__section features">
       <div class="landing__container">
         <span class="section-label">Fonctionnalités</span>
-        <h2 class="section-title">Ce que Seogard monitore en continu pour vous</h2>
+        <h2 class="section-title">Ce que Seogard audite et monitore en continu</h2>
         <p class="section-desc">
-          65+ règles de détection appliquées en temps réel sur chaque page. Alertes instantanées dès qu'une régression apparaît.
+          65+ règles d'audit SEO/GEO vérifiées à chaque crawl sur chaque page. Alertes instantanées dès qu'une régression apparaît.
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
@@ -153,7 +156,7 @@
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
             <div>
               <strong class="features__item-title">Performance Web</strong>
-              <span class="features__item-desc">Core Web Vitals (LCP, CLS), TTFB et poids de page — sur chaque page</span>
+              <span class="features__item-desc">LCP, CLS, TTFB et poids affichés sur chaque page — alerte sur l'explosion du poids</span>
             </div>
           </div>
           <div class="features__item">
@@ -242,16 +245,14 @@
 
     <div class="landing__separator" />
 
-    <!-- ═══════ ESTIMATEUR — interactive price estimator ═══════ -->
-    <div class="landing__section">
-      <LandingEstimator />
-    </div>
-
-    <div class="landing__separator" />
-
-    <!-- ═══════ PRICING — 3 plans ═══════ -->
+    <!-- ═══════ PRICING — 3 plans (détail + estimateur sur /tarifs) ═══════ -->
     <div id="pricing" class="landing__section">
       <LandingPricing />
+      <div class="landing__pricing-cta">
+        <NuxtLink to="/tarifs" class="hero__cta hero__cta--ghost">
+          Estimez votre tarif
+        </NuxtLink>
+      </div>
     </div>
 
     <div class="landing__separator" />
@@ -299,8 +300,8 @@ const demoUrl = useRuntimeConfig().public.demoUrl
 
 const FAQ_ITEMS = [
   {
-    q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
+    q: 'Que monitore et audite Seogard exactement ?',
+    a: 'Seogard surveille en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité. Au-delà du monitoring de régressions, Seogard exécute un audit technique à chaque crawl (longueur des titres, alt des images, maillage interne, données structurées, llms.txt, FAQ schema…) consolidé dans un rapport État de santé SEO.',
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -345,7 +346,7 @@ const COMPARISON_ROWS = [
 ]
 
 useHead({
-  title: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
+  title: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
   titleTemplate: '%s',
   link: [
     { rel: 'canonical', href: 'https://seogard.io' },
@@ -385,7 +386,7 @@ useHead({
             'name': 'Seogard',
             'applicationCategory': 'BusinessApplication',
             'operatingSystem': 'Web',
-            'description': `Compare le HTML brut et le rendu JavaScript pour détecter les régressions SEO invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+            'description': `Audit SEO/GEO technique en continu : compare le HTML brut et le rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
             'url': 'https://seogard.io',
             'author': { '@type': 'Organization', 'name': 'Seogard', 'legalName': 'SAVEPNP' },
             'publisher': { '@type': 'Organization', 'name': 'Seogard', 'legalName': 'SAVEPNP' },
@@ -426,7 +427,7 @@ useHead({
             'name': 'Site Navigation',
             'itemListElement': [
               { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Fonctionnalités', 'url': 'https://seogard.io/#features' },
-              { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Tarifs', 'url': 'https://seogard.io/#pricing' },
+              { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Tarifs', 'url': 'https://seogard.io/tarifs' },
               { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Télécharger gratuitement', 'url': 'https://seogard.io/#download' },
               { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Blog SEO Technique', 'url': 'https://seogard.io/blog' },
               { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
@@ -452,16 +453,16 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Monitoring SEO GEO continu : détectez les régressions (HTML brut vs rendu JS) avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
-  ogTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
-  ogDescription: `Monitoring SEO & GEO continu avec détection des régressions SSR/CSR et alertes temps réel. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
+  description: `Audit SEO/GEO technique et monitoring continu : 65+ règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Détectez les régressions avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  ogTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
+  ogDescription: `Audit & monitoring SEO/GEO continu : 65+ règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',
   ogUrl: 'https://seogard.io',
   ogImage: 'https://seogard.io/og-image.png',
   twitterCard: 'summary_large_image',
   twitterImage: 'https://seogard.io/og-image.png',
-  twitterTitle: 'Seogard — Monitoring SEO & GEO continu | Alertes temps réel',
-  twitterDescription: `Monitoring continu. Détection régressions. Alertes temps réel. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  twitterTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
+  twitterDescription: `Audit & monitoring SEO/GEO continu. 65+ règles à chaque crawl. Détection des régressions avant Google. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   robots: 'index, follow',
 })
 </script>
@@ -484,6 +485,13 @@ useSeoMeta({
     background: $color-white;
     border-radius: 16px;
     border: 1px solid $color-gray-200;
+  }
+
+  &__pricing-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: -2.5rem; // resserre le gap créé par le padding bas de LandingPricing (6rem)
+    padding-bottom: 5rem; // respiration avant le bord bas de la carte
   }
 
   &__separator {
@@ -543,10 +551,10 @@ useSeoMeta({
 .hero {
   position: relative;
   background: $color-white;
-  padding: 10rem 0 8rem;
+  padding: 4rem 0; // symétrique haut/bas (le header reste au-dessus via le padding de .landing)
   text-align: center;
   overflow: hidden;
-  min-height: 100vh;
+  min-height: 90vh;
   display: flex;
   align-items: center;
 
@@ -610,15 +618,15 @@ useSeoMeta({
     color: $color-gray-600;
     font-size: $font-size-sm;
     font-weight: $font-weight-medium;
-    margin-bottom: $spacing-8;
+    margin-bottom: $spacing-5;
   }
 
   &__title {
     position: relative;
-    font-size: clamp(3rem, 7vw, 5rem);
+    font-size: clamp(2.5rem, 5.5vw, 3.75rem);
     font-weight: $font-weight-bold;
-    line-height: 1.05;
-    margin-bottom: $spacing-6;
+    line-height: 1.07;
+    margin-bottom: $spacing-5;
     letter-spacing: -0.04em;
     color: $color-gray-900;
   }
@@ -632,11 +640,17 @@ useSeoMeta({
 
   &__subtitle {
     position: relative;
-    font-size: $font-size-xl;
+    font-size: $font-size-lg;
     color: $color-gray-500;
-    max-width: 600px;
-    margin: 0 auto $spacing-10;
+    max-width: 620px;
+    margin: 0 auto $spacing-6;
     line-height: $line-height-normal;
+  }
+
+  &__scan {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto $spacing-6;
   }
 
   &__ctas {

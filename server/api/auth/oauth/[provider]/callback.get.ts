@@ -5,6 +5,7 @@ import { isSelfHosted } from '../../../../utils/deployment'
 import { generateAccessToken, generateRefreshTokenValue, setAuthCookies, getRefreshTokenExpiresAt } from '../../../../utils/auth'
 import { getOAuthClient, isValidOAuthProvider } from '../../../../utils/oauth'
 import type { OAuthProvider } from '../../../../utils/oauth'
+import { createPersonalOrg } from '../../../../utils/org-create'
 import { createLogger } from '../../../../utils/logger'
 
 const log = createLogger('web', 'api.auth.oauth')
@@ -125,10 +126,16 @@ export default defineEventHandler(async (event) => {
 
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  // New users without an org need onboarding
+  // Nouvel inscrit sans orga (aucune auto-provision par domaine) : on lui crée une orga perso
+  // automatiquement (zéro friction, comme l'inscription email) au lieu de passer par /onboarding.
+  // Permet aussi à l'onboarding « scan » (barre Analyser) de s'enchaîner sans étape manuelle.
   const hasOrg = await OrgMember.findOne({ userId: user._id }).lean()
   if (!hasOrg) {
-    return sendRedirect(event, `${appUrl}/onboarding`)
+    await createPersonalOrg({
+      userId: user._id.toString(),
+      name: user.name || profile.email.split('@')[0],
+      email: profile.email,
+    })
   }
 
   return sendRedirect(event, `${appUrl}/dashboard/sites`)

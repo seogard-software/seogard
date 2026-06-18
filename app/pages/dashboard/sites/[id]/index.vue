@@ -8,15 +8,17 @@
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
+const router = useRouter()
 const siteId = computed(() => route.params.id as string)
 
 const { defaultZoneId, fetchZones } = useZones()
 
 if (import.meta.client) {
+  // router pré-capturé : navigateTo perd le contexte Nuxt après le await fetchZones.
   const redirect = async () => {
     await fetchZones(siteId.value)
     if (defaultZoneId.value) {
-      navigateTo(`/dashboard/sites/${siteId.value}/zones/${defaultZoneId.value}/pages`, { replace: true })
+      router.replace(`/dashboard/sites/${siteId.value}/zones/${defaultZoneId.value}/pages`)
     }
   }
   redirect()

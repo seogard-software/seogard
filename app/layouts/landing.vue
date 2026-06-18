@@ -6,21 +6,8 @@
           <AppLogo size="sm" />
         </NuxtLink>
 
-        <!-- Desktop nav -->
-        <nav class="layout-landing__nav layout-landing__nav--desktop">
-          <NuxtLink to="/#features" class="layout-landing__nav-link">Fonctionnalités</NuxtLink>
-          <NuxtLink to="/#pricing" class="layout-landing__nav-link">Tarifs</NuxtLink>
-          <NuxtLink to="/blog" class="layout-landing__nav-link">Blog</NuxtLink>
-          <NuxtLink to="/docs" class="layout-landing__nav-link">Docs</NuxtLink>
-          <template v-if="isLoggedIn">
-            <NuxtLink to="/dashboard/sites" class="layout-landing__nav-cta">Dashboard</NuxtLink>
-          </template>
-          <template v-else>
-            <NuxtLink to="/login" class="layout-landing__nav-link">Connexion</NuxtLink>
-            <NuxtLink to="/register" class="layout-landing__nav-link">Tester gratuitement</NuxtLink>
-            <a :href="demoUrl" target="_blank" rel="noopener" class="layout-landing__nav-cta">Réserver une démo</a>
-          </template>
-        </nav>
+        <!-- Desktop nav (source unique : PublicNav) -->
+        <PublicNav />
 
         <!-- Mobile burger -->
         <button class="layout-landing__burger" aria-label="Menu" @click="mobileMenuOpen = !mobileMenuOpen">
@@ -29,21 +16,8 @@
         </button>
       </div>
 
-      <!-- Mobile dropdown -->
-      <nav v-if="mobileMenuOpen" class="layout-landing__mobile-nav">
-        <NuxtLink to="/#features" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Fonctionnalités</NuxtLink>
-        <NuxtLink to="/#pricing" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Tarifs</NuxtLink>
-        <NuxtLink to="/blog" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Blog</NuxtLink>
-        <NuxtLink to="/docs" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Docs</NuxtLink>
-        <template v-if="isLoggedIn">
-          <NuxtLink to="/dashboard/sites" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Dashboard</NuxtLink>
-        </template>
-        <template v-else>
-          <NuxtLink to="/login" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Connexion</NuxtLink>
-          <NuxtLink to="/register" class="layout-landing__mobile-link" @click="mobileMenuOpen = false">Tester gratuitement</NuxtLink>
-          <a :href="demoUrl" target="_blank" rel="noopener" class="layout-landing__nav-cta" @click="mobileMenuOpen = false">Réserver une démo</a>
-        </template>
-      </nav>
+      <!-- Mobile dropdown (même source : PublicNav variant mobile) -->
+      <PublicNav v-if="mobileMenuOpen" variant="mobile" @navigate="mobileMenuOpen = false" />
     </header>
 
     <main>
@@ -72,7 +46,7 @@
           <div class="layout-landing__footer-col">
             <h4 class="layout-landing__footer-heading">Liens</h4>
             <NuxtLink to="/#features" class="layout-landing__footer-link">Fonctionnalités</NuxtLink>
-            <NuxtLink to="/#pricing" class="layout-landing__footer-link">Tarifs</NuxtLink>
+            <NuxtLink to="/tarifs" class="layout-landing__footer-link">Tarifs</NuxtLink>
             <NuxtLink to="/blog" class="layout-landing__footer-link">Blog</NuxtLink>
             <NuxtLink to="/bot" class="layout-landing__footer-link">Bot / Crawler</NuxtLink>
             <NuxtLink to="/llms.txt" class="layout-landing__footer-link" external>llms.txt</NuxtLink>
@@ -95,10 +69,6 @@
 </template>
 
 <script setup lang="ts">
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => !!authStore.currentUser)
-const demoUrl = useRuntimeConfig().public.demoUrl
-
 const FOOTER_FAQ = [
   {
     q: 'Que monitore Seogard exactement ?',
@@ -177,44 +147,6 @@ onUnmounted(() => {
 
     :deep(.app-logo) {
       color: $color-gray-900;
-    }
-  }
-
-  &__nav {
-    display: flex;
-    align-items: center;
-    gap: $spacing-6;
-  }
-
-  &__nav-link {
-    color: $color-gray-600;
-    text-decoration: none;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    transition: color $transition-fast;
-
-    &:hover {
-      color: $color-gray-900;
-      text-decoration: none;
-    }
-  }
-
-  &__nav-cta {
-    display: inline-flex;
-    align-items: center;
-    padding: $spacing-2 $spacing-5;
-    background: $color-accent;
-    color: $color-white;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    border-radius: $radius-lg;
-    text-decoration: none;
-    transition: all $transition-fast;
-
-    &:hover {
-      background: $color-accent-light;
-      box-shadow: $shadow-md;
-      text-decoration: none;
     }
   }
 
@@ -301,46 +233,10 @@ onUnmounted(() => {
     padding: $spacing-1;
   }
 
-  &__mobile-nav {
-    display: none;
-  }
-
   // ─── RESPONSIVE ───
   @media (max-width: $breakpoint-md) {
-    &__nav--desktop {
-      display: none;
-    }
-
     &__burger {
       display: flex;
-    }
-
-    &__mobile-nav {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-1;
-      max-width: $header-width;
-      margin: $spacing-2 auto 0;
-      padding: $spacing-4 $spacing-6;
-      background: $color-white;
-      border: 1px solid $color-gray-200;
-      border-radius: 16px;
-    }
-
-    &__mobile-link {
-      display: block;
-      padding: $spacing-3 $spacing-4;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-medium;
-      color: $color-gray-700;
-      text-decoration: none;
-      border-radius: $radius-md;
-
-      &:hover {
-        background: $color-gray-50;
-        color: $color-gray-900;
-        text-decoration: none;
-      }
     }
 
     &__footer-grid {

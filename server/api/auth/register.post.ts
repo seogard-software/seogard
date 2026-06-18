@@ -1,7 +1,7 @@
-import { User, Subscription, RefreshToken, Organization, OrgMember } from '../../database/models'
+import { User, RefreshToken } from '../../database/models'
 import { hashPassword, generateAccessToken, generateRefreshTokenValue, setAuthCookies, getRefreshTokenExpiresAt } from '../../utils/auth'
 import { sendWelcomeEmail } from '../../utils/email'
-import { getStripe } from '../../utils/stripe'
+import { createPersonalOrg } from '../../utils/org-create'
 import { isSelfHosted } from '../../utils/deployment'
 
 export default defineEventHandler(async (event) => {
@@ -52,50 +52,16 @@ export default defineEventHandler(async (event) => {
 
   const orgName = body.orgName?.trim() || body.email.split('@')[0]
 
-  // Create organization + membership + subscription
-  // Rollback user if any of these fail to avoid orphaned accounts
-  let org, subscription
+  // Orga perso (organisation + membership owner + subscription trial + client Stripe) via la SOURCE
+  // UNIQUE partagée (org-create), comme l'onboarding /api/organizations et l'inscription OAuth.
+  // createPersonalOrg nettoie son orga partielle si ça échoue ; ici on retire l'utilisateur pour
+  // ne pas laisser de compte orphelin.
+  let org
   try {
-    org = await Organization.create({
-      name: orgName,
-      slug: `org-${user._id}`,
-      ownerId: user._id,
-    })
-
-    await OrgMember.create({
-      orgId: org._id,
-      userId: user._id,
-      role: 'owner',
-    })
-
-    if (!isSelfHosted()) {
-      let stripeCustomerId: string | null = null
-      const stripe = getStripe()
-      if (stripe) {
-        try {
-          const customer = await stripe.customers.create({
-            email: body.email,
-            metadata: { userId: user._id.toString() },
-          })
-          stripeCustomerId = customer.id
-        } catch (err) {
-          log.warn({ userId: user._id, errorCode: 'STRIPE_CUSTOMER_FAILED', error: (err as Error).message }, 'failed to create stripe customer, continuing without')
-        }
-      }
-
-      subscription = await Subscription.create({
-        orgId: org._id,
-        stripeStatus: 'trialing',
-        ...(stripeCustomerId && { stripeCustomerId }),
-      })
-    }
-  } catch (err) {
-    // Rollback: clean up partial data
-    await User.deleteOne({ _id: user._id }).catch((err) => log.error({ error: (err as Error).message }, 'cleanup failed'))
-    if (org) {
-      await OrgMember.deleteMany({ orgId: org._id }).catch((err) => log.error({ error: (err as Error).message }, 'cleanup failed'))
-      await Organization.deleteOne({ _id: org._id }).catch((err) => log.error({ error: (err as Error).message }, 'cleanup failed'))
-    }
+    org = await createPersonalOrg({ userId: user._id.toString(), name: orgName, email: body.email })
+  }
+  catch (err) {
+    await User.deleteOne({ _id: user._id }).catch(e => log.error({ error: (e as Error).message }, 'cleanup failed'))
     log.error({ userId: user._id, errorCode: 'REGISTER_ROLLBACK', error: (err as Error).message }, 'registration rollback after org creation failure')
     throw createError({ statusCode: 500, message: 'Erreur lors de la création du compte' })
   }
@@ -111,7 +77,7 @@ export default defineEventHandler(async (event) => {
 
   setAuthCookies(event, accessToken, refreshTokenValue)
 
-  log.info({ userId: user._id, email: user.email, orgId: org._id, subscriptionId: subscription?._id ?? null }, 'user registered')
+  log.info({ userId: user._id, email: user.email, orgId: org._id }, 'user registered')
 
   sendWelcomeEmail(user.email, user._id.toString())
 

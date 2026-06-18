@@ -7,19 +7,8 @@
           <AppLogo size="sm" />
         </NuxtLink>
 
-        <nav class="layout-docs__nav layout-docs__nav--desktop">
-          <NuxtLink to="/#features" class="layout-docs__nav-link">Fonctionnalités</NuxtLink>
-          <NuxtLink to="/#pricing" class="layout-docs__nav-link">Tarifs</NuxtLink>
-          <NuxtLink to="/blog" class="layout-docs__nav-link">Blog</NuxtLink>
-          <NuxtLink to="/docs" class="layout-docs__nav-link">Docs</NuxtLink>
-          <template v-if="isLoggedIn">
-            <NuxtLink to="/dashboard/sites" class="layout-docs__nav-cta">Dashboard</NuxtLink>
-          </template>
-          <template v-else>
-            <NuxtLink to="/login" class="layout-docs__nav-link">Connexion</NuxtLink>
-            <NuxtLink to="/register" class="layout-docs__nav-cta">Tester gratuitement</NuxtLink>
-          </template>
-        </nav>
+        <!-- Source unique : PublicNav (partagée avec le layout landing) -->
+        <PublicNav />
 
         <button class="layout-docs__burger" aria-label="Menu" @click="sidebarOpen = !sidebarOpen">
           <svg v-if="!sidebarOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
@@ -77,8 +66,6 @@
 </template>
 
 <script setup lang="ts">
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => !!authStore.currentUser)
 const isDev = import.meta.dev
 
 const selfHostedSections = [
@@ -170,48 +157,6 @@ $header-height: 64px;
 
     :deep(.app-logo) {
       color: $color-gray-900;
-    }
-  }
-
-  &__nav {
-    display: flex;
-    align-items: center;
-    gap: $spacing-6;
-
-    @media (max-width: $breakpoint-md) {
-      &--desktop {
-        display: none;
-      }
-    }
-  }
-
-  &__nav-link {
-    color: $color-gray-600;
-    text-decoration: none;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    transition: color $transition-fast;
-
-    &:hover {
-      color: $color-gray-900;
-    }
-  }
-
-  &__nav-cta {
-    display: inline-flex;
-    align-items: center;
-    padding: $spacing-2 $spacing-5;
-    background: $color-accent;
-    color: $color-white;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    border-radius: $radius-lg;
-    text-decoration: none;
-    transition: all $transition-fast;
-
-    &:hover {
-      background: $color-accent-light;
-      box-shadow: $shadow-md;
     }
   }
 

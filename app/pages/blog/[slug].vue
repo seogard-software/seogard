@@ -20,26 +20,12 @@
 
         <aside class="blog-article__sidebar">
           <div class="blog-article__cta">
-            <div class="blog-article__cta-bg" />
-            <div class="blog-article__cta-inner">
-              <span class="blog-article__cta-badge">Essai gratuit 14 jours</span>
-              <h3 class="blog-article__cta-title">Détectez vos régressions SEO avant Google</h3>
-              <p class="blog-article__cta-text">
-                Monitoring continu de vos meta tags, SSR et pages. Alerte instantanée dès qu'une régression est détectée.
-              </p>
-
-              <div class="blog-article__cta-actions">
-                <NuxtLink to="/#estimator" class="blog-article__cta-button blog-article__cta-button--estimate">
-                  Estimer mon prix Cloud
-                </NuxtLink>
-                <NuxtLink to="/register" class="blog-article__cta-button blog-article__cta-button--primary">
-                  Essai gratuit 14 jours
-                </NuxtLink>
-                <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="blog-article__cta-button blog-article__cta-button--ghost">
-                  Self-hosted sur GitHub
-                </a>
-              </div>
-            </div>
+            <span class="blog-article__cta-badge">Analyse gratuite</span>
+            <h3 class="blog-article__cta-title">Que voit vraiment Google de votre site ?</h3>
+            <p class="blog-article__cta-text">
+              Audit &amp; monitoring SEO/GEO en continu. Scannez votre site, recevez votre rapport en quelques minutes — sans carte bancaire.
+            </p>
+            <ScanBar size="compact" />
           </div>
         </aside>
       </div>
@@ -263,31 +249,23 @@ useHead({
   }
 
   &__cta {
-    position: relative;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-top: 3px solid $color-accent;
     border-radius: $radius-xl;
-    overflow: hidden;
-  }
-
-  &__cta-bg {
-    position: absolute;
-    inset: 0;
-    background: $color-gray-900;
-    z-index: 0;
-  }
-
-  &__cta-inner {
-    position: relative;
-    z-index: 1;
     padding: $spacing-6;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   }
 
   &__cta-badge {
     display: inline-block;
     padding: $spacing-1 $spacing-3;
-    background: $color-gray-700;
-    color: $color-white;
+    background: rgba($color-accent, 0.1);
+    color: $color-accent;
     font-size: $font-size-xs;
-    font-weight: $font-weight-semibold;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     border-radius: $radius-full;
     margin-bottom: $spacing-4;
   }
@@ -295,66 +273,16 @@ useHead({
   &__cta-title {
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
-    color: $color-white;
+    color: $color-gray-900;
     line-height: $line-height-snug;
     margin-bottom: $spacing-3;
   }
 
   &__cta-text {
-    font-size: $font-size-xs;
-    color: $color-gray-400;
+    font-size: $font-size-sm;
+    color: $color-gray-600;
     line-height: $line-height-normal;
     margin-bottom: $spacing-5;
-  }
-
-  &__cta-actions {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-2;
-  }
-
-  &__cta-button {
-    display: block;
-    text-align: center;
-    padding: $spacing-2 $spacing-4;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    border-radius: $radius-lg;
-    text-decoration: none;
-    transition: all $transition-fast;
-
-    &--estimate {
-      background: $color-white;
-      color: $color-gray-900;
-
-      &:hover {
-        background: $color-gray-100;
-        box-shadow: $shadow-md;
-        text-decoration: none;
-      }
-    }
-
-    &--primary {
-      background: $color-gray-700;
-      color: $color-white;
-
-      &:hover {
-        background: $color-gray-600;
-        box-shadow: $shadow-md;
-        text-decoration: none;
-      }
-    }
-
-    &--ghost {
-      color: $color-gray-400;
-      border: 1px solid $color-gray-600;
-
-      &:hover {
-        color: $color-white;
-        border-color: $color-gray-500;
-        text-decoration: none;
-      }
-    }
   }
 
   // ── Related articles ──

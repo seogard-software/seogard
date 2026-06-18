@@ -310,7 +310,9 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
     // lastCrawlAt / pagesUpdatedAt posés APRÈS l'auto-resolve : la version du cache tree
     // ne change qu'une fois TOUTES les alertes finalisées (alertes du crawl + résolutions).
     // Sinon le cache se purge sur des données intermédiaires → vieilles régressions servies ~30s.
-    const siteUpdate: Record<string, unknown> = { lastCrawlAt: new Date(), pagesUpdatedAt: new Date() }
+    // lastCrawlPagesFailed : nb de pages dont le fetch a échoué (site injoignable, fetch failed…).
+    // Surfacé en bandeau → on n'affiche pas « tout va bien » quand la page n'a pas pu être analysée.
+    const siteUpdate: Record<string, unknown> = { lastCrawlAt: new Date(), pagesUpdatedAt: new Date(), lastCrawlPagesFailed: finalProgress.failed }
     if (ctx?.siteContext) {
       siteUpdate.siteContext = {
         hasLlmsTxt: ctx.siteContext.hasLlmsTxt,

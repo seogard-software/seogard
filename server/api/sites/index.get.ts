@@ -1,11 +1,21 @@
-import { Site, MonitoredPage, Crawl } from '../../database/models'
+import { Site, MonitoredPage, Crawl, OrgMember, Zone } from '../../database/models'
 
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
+  const userId = requireAuth(event)
   const orgId = getOrgIdFromHeader(event)
-  await requireOrgRole(event, orgId, 'viewer')
+  const { role } = await requireOrgRole(event, orgId, 'viewer')
 
-  const sites = await Site.find({ orgId }).sort({ createdAt: 1 }).lean()
+  // Owner → tous les sites de l'orga. Sinon `member` n'est qu'un marqueur d'appartenance
+  // (cf. requireSiteOrAnyZoneAccess) : il ne voit QUE les sites où il a un zoneRole.
+  let siteMatch: Record<string, unknown> = { orgId }
+  if (role !== 'owner') {
+    const member = await OrgMember.findOne({ orgId, userId }).lean()
+    const zoneIds = (member?.zoneRoles ?? []).map(zr => zr.zoneId)
+    const siteIds = await Zone.find({ _id: { $in: zoneIds } }).distinct('siteId')
+    siteMatch = { orgId, _id: { $in: siteIds } }
+  }
+
+  const sites = await Site.find(siteMatch).sort({ createdAt: 1 }).lean()
   const siteIds = sites.map(s => s._id)
 
   const [counts, latestCrawls] = await Promise.all([

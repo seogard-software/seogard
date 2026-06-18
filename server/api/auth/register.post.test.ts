@@ -18,7 +18,12 @@ vi.mock('../../database/models', () => ({
     deleteOne: (...args: unknown[]) => mockUserDeleteOne(...args),
     countDocuments: () => mockUserCountDocuments(),
   },
-  Organization: { create: (...args: unknown[]) => mockOrgCreate(...args) },
+  Organization: {
+    create: (...args: unknown[]) => mockOrgCreate(...args),
+    // createPersonalOrg vérifie l'unicité du slug (findOne) puis nettoie en cas d'échec (deleteOne).
+    findOne: () => ({ lean: () => Promise.resolve(null) }),
+    deleteOne: vi.fn(),
+  },
   OrgMember: {
     create: (...args: unknown[]) => mockOrgMemberCreate(...args),
     deleteMany: vi.fn(),

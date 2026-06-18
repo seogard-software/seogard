@@ -16,6 +16,12 @@ const siteSchema = new Schema({
   discoveryStartedAt: { type: Date, default: null },
   sitemapBlocked: { type: Boolean, default: false },
   sitemapInvalidHostname: { type: Boolean, default: false },
+  // Aucun sitemap exploitable trouvé au dernier crawl (≠ bloqué WAF) → on ne surveille que la
+  // page d'accueil. Sert à afficher un bandeau d'avertissement honnête sur la page des pages.
+  sitemapMissing: { type: Boolean, default: false },
+  // Nb de pages dont le fetch a échoué au dernier crawl (site injoignable / « fetch failed »).
+  // > 0 → bandeau « pages non analysées », pour ne pas afficher « tout va bien » à tort.
+  lastCrawlPagesFailed: { type: Number, default: 0 },
   // Contexte site-level (GEO) du dernier crawl, comparé au crawl suivant pour détecter les
   // régressions site-level (llms.txt supprimé, crawler IA / Googlebot nouvellement bloqué).
   // DOIT être déclaré : sinon Mongoose (strict) le strippe à l'écriture → la détection ne marche pas.

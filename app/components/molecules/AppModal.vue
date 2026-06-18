@@ -6,7 +6,7 @@
         class="app-modal"
         @mousedown.self="handleBackdropClick"
       >
-        <div class="app-modal__panel">
+        <div :class="['app-modal__panel', { 'app-modal__panel--wide': wide }]">
           <div class="app-modal__header">
             <h2 class="app-modal__title">{{ title }}</h2>
             <button class="app-modal__close" @click="close">
@@ -31,16 +31,22 @@
 interface Props {
   title: string
   closeOnBackdrop?: boolean
+  wide?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   closeOnBackdrop: true,
+  wide: false,
 })
 
 const model = defineModel<boolean>({ required: true })
+// `close` n'est émis QUE sur fermeture volontaire (backdrop / croix / Échap) — pas quand le parent
+// met le v-model à false (navigation « se connecter », succès…). Permet de distinguer un abandon.
+const emit = defineEmits<{ close: [] }>()
 
 function close() {
   model.value = false
+  emit('close')
 }
 
 function handleBackdropClick() {
@@ -70,7 +76,7 @@ onUnmounted(() => {
 .app-modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000; // au-dessus des headers fixes (landing/docs = 100)
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,6 +91,10 @@ onUnmounted(() => {
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
+
+    &--wide {
+      max-width: 760px;
+    }
   }
 
   &__header {
