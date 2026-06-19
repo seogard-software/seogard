@@ -2,9 +2,17 @@
 // sauvegardée à l'époque). Google les garde indexés et les re-crawle → on renvoie 410 « parti
 // pour de bon » : désindexation propre et rapide, plus de crawl budget gaspillé. Contenu non
 // récupérable (aucun backup antérieur à avril). La chaîne de backup est réparée depuis (2026-06-04).
+//
+// Deux mécanismes : (1) liste explicite GONE_PATHS pour les slugs perdus, (2) pattern
+// `-via-sejournal-` qui couvre automatiquement toute réécriture de news Search Engine Journal
+// (contenu générique anglophone, jamais publié volontairement) → plus besoin de compléter la
+// liste à la main à chaque slug oublié (cause des échecs de validation GSC).
+const GONE_BLOG_SLUG_PATTERN = /^\/blog\/[^/]*-via-sejournal-/
 const GONE_PATHS = new Set<string>([
+  '/blog/500m-ai-searches-later-how-to-actually-improve-ai-search-visibility-citations-via-sejournal-mattgsouthern',
   '/blog/ai-search-engines-cite-reddit-youtube-and-linkedin-most-study',
   '/blog/aio-citations-diverge-from-rankings-bing-rewrites-rules-seo-pulse-via-sejournal-mattgsouthern',
+  '/blog/are-citations-in-ai-search-affected-by-google-organic-visibility-changes-via-sejournal-lilyraynyc',
   '/blog/bing-adds-geo-to-official-guidelines-expands-ai-abuse-definitions-via-sejournal-mattgsouthern',
   '/blog/bing-reveals-what-grounding-means-for-ai-search-visibility-via-sejournal-slobodanmanic',
   '/blog/bing-team-describes-how-grounding-differs-from-search-indexing-via-sejournal-martinibuster',
@@ -12,6 +20,7 @@ const GONE_PATHS = new Set<string>([
   '/blog/from-seo-and-cro-to-agentic-ai-optimization-aaio-why-your-website-needs-to-speak-to-machines-via-sejournal-slobodanmanic',
   '/blog/google-adds-ai-bot-labels-to-forum-q-a-structured-data-via-sejournal-mattgsouthern',
   '/blog/google-ads-adds-ai-voice-over-to-performance-max-video-ads',
+  '/blog/google-ads-api-enforces-daily-minimum-budget-for-demand-gen-campaigns',
   '/blog/google-agent-user-agent-identifies-ai-agent-traffic-in-server-logs',
   '/blog/google-ai-overview-citations-from-top-ranking-pages-drop-sharply-via-sejournal-mattgsouthern',
   '/blog/google-ai-overviews-cut-germany-s-top-organic-ctr-by-59-via-sejournal-mattgsouthern',
@@ -27,6 +36,7 @@ const GONE_PATHS = new Set<string>([
   '/blog/google-zero-misses-the-real-problem-your-next-visitor-isn-t-human',
   '/blog/how-to-build-a-context-first-ai-search-optimization-strategy',
   '/blog/how-to-build-faqs-that-power-ai-driven-local-search',
+  '/blog/how-to-keep-your-content-fresh-in-the-age-of-ai',
   '/blog/how-to-track-ai-visibility-prompts-the-right-way-via-sejournal-lorenbaker',
   '/blog/how-to-write-for-ai-search-a-playbook-for-machine-readable-content',
   '/blog/merchant-center-flags-feeds-disruption',
@@ -49,7 +59,7 @@ const GONE_PATHS = new Set<string>([
 
 export default defineEventHandler((event) => {
   const path = getRequestURL(event).pathname.replace(/\/+$/, '') || '/'
-  if (GONE_PATHS.has(path)) {
+  if (GONE_PATHS.has(path) || GONE_BLOG_SLUG_PATTERN.test(path)) {
     throw createError({ statusCode: 410, statusMessage: 'Gone' })
   }
 })

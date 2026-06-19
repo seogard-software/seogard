@@ -32,8 +32,23 @@ describe('middleware 410 Gone (articles perdus)', () => {
     expect(code).toBe(410)
   })
 
+  it('renvoie 410 sur un slug orphelin ajouté à la liste', () => {
+    let code = 0
+    try { run('/blog/google-ads-api-enforces-daily-minimum-budget-for-demand-gen-campaigns') }
+    catch (e) { code = (e as { statusCode: number }).statusCode }
+    expect(code).toBe(410)
+  })
+
+  it('renvoie 410 sur tout slug -via-sejournal- (pattern, même hors liste)', () => {
+    let code = 0
+    try { run('/blog/un-titre-quelconque-via-sejournal-unauteur') }
+    catch (e) { code = (e as { statusCode: number }).statusCode }
+    expect(code).toBe(410)
+  })
+
   it('ne touche pas une page vivante ni les autres routes', () => {
     expect(run('/blog/un-article-bien-vivant')).toBeUndefined()
+    expect(run('/blog/metas-disparues-apres-mise-en-production')).toBeUndefined()
     expect(run('/blog')).toBeUndefined()
     expect(run('/')).toBeUndefined()
   })
