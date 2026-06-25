@@ -1,0 +1,202 @@
+@use '~/assets/styles/variables' as *;
+
+// Style partagé par les pages produit /outils/* (monitoring, audit).
+.outils-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  // 9rem en haut = même air sous le header fixe que les autres pages (scanner, tarifs).
+  padding: 9rem $spacing-6 $spacing-16;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+
+  &__hero {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-5;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    background: $color-info-bg;
+    color: $color-info;
+    border-radius: $radius-2xl;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  &__title {
+    font-family: $font-family-heading;
+    font-size: $font-size-5xl;
+    line-height: $line-height-tight;
+    color: $color-gray-900;
+    max-width: 16ch;
+
+    em {
+      font-style: italic;
+      color: $color-info;
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-lg;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+    max-width: 62ch;
+
+    code {
+      font-family: $font-family-mono;
+      font-size: 0.9em;
+      background: $color-gray-100;
+      padding: 0.1em 0.35em;
+      border-radius: $radius-sm;
+    }
+  }
+
+  &__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-3;
+    justify-content: center;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-lg;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    transition: opacity 0.15s ease;
+
+    &--primary {
+      background: $color-accent;
+      color: $color-white;
+
+      &:hover { opacity: 0.88; }
+    }
+
+    &--ghost {
+      background: $color-white;
+      color: $color-gray-900;
+      border: 1px solid $color-gray-300;
+
+      &:hover { background: $color-gray-50; }
+    }
+  }
+
+  &__section-title {
+    font-family: $font-family-heading;
+    font-size: $font-size-3xl;
+    color: $color-gray-900;
+    text-align: center;
+  }
+
+  &__grid {
+    list-style: none;
+    padding: 0;
+    margin: $spacing-10 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: $spacing-5;
+  }
+
+  &__card {
+    background: $surface-card;
+    border: 1px solid $color-gray-200;
+    border-radius: $radius-xl;
+    padding: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  &__card-icon {
+    color: $color-info;
+  }
+
+  &__card-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    line-height: $line-height-snug;
+    color: $color-gray-900;
+  }
+
+  &__card-desc {
+    font-size: $font-size-sm;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+  }
+
+  &__steps-list {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: $spacing-10 auto 0;
+    max-width: 70ch;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-5;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-4;
+  }
+
+  &__step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: $color-accent;
+    color: $color-white;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+  }
+
+  &__step-text {
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+    color: $color-gray-700;
+    padding-top: 4px;
+  }
+
+  &__final {
+    text-align: center;
+    background: $color-gray-50;
+    border: 1px solid $color-gray-200;
+    border-radius: $radius-2xl;
+    padding: $spacing-12 $spacing-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-4;
+  }
+
+  &__final-title {
+    font-family: $font-family-heading;
+    font-size: $font-size-2xl;
+    color: $color-gray-900;
+  }
+
+  &__final-desc {
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+    max-width: 52ch;
+  }
+}
+
+@media (max-width: 640px) {
+  .outils-page__title { font-size: $font-size-4xl; }
+}

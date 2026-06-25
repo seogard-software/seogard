@@ -14,7 +14,7 @@ export default defineEventHandler((event) => {
 
   return `User-agent: *
 Allow: /
-Allow: /blog/
+Allow: /formations/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Disallow: /dashboard/

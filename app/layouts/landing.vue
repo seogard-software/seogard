@@ -47,8 +47,12 @@
           <div class="layout-landing__footer-col">
             <h4 class="layout-landing__footer-heading">Liens</h4>
             <NuxtLink to="/#features" class="layout-landing__footer-link">Fonctionnalités</NuxtLink>
+            <NuxtLink to="/formations" class="layout-landing__footer-link">Formations</NuxtLink>
+            <NuxtLink to="/outils/monitoring" class="layout-landing__footer-link">Monitoring</NuxtLink>
+            <NuxtLink to="/outils/audit" class="layout-landing__footer-link">Audit</NuxtLink>
+            <NuxtLink to="/scanner" class="layout-landing__footer-link">Scanner gratuit</NuxtLink>
             <NuxtLink to="/tarifs" class="layout-landing__footer-link">Tarifs</NuxtLink>
-            <NuxtLink to="/blog" class="layout-landing__footer-link">Blog</NuxtLink>
+            <NuxtLink to="/docs" class="layout-landing__footer-link">Docs</NuxtLink>
             <NuxtLink to="/bot" class="layout-landing__footer-link">Bot / Crawler</NuxtLink>
             <NuxtLink to="/llms.txt" class="layout-landing__footer-link" external>llms.txt</NuxtLink>
           </div>

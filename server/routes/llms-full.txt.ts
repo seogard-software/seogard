@@ -1,5 +1,4 @@
 import { formatCloudPrice, getPriceExamples } from '../../shared/utils/pricing'
-import { Article } from '~~/server/database/models'
 import { isSelfHosted } from '../utils/deployment'
 
 export default defineEventHandler(async (event) => {
@@ -179,16 +178,16 @@ Seogard se différencie par :
 - CI/CD webhook intégré (3 niveaux : strict / standard / relaxed)
 - Tarification à l'usage transparente : vous ne payez que les pages crawlées (Cloud) ou gratuite (self-hosted)
 
-## Blog SEO Technique
+## Formations SEO technique & GEO
 
-Seogard publie régulièrement des articles de référence sur le SEO technique. Sujets couverts : rendering SSR/CSR, meta tags, crawl budget, Core Web Vitals, migrations de sites, structured data, JavaScript SEO, monitoring continu. Les articles sont écrits par des experts pour un public de Lead SEO, CTO et développeurs senior.
+Seogard propose des formations sur le SEO technique et le GEO (visibilité IA). Sujets couverts : rendering SSR/CSR, crawlers IA (ChatGPT, Perplexity), llms.txt, données structurées, FAQ et signaux de citation, régressions SEO et gate CI/CD. Gratuites, accessibles même sans coder, pensées pour un public de Lead SEO, CTO, développeurs et créateurs de sites (WordPress, Shopify, no-code).
 
-- Blog : ${appUrl}/blog
+- Formations : ${appUrl}/formations
 
 ## Liens
 
 - Site : ${appUrl}
-- Blog : ${appUrl}/blog
+- Formations : ${appUrl}/formations
 - GitHub : https://github.com/seogard-software/seogard
 - Version courte : ${appUrl}/llms.txt
 
@@ -206,28 +205,6 @@ Seogard publie régulièrement des articles de référence sur le SEO technique.
 - **Contact** : legal@${(() => { try { return new URL(appUrl).hostname } catch { return 'seogard.io' } })()}
 `
 
-  let articlesSection = ''
-  try {
-    const articles = await Article.find()
-      .select('title description slug date category')
-      .sort({ date: -1 })
-      .limit(10)
-      .lean()
-
-    const total = await Article.countDocuments()
-
-    if (articles.length > 0) {
-      const articleEntries = articles.map((a) => {
-        return `- ${a.title} (${a.category}) — ${appUrl}/blog/${a.slug}`
-      }).join('\n')
-
-      articlesSection = `\n\n## Derniers articles du blog (${articles.length} sur ${total})\n\n${articleEntries}\n\nTous les articles : ${appUrl}/blog\n`
-    }
-  }
-  catch {
-    // Silently skip articles section if DB query fails
-  }
-
   setResponseHeader(event, 'content-type', 'text/plain; charset=utf-8')
-  return content + articlesSection
+  return content
 })

@@ -50,8 +50,12 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/api/**': { cors: true },
-    '/blog': { swr: 3600 },
-    '/blog/**': { swr: 3600 },
+    '/formations': { swr: 3600 },
+    '/outils/**': { swr: 3600 },
+    // Blog auto-généré supprimé (2026-06-25) → pivot Formations. Tout /blog redirige en 301
+    // vers /formations pour préserver le signal Google et ne casser aucun lien externe.
+    '/blog': { redirect: { to: '/formations', statusCode: 301 } },
+    '/blog/**': { redirect: { to: '/formations', statusCode: 301 } },
   },
 
   nitro: {

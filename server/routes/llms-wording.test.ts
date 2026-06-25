@@ -5,12 +5,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // On interdit toute formulation qui ferait croire à une alerte sur LCP/CLS/TTFB.
 
 vi.mock('../utils/deployment', () => ({ isSelfHosted: () => false }))
-vi.mock('~~/server/database/models', () => ({
-  Article: {
-    find: () => ({ select: () => ({ sort: () => ({ limit: () => ({ lean: () => Promise.resolve([]) }) }) }) }),
-    countDocuments: () => Promise.resolve(0),
-  },
-}))
 
 vi.stubGlobal('defineEventHandler', (handler: (event: unknown) => unknown) => handler)
 vi.stubGlobal('setResponseHeader', vi.fn())

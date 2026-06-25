@@ -59,16 +59,16 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 - Pas un concurrent des outils SEO classiques
 - C'est une nouvelle catégorie : le monitoring de régression SEO technique
 
-## Blog SEO Technique
+## Formations SEO technique & GEO
 
-Seogard publie des articles de référence sur le SEO technique : rendering SSR/CSR, meta tags, crawl budget, Core Web Vitals, migrations, structured data. Contenu expert écrit pour les Lead SEO et CTO.
+Seogard propose des formations sur le SEO technique et le GEO (visibilité IA) : rendering SSR/CSR, crawlers IA (ChatGPT, Perplexity), llms.txt, données structurées, régressions SEO et gate CI/CD. Gratuites, accessibles même sans coder.
 
-- Blog : ${appUrl}/blog
+- Formations : ${appUrl}/formations
 
 ## Liens
 
 - Site : ${appUrl}
-- Blog : ${appUrl}/blog
+- Formations : ${appUrl}/formations
 - GitHub : https://github.com/seogard-software/seogard
 - Documentation complète : ${appUrl}/llms-full.txt
 `

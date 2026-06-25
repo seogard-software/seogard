@@ -440,12 +440,14 @@ useHead({
             // Uniquement des pages réelles indexables (aucune ancre #) → cohérent avec la nav HTML,
             // candidats légitimes aux sitelinks Google.
             'itemListElement': [
-              { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Scanner SEO gratuit', 'url': 'https://seogard.io/scanner' },
-              { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Tarifs', 'url': 'https://seogard.io/tarifs' },
-              { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
-              { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Règles SEO', 'url': 'https://seogard.io/docs/rules' },
-              { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Self-Hosted', 'url': 'https://seogard.io/docs/self-hosted' },
-              { '@type': 'SiteNavigationElement', 'position': 6, 'name': 'Blog SEO Technique', 'url': 'https://seogard.io/blog' },
+              { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Formations SEO & GEO', 'url': 'https://seogard.io/formations' },
+              { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Monitoring SEO continu', 'url': 'https://seogard.io/outils/monitoring' },
+              { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Audit SEO & GEO', 'url': 'https://seogard.io/outils/audit' },
+              { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Scanner SEO gratuit', 'url': 'https://seogard.io/scanner' },
+              { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Tarifs', 'url': 'https://seogard.io/tarifs' },
+              { '@type': 'SiteNavigationElement', 'position': 6, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
+              { '@type': 'SiteNavigationElement', 'position': 7, 'name': 'Règles SEO', 'url': 'https://seogard.io/docs/rules' },
+              { '@type': 'SiteNavigationElement', 'position': 8, 'name': 'Self-Hosted', 'url': 'https://seogard.io/docs/self-hosted' },
             ],
           },
           {

@@ -1,14 +1,38 @@
 <template>
   <nav :class="['public-nav', `public-nav--${variant}`]">
-    <NuxtLink
-      v-for="link in links"
-      :key="link.to"
-      :to="link.to"
-      :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__link'"
-      @click="emit('navigate')"
-    >
-      {{ link.label }}
-    </NuxtLink>
+    <template v-for="link in links" :key="link.label">
+      <!-- Mobile : groupe avec sous-liens indentés -->
+      <template v-if="link.children && variant === 'mobile'">
+        <span class="public-nav__mobile-group">{{ link.label }}</span>
+        <NuxtLink
+          v-for="child in link.children"
+          :key="child.to"
+          :to="child.to"
+          class="public-nav__mobile-link public-nav__mobile-link--sub"
+          @click="emit('navigate')"
+        >
+          {{ child.label }}
+        </NuxtLink>
+      </template>
+
+      <!-- Desktop : dropdown -->
+      <NavDropdown
+        v-else-if="link.children"
+        :label="link.label"
+        :items="link.children"
+        @navigate="emit('navigate')"
+      />
+
+      <!-- Lien simple -->
+      <NuxtLink
+        v-else
+        :to="link.to!"
+        :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__link'"
+        @click="emit('navigate')"
+      >
+        {{ link.label }}
+      </NuxtLink>
+    </template>
 
     <template v-if="isLoggedIn">
       <NuxtLink
@@ -53,11 +77,23 @@ const isLoggedIn = computed(() => !!authStore.currentUser)
 const demoUrl = useRuntimeConfig().public.demoUrl
 
 // Liens stables = base des sitelinks Google → uniquement de VRAIES pages indexables (zéro ancre #).
-const links = [
-  { to: '/scanner', label: 'Scanner' },
-  { to: '/tarifs', label: 'Tarifs' },
-  { to: '/docs', label: 'Docs' },
-  { to: '/blog', label: 'Blog' },
+// Scanner et Tarifs vivent désormais dans le footer (maillage) ; le header se concentre sur
+// Formations et Outils (sous-menu Monitoring / Audit).
+interface NavLink {
+  to?: string
+  label: string
+  children?: { to: string, label: string, desc?: string }[]
+}
+
+const links: NavLink[] = [
+  { to: '/formations', label: 'Formations' },
+  {
+    label: 'Outils',
+    children: [
+      { to: '/outils/monitoring', label: 'Monitoring', desc: 'Surveillance continue, alerte avant Google' },
+      { to: '/outils/audit', label: 'Audit', desc: 'Scan + rapport SEO/GEO complet' },
+    ],
+  },
 ]
 </script>
 
@@ -114,6 +150,21 @@ const links = [
       color: $color-gray-900;
       text-decoration: none;
     }
+
+    &--sub {
+      padding-left: $spacing-8;
+      color: $color-gray-600;
+    }
+  }
+
+  &__mobile-group {
+    display: block;
+    padding: $spacing-3 $spacing-4 $spacing-1;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $color-gray-400;
   }
 
   &__cta {
