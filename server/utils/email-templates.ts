@@ -147,6 +147,7 @@ export interface CrawlReportData {
   fixed: { pageUrl: string; message: string }[]
   topRecos: TopReco[]
   recoCount: number
+  sitemapRemoved?: { count: number; nonOkCount: number } | null
 }
 
 function plural(n: number): string {
@@ -179,10 +180,13 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
 
   const regCount = data.regressions.length
   const fixCount = data.fixed.length
+  const sm = data.sitemapRemoved
 
   const subject = regCount > 0
     ? `🔴 ${regCount} régression${plural(regCount)} détectée${plural(regCount)}${fixCount > 0 ? ` · ${fixCount} réparée${plural(fixCount)}` : ''} — ${label}`
-    : `🟢 ${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)} — ${label}`
+    : fixCount > 0
+      ? `🟢 ${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)} — ${label}`
+      : `ℹ️ ${sm?.count ?? 0} page${plural(sm?.count ?? 0)} sortie${plural(sm?.count ?? 0)} du sitemap — ${label}`
 
   // Régressions : critiques d'abord, 8 listées max.
   const sortedReg = [...data.regressions].sort((a, b) =>
@@ -208,6 +212,12 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.successBorder};border-radius:8px;overflow:hidden;margin:0 0 24px;background-color:${C.successBg};">${fixRows}${fixMore}</table>`
     : ''
 
+  // Pages sorties du sitemap (signal de périmètre) — dans LE MÊME mail, jamais un 2e.
+  const smBlock = sm
+    ? `<p style="margin:0 0 8px;font-size:15px;color:${C.gray900};">ℹ️ <strong>${sm.count} page${plural(sm.count)} ${sm.count > 1 ? 'ont' : 'a'} quitté votre sitemap</strong>${sm.nonOkCount > 0 ? ` — dont <strong>${sm.nonOkCount}</strong> qui ne répond${sm.nonOkCount > 1 ? 'ent' : ''} plus en 200` : ''}.</p>
+       <p style="margin:0 0 24px;font-size:13px;color:${C.gray500};">${sm.nonOkCount > 0 ? 'Possible suppression réelle ou déploiement qui a cassé des URLs.' : 'Ces pages répondent toujours en 200 : restructuration volontaire ou bug de génération du sitemap ?'}</p>`
+    : ''
+
   // Ligne recommandations (discrète, jamais déclencheur) : top reco(s) + reste en compteur.
   const shownPages = data.topRecos.reduce((sum, r) => sum + r.pagesAffected, 0)
   const others = data.recoCount - shownPages
@@ -227,6 +237,7 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
       <h2 style="margin:0 0 20px;font-size:19px;font-weight:700;color:${C.gray900};">${label}</h2>
       ${regBlock}
       ${fixBlock}
+      ${smBlock}
       ${button(alertsUrl, regCount > 0 ? 'Voir et résoudre les régressions →' : 'Voir le dashboard →')}
       ${reportUrl ? `<p style="margin:0 0 4px;font-size:13px;color:${C.gray500};">📎 PDF de synthèse en pièce jointe. Pour le détail complet (toutes les pages) et l'historique :</p>${ghostButton(reportUrl, 'Voir le détail complet en ligne →')}` : ''}
       ${recoLine}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { truncate, normalizeForCompare, isCsrBlocked, isSsrBlocked, decodeEntities } from '../../crawler/rules/helpers'
+import { truncate, normalizeForCompare, isCsrBlocked, isSsrBlocked, isRedirectToWaf, decodeEntities } from '../../crawler/rules/helpers'
 import { detectSoft404 } from '../../crawler/fetcher'
 import type { PageMeta } from '../../crawler/fetcher'
 
@@ -150,6 +150,26 @@ describe('isSsrBlocked', () => {
 
   it('returns false for small response with H1 heading', () => {
     expect(isSsrBlocked(200, 800, stubMeta({ headings: [{ level: 1, text: 'Product' }] }))).toBe(false)
+  })
+})
+
+describe('isRedirectToWaf', () => {
+  it('détecte une redirection vers un challenge Cloudflare (cdn-cgi)', () => {
+    expect(isRedirectToWaf('https://site.com/cdn-cgi/challenge-platform/x')).toBe(true)
+  })
+  it('détecte les challenges connus (captcha, datadome, incapsula, cloudflareaccess)', () => {
+    expect(isRedirectToWaf('https://site.com/captcha?u=/page')).toBe(true)
+    expect(isRedirectToWaf('https://geo.captcha-delivery.com/captcha/')).toBe(true)
+    expect(isRedirectToWaf('https://site.com/_Incapsula_Resource')).toBe(true)
+    expect(isRedirectToWaf('https://team.cloudflareaccess.com/')).toBe(true)
+  })
+  it('retourne false pour une vraie redirection (autre page)', () => {
+    expect(isRedirectToWaf('https://site.com/fr/produit')).toBe(false)
+    expect(isRedirectToWaf('https://site.com/')).toBe(false)
+  })
+  it('retourne false si null/undefined', () => {
+    expect(isRedirectToWaf(null)).toBe(false)
+    expect(isRedirectToWaf(undefined)).toBe(false)
   })
 })
 

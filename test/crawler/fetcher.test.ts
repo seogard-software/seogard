@@ -9,8 +9,46 @@ import {
   extractMetaByProperty,
   getGooglebotDisallows,
   isDisallowedInRobotsTxt,
+  isBenignCanonicalRedirect,
 } from '../../crawler/fetcher'
 import { normalizeForCompare } from '../../crawler/rules/helpers'
+
+describe('isBenignCanonicalRedirect', () => {
+  it('http → https sur le même path = bénin', () => {
+    expect(isBenignCanonicalRedirect('http://x.com/a', 'https://x.com/a')).toBe(true)
+  })
+  it('www → apex (et inverse) = bénin', () => {
+    expect(isBenignCanonicalRedirect('https://www.x.com/a', 'https://x.com/a')).toBe(true)
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://www.x.com/a')).toBe(true)
+  })
+  it('ajout/retrait du slash final = bénin', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://x.com/a/')).toBe(true)
+  })
+  it('casse du host = bénin', () => {
+    expect(isBenignCanonicalRedirect('https://X.COM/a', 'https://x.com/a')).toBe(true)
+  })
+  it('combinaison http+www+slash sur le même path = bénin', () => {
+    expect(isBenignCanonicalRedirect('http://www.x.com/a', 'https://x.com/a/')).toBe(true)
+  })
+  it('path différent = SIGNIFICATIF (pas bénin)', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://x.com/b')).toBe(false)
+  })
+  it('host différent (hors www) = SIGNIFICATIF', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://autre.com/a')).toBe(false)
+  })
+  it('query différente sur le même path = SIGNIFICATIF (mode HTTP, query gardée)', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://x.com/a?ref=1')).toBe(false)
+  })
+  it('ignoreQuery=true : query ajoutée sur le même path = bénin (cas JS)', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://x.com/a?ref=1', true)).toBe(true)
+  })
+  it('ignoreQuery=true : path différent reste SIGNIFICATIF', () => {
+    expect(isBenignCanonicalRedirect('https://x.com/a', 'https://x.com/b?ref=1', true)).toBe(false)
+  })
+  it('URL invalide = non bénin (on ne suit pas)', () => {
+    expect(isBenignCanonicalRedirect('pas-une-url', 'https://x.com/a')).toBe(false)
+  })
+})
 
 // ============================================================
 // Robustesse aux guillemets : une valeur en "..." peut contenir une apostrophe

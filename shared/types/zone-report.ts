@@ -17,6 +17,8 @@ export interface ZoneReportMeta {
   pagesTotal: number
   /** Date de génération du rapport (ISO) — fournie par l'appelant (pureté). */
   generatedAt: string
+  /** Pages monitorées sorties du sitemap au dernier crawl (signal de périmètre). null si aucune. */
+  sitemapRemoved: { count: number, nonOkCount: number } | null
 }
 
 export interface ZoneReportVerdict {

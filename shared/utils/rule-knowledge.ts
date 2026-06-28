@@ -56,6 +56,18 @@ export const RULE_KNOWLEDGE: Record<string, RuleKnowledge> = {
     action: 'Restaurer la page, ou rediriger en 301 vers la page équivalente la plus proche (jamais la home).',
     gain: 'L’autorité de l’URL est transmise à un contenu pertinent au lieu d’être perdue.',
   },
+  page_redirected: {
+    constat: 'Une page qui répondait normalement (200) redirige désormais vers une autre URL.',
+    pourquoi: 'Google et les IA suivent la redirection : ils ne lisent plus le contenu de l’URL d’origine mais celui de la cible. Tous les redirects 3xx transmettent les signaux de l’ancienne URL ; mais seul un 301 (permanent) désigne la cible comme nouvelle URL canonique — un 302 (temporaire) laisse l’origine indexée, ce qui crée un état ambigu si le déplacement est en réalité définitif. Surtout, une redirection apparue sans intention trahit souvent une route cassée, une page supprimée par erreur ou une refonte qui a déplacé l’URL. Tant que personne ne l’a vue, l’ancienne adresse continue d’être liée et citée dans le vide.',
+    action: 'Vérifier si la redirection est voulue. Si oui, confirmer qu’elle est en 301 (permanent) vers la page équivalente la plus proche. Si elle ne l’est pas, restaurer la page d’origine plutôt que de la rediriger.',
+    gain: 'Les signaux de l’ancienne URL convergent vers le bon contenu et la page reste accessible aux humains comme aux machines, au lieu de fuir vers une cible non pertinente ou de disparaître à votre insu.',
+  },
+  js_redirect_detected: {
+    constat: 'La page répond 200 avec du contenu, mais son JavaScript redirige le navigateur vers une autre URL.',
+    pourquoi: 'Le serveur ne signale aucune redirection (pas de 3xx) : pour le fetch HTTP et les IA, cette page est un contenu normal — qu’elles lisent et peuvent indexer ou citer — alors que l’humain est envoyé ailleurs. Google sait suivre une redirection JavaScript, mais seulement après avoir rendu la page, dans une seconde vague différée : il peut donc indexer la mauvaise page en attendant, et ne voit jamais la redirection si le rendu échoue. Les IA, qui lisent le HTML brut, ne la suivent pas du tout. Une redirection JavaScript est donc un signal ambigu et fragile, souvent hérité d’un routeur SPA ou d’un `window.location` oublié.',
+    action: 'Remplacer la redirection JavaScript par une vraie redirection serveur 301/302, ou rendre le contenu final directement sur l’URL demandée.',
+    gain: 'Machines et humains voient la même page : plus d’indexation de la mauvaise URL ni de contenu lu par les IA qui ne correspond pas à la destination.',
+  },
 
   // ── SSR / CSR ─────────────────────────────────────────────────
   ssr_rendering_failed: {

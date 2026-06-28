@@ -10,7 +10,7 @@
       <div class="tree-leaf-card__info">
         <span class="tree-leaf-card__label">{{ data.label }}</span>
         <div class="tree-leaf-card__meta">
-          <span v-if="data.statusCode" class="tree-leaf-card__status">Status : {{ data.statusCode }}</span>
+          <span v-if="data.statusCode" class="tree-leaf-card__status">Status : {{ data.statusCode }}<template v-if="data.redirectTarget"> → {{ data.redirectTarget }}</template></span>
           <span v-if="data.regressionCount > 0" class="tree-leaf-card__tag tree-leaf-card__tag--reg">
             {{ data.regressionCount }} reg
           </span>

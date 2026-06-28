@@ -10,6 +10,7 @@ import { isCrawlStalled } from './crawl-completion'
 import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification, sendEstimateEmail  } from './notifications'
 import { getRedis, disconnectRedis, getActiveCrawls, addActiveCrawl, removeActiveCrawl, claimDistributionLock, clearDistributionLock, pushPages, getRemainingPages, getProgress } from './redis'
 import { discoverPages, setBrowser } from './sitemap'
+import { computeSitemapDiff } from './sitemap-diff'
 import { discoverSitemapHttp } from '../shared/utils/sitemap'
 import { calculateCloudPrice } from '../shared/utils/pricing'
 
@@ -233,6 +234,8 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
 
   // Always sync sitemapBlocked + sitemapMissing on Site (clears/active le bandeau à chaque crawl).
   // sitemapMissing vient de discoverPages : vrai seulement si aucun sitemap ET non bloqué WAF.
+  // NB : le flag « pages disparues du sitemap » (count/nonOkCount/email) est écrit en FIN de crawl
+  // (finalizeCrawl), sur des statuts FRAIS. Ici on ne fait que marquer l'appartenance (outOfSitemapSince).
   await Site.updateOne({ _id: siteId }, { sitemapBlocked, sitemapMissing })
 
   // If sitemap was blocked by WAF, notify the site owner immediately
@@ -316,7 +319,7 @@ async function pickCrawl() {
 async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string): Promise<{ urls: string[], pagesSkipped: number, sitemapBlocked: boolean, sitemapMissing: boolean, foreignHostnames: string[], foreignUrlCount: number }> {
   const { urls: sitemapUrls, sitemapBlocked, sitemapMissing, foreignHostnames, foreignUrlCount } = await discoverPages(siteUrl)
 
-  const existingPages = await MonitoredPage.find({ siteId }).select('url').lean()
+  const existingPages = await MonitoredPage.find({ siteId }).select('url outOfSitemapSince').lean()
   const existingUrls = new Set(existingPages.map(p => p.url))
 
   log.info({ siteId, existingPages: existingUrls.size, sitemapPages: sitemapUrls.length }, 'sync monitored pages')
@@ -338,6 +341,21 @@ async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string
       if (error?.code !== 11000) throw error
     }
     log.info({ siteId, newPages: newUrls.length, totalPages: existingUrls.size + newUrls.length }, 'new pages discovered')
+  }
+
+  // --- Pages DISPARUES du sitemap (signal de PÉRIMÈTRE, pas une alerte) ---
+  // On ne fait ici que MARQUER l'appartenance au sitemap (membership), UNIQUEMENT si le sitemap est
+  // exploitable (sinon un sitemap bloqué/manquant/vide ferait croire à une disparition massive).
+  // Le COUNT, le nonOkCount et l'email sont calculés en FIN de crawl (finalizeCrawl) sur des statuts
+  // FRAIS — sinon on dirait « répond en 200 » avec le statut du crawl PRÉCÉDENT (faux).
+  if (!sitemapBlocked && !sitemapMissing && sitemapUrls.length > 0) {
+    const diff = computeSitemapDiff(existingPages, sitemapUrls)
+    if (diff.returnedUrls.length > 0) {
+      await MonitoredPage.updateMany({ siteId, url: { $in: diff.returnedUrls } }, { outOfSitemapSince: null })
+    }
+    if (diff.toMarkUrls.length > 0) {
+      await MonitoredPage.updateMany({ siteId, url: { $in: diff.toMarkUrls } }, { outOfSitemapSince: new Date() })
+    }
   }
 
   return {

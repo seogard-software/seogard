@@ -34,6 +34,20 @@ const WAF_BLOCKED_TITLES = [
   'challenge validation', 'human verification', 'are you a robot', 'robot check',
 ]
 
+// Cibles de redirection typiques d'un WAF/anti-bot qui REDIRIGE le crawler vers un challenge
+// (au lieu de le bloquer en 200/403). À traiter comme « bloqué », pas comme une vraie redirection.
+const WAF_REDIRECT_PATTERNS = [
+  '/cdn-cgi/', '/challenge', '/captcha', '/_incapsula', '/distil', '/sgcaptcha',
+  '/akamai', '/datadome', 'cloudflareaccess.com', 'challenges.cloudflare.com',
+  'captcha-delivery.com', 'perfdrive.com', 'geo.captcha',
+]
+
+export function isRedirectToWaf(redirectTarget: string | null | undefined): boolean {
+  if (!redirectTarget) return false
+  const lower = redirectTarget.toLowerCase()
+  return WAF_REDIRECT_PATTERNS.some(p => lower.includes(p))
+}
+
 export function isSsrBlocked(statusCode: number, ssrContentLength: number, meta: PageMeta): boolean {
   // 403 Forbidden → WAF block
   if (statusCode === 403) return true

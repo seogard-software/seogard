@@ -15,6 +15,17 @@ export interface Site {
   sitemapInvalidHostname: boolean
   sitemapMissing: boolean
   lastCrawlPagesFailed: number
+  // Pages monitorées sorties du sitemap au dernier crawl (signal de périmètre, pas une alerte).
+  sitemapRemoved?: {
+    count: number
+    nonOkCount: number
+    crawlId: string | null
+    sampleUrls: string[]
+  }
+  sitemapRemovedAck?: {
+    count: number
+    crawlId: string | null
+  }
   createdAt: string
   updatedAt: string
 }

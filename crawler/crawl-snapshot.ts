@@ -41,7 +41,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
   if (!crawl?.zoneId) return null
   const zone = await Zone.findById(crawl.zoneId).lean()
   if (!zone) return null
-  const site = await Site.findById(siteId).select('name url').lean()
+  const site = await Site.findById(siteId).select('name url sitemapRemoved').lean()
   if (!site) return null
 
   const sid = new Types.ObjectId(siteId)
@@ -94,6 +94,9 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
     openAlerts,
     repairedAlerts,
     generatedAt: new Date().toISOString(),
+    sitemapRemoved: site.sitemapRemoved?.count
+      ? { count: site.sitemapRemoved.count, nonOkCount: site.sitemapRemoved.nonOkCount ?? 0 }
+      : null,
   }, MD_REPORT_CAPS)
 
   const md = renderReportMarkdown(report)

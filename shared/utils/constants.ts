@@ -15,6 +15,8 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   meta_title_missing: 'Meta title supprimé',
   soft_404: 'Soft 404 détecté',
   redirect_to_homepage: 'Redirection vers la homepage',
+  page_redirected: 'Page redirigée',
+  js_redirect_detected: 'Redirection JavaScript',
   // P1
   ssr_rendering_failed: 'SSR cassé',
   ssr_content_mismatch: 'Écart SSR/CSR',
@@ -85,6 +87,8 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
 export const STATE_RULES: Set<string> = new Set([
   'soft_404', 'meta_refresh_detected', 'https_mixed_content',
   'structured_data_error', 'redirect_to_homepage',
+  // js_redirect_detected = state (détecté au rendu CSR à chaque crawl, auto-résolu quand le JS est retiré)
+  'js_redirect_detected',
   'ssr_content_mismatch', 'ssr_rendering_failed',
   'ssr_title_mismatch', 'ssr_meta_description_mismatch', 'ssr_blocked',
 ])

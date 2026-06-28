@@ -79,6 +79,10 @@ export interface PageMeta {
   // Redirects
   finalUrl: string
   isRedirected: boolean
+  // Cible d'une redirection SIGNIFICATIVE (cross-path) ; null si la page ne redirige pas ou
+  // ne fait qu'une redirection canonique bénigne (suivie par le fetcher). Sert aux règles
+  // redirect_to_homepage / page_redirected (en manual, response.url ne porte PAS la cible).
+  redirectTarget: string | null
 
   // Content structure (GEO)
   hasLists: boolean
@@ -112,9 +116,60 @@ export interface FetchResult {
   url: string
   finalUrl: string
   statusCode: number
+  redirectTarget: string | null
   html: string
   meta: PageMeta
   contentLength: number
+}
+
+function htmlFetchOptions(timeoutMs: number): RequestInit {
+  return {
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: {
+      'User-Agent': USER_AGENT,
+      'Accept': 'text/html,application/xhtml+xml',
+    },
+    // 'manual' (et non 'follow') : on veut VOIR la redirection (code 3xx + cible) au lieu de la
+    // suivre en silence. Les redirections canoniques bénignes sont suivies à la main (cf. fetchPage).
+    redirect: 'manual',
+  }
+}
+
+function resolveLocation(base: string, location: string): string | null {
+  try {
+    return new URL(location, base).toString()
+  }
+  catch {
+    return null
+  }
+}
+
+// Clé canonique d'une URL : host sans `www`, en minuscules, sans slash final, SCHEME ignoré.
+// `ignoreQuery` : si true, on ignore aussi la query string. Deux URLs de même clé ne diffèrent
+// que par http↔https / www / slash / casse (+ query si ignoreQuery).
+function canonicalKey(rawUrl: string, ignoreQuery = false): string | null {
+  try {
+    const u = new URL(rawUrl)
+    const host = u.hostname.toLowerCase().replace(/^www\./, '')
+    const path = u.pathname.replace(/\/+$/, '') || '/'
+    return host + path + (ignoreQuery ? '' : u.search)
+  }
+  catch {
+    return null
+  }
+}
+
+// Une redirection est « canonique bénigne » si la cible ne diffère de l'origine QUE par
+// http↔https / www↔apex / slash final / casse du host → même page, on la suit sans alerter.
+// Toute autre redirection (path ou host différent) est un ÉVÉNEMENT à signaler.
+//
+// `ignoreQuery` : pour la détection JS (page.url()), un ajout de query (?utm/?ref via un script
+// cookies/analytics/A-B) sur le MÊME chemin n'est PAS une redirection → on ignore la query.
+// Pour le HTTP (3xx), on garde la query (un 301 vers une query différente reste significatif).
+export function isBenignCanonicalRedirect(from: string, to: string, ignoreQuery = false): boolean {
+  const a = canonicalKey(from, ignoreQuery)
+  const b = canonicalKey(to, ignoreQuery)
+  return a !== null && a === b
 }
 
 // Retry strategy : si une page echoue (timeout, erreur reseau, 429/503),
@@ -123,9 +178,10 @@ export interface FetchResult {
 const MAX_RETRIES = 2
 const RETRY_DELAYS = [1_000, 2_000] // delais entre chaque tentative (1s puis 2s)
 
-export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchResult> {
-  const start = Date.now()
-
+// Fetch UNIQUE avec retry (429/503/timeout/erreur reseau). Factorisé pour être réutilisé AUSSI sur
+// le 2e saut (suivi d'une redirection canonique bénigne) — sinon un blip réseau sur ce 2e fetch
+// tuerait la page sans réessai.
+async function fetchWithRetry(url: string, timeoutMs: number): Promise<{ response: Response, ttfbMs: number }> {
   let response: Response | null = null
   let lastError: Error | null = null
   let ttfbMs = 0
@@ -133,14 +189,7 @@ export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchR
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const fetchStart = Date.now()
-      response = await fetch(url, {
-        signal: AbortSignal.timeout(timeoutMs),
-        headers: {
-          'User-Agent': USER_AGENT,
-          'Accept': 'text/html,application/xhtml+xml',
-        },
-        redirect: 'follow',
-      })
+      response = await fetch(url, htmlFetchOptions(timeoutMs))
       ttfbMs = Date.now() - fetchStart
 
       // Succes ou erreur non-retryable → on sort de la boucle
@@ -164,8 +213,39 @@ export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchR
   }
 
   if (!response) throw lastError ?? new Error(`Failed to fetch ${url}`)
+  return { response, ttfbMs }
+}
 
-  const html = await response.text()
+export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchResult> {
+  const start = Date.now()
+
+  let { response, ttfbMs } = await fetchWithRetry(url, timeoutMs)
+
+  // Suivre les redirections canoniques bénignes (http→https / www / slash / casse) = même page.
+  // S'ARRÊTER et signaler toute autre redirection : on retient le code 3xx + la cible, sans
+  // télécharger la destination (ce n'est plus cette page).
+  let currentUrl = url
+  let redirectTarget: string | null = null
+  let hops = 0
+  while (response.status >= 300 && response.status < 400 && hops < 5) {
+    const location = response.headers.get('location')
+    const target = location ? resolveLocation(currentUrl, location) : null
+    if (!target) break
+    if (isBenignCanonicalRedirect(currentUrl, target)) {
+      currentUrl = target
+      const followed = await fetchWithRetry(target, timeoutMs) // ← retry aussi sur le 2e saut
+      response = followed.response
+      ttfbMs = followed.ttfbMs
+      hops++
+      continue
+    }
+    redirectTarget = target
+    break
+  }
+
+  const isRedirect = redirectTarget !== null
+  // Redirection significative → pas de corps (la destination n'est pas cette page).
+  const html = isRedirect ? '' : await response.text()
   const totalFetchMs = Date.now() - start
 
   const responseHeaders = {
@@ -175,14 +255,15 @@ export async function fetchPage(url: string, timeoutMs = 30_000): Promise<FetchR
     server: response.headers.get('server'),
   }
 
-  const meta = extractMeta(html, url, response.url, response.status, ttfbMs, totalFetchMs, responseHeaders)
+  const meta = extractMeta(html, currentUrl, response.status, redirectTarget, ttfbMs, totalFetchMs, responseHeaders)
 
-  log.debug({ url, statusCode: response.status, durationMs: totalFetchMs, contentLength: html.length }, 'page fetched')
+  log.debug({ url, statusCode: response.status, redirectTarget, durationMs: totalFetchMs, contentLength: html.length }, 'page fetched')
 
   return {
     url,
-    finalUrl: response.url,
+    finalUrl: currentUrl,
     statusCode: response.status,
+    redirectTarget,
     html,
     meta,
     contentLength: html.length,
@@ -313,9 +394,9 @@ export function isDisallowedInRobotsTxt(robotsTxt: string, userAgent: string): b
 
 function extractMeta(
   html: string,
-  requestUrl: string,
   finalUrl: string,
   statusCode: number,
+  redirectTarget: string | null,
   ttfbMs: number,
   totalFetchMs: number,
   responseHeaders: PageMeta['responseHeaders'],
@@ -380,7 +461,10 @@ function extractMeta(
     responseHeaders,
 
     finalUrl,
-    isRedirected: requestUrl !== finalUrl,
+    // En `redirect:'manual'`, un statut 3xx = la page redirige (les canoniques bénignes ont
+    // déjà été suivies par fetchPage → si on est en 3xx ici, c'est une vraie redirection).
+    isRedirected: statusCode >= 300 && statusCode < 400,
+    redirectTarget,
 
     hasLists: /<[uo]l[\s>]/i.test(html),
     hasDefinitionLists: /<dl[\s>]/i.test(html),

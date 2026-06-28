@@ -5,7 +5,7 @@ import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContex
 import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, type AlertData } from './comparator'
-import { isSsrBlocked, normalizeUrl } from './rules/helpers'
+import { isSsrBlocked, isRedirectToWaf, normalizeUrl } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
@@ -191,19 +191,24 @@ export async function processPages(crawlId: string): Promise<void> {
 
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      if (result.status === 'fulfilled') {
-        if (result.value.ssrBlocked) {
-          batchBlocked++
-        }
-        else {
-          // Toutes les pages passent en CSR pour detecter les divergences SSR/CSR
-          ssrResults.push({ pageUrl: urls[i], result: result.value })
-        }
-      }
-      else {
+      if (result.status === 'rejected') {
         batchFailed++
         log.warn({ crawlId, pageUrl: urls[i], errorCode: 'PAGE_SSR_ERROR', error: result.reason?.message }, 'SSR failed')
+        continue
       }
+
+      const page = result.value
+      // --- Raisons de NE PAS passer une page en CSR (AJOUTER toute nouvelle raison ICI) ---
+      if (page.ssrBlocked) {
+        batchBlocked++ // bloqué anti-bot → on préserve les données, pas de rendu
+        continue
+      }
+      if (page.isRedirect) {
+        continue // redirige → la destination n'est pas cette page (rendre suivrait la redirection) ; signal émis en SSR
+      }
+
+      // Sinon : page 200 → CSR pour détecter les divergences SSR/CSR.
+      ssrResults.push({ pageUrl: urls[i], result: page })
     }
 
     // Phase 2 — CSR render for changed/new pages (limited concurrency)
@@ -322,6 +327,28 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
     }
     await Site.findByIdAndUpdate(siteId, siteUpdate)
 
+    // Pages disparues du sitemap (statuts FRAIS : ces pages ont été re-crawlées ce crawl). Calculé ICI,
+    // AVANT le snapshot, pour que le rapport .md/PDF lise la valeur de CE crawl (pas du précédent), et
+    // écrit sur Site (bandeau). Le signal email est passé plus bas à sendNotifications (un seul mail).
+    let sitemapRemovedForEmail: { count: number, nonOkCount: number } | null = null
+    try {
+      const prevSm = await Site.findById(siteId).select('sitemapRemoved sitemapRemovedAck').lean()
+      const outOfSitemap = await MonitoredPage.find({ siteId, outOfSitemapSince: { $ne: null } }).select('url lastStatusCode').lean()
+      const removedCount = outOfSitemap.length
+      const removedNonOk = outOfSitemap.filter(p => p.lastStatusCode != null && p.lastStatusCode !== 200).length
+      const prevCount = prevSm?.sitemapRemoved?.count ?? 0
+      const ackCount = prevSm?.sitemapRemovedAck?.count ?? 0
+      await Site.updateOne({ _id: siteId }, {
+        sitemapRemoved: { count: removedCount, nonOkCount: removedNonOk, crawlId, sampleUrls: outOfSitemap.slice(0, 20).map(p => p.url) },
+      })
+      sitemapRemovedForEmail = (removedCount > 0 && removedCount > prevCount && removedCount > ackCount)
+        ? { count: removedCount, nonOkCount: removedNonOk }
+        : null
+    }
+    catch (error) {
+      log.error({ crawlId, siteId, errorCode: 'SITEMAP_REMOVED_ERROR', error: (error as Error).message }, 'sitemap removed computation failed')
+    }
+
     // Snapshot du rapport (fidèle) APRÈS l'auto-resolve : génère .md exhaustif + .pdf court,
     // les stocke sur R2. Isolé : un échec snapshot ne casse jamais la finalisation. Le PDF
     // renvoyé sert aussi à le joindre à l'email (pas de re-rendu).
@@ -347,7 +374,8 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
         const allAlerts = await Alert.find({ siteId, lastCrawlId: crawlId }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
         const fixedAlerts = await Alert.find({ siteId, status: 'resolved', resolvedCrawlId: crawlId, category: { $in: ['event', 'state'] } }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
 
-        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId }, snapshot)
+        // sitemapRemovedForEmail a été calculé AVANT le snapshot (statuts frais + rapport à jour).
+        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId }, snapshot, sitemapRemovedForEmail)
 
         // Send "crawler blocked" notification if >10% pages blocked
         if (crawlForNotif && crawlForNotif.pagesTotal > 0 && crawlForNotif.pagesBlocked > 0) {
@@ -393,6 +421,7 @@ interface PageProcessResult {
   ssrContentLength: number
   ssrMeta: Record<string, string | null>
   ssrBlocked: boolean
+  isRedirect: boolean
   ttfbMs: number
   oldPerf: PerfMetrics | null
 }
@@ -409,8 +438,16 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 
   const isFirstCrawl = page.lastCheckedAt === null
 
-  // Detect SSR blocked by anti-bot (only on subsequent crawls)
-  const ssrBlocked = !isFirstCrawl && isSsrBlocked(fetchResult.statusCode, fetchResult.contentLength, fetchResult.meta)
+  // Toute redirection (statut 3xx ; les canoniques bénignes ont été suivies par le fetcher). Couvre
+  // aussi le cas limite « 3xx sans Location ». Corps vide → baseline préservée, pas de CSR, pas d'auto-resolve.
+  const isRedirect = fetchResult.meta.isRedirected
+
+  // Detect SSR blocked by anti-bot (only on subsequent crawls). Inclut le cas d'un WAF qui REDIRIGE
+  // notre crawler vers un challenge (cdn-cgi, captcha…) → on ne crie PAS « page redirigée » (faux positif).
+  const ssrBlocked = !isFirstCrawl && (
+    isSsrBlocked(fetchResult.statusCode, fetchResult.contentLength, fetchResult.meta)
+    || isRedirectToWaf(fetchResult.redirectTarget)
+  )
 
   if (ssrBlocked) {
     log.warn({ pageUrl, ssrContentLength: fetchResult.contentLength }, 'SSR blocked by anti-bot, skipping page')
@@ -432,6 +469,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
       ssrContentLength: fetchResult.contentLength,
       ssrMeta: fetchResult.meta,
       ssrBlocked: true,
+      isRedirect: false,
       ttfbMs: fetchResult.meta.ttfbMs,
       oldPerf: null,
     }
@@ -465,7 +503,9 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 
   // Auto-resolve sélectif (phase SSR : règles meta/contenu/heading/og/structured/i18n/llms).
   // Hors 1er crawl : une page neuve n'a pas d'alerte antérieure à résoudre.
-  if (!isFirstCrawl) {
+  // JAMAIS sur une redirection : le corps est vide → on ne peut pas juger « sain », ne pas
+  // résoudre à tort (ex. h1_multiple / heading_hierarchy_broken sur un meta vide).
+  if (!isFirstCrawl && !isRedirect) {
     await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds, crawlId)
   }
 
@@ -484,11 +524,15 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 
   // Don't overwrite good data with rate-limited response
   if (fetchResult.statusCode !== 429) {
-    await MonitoredPage.findByIdAndUpdate(page._id, {
+    const update: Record<string, unknown> = {
       lastStatusCode: fetchResult.statusCode,
-      lastMeta: metaCore,
       lastCheckedAt: new Date(),
-    })
+      redirectTarget: fetchResult.redirectTarget,
+    }
+    // Sur une redirection, le corps est vide → NE PAS écraser la baseline de contenu (lastMeta),
+    // sinon fausse pluie de *_changed / *_missing au retour à 200. On ne met à jour que le statut.
+    if (!isRedirect) update.lastMeta = metaCore
+    await MonitoredPage.findByIdAndUpdate(page._id, update)
   }
 
   return {
@@ -498,6 +542,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
     ssrContentLength: fetchResult.contentLength,
     ssrMeta: fetchResult.meta,
     ssrBlocked: false,
+    isRedirect,
     ttfbMs: fetchResult.meta.ttfbMs,
     oldPerf: page.lastPerf ? (page.lastPerf.toObject() as PerfMetrics) : null,
   }
@@ -513,6 +558,7 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
     oldStatusCode: null,
     newStatusCode: 200,
     renderedMeta: renderResult.renderedMeta,
+    renderedUrl: renderResult.renderedUrl,
     ssrContentLength: ssrData.ssrContentLength,
     csrContentLength: renderResult.csrContentLength,
     // Régression perf : compare la mesure courante à celle du crawl précédent.
@@ -547,10 +593,11 @@ async function sendNotifications(
   fixedAlerts: ReportAlert[],
   zoneInfo?: { zoneName: string | null, zoneId: string | null },
   snapshot?: SnapshotResult | null,
+  sitemapRemoved?: { count: number, nonOkCount: number } | null,
 ): Promise<void> {
-  // Monitoring-first : construit le rapport (régressions + réparées) et décide SI on envoie.
-  // Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
-  const report = buildCrawlReport(allAlerts, fixedAlerts)
+  // Monitoring-first : construit le rapport (régressions + réparées + sortie sitemap) et décide SI on
+  // envoie. Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
+  const report = buildCrawlReport(allAlerts, fixedAlerts, sitemapRemoved ?? null)
   if (!site.notifyEmail || !report.shouldSend) return
 
   // Pièce jointe = le PDF COURT déjà généré par le snapshot (métier, jamais le .md).
@@ -568,6 +615,7 @@ async function sendNotifications(
     fixed: report.fixed,
     topRecos: report.topRecos,
     recoCount: report.recoCount,
+    sitemapRemoved: report.sitemapRemoved,
   }
 
   // Collect recipients: org owner + zone admin/member (not viewer)

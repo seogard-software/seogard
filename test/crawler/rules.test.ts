@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { RuleContext } from '../../crawler/rules/engine'
-import { runRule, runAllRules } from '../../crawler/rules/engine'
+import { runRule, runAllRules, filterByPriority } from '../../crawler/rules/engine'
 import type { PageMeta } from '../../crawler/fetcher'
 
 // Import all rule files to register them
@@ -68,6 +68,7 @@ function baseMeta(overrides: Partial<PageMeta> = {}): PageMeta {
     },
     finalUrl: 'https://example.com/page',
     isRedirected: false,
+    redirectTarget: null,
     hasLists: false,
     hasDefinitionLists: false,
     hasHeader: false,
@@ -838,58 +839,158 @@ describe('lang_attribute_changed', () => {
 // REDIRECT RULES
 // ============================================================
 
+// La cible de redirection vient désormais de newMeta.redirectTarget (le fetcher en `manual` la
+// pose pour les redirections significatives ; les canoniques bénignes sont suivies → redirectTarget null).
 describe('redirect_to_homepage', () => {
   it('fires when page redirects to homepage', () => {
     const results = runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com/product/123',
-      finalUrl: 'https://example.com/',
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
     }))
     expect(results).toHaveLength(1)
     expect(results[0].severity).toBe('critical')
   })
 
-  it('does not fire when no redirect', () => {
+  it('does not fire when no redirect (redirectTarget null)', () => {
     expect(runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com/page',
-      finalUrl: 'https://example.com/page',
+      newMeta: baseMeta({ redirectTarget: null }),
     }))).toHaveLength(0)
   })
 
   it('does not fire for non-homepage redirect', () => {
     expect(runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com/old',
-      finalUrl: 'https://example.com/new',
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new' }),
     }))).toHaveLength(0)
   })
 
-  it('does not fire for trailing slash redirect (https://x.com → https://x.com/)', () => {
+  it('does not fire for benign canonical (suivie par le fetcher → redirectTarget null)', () => {
     expect(runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com',
-      finalUrl: 'https://example.com/',
+      newMeta: baseMeta({ redirectTarget: null }),
     }))).toHaveLength(0)
   })
 
   it('does not fire when original URL is already the homepage', () => {
     expect(runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com/',
-      finalUrl: 'https://example.com/',
-    }))).toHaveLength(0)
-  })
-
-  it('does not fire for trailing slash on subpage', () => {
-    expect(runRule('redirect_to_homepage', ctx({
-      pageUrl: 'https://example.com/page',
-      finalUrl: 'https://example.com/page/',
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
     }))).toHaveLength(0)
   })
 
   it('still fires for real redirect from subpage to homepage', () => {
     const results = runRule('redirect_to_homepage', ctx({
       pageUrl: 'https://example.com/deleted-product',
-      finalUrl: 'https://example.com/',
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
     }))
     expect(results).toHaveLength(1)
     expect(results[0].severity).toBe('critical')
+  })
+})
+
+describe('page_redirected', () => {
+  it('fires when a 200 page now redirects elsewhere (cross-path)', () => {
+    const results = runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldMeta: baseMeta(),
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new-product' }),
+    }))
+    expect(results).toHaveLength(1)
+    expect(results[0].severity).toBe('warning')
+    expect(results[0].currentValue).toBe('https://example.com/new-product')
+  })
+
+  it('does not fire on first crawl (no baseline)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldMeta: null,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new-product' }),
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire when not redirecting (redirectTarget null)', () => {
+    expect(runRule('page_redirected', ctx({
+      oldMeta: baseMeta(),
+      newMeta: baseMeta({ redirectTarget: null }),
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire when target is homepage (→ redirect_to_homepage)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldMeta: baseMeta(),
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
+    }))).toHaveLength(0)
+  })
+})
+
+describe('js_redirect_detected (redirection JavaScript, phase CSR)', () => {
+  it('fires when the rendered URL diverges cross-path from the requested URL', () => {
+    const r = runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://example.com/b',
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0].severity).toBe('warning')
+    expect(r[0].currentValue).toBe('https://example.com/b')
+  })
+
+  it('does not fire in SSR phase (renderedUrl null)', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: null,
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire on benign canonical (trailing slash)', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://example.com/a/',
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire on benign canonical (http→https + www)', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'http://example.com/a',
+      renderedUrl: 'https://www.example.com/a',
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire when rendered URL equals requested', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://example.com/a',
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire when only a query string is added (même page : ?ref/?utm via script)', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://example.com/a?ref=1&utm_source=x',
+    }))).toHaveLength(0)
+  })
+
+  it('does not fire when JS redirects to a WAF challenge URL (cdn-cgi/captcha)', () => {
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://example.com/cdn-cgi/challenge-platform/x',
+    }))).toHaveLength(0)
+    expect(runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/a',
+      renderedUrl: 'https://geo.captcha-delivery.com/captcha/',
+    }))).toHaveLength(0)
+  })
+
+  it('fires for a real JS redirect to a SMALL legit page (pas étouffé par une heuristique de taille)', () => {
+    // Régression : isCsrBlocked aurait fait taire ça (<2000o). isRedirectToWaf, non.
+    const r = runRule('js_redirect_detected', ctx({
+      pageUrl: 'https://example.com/old',
+      renderedUrl: 'https://example.com/merci',
+      renderedMeta: { title: 'Merci' },
+      csrContentLength: 300,
+    }))
+    expect(r).toHaveLength(1)
   })
 })
 
@@ -924,12 +1025,46 @@ describe('filterByPriority via runAllRules', () => {
   it('redirect_to_homepage suppresses other alerts', () => {
     const results = runAllRules(ctx({
       pageUrl: 'https://example.com/product/123',
-      finalUrl: 'https://example.com/',
       oldMeta: baseMeta({ title: 'Product', description: 'Desc', headings: [{ level: 1, text: 'Product' }] }),
-      newMeta: baseMeta({ title: 'Homepage', description: 'Home desc', headings: [{ level: 1, text: 'Welcome' }] }),
+      newMeta: baseMeta({ title: null, description: null, headings: [], redirectTarget: 'https://example.com/' }),
     }))
     expect(results.length).toBe(1)
     expect(results[0].type).toBe('redirect_to_homepage')
+  })
+
+  it('page_redirected (cross-path) suppresses content/status noise', () => {
+    const results = runAllRules(ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldStatusCode: 200,
+      newStatusCode: 301,
+      oldMeta: baseMeta({ title: 'Product', description: 'Desc', headings: [{ level: 1, text: 'Product' }] }),
+      // Corps vide d'une redirection : metas/contenu disparus + status 200→301
+      newMeta: baseMeta({ title: null, description: null, headings: [], wordCount: 0, redirectTarget: 'https://example.com/new-product' }),
+    }))
+    expect(results.length).toBe(1)
+    expect(results[0].type).toBe('page_redirected')
+  })
+
+  it('js_redirect_detected supprime le bruit SSR/CSR (cause racine)', () => {
+    const results = filterByPriority(
+      [
+        { type: 'js_redirect_detected', severity: 'warning', message: '', previousValue: null, currentValue: null },
+        { type: 'ssr_content_mismatch', severity: 'critical', message: '', previousValue: null, currentValue: null },
+      ],
+      ctx({ renderedUrl: 'https://example.com/b' }),
+    )
+    expect(results.map(r => r.type)).toEqual(['js_redirect_detected'])
+  })
+
+  it('3xx sans Location (isRedirected mais pas de page_redirected) ne garde que status_code_changed', () => {
+    const results = filterByPriority(
+      [
+        { type: 'status_code_changed', severity: 'warning', message: '', previousValue: '200', currentValue: '307' },
+        { type: 'meta_title_missing', severity: 'critical', message: '', previousValue: null, currentValue: null },
+      ],
+      ctx({ newStatusCode: 307, newMeta: baseMeta({ isRedirected: true, redirectTarget: null }) }),
+    )
+    expect(results.map(r => r.type)).toEqual(['status_code_changed'])
   })
 
   it('soft_404 suppresses other alerts', () => {

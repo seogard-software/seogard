@@ -17,6 +17,9 @@ export interface CrawlReport {
   fixed: { pageUrl: string, message: string }[]
   topRecos: TopReco[]
   recoCount: number
+  // Pages sorties du sitemap (signal de périmètre) — affiché dans LE MÊME mail, jamais un 2e.
+  // null si rien de nouveau ; renseigné uniquement quand le count augmente (événementiel, décidé en amont).
+  sitemapRemoved: { count: number, nonOkCount: number } | null
 }
 
 // Monitoring = toute régression : event (quelque chose a changé/cassé/disparu) ou state
@@ -32,7 +35,11 @@ function isMonitoring(a: ReportAlert): boolean {
  * On n'envoie le mail QUE s'il y a au moins une nouvelle régression OU une réparation : les
  * recommandations (audit) ne déclenchent jamais le mail et ne sont pas listées (juste résumées).
  */
-export function buildCrawlReport(allAlerts: ReportAlert[], fixedAlerts: ReportAlert[]): CrawlReport {
+export function buildCrawlReport(
+  allAlerts: ReportAlert[],
+  fixedAlerts: ReportAlert[],
+  sitemapRemoved: { count: number, nonOkCount: number } | null = null,
+): CrawlReport {
   const regressions = allAlerts.filter(isMonitoring)
   const recos = allAlerts.filter(a => a.category === 'recommendation')
   const { topRecos, recoCount } = rankRecommendations(
@@ -40,10 +47,12 @@ export function buildCrawlReport(allAlerts: ReportAlert[], fixedAlerts: ReportAl
   )
 
   return {
-    shouldSend: regressions.length > 0 || fixedAlerts.length > 0,
+    // Déclencheurs : régression, réparation, OU pages sorties du sitemap. Recos seules → pas de mail.
+    shouldSend: regressions.length > 0 || fixedAlerts.length > 0 || sitemapRemoved !== null,
     regressions: regressions.map(a => ({ pageUrl: a.pageUrl, severity: a.severity, message: a.message })),
     fixed: fixedAlerts.map(a => ({ pageUrl: a.pageUrl, message: a.message })),
     topRecos,
     recoCount,
+    sitemapRemoved,
   }
 }

@@ -47,6 +47,8 @@ const ALERT_TYPES = [
   'lang_attribute_changed',
   // Redirect (redirect.ts)
   'redirect_to_homepage',
+  'page_redirected',
+  'js_redirect_detected',
   // Recommendations (recommendations.ts)
   'rec_img_alt_audit',
   'rec_img_alt_missing_in_ssr',

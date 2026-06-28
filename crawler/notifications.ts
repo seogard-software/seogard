@@ -25,6 +25,7 @@ export interface CrawlReportNotification {
   fixed: { pageUrl: string, message: string }[]
   topRecos: TopReco[]
   recoCount: number
+  sitemapRemoved: { count: number, nonOkCount: number } | null
 }
 
 /** Pièce jointe d'email (transport, pas du contenu) — PDF court du crawl en base64. */
@@ -52,6 +53,7 @@ export async function sendEmailNotification(
     fixed: notification.fixed,
     topRecos: notification.topRecos,
     recoCount: notification.recoCount,
+    sitemapRemoved: notification.sitemapRemoved,
   })
 
   const body: Record<string, unknown> = { from: fromEmail, to, subject, html }
@@ -168,6 +170,7 @@ export async function sendSitemapBlockedNotification(
     log.error({ errorCode: 'SITEMAP_BLOCKED_EMAIL_ERROR', error: (error as Error).message }, 'sitemap blocked email error')
   }
 }
+
 
 export async function sendCrawlerBlockedNotification(
   to: string,

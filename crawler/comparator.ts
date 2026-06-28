@@ -33,6 +33,7 @@ export interface CompareInput {
   oldStatusCode: number | null
   newStatusCode: number
   renderedMeta?: Partial<PageMeta> | null
+  renderedUrl?: string | null
   ssrContentLength: number
   csrContentLength?: number | null
   oldPerf?: PerfMetrics | null
@@ -98,6 +99,7 @@ export function compareSnapshots(input: CompareInput): CompareResult {
     ...input,
     finalUrl: input.finalUrl ?? input.pageUrl,
     renderedMeta: input.renderedMeta ?? null,
+    renderedUrl: input.renderedUrl ?? null,
     csrContentLength: input.csrContentLength ?? null,
     oldPerf: input.oldPerf ?? null,
     newPerf: input.newPerf ?? null,

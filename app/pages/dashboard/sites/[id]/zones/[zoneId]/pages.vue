@@ -97,6 +97,32 @@
       </NuxtLink>
     </div>
 
+    <!-- Pages disparues du sitemap (signal de PÉRIMÈTRE, pas une alerte) — sévérité dynamique -->
+    <div
+      v-if="!isDiscovering && sitemapRemovedBanner"
+      :class="['zone-pages__sitemap', { 'zone-pages__sitemap--warn': sitemapRemovedBanner.nonOkCount > 0 }]"
+    >
+      <span class="zone-pages__sitemap-icon"><AppIcon name="pages" size="sm" /></span>
+      <div class="zone-pages__sitemap-body">
+        <div class="zone-pages__sitemap-head">
+          <span class="zone-pages__sitemap-title">
+            <strong>{{ sitemapRemovedBanner.count.toLocaleString('fr-FR') }}</strong>
+            page{{ sitemapRemovedBanner.count > 1 ? 's' : '' }} {{ sitemapRemovedBanner.count > 1 ? 'ont' : 'a' }} quitté votre sitemap
+          </span>
+          <span v-if="sitemapRemovedBanner.nonOkCount > 0" class="zone-pages__sitemap-pill">
+            {{ sitemapRemovedBanner.nonOkCount.toLocaleString('fr-FR') }} hors-ligne
+          </span>
+        </div>
+        <span class="zone-pages__sitemap-sub">
+          <template v-if="sitemapRemovedBanner.nonOkCount > 0">Certaines ne répondent plus en 200 — possible suppression réelle ou déploiement qui a cassé des URLs.</template>
+          <template v-else>Elles répondent toujours en 200 : restructuration volontaire, ou bug de génération du sitemap ?</template>
+        </span>
+      </div>
+      <button v-if="canAdmin" type="button" class="zone-pages__sitemap-dismiss" :disabled="dismissingSitemap" @click="dismissSitemapRemoved">
+        {{ dismissingSitemap ? '…' : 'C\'est normal' }}
+      </button>
+    </div>
+
     <!-- Muted rules info banner (viewers only) -->
     <div v-if="mutedRulesCount > 0" class="zone-pages__muted-banner">
       <AppIcon name="bell" size="sm" />
@@ -299,6 +325,30 @@ const { deleteSite } = useSites()
 const { zones, updateZone, hasMinZoneRole } = useZones()
 const canAdmin = computed(() => hasMinZoneRole(zoneId.value, 'admin'))
 const canCrawl = computed(() => hasMinZoneRole(zoneId.value, 'member'))
+
+// Bandeau « pages disparues du sitemap » : visible si count > 0 ET non acquitté (count > ack).
+const dismissingSitemap = ref(false)
+const sitemapRemovedBanner = computed(() => {
+  const sr = sitesStore.currentSite?.sitemapRemoved
+  if (!sr || sr.count <= 0) return null
+  const ack = sitesStore.currentSite?.sitemapRemovedAck?.count ?? 0
+  return sr.count > ack ? sr : null
+})
+
+async function dismissSitemapRemoved() {
+  if (dismissingSitemap.value) return
+  dismissingSitemap.value = true
+  try {
+    await $fetch(`/api/sites/${siteId.value}/sitemap-removed-ack`, { method: 'POST' })
+    await sitesStore.fetchSite(siteId.value)
+  }
+  catch {
+    // silencieux : le bandeau réapparaîtra au prochain chargement si l'ack a échoué
+  }
+  finally {
+    dismissingSitemap.value = false
+  }
+}
 const isOrgOwner = computed(() => orgStore.activeOrgRole === 'owner')
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
@@ -707,6 +757,108 @@ if (import.meta.client) {
       background: $color-white;
       border-color: $color-gray-300;
       color: $color-gray-900;
+    }
+  }
+
+  // Bandeau « pages sorties du sitemap » — signal de périmètre. Sévérité dynamique :
+  // info (neutre) si toutes en 200, warning si certaines hors-ligne. Style cal.com (ring subtil).
+  &__sitemap {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-4;
+    padding: $spacing-4 $spacing-5;
+    margin-bottom: $spacing-4;
+    background: $color-white;
+    border-radius: $radius-xl;
+    box-shadow: 0 0 0 1px rgba($color-info, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    &--warn {
+      box-shadow: 0 0 0 1px rgba($color-warning, 0.22), 0 2px 8px rgba(0, 0, 0, 0.04);
+
+      .zone-pages__sitemap-icon {
+        background: rgba($color-warning, 0.1);
+        color: $color-warning;
+      }
+    }
+  }
+
+  &__sitemap-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: $radius-md;
+    background: rgba($color-info, 0.1);
+    color: $color-info;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  &__sitemap-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__sitemap-head {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
+  &__sitemap-title {
+    font-size: $font-size-sm;
+    color: $color-gray-700;
+
+    strong {
+      font-weight: $font-weight-semibold;
+      color: $color-gray-900;
+    }
+  }
+
+  &__sitemap-pill {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    line-height: 1.6;
+    padding: 0 $spacing-2;
+    border-radius: $radius-2xl;
+    background: rgba($color-danger, 0.1);
+    color: $color-danger;
+    white-space: nowrap;
+  }
+
+  &__sitemap-sub {
+    font-size: $font-size-xs;
+    color: $color-gray-500;
+    line-height: $line-height-normal;
+  }
+
+  &__sitemap-dismiss {
+    align-self: center;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $color-gray-600;
+    white-space: nowrap;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-md;
+    background: $surface-elevated;
+    border: 1px solid $color-gray-200;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      background: $color-white;
+      border-color: $color-gray-300;
+      color: $color-gray-900;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: default;
     }
   }
 

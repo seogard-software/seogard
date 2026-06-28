@@ -11,6 +11,9 @@ export interface RuleContext {
   newStatusCode: number
   // SSR vs CSR (within-crawl)
   renderedMeta: Partial<PageMeta> | null
+  // URL finale après JavaScript (phase CSR uniquement) — null en phase SSR. Sert à détecter
+  // les redirections JavaScript (window.location), invisibles au fetch HTTP.
+  renderedUrl?: string | null
   ssrContentLength: number
   csrContentLength: number | null
   // Performance (mesuré pendant le render CSR, null en phase SSR)
@@ -60,6 +63,24 @@ export function filterByPriority(results: RuleResult[], ctx: RuleContext): RuleR
   // Redirect to homepage → everything else is noise
   if (types.has('redirect_to_homepage')) {
     return results.filter(r => r.type === 'redirect_to_homepage')
+  }
+
+  // Page redirects elsewhere → cause racine : une seule alerte. Supprime contenu/metas/recos issus
+  // du corps vide de la redirection ET le doublon status_code_changed (200→3xx).
+  if (types.has('page_redirected')) {
+    return results.filter(r => r.type === 'page_redirected')
+  }
+
+  // Redirection JavaScript (CSR) → cause racine : le SSR et le rendu sont deux pages différentes,
+  // donc les écarts SSR/CSR (ssr_content_mismatch…) sont du bruit. On ne garde que le signal JS.
+  if (types.has('js_redirect_detected')) {
+    return results.filter(r => r.type === 'js_redirect_detected')
+  }
+
+  // Redirection 3xx SANS page_redirected (cas limite : 3xx sans header Location) → le corps est
+  // vide, on ne garde que le changement de statut, jamais le contenu fantôme.
+  if (ctx.newMeta.isRedirected) {
+    return results.filter(r => r.type === 'status_code_changed')
   }
 
   // Soft 404 → everything else is noise

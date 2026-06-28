@@ -32,6 +32,12 @@ const monitoredPageSchema = new Schema({
   lastPerf: { type: perfSchema, default: null },
   lastRenderedAt: Date,
   lastCheckedAt: Date,
+  // Cible mémorisée quand la page redirige (cross-path) ; null sinon. Trace la redirection sans
+  // écraser lastMeta (baseline de contenu préservée).
+  redirectTarget: { type: String, default: null },
+  // Date à laquelle l'URL a quitté le sitemap (signal de PÉRIMÈTRE) ; remise à null si elle y
+  // revient. Alimente le badge « Hors sitemap » + le bandeau site-level (pas une alerte).
+  outOfSitemapSince: { type: Date, default: null },
 }, { timestamps: true })
 
 monitoredPageSchema.index({ siteId: 1, url: 1 }, { unique: true })

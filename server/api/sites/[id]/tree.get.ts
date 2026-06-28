@@ -161,6 +161,7 @@ export default defineEventHandler(async (event) => {
           // soit l'ordre du pipeline. $first/_isDirectChild rataient le groupe null.
           leafPageId: { $max: { $cond: ['$_isExactPage', '$_id', null] } },
           leafStatusCode: { $max: { $cond: ['$_isExactPage', '$lastStatusCode', null] } },
+          leafRedirectTarget: { $max: { $cond: ['$_isExactPage', '$redirectTarget', null] } },
           leafMetaTitle: { $max: { $cond: ['$_isExactPage', '$lastMeta.title', null] } },
           directChildCount: { $sum: { $cond: ['$_isDirectChild', 1, 0] } },
         },
@@ -321,6 +322,7 @@ export default defineEventHandler(async (event) => {
           worstSeverity,
           healthScore: calcHealthScore(group.totalPageCount, regressions, recommendations, worstSeverity),
           statusCode: group.leafStatusCode ?? null,
+          redirectTarget: group.leafRedirectTarget ?? null,
           metaTitle: group.leafMetaTitle ?? null,
           pageId: group.leafPageId ? String(group.leafPageId) : null,
           childrenLoaded: false,
@@ -343,6 +345,7 @@ export default defineEventHandler(async (event) => {
       worstSeverity,
       healthScore: calcHealthScore(group.totalPageCount, regressions, recommendations, worstSeverity),
       statusCode: isLeaf ? (group.leafStatusCode ?? null) : null,
+      redirectTarget: isLeaf ? (group.leafRedirectTarget ?? null) : null,
       metaTitle: isLeaf ? (group.leafMetaTitle ?? null) : null,
       // pageId dès qu'une page existe exactement à ce chemin (page-index de section
       // comme /blog), pas seulement pour les feuilles → permet d'afficher sa perf.
@@ -381,6 +384,7 @@ export default defineEventHandler(async (event) => {
     worstSeverity: rootWorstSeverity,
     healthScore: calcHealthScore(rootTotalPages, rootRegressions, rootRecommendations, rootWorstSeverity),
     statusCode: null,
+    redirectTarget: null,
     metaTitle: null,
     pageId: drillNodePageId,
     childrenLoaded: true,

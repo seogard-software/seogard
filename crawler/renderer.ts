@@ -33,6 +33,9 @@ export interface RenderResult {
   renderedMeta: Partial<PageMeta>
   csrContentLength: number
   perf: PerfMetrics
+  // URL finale après exécution JavaScript (page.url()). Si elle diffère de l'URL demandée
+  // (cross-path), c'est une redirection JavaScript (window.location/router) — invisible au fetch HTTP.
+  renderedUrl: string
 }
 
 // Render complet unique (iso-Google) : on ne bloque AUCUNE ressource (images,
@@ -59,6 +62,7 @@ export async function renderPage(url: string, ttfbMs: number, timeoutMs = 25_000
     await page.waitForTimeout(1_000)
 
     const html = await page.content()
+    const renderedUrl = page.url()
     const renderedMeta = await extractRenderedMeta(page)
     // La perf est un bonus best-effort : son échec ne doit JAMAIS casser le render
     // SEO (comparaison SSR/CSR), qui est le cœur du produit.
@@ -71,6 +75,7 @@ export async function renderPage(url: string, ttfbMs: number, timeoutMs = 25_000
       renderedMeta,
       csrContentLength: html.length,
       perf,
+      renderedUrl,
     }
   } finally {
     await page.close()

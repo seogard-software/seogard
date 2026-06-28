@@ -10,6 +10,7 @@ export interface TreeNode {
   worstSeverity: 'critical' | 'warning' | 'info' | null
   healthScore: number
   statusCode: number | null
+  redirectTarget: string | null
   metaTitle: string | null
   pageId: string | null
   childrenLoaded: boolean
