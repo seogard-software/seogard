@@ -887,6 +887,14 @@ describe('redirect_to_homepage', () => {
     expect(results).toHaveLength(1)
     expect(results[0].severity).toBe('critical')
   })
+
+  it('does NOT re-fire when the page was already redirecting (transition only — résolu puis recrawl ne recrée pas l alerte)', () => {
+    expect(runRule('redirect_to_homepage', ctx({
+      pageUrl: 'https://example.com/deleted-product',
+      oldStatusCode: 301,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
+    }))).toHaveLength(0)
+  })
 })
 
 describe('page_redirected', () => {
@@ -922,6 +930,24 @@ describe('page_redirected', () => {
       oldMeta: baseMeta(),
       newMeta: baseMeta({ redirectTarget: 'https://example.com/' }),
     }))).toHaveLength(0)
+  })
+
+  it('does NOT re-fire when the page was already redirecting (transition only — résolu puis recrawl ne recrée pas l alerte)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldMeta: baseMeta(),
+      oldStatusCode: 301,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new-product' }),
+    }))).toHaveLength(0)
+  })
+
+  it('fires when transitioning from 200 to redirect (oldStatusCode 200)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old-product',
+      oldMeta: baseMeta(),
+      oldStatusCode: 200,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new-product' }),
+    }))).toHaveLength(1)
   })
 })
 
@@ -2048,5 +2074,150 @@ describe('rec_semantic_structure_missing_in_ssr', () => {
       renderedMeta: { hasMain: false, hasHeader: false, hasFooter: false },
     }))
     expect(results).toHaveLength(0)
+  })
+})
+
+// ============================================================
+// SIGNAL D'INTENTION SITEMAP — matrice complète (sitemap × statut)
+// ============================================================
+
+describe('matrice sitemap × statut — le sitemap décide de l alerte', () => {
+  // ── page_redirected : scoping sitemap ──
+  it('301 ENCORE au sitemap → page_redirected fire (incohérence)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/old',
+      oldMeta: baseMeta(),
+      oldStatusCode: 200,
+      newStatusCode: 301,
+      inSitemap: true,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/new' }),
+    }))).toHaveLength(1)
+  })
+
+  it('301 HORS sitemap → silence (migration propre, le cas blog)', () => {
+    expect(runRule('page_redirected', ctx({
+      pageUrl: 'https://example.com/blog/article',
+      oldMeta: baseMeta(),
+      oldStatusCode: 200,
+      newStatusCode: 301,
+      inSitemap: false,
+      newMeta: baseMeta({ redirectTarget: 'https://example.com/formations' }),
+    }))).toHaveLength(0)
+  })
+
+  // ── status_code_changed : scoping sitemap ──
+  it('404 ENCORE au sitemap → status_code_changed critical', () => {
+    const r = runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 404, inSitemap: true }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.severity).toBe('critical')
+  })
+
+  it('404 HORS sitemap → status_code_changed muet (repris par rec_unclean_removal)', () => {
+    expect(runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 404, inSitemap: false }))).toHaveLength(0)
+  })
+
+  it('410 HORS sitemap → silence total (suppression propre)', () => {
+    expect(runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 410, inSitemap: false }))).toHaveLength(0)
+    expect(runRule('rec_unclean_removal', ctx({ newStatusCode: 410, inSitemap: false }))).toHaveLength(0)
+  })
+
+  it('5xx → status_code_changed fire TOUJOURS, sitemap ou pas (serveur cassé jamais voulu)', () => {
+    expect(runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 503, inSitemap: false }))).toHaveLength(1)
+    expect(runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 503, inSitemap: true }))).toHaveLength(1)
+  })
+
+  it('inSitemap absent → défaut conservateur (on alerte comme si au sitemap)', () => {
+    expect(runRule('status_code_changed', ctx({ oldStatusCode: 200, newStatusCode: 404 }))).toHaveLength(1)
+  })
+
+  // ── redirect_broken ──
+  it('redirect_broken : 301 hors sitemap qui casse en 404 → fire (le jus fuit)', () => {
+    const r = runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 404, inSitemap: false }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.severity).toBe('warning')
+  })
+
+  it('redirect_broken : ne fire PAS au sitemap (status_code_changed porte l incident)', () => {
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 404, inSitemap: true }))).toHaveLength(0)
+  })
+
+  it('redirect_broken : ne fire PAS si la baseline n était pas une redirection, ni sur 5xx', () => {
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: 200, newStatusCode: 404, inSitemap: false }))).toHaveLength(0)
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 503, inSitemap: false }))).toHaveLength(0)
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: null, newStatusCode: 404, inSitemap: false }))).toHaveLength(0)
+  })
+
+  // ── rec_redirect_temporary ──
+  it('rec_redirect_temporary : 302/307 hors sitemap → info ; 301 ou au sitemap → rien', () => {
+    expect(runRule('rec_redirect_temporary', ctx({ newStatusCode: 302, inSitemap: false }))).toHaveLength(1)
+    expect(runRule('rec_redirect_temporary', ctx({ newStatusCode: 307, inSitemap: false }))).toHaveLength(1)
+    expect(runRule('rec_redirect_temporary', ctx({ newStatusCode: 301, inSitemap: false }))).toHaveLength(0)
+    expect(runRule('rec_redirect_temporary', ctx({ newStatusCode: 302, inSitemap: true }))).toHaveLength(0)
+  })
+
+  // ── rec_unclean_removal ──
+  it('rec_unclean_removal : 404 hors sitemap → info ; 404 au sitemap ou 410 → rien', () => {
+    const r = runRule('rec_unclean_removal', ctx({ newStatusCode: 404, inSitemap: false }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.severity).toBe('info')
+    expect(runRule('rec_unclean_removal', ctx({ newStatusCode: 404, inSitemap: true }))).toHaveLength(0)
+  })
+
+  // ── cascades (filterByPriority) ──
+  it('404 hors sitemap : la cascade *_missing est supprimée, seule rec_unclean_removal reste', () => {
+    const results = runAllRules(ctx({
+      pageUrl: 'https://example.com/deleted',
+      oldMeta: baseMeta({ title: 'Ancien titre', description: 'Ancienne desc' }),
+      oldStatusCode: 200,
+      newStatusCode: 404,
+      inSitemap: false,
+      newMeta: baseMeta({ title: null, description: null }),
+    }))
+    expect(results.map(r => r.type)).toEqual(['rec_unclean_removal'])
+  })
+
+  it('301 hors sitemap (migration propre complète) → ZÉRO alerte', () => {
+    const results = runAllRules(ctx({
+      pageUrl: 'https://example.com/blog/article',
+      oldMeta: baseMeta({ title: 'Article', description: 'Desc' }),
+      oldStatusCode: 200,
+      newStatusCode: 301,
+      inSitemap: false,
+      newMeta: baseMeta({ title: null, description: null, isRedirected: true, redirectTarget: 'https://example.com/formations' }),
+    }))
+    expect(results).toHaveLength(0)
+  })
+
+  it('302 hors sitemap → uniquement rec_redirect_temporary (pas de contenu fantôme)', () => {
+    const results = runAllRules(ctx({
+      pageUrl: 'https://example.com/promo',
+      oldMeta: baseMeta({ title: 'Promo' }),
+      oldStatusCode: 200,
+      newStatusCode: 302,
+      inSitemap: false,
+      newMeta: baseMeta({ title: null, isRedirected: true, redirectTarget: 'https://example.com/accueil-promo' }),
+    }))
+    expect(results.map(r => r.type)).toEqual(['rec_redirect_temporary'])
+  })
+})
+
+describe('redirect_broken — la cible d origine est figée dans l alerte à la transition', () => {
+  it('porte la cible connue (baseline) en DONNÉE BRUTE dans previousValue — jamais de chaîne composée', () => {
+    const r = runRule('redirect_broken', ctx({
+      oldStatusCode: 301,
+      newStatusCode: 404,
+      inSitemap: false,
+      oldRedirectTarget: 'https://example.com/formations',
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.previousValue).toBe('https://example.com/formations')
+    expect(r[0]!.currentValue).toBe('404')
+    expect(r[0]!.message).toContain('https://example.com/formations')
+  })
+
+  it('reste utilisable sans cible connue (fallback status codes)', () => {
+    const r = runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 404, inSitemap: false }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.previousValue).toBe('301')
   })
 })

@@ -17,23 +17,26 @@ const HEALTHY = ctx(
     hreflangs: [{ lang: 'en', href: '/en' }], headings: [{ level: 1, text: 'Page' }, { level: 2, text: 'Sous-titre' }],
     wordCount: 500,
   },
-  { siteContext: { hasLlmsTxt: true }, newPerf: { lcpMs: 1000, cls: 0.02, ttfbMs: 200, weightTotalKb: 500 } },
+  { siteContext: { hasLlmsTxt: true }, newPerf: { lcpMs: 1000, cls: 0.02, ttfbMs: 200, weightTotalKb: 500 }, newStatusCode: 200 },
 )
 
-// Les 17 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
+// Les 20 règles auto-résolues (liste blanche figée). Le verrou empêche tout ajout/retrait
 // accidentel. LCP/CLS/TTFB n'y sont PAS : ce sont du monitoring, sans alerte donc rien à
 // auto-résoudre. Seul perf_page_weight_explosion (poids déterministe) reste côté perf.
+// Doctrine 2026-07 : status_code_changed / page_redirected / redirect_broken sont auto-résolus
+// (statut HTTP objectif : 200 = réparé, sortie propre du sitemap = retrait assumé).
 const EXPECTED_KEYS = [
   'charset_missing', 'faq_schema_removed', 'h1_missing', 'h1_multiple',
   'heading_hierarchy_broken', 'hreflang_removed', 'lang_attribute_missing',
   'llms_txt_removed', 'meta_description_missing', 'meta_title_missing',
-  'og_image_removed', 'og_title_removed', 'perf_page_weight_explosion',
+  'og_image_removed', 'og_title_removed', 'page_redirected', 'perf_page_weight_explosion',
+  'redirect_broken', 'status_code_changed',
   'structured_data_author_removed', 'structured_data_removed', 'thin_content',
   'viewport_missing',
 ].sort()
 
 describe('RESOLVE_WHEN — liste blanche figée', () => {
-  it('contient EXACTEMENT les 17 règles attendues', () => {
+  it('contient EXACTEMENT les 20 règles attendues', () => {
     expect(Object.keys(RESOLVE_WHEN).sort()).toEqual(EXPECTED_KEYS)
   })
 
@@ -42,7 +45,7 @@ describe('RESOLVE_WHEN — liste blanche figée', () => {
       'meta_title_changed', 'meta_description_changed', 'canonical_changed', 'h1_changed',
       'hreflang_changed', 'lang_attribute_changed', 'robots_txt_changed',
       'ai_crawlers_blocked_changed', 'word_count_changed',
-      'canonical_missing', 'status_code_changed', 'noindex_added', 'content_removed',
+      'canonical_missing', 'noindex_added', 'content_removed',
       'robots_blocks_googlebot',
     ]
     for (const id of forbidden) expect(RESOLVE_WHEN[id]).toBeUndefined()
@@ -50,14 +53,14 @@ describe('RESOLVE_WHEN — liste blanche figée', () => {
 })
 
 describe('clearedRuleIds — agrégation', () => {
-  it('état 100 % sain (avec perf) → les 17 règles', () => {
+  it('état 100 % sain (avec perf) → les 20 règles', () => {
     expect(clearedRuleIds(HEALTHY).sort()).toEqual(EXPECTED_KEYS)
   })
 
   it('sans données perf → aucune règle perf_* résolue (donnée absente = conservée)', () => {
-    const noPerf = ctx({ ...(HEALTHY.newMeta as Record<string, unknown>) }, { siteContext: { hasLlmsTxt: true } })
+    const noPerf = ctx({ ...(HEALTHY.newMeta as Record<string, unknown>) }, { siteContext: { hasLlmsTxt: true }, newStatusCode: 200 })
     const cleared = clearedRuleIds(noPerf)
-    expect(cleared).toHaveLength(16)
+    expect(cleared).toHaveLength(19)
     expect(cleared.some(id => id.startsWith('perf_'))).toBe(false)
   })
 
@@ -167,5 +170,34 @@ describe('RESOLVE_WHEN — prédicats (sain → true, cassé → false, donnée 
     expect(RESOLVE_WHEN.perf_page_weight_explosion!(ctx({}, { newPerf: { weightTotalKb: 800 } }))).toBe(true)
     expect(RESOLVE_WHEN.perf_page_weight_explosion!(ctx({}, { newPerf: { weightTotalKb: 9000 } }))).toBe(false)
     expect(RESOLVE_WHEN.perf_page_weight_explosion!(ctx({}))).toBe(false)
+  })
+})
+
+describe('RESOLVE_WHEN — prédicats de STATUT (doctrine 2026-07 : objectifs, auto-résolus)', () => {
+  it('status_code_changed : sain si retour 200', () => {
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 200 }))).toBe(true)
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 404 }))).toBe(false)
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 503 }))).toBe(false)
+  })
+
+  it('status_code_changed : sain si retrait propre (hors sitemap + 3xx/410), PAS un 404 nu', () => {
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 301, inSitemap: false }))).toBe(true)
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 410, inSitemap: false }))).toBe(true)
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 404, inSitemap: false }))).toBe(false) // 404 nu ≠ propre
+    expect(RESOLVE_WHEN.status_code_changed!(ctx({}, { newStatusCode: 301, inSitemap: true }))).toBe(false) // encore au sitemap
+  })
+
+  it('page_redirected : sain si ne redirige plus (200) OU sortie du sitemap', () => {
+    expect(RESOLVE_WHEN.page_redirected!(ctx({ isRedirected: false }, { newStatusCode: 200 }))).toBe(true)
+    expect(RESOLVE_WHEN.page_redirected!(ctx({ isRedirected: true }, { newStatusCode: 301, inSitemap: false }))).toBe(true)
+    expect(RESOLVE_WHEN.page_redirected!(ctx({ isRedirected: true }, { newStatusCode: 301, inSitemap: true }))).toBe(false)
+    // inSitemap absent → défaut conservateur (au sitemap) → conservée
+    expect(RESOLVE_WHEN.page_redirected!(ctx({ isRedirected: true }, { newStatusCode: 301 }))).toBe(false)
+  })
+
+  it('redirect_broken : sain si la redirection refonctionne (3xx) ou la page revit (200)', () => {
+    expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: true }, { newStatusCode: 301 }))).toBe(true)
+    expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: false }, { newStatusCode: 200 }))).toBe(true)
+    expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: false }, { newStatusCode: 404 }))).toBe(false)
   })
 })

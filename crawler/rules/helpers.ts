@@ -77,3 +77,19 @@ export function isCsrBlocked(renderedMeta: Partial<PageMeta> | null | undefined,
 
   return false
 }
+
+// ── Signal d'intention sitemap ──────────────────────────────────────────────
+// Une page encore déclarée au sitemap qui casse/redirige = pas voulu → alerte.
+// Sortie du sitemap en 3xx/410 = retrait assumé (« clean removal ») → silence.
+
+/** Défaut conservateur : inSitemap absent → considérée au sitemap → on alerte. */
+export function isInSitemap(ctx: { inSitemap?: boolean }): boolean {
+  return ctx.inSitemap !== false
+}
+
+/** Retrait propre : hors sitemap ET (redirection 3xx OU 410 Gone). Le 404 nu n'est PAS propre. */
+export function isCleanRemoval(ctx: { inSitemap?: boolean, newStatusCode: number }): boolean {
+  if (isInSitemap(ctx)) return false
+  const s = ctx.newStatusCode
+  return (s >= 300 && s < 400) || s === 410
+}

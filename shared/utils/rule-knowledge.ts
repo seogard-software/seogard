@@ -57,16 +57,34 @@ export const RULE_KNOWLEDGE: Record<string, RuleKnowledge> = {
     gain: 'L’autorité de l’URL est transmise à un contenu pertinent au lieu d’être perdue.',
   },
   page_redirected: {
-    constat: 'Une page qui répondait normalement (200) redirige désormais vers une autre URL.',
-    pourquoi: 'Google et les IA suivent la redirection : ils ne lisent plus le contenu de l’URL d’origine mais celui de la cible. Tous les redirects 3xx transmettent les signaux de l’ancienne URL ; mais seul un 301 (permanent) désigne la cible comme nouvelle URL canonique — un 302 (temporaire) laisse l’origine indexée, ce qui crée un état ambigu si le déplacement est en réalité définitif. Surtout, une redirection apparue sans intention trahit souvent une route cassée, une page supprimée par erreur ou une refonte qui a déplacé l’URL. Tant que personne ne l’a vue, l’ancienne adresse continue d’être liée et citée dans le vide.',
-    action: 'Vérifier si la redirection est voulue. Si oui, confirmer qu’elle est en 301 (permanent) vers la page équivalente la plus proche. Si elle ne l’est pas, restaurer la page d’origine plutôt que de la rediriger.',
-    gain: 'Les signaux de l’ancienne URL convergent vers le bon contenu et la page reste accessible aux humains comme aux machines, au lieu de fuir vers une cible non pertinente ou de disparaître à votre insu.',
+    constat: 'Une page encore déclarée dans votre sitemap s’est mise à rediriger vers une autre URL.',
+    pourquoi: 'Votre sitemap dit à Google « cette URL est canonique, crawle-la » alors qu’elle rebondit ailleurs : signaux contradictoires, budget de crawl gaspillé sur une adresse qui n’existe plus vraiment. Deux lectures possibles : soit la redirection est voulue (migration, fusion de contenus) et c’est le sitemap qui est en retard ; soit elle ne l’est pas, et c’est souvent une route cassée, une page supprimée par erreur ou une refonte qui a déplacé l’URL sans que personne ne le voie. Une page redirigée en 301 ET sortie du sitemap est en revanche un retrait propre : Seogard ne la signale pas.',
+    action: 'Si la redirection est voulue : retirer l’URL du sitemap (et vérifier que la redirection est en 301 vers la page équivalente). Sinon : restaurer la page d’origine.',
+    gain: 'Le sitemap et le serveur racontent la même histoire : Google concentre son crawl sur les pages réelles, et une redirection accidentelle ne passe plus inaperçue.',
   },
   js_redirect_detected: {
     constat: 'La page répond 200 avec du contenu, mais son JavaScript redirige le navigateur vers une autre URL.',
     pourquoi: 'Le serveur ne signale aucune redirection (pas de 3xx) : pour le fetch HTTP et les IA, cette page est un contenu normal — qu’elles lisent et peuvent indexer ou citer — alors que l’humain est envoyé ailleurs. Google sait suivre une redirection JavaScript, mais seulement après avoir rendu la page, dans une seconde vague différée : il peut donc indexer la mauvaise page en attendant, et ne voit jamais la redirection si le rendu échoue. Les IA, qui lisent le HTML brut, ne la suivent pas du tout. Une redirection JavaScript est donc un signal ambigu et fragile, souvent hérité d’un routeur SPA ou d’un `window.location` oublié.',
     action: 'Remplacer la redirection JavaScript par une vraie redirection serveur 301/302, ou rendre le contenu final directement sur l’URL demandée.',
     gain: 'Machines et humains voient la même page : plus d’indexation de la mauvaise URL ni de contenu lu par les IA qui ne correspond pas à la destination.',
+  },
+  redirect_broken: {
+    constat: 'Une page que vous aviez retirée proprement (redirection + sortie du sitemap) renvoie désormais une erreur 4xx : sa redirection a cassé.',
+    pourquoi: 'Tant que la redirection fonctionnait, les backlinks accumulés par l’ancienne URL transmettaient leurs signaux vers la cible — un 301 doit rester en place au moins un an, et à vie si des liens externes pointent encore dessus. Cassée, l’ancienne adresse devient un cul-de-sac : Google constate une erreur là où il suivait un chemin, et le jus des liens cesse d’être transmis. La cause typique est silencieuse : un refactor de routing qui a supprimé la règle de redirection, ou la suppression de la page cible. Personne ne visite ces vieilles URLs, donc personne ne s’en aperçoit — c’est précisément pour ça qu’on les surveille.',
+    action: 'Rétablir la redirection 301 vers la page équivalente encore en ligne (ou vers sa nouvelle adresse si la cible a bougé). L’alerte conserve la cible d’origine — inutile de fouiller votre configuration pour la retrouver.',
+    gain: 'Les signaux des backlinks historiques recommencent à irriguer la bonne page au lieu de se perdre sur une erreur.',
+  },
+  rec_redirect_temporary: {
+    constat: 'Une page sortie de votre sitemap redirige en 302 ou 307 — une redirection déclarée temporaire.',
+    pourquoi: 'Un 302 dit à Google « le contenu reviendra ici » : il garde l’ancienne URL indexée et se montre plus lent et plus réticent à consolider les signaux vers la cible. Si le retrait est en réalité définitif, ce statut temporaire entretient un état ambigu : l’ancienne adresse continue d’occuper l’index pendant que la cible ne reçoit pas pleinement le bénéfice des liens existants. Google finit par traiter un 302 durable comme un 301, mais ce délai n’est ni documenté ni garanti — autant envoyer le bon signal tout de suite.',
+    action: 'Si le retrait est définitif, passer la redirection en 301 (permanente). Garder le 302 uniquement si la page d’origine doit réellement revenir.',
+    gain: 'Le signal envoyé correspond à l’intention réelle : désindexation de l’ancienne URL et consolidation des liens vers la cible, sans période d’ambiguïté.',
+  },
+  rec_unclean_removal: {
+    constat: 'Une page sortie de votre sitemap renvoie un 404 nu — sans redirection ni signal de suppression définitive.',
+    pourquoi: 'Le 404 fonctionne, mais il est ambigu : il dit « introuvable », pas « supprimée exprès ». Google continue donc de re-crawler l’URL pendant des semaines au cas où elle reviendrait. Et si des backlinks pointaient vers cette page, leur valeur se perd sur une impasse alors qu’une redirection l’aurait transmise. Deux signaux font mieux : le 410 (« Gone ») annonce une suppression assumée et accélère la désindexation ; le 301 conserve le jus des liens quand un contenu équivalent existe. Un 404 isolé sur une page sans historique ni liens reste toutefois sans réelle conséquence — cette recommandation pèse surtout pour les pages qui avaient de la valeur.',
+    action: 'Suppression définitive → renvoyer 410. Contenu déplacé ou équivalent existant → rediriger en 301 vers cette page.',
+    gain: 'Google cesse plus vite de crawler l’URL morte, et la valeur des liens existants est préservée au lieu de se perdre sur une impasse.',
   },
 
   // ── SSR / CSR ─────────────────────────────────────────────────

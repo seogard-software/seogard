@@ -49,6 +49,9 @@ const ALERT_TYPES = [
   'redirect_to_homepage',
   'page_redirected',
   'js_redirect_detected',
+  'redirect_broken',
+  'rec_redirect_temporary',
+  'rec_unclean_removal',
   // Recommendations (recommendations.ts)
   'rec_img_alt_audit',
   'rec_img_alt_missing_in_ssr',

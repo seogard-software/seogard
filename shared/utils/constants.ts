@@ -17,6 +17,9 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
   redirect_to_homepage: 'Redirection vers la homepage',
   page_redirected: 'Page redirigée',
   js_redirect_detected: 'Redirection JavaScript',
+  redirect_broken: 'Redirection cassée',
+  rec_redirect_temporary: 'Redirection temporaire sur page retirée',
+  rec_unclean_removal: 'Suppression sans 410 ni 301',
   // P1
   ssr_rendering_failed: 'SSR cassé',
   ssr_content_mismatch: 'Écart SSR/CSR',
@@ -109,6 +112,8 @@ export const RECOMMENDATION_RULES: Set<string> = new Set([
   'rec_citation_signals_missing', 'rec_content_structure_audit',
   // Performance — audit poids uniquement (LCP/CLS/TTFB = monitoring, sans alerte)
   'rec_perf_page_heavy',
+  // Cycle de vie des pages retirées (hors sitemap) — conseils, re-fire tant que vrai
+  'rec_redirect_temporary', 'rec_unclean_removal',
 ])
 
 export function getRuleCategory(ruleId: string): AlertCategory {

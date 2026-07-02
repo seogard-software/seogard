@@ -4,7 +4,7 @@ import { createLogger } from './logger'
 import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContext } from './fetcher'
 import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
-import { compareSnapshots, type AlertData } from './comparator'
+import { compareSnapshots, REDIRECT_SAFE_RESOLVE, type AlertData } from './comparator'
 import { isSsrBlocked, isRedirectToWaf, normalizeUrl } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
@@ -459,6 +459,8 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
     newMeta: fetchResult.meta,
     oldStatusCode: page.lastStatusCode,
     newStatusCode: fetchResult.statusCode,
+    inSitemap: page.outOfSitemapSince == null,
+    oldRedirectTarget: page.redirectTarget,
     renderedMeta: null,
     ssrContentLength: fetchResult.contentLength,
     csrContentLength: null,
@@ -480,10 +482,14 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
 
   // Auto-resolve sélectif (phase SSR : règles meta/contenu/heading/og/structured/i18n/llms).
   // Hors 1er crawl : une page neuve n'a pas d'alerte antérieure à résoudre.
-  // JAMAIS sur une redirection : le corps est vide → on ne peut pas juger « sain », ne pas
-  // résoudre à tort (ex. h1_multiple / heading_hierarchy_broken sur un meta vide).
-  if (!isFirstCrawl && !isRedirect) {
-    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds, crawlId)
+  // Sur une REDIRECTION le corps est vide → les prédicats de CONTENU fermeraient à tort
+  // (ex. h1_multiple sur un meta vide) : on ne garde que les prédicats de STATUT
+  // (REDIRECT_SAFE_RESOLVE), sûrs car ils ne regardent que status code + sitemap.
+  if (!isFirstCrawl) {
+    const resolvable = isRedirect ? clearedRuleIds.filter(id => REDIRECT_SAFE_RESOLVE.has(id)) : clearedRuleIds
+    if (resolvable.length > 0) {
+      await resolveRecoveredAlerts(siteId, pageUrl, resolvable, crawlId)
+    }
   }
 
   // Stocker MetaCore (version allegee sans les tableaux volumineux : links, images)
@@ -549,8 +555,11 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
   }
 
   // Auto-resolve sélectif (phase CSR : règles perf, dont la métrique est mesurée ici).
+  // Les prédicats de STATUT (REDIRECT_SAFE_RESOLVE) sont EXCLUS : le newStatusCode de cette
+  // phase est factice (200) — le statut réel a déjà été traité en phase SSR.
   if (!ssrData.isFirstCrawl) {
-    await resolveRecoveredAlerts(siteId, pageUrl, clearedRuleIds, crawlId)
+    const resolvable = clearedRuleIds.filter(id => !REDIRECT_SAFE_RESOLVE.has(id))
+    await resolveRecoveredAlerts(siteId, pageUrl, resolvable, crawlId)
   }
 
   await PageSnapshot.findOneAndUpdate(

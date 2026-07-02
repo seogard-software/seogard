@@ -5,6 +5,7 @@ import { ratePageWeight } from '../shared/types/perf'
 import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
 import { getH1, getH1Count, getHeadingLevels, hasHierarchySkip } from './rules/heading'
+import { isCleanRemoval, isInSitemap } from './rules/helpers'
 import { THIN_CONTENT_MIN_WORDS } from './rules/content'
 // Import rules for side-effect registration
 import './rules/meta'
@@ -32,6 +33,10 @@ export interface CompareInput {
   newMeta: PageMeta
   oldStatusCode: number | null
   newStatusCode: number
+  // Signal d'intention sitemap (cf. RuleContext.inSitemap). Absent → true (conservateur : on alerte).
+  inSitemap?: boolean
+  // Cible de redirection de la baseline (cf. RuleContext.oldRedirectTarget).
+  oldRedirectTarget?: string | null
   renderedMeta?: Partial<PageMeta> | null
   renderedUrl?: string | null
   ssrContentLength: number
@@ -49,16 +54,21 @@ export interface CompareResult {
 }
 
 // Prédicats de récupération « la page est-elle SAINE maintenant ? » par règle event.
-// Liste blanche STRICTE de 17 règles.
+// Liste blanche STRICTE de 20 règles.
 // Détection (run()) inchangée : ceci ne sert QU'À résoudre, jamais à créer. Donnée
 // absente → false → alerte conservée (résolution conservatrice, zéro fermeture à tort).
 //
 // VOLONTAIREMENT ABSENTES (résolution MANUELLE — validation humaine) :
-//  - tous les *_changed (title/description/canonical/h1/hreflang/lang/robots/ai_crawlers/word_count)
-//  - canonical_missing, status_code_changed, noindex_added (critiques)
+//  - tous les *_changed de CONTENU (title/description/canonical/h1/hreflang/lang/robots/ai_crawlers/word_count)
+//  - canonical_missing, noindex_added (critiques)
 //  - content_removed : règle RELATIVE — le « réparé » exigerait le nb de mots d'avant
 //    la chute (uniquement dans previousValue, une chaîne d'affichage). On refuse de
 //    parser une chaîne d'affichage pour décider de fermer une alerte → manuel.
+//
+// DOCTRINE (ajustée 2026-07) : status_code_changed / page_redirected / redirect_broken SONT
+// auto-résolus — un statut HTTP est objectif (200 = réparé, sortie propre du sitemap = assumé),
+// et une 503 réparée qui reste ouverte pollue la vue de ce qui est cassé MAINTENANT. La trace
+// de l'incident reste dans l'historique + les rapports figés (R2).
 export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
   // Éléments « disparus » → sains si revenus
   meta_title_missing: ctx => !!ctx.newMeta.title,
@@ -81,7 +91,16 @@ export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
   // Régression perf (poids déterministe) → saine si le poids est de nouveau « bon ».
   // LCP/CLS/TTFB ne sont PAS ici : monitoring pur, sans alerte donc rien à auto-résoudre.
   perf_page_weight_explosion: ctx => ctx.newPerf?.weightTotalKb != null && ratePageWeight(ctx.newPerf.weightTotalKb) === 'good',
+  // Statuts HTTP (objectifs) → sains si retour 200 OU retrait propre (hors sitemap + 3xx/410).
+  // Ces prédicats ne dépendent QUE du statut/sitemap → sûrs même sur un corps vide (redirection).
+  status_code_changed: ctx => ctx.newStatusCode === 200 || isCleanRemoval(ctx),
+  page_redirected: ctx => (!ctx.newMeta.isRedirected && ctx.newStatusCode === 200) || !isInSitemap(ctx),
+  redirect_broken: ctx => ctx.newMeta.isRedirected || ctx.newStatusCode === 200,
 }
+
+// Prédicats évaluables sur une page qui REDIRIGE (corps vide) : uniquement ceux basés sur le
+// statut/sitemap. Les prédicats de contenu (h1_multiple ≤ 1 sur un corps vide…) fermeraient à tort.
+export const REDIRECT_SAFE_RESOLVE = new Set(['status_code_changed', 'page_redirected', 'redirect_broken'])
 
 // Règles event saines sur ce crawl → leurs alertes ouvertes seront auto-résolues.
 export function clearedRuleIds(ctx: RuleContext): string[] {

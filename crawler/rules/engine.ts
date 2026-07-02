@@ -9,6 +9,14 @@ export interface RuleContext {
   newMeta: PageMeta
   oldStatusCode: number | null
   newStatusCode: number
+  // Signal d'INTENTION : la page est-elle encore déclarée dans le sitemap ? (dérivé de
+  // MonitoredPage.outOfSitemapSince). Cassée/redirigée ENCORE au sitemap = pas voulu → alerte.
+  // Sortie du sitemap en 3xx/410 = retrait assumé → silence. Défaut true (conservateur : on alerte).
+  inSitemap?: boolean
+  // Cible de redirection de la BASELINE (MonitoredPage.redirectTarget du crawl précédent).
+  // oldMeta.redirectTarget ne convient PAS : la baseline meta est préservée de l'ère 200 (null).
+  // Sert à redirect_broken pour figer « redirigeait vers X » dans l'alerte à la transition.
+  oldRedirectTarget?: string | null
   // SSR vs CSR (within-crawl)
   renderedMeta: Partial<PageMeta> | null
   // URL finale après JavaScript (phase CSR uniquement) — null en phase SSR. Sert à détecter
@@ -55,9 +63,13 @@ export function registerRule(rule: SEORule) {
 export function filterByPriority(results: RuleResult[], ctx: RuleContext): RuleResult[] {
   const types = new Set(results.map(r => r.type))
 
-  // Status code error (≥ 400) → only the root cause matters
-  if (types.has('status_code_changed') && ctx.newStatusCode >= 400) {
-    return results.filter(r => r.type === 'status_code_changed')
+  // Status code error (≥ 400) → seuls les signaux racine comptent. Le corps d'une page d'erreur
+  // est vide/générique : les *_missing/*_changed/recos qui en découlent sont du bruit. Hors
+  // sitemap, status_code_changed est muet (retrait assumé) → on garde redirect_broken (la
+  // redirection qui pourrit) et rec_unclean_removal (le conseil 404→410). Aucun signal → silence.
+  if (ctx.newStatusCode >= 400) {
+    const rootSignals = new Set(['status_code_changed', 'redirect_broken', 'rec_unclean_removal'])
+    return results.filter(r => rootSignals.has(r.type))
   }
 
   // Redirect to homepage → everything else is noise
@@ -77,10 +89,12 @@ export function filterByPriority(results: RuleResult[], ctx: RuleContext): RuleR
     return results.filter(r => r.type === 'js_redirect_detected')
   }
 
-  // Redirection 3xx SANS page_redirected (cas limite : 3xx sans header Location) → le corps est
-  // vide, on ne garde que le changement de statut, jamais le contenu fantôme.
+  // Redirection 3xx sans cause racine ci-dessus (hors sitemap = retrait assumé, ou 3xx sans
+  // Location) → le corps est vide : jamais de contenu fantôme. On ne garde que le changement de
+  // statut et le conseil « 302 → passe en 301 » (rec_redirect_temporary, hors sitemap uniquement).
   if (ctx.newMeta.isRedirected) {
-    return results.filter(r => r.type === 'status_code_changed')
+    const keep = new Set(['status_code_changed', 'rec_redirect_temporary'])
+    return results.filter(r => keep.has(r.type))
   }
 
   // Soft 404 → everything else is noise
