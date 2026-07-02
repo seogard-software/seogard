@@ -184,6 +184,7 @@
               <TreeLeafCard
                 v-if="child.isLeaf"
                 :data="child"
+                :site-host="siteHost"
                 @select="(id: string) => selectNode(id, true)"
               />
               <TreeSegmentCard
@@ -301,6 +302,13 @@ const canAdmin = computed(() => hasMinZoneRole(zoneId.value, 'admin'))
 const canCrawl = computed(() => hasMinZoneRole(zoneId.value, 'member'))
 
 const isOrgOwner = computed(() => orgStore.activeOrgRole === 'owner')
+
+// Hostname du site monitoré — pour compacter la cible de redirection dans les cartes (path seul).
+const siteHost = computed(() => {
+  const url = sitesStore.currentSite?.url
+  if (!url) return undefined
+  try { return new URL(url).hostname } catch { return undefined }
+})
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
 const zoneName = computed(() => isDefaultZone.value ? 'Toutes les pages' : (zone.value?.name ?? 'Zone'))

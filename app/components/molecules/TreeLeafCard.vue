@@ -10,7 +10,7 @@
       <div class="tree-leaf-card__info">
         <span class="tree-leaf-card__label">{{ data.label }}</span>
         <div class="tree-leaf-card__meta">
-          <span v-if="data.statusCode" class="tree-leaf-card__status">Status : {{ data.statusCode }}<template v-if="data.redirectTarget"> → {{ data.redirectTarget }}</template></span>
+          <span v-if="data.statusCode" class="tree-leaf-card__status" :title="data.redirectTarget ?? undefined">Status : {{ data.statusCode }}<template v-if="redirectLabel"> → {{ redirectLabel }}</template></span>
           <span v-if="data.regressionCount > 0" class="tree-leaf-card__tag tree-leaf-card__tag--reg">
             {{ data.regressionCount }} reg
           </span>
@@ -28,6 +28,8 @@
 <script setup lang="ts">
 interface Props {
   data: TreeNode
+  /** Hostname du site monitoré — pour compacter la cible de redirection (même domaine → path seul). */
+  siteHost?: string
 }
 
 defineEmits<{
@@ -39,6 +41,21 @@ const props = defineProps<Props>()
 const severityClass = computed(() => {
   if (!props.data.worstSeverity) return 'tree-leaf-card--ok'
   return `tree-leaf-card--${props.data.worstSeverity}`
+})
+
+// Cible de redirection compacte : même domaine → path seul ; domaine différent → host + path
+// (une redirection cross-domaine est une info SEO à ne pas masquer). L URL complète reste en title.
+const redirectLabel = computed(() => {
+  const target = props.data.redirectTarget
+  if (!target) return null
+  try {
+    const u = new URL(target)
+    const path = `${u.pathname}${u.search}` || '/'
+    return props.siteHost && u.hostname !== props.siteHost ? `${u.hostname}${path}` : path
+  }
+  catch {
+    return target
+  }
 })
 </script>
 
@@ -106,6 +123,7 @@ const severityClass = computed(() => {
     align-items: center;
     gap: 6px;
     margin-top: 2px;
+    min-width: 0;
   }
 
   &__status {
@@ -116,6 +134,10 @@ const severityClass = computed(() => {
     padding: 1px 5px;
     border-radius: $radius-sm;
     white-space: nowrap;
+    // Cible de redirection potentiellement longue : tronquer avec ellipsis, jamais déborder.
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__tag {
@@ -124,6 +146,7 @@ const severityClass = computed(() => {
     padding: 1px 5px;
     border-radius: $radius-sm;
     white-space: nowrap;
+    flex-shrink: 0;
 
     &--reg {
       background: $color-danger-bg;
