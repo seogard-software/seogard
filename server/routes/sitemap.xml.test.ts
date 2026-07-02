@@ -35,6 +35,11 @@ describe('GET /sitemap.xml — pages statiques (blog supprimé)', () => {
     expect(xml).not.toContain('<loc>https://seogard.io/docs</loc>')
   })
 
+  it('ne déclare aucune page /legal (noindex volontaire : jamais une page noindex au sitemap)', async () => {
+    const xml = await handler(fakeEvent)
+    expect(xml).not.toContain('/legal')
+  })
+
   it('ne contient aucune ancre # (inéligible aux sitelinks)', async () => {
     const xml = await handler(fakeEvent)
     expect(xml).not.toContain('#')
