@@ -327,28 +327,6 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
     }
     await Site.findByIdAndUpdate(siteId, siteUpdate)
 
-    // Pages disparues du sitemap (statuts FRAIS : ces pages ont été re-crawlées ce crawl). Calculé ICI,
-    // AVANT le snapshot, pour que le rapport .md/PDF lise la valeur de CE crawl (pas du précédent), et
-    // écrit sur Site (bandeau). Le signal email est passé plus bas à sendNotifications (un seul mail).
-    let sitemapRemovedForEmail: { count: number, nonOkCount: number } | null = null
-    try {
-      const prevSm = await Site.findById(siteId).select('sitemapRemoved sitemapRemovedAck').lean()
-      const outOfSitemap = await MonitoredPage.find({ siteId, outOfSitemapSince: { $ne: null } }).select('url lastStatusCode').lean()
-      const removedCount = outOfSitemap.length
-      const removedNonOk = outOfSitemap.filter(p => p.lastStatusCode != null && p.lastStatusCode !== 200).length
-      const prevCount = prevSm?.sitemapRemoved?.count ?? 0
-      const ackCount = prevSm?.sitemapRemovedAck?.count ?? 0
-      await Site.updateOne({ _id: siteId }, {
-        sitemapRemoved: { count: removedCount, nonOkCount: removedNonOk, crawlId, sampleUrls: outOfSitemap.slice(0, 20).map(p => p.url) },
-      })
-      sitemapRemovedForEmail = (removedCount > 0 && removedCount > prevCount && removedCount > ackCount)
-        ? { count: removedCount, nonOkCount: removedNonOk }
-        : null
-    }
-    catch (error) {
-      log.error({ crawlId, siteId, errorCode: 'SITEMAP_REMOVED_ERROR', error: (error as Error).message }, 'sitemap removed computation failed')
-    }
-
     // Snapshot du rapport (fidèle) APRÈS l'auto-resolve : génère .md exhaustif + .pdf court,
     // les stocke sur R2. Isolé : un échec snapshot ne casse jamais la finalisation. Le PDF
     // renvoyé sert aussi à le joindre à l'email (pas de re-rendu).
@@ -374,8 +352,7 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
         const allAlerts = await Alert.find({ siteId, lastCrawlId: crawlId }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
         const fixedAlerts = await Alert.find({ siteId, status: 'resolved', resolvedCrawlId: crawlId, category: { $in: ['event', 'state'] } }).select('pageUrl ruleId category severity message').lean<ReportAlert[]>()
 
-        // sitemapRemovedForEmail a été calculé AVANT le snapshot (statuts frais + rapport à jour).
-        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId }, snapshot, sitemapRemovedForEmail)
+        await sendNotifications(site, allAlerts, fixedAlerts, { zoneName, zoneId }, snapshot)
 
         // Send "crawler blocked" notification if >10% pages blocked
         if (crawlForNotif && crawlForNotif.pagesTotal > 0 && crawlForNotif.pagesBlocked > 0) {
@@ -593,11 +570,10 @@ async function sendNotifications(
   fixedAlerts: ReportAlert[],
   zoneInfo?: { zoneName: string | null, zoneId: string | null },
   snapshot?: SnapshotResult | null,
-  sitemapRemoved?: { count: number, nonOkCount: number } | null,
 ): Promise<void> {
-  // Monitoring-first : construit le rapport (régressions + réparées + sortie sitemap) et décide SI on
-  // envoie. Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
-  const report = buildCrawlReport(allAlerts, fixedAlerts, sitemapRemoved ?? null)
+  // Monitoring-first : construit le rapport (régressions + réparées) et décide SI on envoie.
+  // Recos seules → pas de mail. Déclenchement aussi conditionné au toggle email du site.
+  const report = buildCrawlReport(allAlerts, fixedAlerts)
   if (!site.notifyEmail || !report.shouldSend) return
 
   // Pièce jointe = le PDF COURT déjà généré par le snapshot (métier, jamais le .md).
@@ -615,7 +591,6 @@ async function sendNotifications(
     fixed: report.fixed,
     topRecos: report.topRecos,
     recoCount: report.recoCount,
-    sitemapRemoved: report.sitemapRemoved,
   }
 
   // Collect recipients: org owner + zone admin/member (not viewer)

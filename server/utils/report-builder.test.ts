@@ -14,15 +14,6 @@ function alert(over: Partial<ReportAlertInput>): ReportAlertInput {
 }
 
 describe('buildZoneReport', () => {
-  it('remonte la sortie de sitemap dans meta (signal de périmètre, pas une régression)', () => {
-    const withRemoved = buildZoneReport({ ...BASE, openAlerts: [], sitemapRemoved: { count: 287, nonOkCount: 12 } })
-    expect(withRemoved.meta.sitemapRemoved).toEqual({ count: 287, nonOkCount: 12 })
-    expect(withRemoved.verdict.critical + withRemoved.verdict.warning).toBe(0) // ne compte PAS dans le verdict
-
-    const without = buildZoneReport({ ...BASE, openAlerts: [] })
-    expect(without.meta.sitemapRemoved).toBeNull()
-  })
-
   it('verdict : compte les régressions par sévérité, jamais les recommandations', () => {
     const report = buildZoneReport({
       ...BASE,

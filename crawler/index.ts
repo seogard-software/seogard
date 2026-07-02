@@ -234,8 +234,8 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
 
   // Always sync sitemapBlocked + sitemapMissing on Site (clears/active le bandeau à chaque crawl).
   // sitemapMissing vient de discoverPages : vrai seulement si aucun sitemap ET non bloqué WAF.
-  // NB : le flag « pages disparues du sitemap » (count/nonOkCount/email) est écrit en FIN de crawl
-  // (finalizeCrawl), sur des statuts FRAIS. Ici on ne fait que marquer l'appartenance (outOfSitemapSince).
+  // NB : ici on ne fait que marquer l'appartenance au sitemap (outOfSitemapSince) — c'est le signal
+  // d'INTENTION que les règles consommeront (page cassée/redirigée encore déclarée = alerte).
   await Site.updateOne({ _id: siteId }, { sitemapBlocked, sitemapMissing })
 
   // If sitemap was blocked by WAF, notify the site owner immediately
@@ -343,11 +343,10 @@ async function syncMonitoredPages(siteId: string, siteUrl: string, orgId: string
     log.info({ siteId, newPages: newUrls.length, totalPages: existingUrls.size + newUrls.length }, 'new pages discovered')
   }
 
-  // --- Pages DISPARUES du sitemap (signal de PÉRIMÈTRE, pas une alerte) ---
-  // On ne fait ici que MARQUER l'appartenance au sitemap (membership), UNIQUEMENT si le sitemap est
-  // exploitable (sinon un sitemap bloqué/manquant/vide ferait croire à une disparition massive).
-  // Le COUNT, le nonOkCount et l'email sont calculés en FIN de crawl (finalizeCrawl) sur des statuts
-  // FRAIS — sinon on dirait « répond en 200 » avec le statut du crawl PRÉCÉDENT (faux).
+  // --- Appartenance au sitemap (signal d'INTENTION consommé par les règles) ---
+  // On MARQUE outOfSitemapSince, UNIQUEMENT si le sitemap est exploitable (sinon un sitemap
+  // bloqué/manquant/vide ferait croire à une disparition massive = faux positif).
+  // Page cassée/redirigée ENCORE dans le sitemap = alerte ; sortie proprement (301/410) = silence.
   if (!sitemapBlocked && !sitemapMissing && sitemapUrls.length > 0) {
     const diff = computeSitemapDiff(existingPages, sitemapUrls)
     if (diff.returnedUrls.length > 0) {

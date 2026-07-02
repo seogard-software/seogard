@@ -56,15 +56,6 @@ describe('crawlReportTemplate — sujet (monitoring-first, FR)', () => {
     expect(subject.toLowerCase()).not.toContain('warning')
   })
 
-  it('cas SITEMAP SEUL (aucune régression/réparation) : sujet « sortie du sitemap », pas « 0 réparée »', () => {
-    const { subject, html } = crawlReportTemplate({
-      ...base,
-      sitemapRemoved: { count: 287, nonOkCount: 0 },
-    })
-    expect(subject).toContain('287 pages sorties du sitemap')
-    expect(subject).not.toContain('0 régression')
-    expect(html).toContain('ont quitté votre sitemap')
-  })
 })
 
 describe('crawlReportTemplate — corps', () => {

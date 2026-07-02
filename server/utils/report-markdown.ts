@@ -51,7 +51,6 @@ export function renderReportMarkdown(report: ZoneReport): string {
   lines.push(`regressions_info: ${verdict.info}`)
   lines.push(`recommandations: ${verdict.recommendations}`)
   lines.push(`pages_contenu_machine_different: ${verdict.signaturePagesCount}`)
-  lines.push(`pages_sorties_du_sitemap: ${meta.sitemapRemoved?.count ?? 0}`)
   lines.push('---')
   lines.push('')
 
@@ -75,14 +74,6 @@ export function renderReportMarkdown(report: ZoneReport): string {
     lines.push(`**✅ Aucun écart détecté entre ce que voient vos visiteurs et ce que voient Google et les IA.**`)
   }
   lines.push('')
-
-  // ── Périmètre : pages sorties du sitemap (signal contextuel, pas une régression) ──
-  if (meta.sitemapRemoved && meta.sitemapRemoved.count > 0) {
-    const { count, nonOkCount } = meta.sitemapRemoved
-    const suffix = nonOkCount > 0 ? ` (dont ${nonOkCount.toLocaleString('fr-FR')} qui ne répondent plus en 200)` : ''
-    lines.push(`**ℹ️ ${count.toLocaleString('fr-FR')} page${count > 1 ? 's' : ''} ${count > 1 ? 'ont' : 'a'} quitté votre sitemap** depuis le dernier crawl${suffix}. Restructuration volontaire ou bug de génération du sitemap : à vérifier.`)
-    lines.push('')
-  }
 
   // ── Régressions ──
   const totalRegressions = verdict.critical + verdict.warning + verdict.info

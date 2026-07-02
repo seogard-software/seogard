@@ -24,19 +24,6 @@ describe('buildCrawlReport — déclencheur monitoring-first', () => {
     expect(r.recoCount).toBe(2)
   })
 
-  it('sortie de sitemap SEULE (aucune régression/réparation) → shouldSend + portée dans le rapport', () => {
-    const r = buildCrawlReport([], [], { count: 12, nonOkCount: 3 })
-    expect(r.shouldSend).toBe(true)
-    expect(r.sitemapRemoved).toEqual({ count: 12, nonOkCount: 3 })
-    expect(r.regressions).toHaveLength(0)
-  })
-
-  it('recos + sortie sitemap null → PAS d\'envoi (sitemap ne force pas à lui seul sans nouveauté)', () => {
-    const r = buildCrawlReport([a('recommendation', 'info')], [], null)
-    expect(r.shouldSend).toBe(false)
-    expect(r.sitemapRemoved).toBeNull()
-  })
-
   it('aucune alerte → PAS d\'envoi', () => {
     expect(buildCrawlReport([], []).shouldSend).toBe(false)
   })

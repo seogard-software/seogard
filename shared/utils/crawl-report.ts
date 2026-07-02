@@ -17,9 +17,6 @@ export interface CrawlReport {
   fixed: { pageUrl: string, message: string }[]
   topRecos: TopReco[]
   recoCount: number
-  // Pages sorties du sitemap (signal de périmètre) — affiché dans LE MÊME mail, jamais un 2e.
-  // null si rien de nouveau ; renseigné uniquement quand le count augmente (événementiel, décidé en amont).
-  sitemapRemoved: { count: number, nonOkCount: number } | null
 }
 
 // Monitoring = toute régression : event (quelque chose a changé/cassé/disparu) ou state
@@ -38,7 +35,6 @@ function isMonitoring(a: ReportAlert): boolean {
 export function buildCrawlReport(
   allAlerts: ReportAlert[],
   fixedAlerts: ReportAlert[],
-  sitemapRemoved: { count: number, nonOkCount: number } | null = null,
 ): CrawlReport {
   const regressions = allAlerts.filter(isMonitoring)
   const recos = allAlerts.filter(a => a.category === 'recommendation')
@@ -47,12 +43,11 @@ export function buildCrawlReport(
   )
 
   return {
-    // Déclencheurs : régression, réparation, OU pages sorties du sitemap. Recos seules → pas de mail.
-    shouldSend: regressions.length > 0 || fixedAlerts.length > 0 || sitemapRemoved !== null,
+    // Déclencheurs : régression OU réparation. Recos seules → pas de mail.
+    shouldSend: regressions.length > 0 || fixedAlerts.length > 0,
     regressions: regressions.map(a => ({ pageUrl: a.pageUrl, severity: a.severity, message: a.message })),
     fixed: fixedAlerts.map(a => ({ pageUrl: a.pageUrl, message: a.message })),
     topRecos,
     recoCount,
-    sitemapRemoved,
   }
 }

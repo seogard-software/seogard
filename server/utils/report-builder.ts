@@ -67,7 +67,6 @@ export interface BuildZoneReportInput {
   openAlerts: ReportAlertInput[]
   repairedAlerts: { ruleId: string, pageUrl: string }[]
   generatedAt: string
-  sitemapRemoved?: { count: number, nonOkCount: number } | null
 }
 
 function truncate(value: string | null | undefined, max: number): string | null {
@@ -188,7 +187,6 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
       pagesScanned: input.crawl?.pagesScanned ?? 0,
       pagesTotal: input.crawl?.pagesTotal ?? 0,
       generatedAt: input.generatedAt,
-      sitemapRemoved: input.sitemapRemoved ?? null,
     },
     verdict: {
       ...counts,
