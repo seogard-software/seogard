@@ -114,6 +114,13 @@ async function handleInvoiceCreated(stripe: Stripe, invoice: Stripe.Invoice) {
   const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (!subscriptionId) return
 
+  // Seules les factures de CYCLE portent une période d'usage écoulée à facturer. La première
+  // facture (subscription_create, émise au checkout) n'a pas de période : rien à remonter.
+  if (invoice.billing_reason !== 'subscription_cycle') {
+    log.info({ invoiceId: invoice.id, billingReason: invoice.billing_reason }, 'invoice.created: not a cycle invoice, skipping usage report')
+    return
+  }
+
   const sub = await Subscription.findOne({ stripeSubscriptionId: subscriptionId }).lean()
   if (!sub) {
     log.warn({ subscriptionId, invoiceId: invoice.id, errorCode: 'INVOICE_SUB_NOT_FOUND' }, 'subscription not found for invoice.created')
@@ -146,12 +153,20 @@ async function handleInvoiceCreated(stripe: Stripe, invoice: Stripe.Invoice) {
   }
 
   const customerId = invoice.customer as string
+  // TIMING CRITIQUE (prouvé par expérience Test Clock, 2026-07-02) : un event daté « maintenant »
+  // tombe APRÈS la clôture de période → compte pour la facture SUIVANTE → facture courante à 0 €.
+  // On ANTIDATE l'event 60 s avant la clôture : Stripe l'agrège dans la facture en cours de
+  // création (fenêtre de grâce d'1 h avant finalisation). `identifier` = idempotence : un retry
+  // de webhook Stripe ne double-compte pas l'usage (le meter est en agrégation SUM).
+  const timestamp = invoice.period_end ? invoice.period_end - 60 : undefined
   try {
     await stripe.billing.meterEvents.create({
       event_name: eventName,
+      identifier: `usage-${invoice.id}`,
+      ...(timestamp && { timestamp }),
       payload: { stripe_customer_id: customerId, value: String(pageCount) },
     })
-    log.info({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, customerId }, 'usage meter event reported')
+    log.info({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, customerId, timestamp }, 'usage meter event reported (backdated into closing period)')
   }
   catch (err) {
     log.error({ orgId: sub.orgId, invoiceId: invoice.id, pageCount, customerId, errorCode: 'USAGE_METER_FAILED', error: (err as Error).message }, 'failed to report usage meter event')

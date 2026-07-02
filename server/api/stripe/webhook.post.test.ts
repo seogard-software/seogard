@@ -546,7 +546,9 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
           id: 'inv_created_1',
           subscription: 'sub_stripe_1',
           customer: 'cus_1',
+          billing_reason: 'subscription_cycle',
           period_start: 1700000000,
+          period_end: 1702600000,
         },
       },
     }
@@ -565,8 +567,39 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
 
     expect(mockMeterEventsCreate).toHaveBeenCalledWith({
       event_name: 'seogard_pages',
+      // Idempotence : un retry du webhook Stripe ne double-compte pas (meter en SUM).
+      identifier: 'usage-inv_created_1',
+      // ANTIDATÉ 60 s avant la clôture : l'usage compte pour la facture en cours de création,
+      // pas pour la période suivante (bug de la facture à 0 € — prouvé par Test Clock).
+      timestamp: 1702600000 - 60,
       payload: { stripe_customer_id: 'cus_1', value: '350' },
     })
+  })
+
+  it('ignore la premiere facture (subscription_create) : pas de periode d usage a facturer', async () => {
+    process.env.STRIPE_METER_EVENT_NAME = 'seogard_pages'
+    fakeStripeEvent = {
+      type: 'invoice.created',
+      id: 'evt_11c',
+      data: {
+        object: {
+          id: 'inv_checkout',
+          subscription: 'sub_stripe_1',
+          customer: 'cus_1',
+          billing_reason: 'subscription_create',
+          period_start: 1700000000,
+          period_end: 1700000000,
+        },
+      },
+    }
+
+    mockSubscriptionFindOne.mockResolvedValue({ _id: 'sub_db_1', orgId: 'org456' })
+
+    const mod = await import('./webhook.post')
+    handler = mod.default
+    await handler(fakeEvent)
+
+    expect(mockMeterEventsCreate).not.toHaveBeenCalled()
   })
 
   it('skips usage and logs when STRIPE_METER_EVENT_NAME is not configured', async () => {
@@ -579,7 +612,9 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
           id: 'inv_created_1b',
           subscription: 'sub_stripe_1',
           customer: 'cus_1',
+          billing_reason: 'subscription_cycle',
           period_start: 1700000000,
+          period_end: 1702600000,
         },
       },
     }
@@ -603,7 +638,9 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
         object: {
           id: 'inv_created_2',
           subscription: 'sub_stripe_1',
+          billing_reason: 'subscription_cycle',
           period_start: 1700000000,
+          period_end: 1702600000,
         },
       },
     }
@@ -631,7 +668,9 @@ describe('webhook.post — invoice.created (usage reporting)', () => {
         object: {
           id: 'inv_created_3',
           subscription: 'sub_unknown',
+          billing_reason: 'subscription_cycle',
           period_start: 1700000000,
+          period_end: 1702600000,
         },
       },
     }
