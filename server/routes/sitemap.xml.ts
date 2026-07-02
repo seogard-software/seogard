@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
     { loc: '/outils/audit', priority: '0.9', changefreq: 'monthly' },
     { loc: '/scanner', priority: '0.9', changefreq: 'monthly' },
     { loc: '/tarifs', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/docs', priority: '0.7', changefreq: 'monthly' },
+    // /docs est un pivot (301 → /docs/rules, page vide) : pas dans le sitemap — on ne déclare
+    // jamais à Google une URL qui redirige (signal contradictoire, cf. règle page_redirected).
     { loc: '/docs/rules', priority: '0.7', changefreq: 'monthly' },
     { loc: '/docs/self-hosted', priority: '0.7', changefreq: 'monthly' },
     { loc: '/bot', priority: '0.5', changefreq: 'monthly' },

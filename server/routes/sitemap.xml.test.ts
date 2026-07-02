@@ -14,14 +14,13 @@ describe('GET /sitemap.xml — pages statiques (blog supprimé)', () => {
     handler = (await import('./sitemap.xml')).default as typeof handler
   })
 
-  it('inclut les pages-cibles sitelinks (formations, outils, scanner, tarifs, docs, règles, self-hosted)', async () => {
+  it('inclut les pages-cibles sitelinks (formations, outils, scanner, tarifs, règles, self-hosted)', async () => {
     const xml = await handler(fakeEvent)
     expect(xml).toContain('https://seogard.io/formations')
     expect(xml).toContain('https://seogard.io/outils/monitoring')
     expect(xml).toContain('https://seogard.io/outils/audit')
     expect(xml).toContain('https://seogard.io/scanner')
     expect(xml).toContain('https://seogard.io/tarifs')
-    expect(xml).toContain('https://seogard.io/docs')
     expect(xml).toContain('https://seogard.io/docs/rules')
     expect(xml).toContain('https://seogard.io/docs/self-hosted')
   })
@@ -29,6 +28,11 @@ describe('GET /sitemap.xml — pages statiques (blog supprimé)', () => {
   it('ne contient plus aucune URL /blog (pivot Formations)', async () => {
     const xml = await handler(fakeEvent)
     expect(xml).not.toContain('/blog')
+  })
+
+  it('ne déclare pas /docs (pivot 301 → /docs/rules : jamais une URL qui redirige au sitemap)', async () => {
+    const xml = await handler(fakeEvent)
+    expect(xml).not.toContain('<loc>https://seogard.io/docs</loc>')
   })
 
   it('ne contient aucune ancre # (inéligible aux sitelinks)', async () => {
