@@ -95,7 +95,7 @@ export const RESOLVE_WHEN: Record<string, (ctx: RuleContext) => boolean> = {
   // Ces prédicats ne dépendent QUE du statut/sitemap → sûrs même sur un corps vide (redirection).
   status_code_changed: ctx => ctx.newStatusCode === 200 || isCleanRemoval(ctx),
   page_redirected: ctx => (!ctx.newMeta.isRedirected && ctx.newStatusCode === 200) || !isInSitemap(ctx),
-  redirect_broken: ctx => ctx.newMeta.isRedirected || ctx.newStatusCode === 200,
+  redirect_broken: ctx => ctx.newMeta.isRedirected || ctx.newStatusCode === 200 || isCleanRemoval(ctx),
 }
 
 // Prédicats évaluables sur une page qui REDIRIGE (corps vide) : uniquement ceux basés sur le

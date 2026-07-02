@@ -2221,3 +2221,13 @@ describe('redirect_broken — la cible d origine est figée dans l alerte à la 
     expect(r[0]!.previousValue).toBe('301')
   })
 })
+
+describe('redirect_broken — le 410 volontaire n est pas une redirection cassée', () => {
+  it('3xx → 410 hors sitemap (bascule Gone assumée) → silence', () => {
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 410, inSitemap: false }))).toHaveLength(0)
+  })
+
+  it('3xx → 404 hors sitemap (casse accidentelle) → fire toujours', () => {
+    expect(runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 404, inSitemap: false }))).toHaveLength(1)
+  })
+})

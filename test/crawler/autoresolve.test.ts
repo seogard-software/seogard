@@ -201,3 +201,13 @@ describe('RESOLVE_WHEN — prédicats de STATUT (doctrine 2026-07 : objectifs, a
     expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: false }, { newStatusCode: 404 }))).toBe(false)
   })
 })
+
+describe('RESOLVE_WHEN — redirect_broken et retrait terminal', () => {
+  it('une alerte redirect_broken ouverte se résout si la page passe en 410 hors sitemap (retrait assumé)', () => {
+    expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: false }, { newStatusCode: 410, inSitemap: false }))).toBe(true)
+  })
+
+  it('reste ouverte sur un 404 qui dure (rien d assumé)', () => {
+    expect(RESOLVE_WHEN.redirect_broken!(ctx({ isRedirected: false }, { newStatusCode: 404, inSitemap: false }))).toBe(false)
+  })
+})

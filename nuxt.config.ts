@@ -52,12 +52,6 @@ export default defineNuxtConfig({
     '/api/**': { cors: true },
     '/formations': { swr: 3600 },
     '/outils/**': { swr: 3600 },
-    // Blog auto-généré supprimé (2026-06-25) → pivot Formations. Tout /blog redirige en 301 vers
-    // /formations. NB : le passage des articles /blog/<slug> en 410 Gone (reco SEO) est PRÊT mais
-    // VOLONTAIREMENT REPORTÉ — on valide d'abord en prod la détection du 301 (page_redirected) et
-    // l'auto-résolution sur ces redirections. Cf. plans/feat-detection-redirections.md (partie 3).
-    '/blog': { redirect: { to: '/formations', statusCode: 301 } },
-    '/blog/**': { redirect: { to: '/formations', statusCode: 301 } },
   },
 
   nitro: {

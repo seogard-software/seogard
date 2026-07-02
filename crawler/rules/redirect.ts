@@ -102,6 +102,9 @@ registerRule({
     if (isInSitemap(ctx)) return [] // au sitemap → status_code_changed critical porte l'incident
     if (ctx.oldStatusCode === null || ctx.oldStatusCode < 300 || ctx.oldStatusCode >= 400) return []
     if (ctx.newStatusCode < 400 || ctx.newStatusCode >= 500) return []
+    // 3xx → 410 = passage volontaire au « Gone » (retrait terminal assumé), pas une redirection
+    // cassée. Seul le 4xx accidentel alerte.
+    if (ctx.newStatusCode === 410) return []
     // La cible d'origine est figée ICI, à la transition — c'est l'info qui permet de réparer
     // (recréer la règle vers la bonne cible) sans fouiller son git/nginx. Au crawl suivant,
     // MonitoredPage.redirectTarget sera écrasé à null (fetch 404 sans Location) : trop tard.
