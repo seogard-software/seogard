@@ -1,4 +1,5 @@
-import { Site, MonitoredPage, Crawl, Alert, PageSnapshot, Zone, CrawlSchedule, MutedRule } from '../../../database/models'
+import { Site } from '../../../database/models'
+import { deleteSitesCascade } from '../../../database/cascade'
 
 export default defineEventHandler(async (event) => {
   const log = useRequestLog(event, 'api.sites')
@@ -11,19 +12,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Site non trouvé' })
   }
 
-  // Cascade delete related documents
-  const pages = await MonitoredPage.find({ siteId: id }).select('_id').lean()
-  const pageIds = pages.map(p => p._id)
-
-  await Promise.all([
-    Alert.deleteMany({ siteId: id }),
-    Crawl.deleteMany({ siteId: id }),
-    MonitoredPage.deleteMany({ siteId: id }),
-    Zone.deleteMany({ siteId: id }),
-    CrawlSchedule.deleteMany({ siteId: id }),
-    MutedRule.deleteMany({ siteId: id }),
-    pageIds.length > 0 ? PageSnapshot.deleteMany({ pageId: { $in: pageIds } }) : Promise.resolve(),
-  ])
+  // Cascade unique (registre + tripwire) : server/database/cascade.ts
+  await deleteSitesCascade([id])
 
   log.info({ siteId: id, siteName: site.name }, 'site deleted')
 

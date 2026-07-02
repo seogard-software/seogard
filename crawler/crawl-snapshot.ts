@@ -37,7 +37,7 @@ export interface SnapshotResult { pdf: Buffer, pdfFilename: string }
 export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promise<SnapshotResult | null> {
   if (!isObjectStorageEnabled()) return null
 
-  const crawl = await Crawl.findById(crawlId).select('zoneId completedAt pagesScanned pagesTotal').lean()
+  const crawl = await Crawl.findById(crawlId).select('zoneId completedAt pagesScanned pagesTotal pagesPurged').lean()
   if (!crawl?.zoneId) return null
   const zone = await Zone.findById(crawl.zoneId).lean()
   if (!zone) return null
@@ -90,6 +90,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
       completedAt: crawl.completedAt ? new Date(crawl.completedAt).toISOString() : null,
       pagesScanned: crawl.pagesScanned ?? 0,
       pagesTotal: crawl.pagesTotal ?? 0,
+      pagesPurged: crawl.pagesPurged ?? 0,
     },
     openAlerts,
     repairedAlerts,

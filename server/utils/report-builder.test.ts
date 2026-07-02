@@ -176,3 +176,12 @@ describe('buildZoneReport — caps exhaustifs (.md)', () => {
     expect(report.annex).toHaveLength(250)
   })
 })
+
+describe('purge du monitoring (pagesPurged)', () => {
+  it('remonte le compteur dans meta, 0 par defaut', () => {
+    const withPurge = buildZoneReport({ ...BASE, openAlerts: [], crawl: { completedAt: '2026-07-02T10:00:00.000Z', pagesScanned: 100, pagesTotal: 100, pagesPurged: 347 } })
+    expect(withPurge.meta.pagesPurged).toBe(347)
+    const without = buildZoneReport({ ...BASE, openAlerts: [] })
+    expect(without.meta.pagesPurged).toBe(0)
+  })
+})

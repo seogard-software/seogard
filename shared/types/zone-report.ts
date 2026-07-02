@@ -15,6 +15,8 @@ export interface ZoneReportMeta {
   crawlCompletedAt: string | null
   pagesScanned: number
   pagesTotal: number
+  /** Pages sorties du monitoring par la purge (410 + hors sitemap au-delà de la fenêtre). */
+  pagesPurged: number
   /** Date de génération du rapport (ISO) — fournie par l'appelant (pureté). */
   generatedAt: string
 }

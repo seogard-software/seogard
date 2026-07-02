@@ -75,6 +75,12 @@ export function renderReportMarkdown(report: ZoneReport): string {
   }
   lines.push('')
 
+  // ── Cycle de vie : pages retirées du monitoring (purge des 410 digérés — signal contextuel) ──
+  if (meta.pagesPurged > 0) {
+    lines.push(`**ℹ️ ${meta.pagesPurged.toLocaleString('fr-FR')} page${meta.pagesPurged > 1 ? 's' : ''} retirée${meta.pagesPurged > 1 ? 's' : ''} du monitoring** — suppression (410, hors sitemap) digérée par Google après la fenêtre de surveillance. Si une URL revient dans votre sitemap, elle sera surveillée à nouveau automatiquement.`)
+    lines.push('')
+  }
+
   // ── Régressions ──
   const totalRegressions = verdict.critical + verdict.warning + verdict.info
   lines.push('## 1. Régressions — ce qui fonctionnait et s’est dégradé')

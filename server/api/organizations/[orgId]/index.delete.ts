@@ -1,4 +1,5 @@
-import { Organization, OrgMember, OrgInvite, Site, Zone, MonitoredPage, Alert, Subscription } from '../../../database/models'
+import { Organization, OrgMember, OrgInvite, Site, Subscription } from '../../../database/models'
+import { deleteSitesCascade } from '../../../database/cascade'
 
 export default defineEventHandler(async (event) => {
   const orgId = requireValidId(event, 'orgId')
@@ -11,20 +12,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organisation non trouvée' })
   }
 
-  // Cascade delete all related data
+  // Cascade unique (registre + tripwire) : server/database/cascade.ts — même cascade que le
+  // delete de site, appliquée à tous les sites de l'org.
   const sites = await Site.find({ orgId }).select('_id').lean()
   const siteIds = sites.map(s => s._id)
 
   if (siteIds.length > 0) {
-    const zones = await Zone.find({ siteId: { $in: siteIds } }).select('_id').lean()
-    const zoneIds = zones.map(z => z._id)
-
-    await Promise.all([
-      MonitoredPage.deleteMany({ siteId: { $in: siteIds } }),
-      Alert.deleteMany({ siteId: { $in: siteIds } }),
-      Zone.deleteMany({ _id: { $in: zoneIds } }),
-      Site.deleteMany({ _id: { $in: siteIds } }),
-    ])
+    await deleteSitesCascade(siteIds)
+    await Site.deleteMany({ _id: { $in: siteIds } })
   }
 
   await Promise.all([

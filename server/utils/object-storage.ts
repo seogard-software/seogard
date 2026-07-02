@@ -55,8 +55,11 @@ export async function deleteObjects(keys: string[]): Promise<void> {
   if (keys.length === 0) return
   const s3 = getObjectStorage()
   if (!s3) return
-  await s3.client.send(new DeleteObjectsCommand({
-    Bucket: s3.bucket,
-    Delete: { Objects: keys.map(Key => ({ Key })) },
-  }))
+  // L'API S3 DeleteObjects plafonne à 1 000 clés par appel → découpage en lots.
+  for (let i = 0; i < keys.length; i += 1000) {
+    await s3.client.send(new DeleteObjectsCommand({
+      Bucket: s3.bucket,
+      Delete: { Objects: keys.slice(i, i + 1000).map(Key => ({ Key })) },
+    }))
+  }
 }

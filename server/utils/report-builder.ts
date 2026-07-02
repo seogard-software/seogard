@@ -63,7 +63,7 @@ export interface ReportAlertInput {
 export interface BuildZoneReportInput {
   site: { name: string, domain: string }
   zone: { name: string | null, isDefault: boolean }
-  crawl: { completedAt: string | null, pagesScanned: number, pagesTotal: number } | null
+  crawl: { completedAt: string | null, pagesScanned: number, pagesTotal: number, pagesPurged?: number } | null
   openAlerts: ReportAlertInput[]
   repairedAlerts: { ruleId: string, pageUrl: string }[]
   generatedAt: string
@@ -186,6 +186,7 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
       crawlCompletedAt: input.crawl?.completedAt ?? null,
       pagesScanned: input.crawl?.pagesScanned ?? 0,
       pagesTotal: input.crawl?.pagesTotal ?? 0,
+      pagesPurged: input.crawl?.pagesPurged ?? 0,
       generatedAt: input.generatedAt,
     },
     verdict: {

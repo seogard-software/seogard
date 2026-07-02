@@ -13,6 +13,9 @@ const crawlSchema = new Schema({
   pagesTotal: { type: Number, default: 0 },
   alertsGenerated: { type: Number, default: 0 },
   pagesSkipped: { type: Number, default: 0 },
+  // Pages sorties du monitoring par la purge de fin de crawl (410 + hors sitemap au-delà de la
+  // fenêtre PURGE_GONE_AFTER_DAYS). Alimente la ligne du rapport figé — jamais un mail.
+  pagesPurged: { type: Number, default: 0 },
   sitemapBlocked: { type: Boolean, default: false },
   startedAt: Date,
   completedAt: Date,

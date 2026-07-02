@@ -5,6 +5,8 @@ import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContex
 import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, REDIRECT_SAFE_RESOLVE, type AlertData } from './comparator'
+import { purgeableFilter } from './page-lifecycle'
+import { deletePagesCascade } from '../server/database/cascade'
 import { isSsrBlocked, isRedirectToWaf, normalizeUrl } from './rules/helpers'
 import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
@@ -326,6 +328,23 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
       }
     }
     await Site.findByIdAndUpdate(siteId, siteUpdate)
+
+    // Purge des retraits digérés : 410 + hors sitemap depuis PURGE_GONE_AFTER_DAYS (double signal
+    // utilisateur, filet anti-résurrection actif pendant toute la fenêtre). Suppression franche
+    // via la cascade unique (registre + tripwire : server/database/cascade.ts) — la ré-entrée
+    // par le sitemap est automatique. Le compteur est écrit sur Crawl AVANT le snapshot pour
+    // que le rapport de CE crawl porte la ligne.
+    try {
+      const purgeable = await MonitoredPage.find(purgeableFilter(siteId, new Date())).select('_id url').lean()
+      if (purgeable.length > 0) {
+        await deletePagesCascade(siteId, purgeable)
+        await Crawl.findByIdAndUpdate(crawlId, { pagesPurged: purgeable.length })
+        log.info({ crawlId, siteId, pagesPurged: purgeable.length }, 'purged digested gone pages (410 + out of sitemap beyond window)')
+      }
+    }
+    catch (error) {
+      log.error({ crawlId, siteId, errorCode: 'PAGE_PURGE_ERROR', error: (error as Error).message }, 'gone pages purge failed')
+    }
 
     // Snapshot du rapport (fidèle) APRÈS l'auto-resolve : génère .md exhaustif + .pdf court,
     // les stocke sur R2. Isolé : un échec snapshot ne casse jamais la finalisation. Le PDF

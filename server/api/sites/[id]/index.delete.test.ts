@@ -12,6 +12,7 @@ const mockPageSnapshotDeleteMany = vi.fn()
 const mockZoneDeleteMany = vi.fn()
 const mockCrawlScheduleDeleteMany = vi.fn()
 const mockMutedRuleDeleteMany = vi.fn()
+const mockCrawlReportDeleteMany = vi.fn()
 
 vi.mock('../../../database/models', () => ({
   Site: {
@@ -38,6 +39,11 @@ vi.mock('../../../database/models', () => ({
   },
   MutedRule: {
     deleteMany: (...args: unknown[]) => mockMutedRuleDeleteMany(...args),
+  },
+  CrawlReport: {
+    // La cascade lit les clés R2 (mdKey/pdfKey) avant de supprimer les lignes.
+    find: () => ({ select: () => ({ lean: () => Promise.resolve([]) }) }),
+    deleteMany: (...args: unknown[]) => mockCrawlReportDeleteMany(...args),
   },
 }))
 
@@ -101,12 +107,15 @@ describe('site.delete — security', () => {
     const result = await handler(fakeEvent)
 
     expect(result).toEqual({ success: true })
-    expect(mockAlertDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
-    expect(mockCrawlDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
-    expect(mockMonitoredPageDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
-    expect(mockZoneDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
-    expect(mockCrawlScheduleDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
-    expect(mockMutedRuleDeleteMany).toHaveBeenCalledWith({ siteId: 'site456' })
+    // La cascade passe par deleteSitesCascade (server/database/cascade.ts) → filtres $in.
+    const bySite = { siteId: { $in: ['site456'] } }
+    expect(mockAlertDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockCrawlDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockMonitoredPageDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockZoneDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockCrawlScheduleDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockMutedRuleDeleteMany).toHaveBeenCalledWith(bySite)
+    expect(mockCrawlReportDeleteMany).toHaveBeenCalledWith(bySite)
     expect(mockPageSnapshotDeleteMany).toHaveBeenCalledWith({ pageId: { $in: ['p1', 'p2'] } })
   })
 })
