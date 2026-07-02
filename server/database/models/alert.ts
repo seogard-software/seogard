@@ -11,6 +11,7 @@ const ALERT_TYPES = [
   // Indexing (indexing.ts)
   'noindex_added',
   'robots_txt_changed',
+  'rec_sitemap_noindex_conflict',
   // Status code (status-code.ts)
   'status_code_changed',
   // SSR/CSR (ssr-csr.ts)

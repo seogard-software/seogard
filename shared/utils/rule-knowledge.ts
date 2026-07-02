@@ -80,6 +80,12 @@ export const RULE_KNOWLEDGE: Record<string, RuleKnowledge> = {
     action: 'Si le retrait est définitif, passer la redirection en 301 (permanente). Garder le 302 uniquement si la page d’origine doit réellement revenir.',
     gain: 'Le signal envoyé correspond à l’intention réelle : désindexation de l’ancienne URL et consolidation des liens vers la cible, sans période d’ambiguïté.',
   },
+  rec_sitemap_noindex_conflict: {
+    constat: 'Cette page est déclarée dans votre sitemap.xml mais porte une directive noindex (balise meta robots, meta googlebot ou en-tête HTTP X-Robots-Tag).',
+    pourquoi: 'Le sitemap dit à Google « cette URL compte, indexe-la » pendant que le noindex lui dit « ignore-la ». Google tranche toujours en faveur du noindex — la page ne sera pas indexée — mais il continue de la re-crawler puisque le sitemap la lui présente comme importante : budget de crawl gaspillé sur une page que vous excluez vous-même. C\'est aussi l\'une des causes du rapport Search Console « Exclue par la balise noindex », qui pollue vos données d\'indexation avec des exclusions parfaitement voulues. Les IA qui lisent le sitemap comme inventaire du site reçoivent le même signal contradictoire.',
+    action: 'Choisir une intention unique : retirer la page du sitemap si elle doit rester non indexée (le noindex est alors le seul signal, cohérent), ou retirer le noindex si elle doit se positionner.',
+    gain: 'Le sitemap redevient une déclaration d\'intention fiable : Google concentre son crawl sur les pages que vous voulez réellement dans l\'index, et les rapports Search Console cessent de mélanger exclusions voulues et accidents.',
+  },
   rec_unclean_removal: {
     constat: 'Une page sortie de votre sitemap renvoie un 404 nu — sans redirection ni signal de suppression définitive.',
     pourquoi: 'Le 404 fonctionne, mais il est ambigu : il dit « introuvable », pas « supprimée exprès ». Google continue donc de re-crawler l’URL pendant des semaines au cas où elle reviendrait. Et si des backlinks pointaient vers cette page, leur valeur se perd sur une impasse alors qu’une redirection l’aurait transmise. Deux signaux font mieux : le 410 (« Gone ») annonce une suppression assumée et accélère la désindexation ; le 301 conserve le jus des liens quand un contenu équivalent existe. Un 404 isolé sur une page sans historique ni liens reste toutefois sans réelle conséquence — cette recommandation pèse surtout pour les pages qui avaient de la valeur.',

@@ -9,6 +9,7 @@ export const ALERT_SEVERITY_LABELS: Record<string, string> = {
 export const ALERT_TYPE_LABELS: Record<string, string> = {
   // P0
   noindex_added: 'Noindex ajouté',
+  rec_sitemap_noindex_conflict: 'Page noindex déclarée au sitemap',
   status_code_changed: 'Code HTTP modifié',
   canonical_missing: 'Canonical manquant',
   canonical_changed: 'Canonical modifié',
@@ -114,6 +115,8 @@ export const RECOMMENDATION_RULES: Set<string> = new Set([
   'rec_perf_page_heavy',
   // Cycle de vie des pages retirées (hors sitemap) — conseils, re-fire tant que vrai
   'rec_redirect_temporary', 'rec_unclean_removal',
+  // Conflits sitemap (le sitemap déclare, la page contredit) — état installé, fire dès le 1er crawl
+  'rec_sitemap_noindex_conflict',
 ])
 
 export function getRuleCategory(ruleId: string): AlertCategory {

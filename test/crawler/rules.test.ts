@@ -2231,3 +2231,91 @@ describe('redirect_broken — le 410 volontaire n est pas une redirection cassé
     expect(runRule('redirect_broken', ctx({ oldStatusCode: 301, newStatusCode: 404, inSitemap: false }))).toHaveLength(1)
   })
 })
+
+describe('rec_sitemap_noindex_conflict — le sitemap déclare, la page dit noindex', () => {
+  it('fire : page au sitemap + noindex (meta robots) — dès le 1er crawl (état installé, pas de baseline)', () => {
+    const r = runRule('rec_sitemap_noindex_conflict', ctx({
+      oldMeta: null,
+      inSitemap: true,
+      newMeta: baseMeta({ robots: 'noindex, follow' }),
+    }))
+    expect(r).toHaveLength(1)
+    expect(r[0]!.severity).toBe('warning')
+    expect(r[0]!.currentValue).toBe('meta robots')
+  })
+
+  it('détecte les 3 sources : meta googlebot et en-tête X-Robots-Tag aussi', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ robotsGooglebot: 'noindex' }),
+    }))[0]!.currentValue).toBe('meta googlebot')
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ xRobotsTag: 'noindex' }),
+    }))[0]!.currentValue).toBe('x-robots-tag')
+  })
+
+  it('silence : noindex mais HORS sitemap (le cas /legal/cookies — aucune contradiction)', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: false,
+      newMeta: baseMeta({ robots: 'noindex, follow' }),
+    }))).toHaveLength(0)
+  })
+
+  it('silence : au sitemap mais indexable (le cas /docs/self-hosted)', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ robots: 'index, follow' }),
+    }))).toHaveLength(0)
+  })
+
+  it('inSitemap absent → défaut conservateur (considérée au sitemap) → fire', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      newMeta: baseMeta({ robots: 'noindex' }),
+    }))).toHaveLength(1)
+  })
+
+  it('phase CSR (renderedMeta présent) → silence (déjà évalué en SSR, inSitemap non fourni en CSR)', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      renderedMeta: {},
+      newMeta: baseMeta({ robots: 'noindex' }),
+    }))).toHaveLength(0)
+  })
+})
+
+describe('noindex — la directive « none » (= noindex + nofollow) est couverte partout', () => {
+  it('rec_sitemap_noindex_conflict fire sur content="none" (segment complet, seul ou en liste)', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ robots: 'none' }),
+    }))).toHaveLength(1)
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ xRobotsTag: 'nofollow, none' }),
+    }))).toHaveLength(1)
+  })
+
+  it('JAMAIS de faux positif : max-image-preview:none (directive à valeur) et « nonexistent » ne matchent pas', () => {
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ robots: 'index, follow, max-image-preview:none' }),
+    }))).toHaveLength(0)
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ robots: 'nonexistent-directive' }),
+    }))).toHaveLength(0)
+    // Faux négatif ASSUMÉ (conservateur) : la forme agent-préfixée « googlebot: none » n est pas
+    // détectée — indissociable proprement des directives à valeur comme max-image-preview:none.
+    expect(runRule('rec_sitemap_noindex_conflict', ctx({
+      inSitemap: true,
+      newMeta: baseMeta({ xRobotsTag: 'googlebot: none' }),
+    }))).toHaveLength(0)
+  })
+
+  it('noindex_added fire aussi sur la transition index → none', () => {
+    expect(runRule('noindex_added', ctx({
+      oldMeta: baseMeta({ robots: 'index, follow' }),
+      newMeta: baseMeta({ robots: 'none' }),
+    }))).toHaveLength(1)
+  })
+})

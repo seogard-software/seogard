@@ -1,14 +1,32 @@
 import type { PageMeta } from '../fetcher'
 import { registerRule } from './engine'
+import { isInSitemap } from './helpers'
 
 function includesNoindex(v: string | null | undefined): boolean {
-  return v?.toLowerCase().includes('noindex') ?? false
+  if (!v) return false
+  const value = v.toLowerCase()
+  if (value.includes('noindex')) return true
+  // « none » = noindex + nofollow (directive robots officielle) — reconnu UNIQUEMENT comme
+  // segment complet séparé par des virgules : « max-image-preview:none » (directive à valeur,
+  // page parfaitement indexable) ne doit JAMAIS matcher. Conséquence assumée : la forme rare
+  // « X-Robots-Tag: googlebot: none » n'est pas détectée (faux négatif conservateur — l'inverse,
+  // un faux positif sur noindex_added critique, est inacceptable).
+  return value.split(',').some(part => part.trim() === 'none')
 }
 
 // noindex effectif, toutes sources confondues : balise <meta robots>, balise <meta googlebot>,
 // et en-tête HTTP X-Robots-Tag ("noindex" ou "googlebot: noindex").
-function effectiveNoindex(meta: PageMeta): boolean {
+export function effectiveNoindex(meta: PageMeta): boolean {
   return includesNoindex(meta.robots) || includesNoindex(meta.robotsGooglebot) || includesNoindex(meta.xRobotsTag)
+}
+
+// Sources du noindex, pour la donnée brute de l'alerte (jamais de chaîne composée à parser).
+function noindexSources(meta: PageMeta): string {
+  const sources: string[] = []
+  if (includesNoindex(meta.robots)) sources.push('meta robots')
+  if (includesNoindex(meta.robotsGooglebot)) sources.push('meta googlebot')
+  if (includesNoindex(meta.xRobotsTag)) sources.push('x-robots-tag')
+  return sources.join(', ')
 }
 
 registerRule({
@@ -66,6 +84,28 @@ registerRule({
       message: 'Robots meta tag changed',
       previousValue: ctx.oldMeta.robots,
       currentValue: ctx.newMeta.robots,
+    }]
+  },
+})
+
+// rec_sitemap_noindex_conflict : page déclarée au sitemap MAIS porteuse d'un noindex — signaux
+// contradictoires (« indexe-la » vs « ignore-la ») : crawl budget gaspillé + warnings GSC.
+// Règle d'ÉTAT INSTALLÉ : fire dès le 1er crawl (comble le trou de noindex_added, qui exige une
+// transition — une page noindex depuis toujours ne déclenchait jamais rien). Recommendation :
+// re-fire tant que le conflit existe, auto-résolue quand il disparaît (retrait du sitemap OU du
+// noindex). Phase SSR uniquement : le noindex se lit dans le HTML brut + en-têtes.
+registerRule({
+  id: 'rec_sitemap_noindex_conflict',
+  run(ctx) {
+    if (ctx.renderedMeta) return [] // phase CSR : déjà évalué en SSR (et inSitemap n'y est pas fourni)
+    if (!isInSitemap(ctx)) return [] // hors sitemap : pas de contradiction
+    if (!effectiveNoindex(ctx.newMeta)) return []
+    return [{
+      type: 'rec_sitemap_noindex_conflict',
+      severity: 'warning',
+      message: 'Page declared in the sitemap but carries a noindex directive — contradictory signals sent to Google',
+      previousValue: null,
+      currentValue: noindexSources(ctx.newMeta),
     }]
   },
 })
