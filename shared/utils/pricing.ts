@@ -1,6 +1,7 @@
 // Source de verite unique — prix par page crawlée
 // La valeur par défaut (0.01) est overridée par NUXT_PUBLIC_PRICE_PER_PAGE en prod
 // via runtimeConfig.public.pricePerPage (défini dans nuxt.config.ts)
+import { RULES_COUNT } from './rules-catalog'
 export const CLOUD_PRICE_PER_PAGE_DEFAULT = 0.01
 
 export function getCloudPricePerPage(): number {
@@ -50,7 +51,7 @@ export interface PricingRow {
 export const PRICING_ROWS: PricingRow[] = [
   // Shared features (all plans)
   { label: 'Comparaison HTML brut vs rendu JS', selfHosted: true, cloud: true, enterprise: true },
-  { label: '65+ règles SEO et GEO (visibilité IA)', selfHosted: true, cloud: true, enterprise: true },
+  { label: `${RULES_COUNT} règles SEO et GEO (visibilité IA)`, selfHosted: true, cloud: true, enterprise: true },
   { label: 'Alertes instantanées et intelligentes (Email, Slack, Teams, Jira)', selfHosted: true, cloud: true, enterprise: true },
   { label: 'Diff exact avant/après sur chaque régression', selfHosted: true, cloud: true, enterprise: true },
   { label: 'Détection meta disparues, canonicals cassés, noindex', selfHosted: true, cloud: true, enterprise: true },

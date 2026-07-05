@@ -1,4 +1,5 @@
 import { formatCloudPrice, getPriceExamples } from '../../shared/utils/pricing'
+import { RULES_COUNT } from '../../shared/utils/rules-catalog'
 import { isSelfHosted } from '../utils/deployment'
 
 export default defineEventHandler(async (event) => {
@@ -51,9 +52,9 @@ Professionnels du web qui dépendent du SEO, quelle que soit la taille du site. 
 
 ## Fonctionnalités détaillées
 
-### 65+ règles de détection SEO et GEO
+### ${RULES_COUNT} règles de détection SEO et GEO
 
-Seogard embarque plus de 60 règles de détection (40 monitoring + 20 GEO) couvrant les régressions les plus courantes et les plus coûteuses :
+Seogard embarque ${RULES_COUNT} règles de détection (monitoring + recommandations + GEO) couvrant les régressions les plus courantes et les plus coûteuses :
 
 **Meta et contenu :**
 - Title manquant ou modifié
@@ -174,7 +175,7 @@ Seogard se différencie par :
 - **Self-hosted gratuit** — code source disponible sous licence BSL 1.1 (devient Apache 2.0 en 2029)
 - Focus exclusif sur les régressions (pas un outil généraliste)
 - Alertes instantanées avec diff highlighting (avant/après surligné)
-- 65+ règles de détection spécifiques aux régressions SEO et GEO
+- ${RULES_COUNT} règles de détection spécifiques aux régressions SEO et GEO
 - CI/CD webhook intégré (3 niveaux : strict / standard / relaxed)
 - Tarification à l'usage transparente : vous ne payez que les pages crawlées (Cloud) ou gratuite (self-hosted)
 

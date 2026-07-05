@@ -1,4 +1,5 @@
 import { formatCloudPrice } from '../../shared/utils/pricing'
+import { RULES_COUNT } from '../../shared/utils/rules-catalog'
 import { isSelfHosted } from '../utils/deployment'
 
 export default defineEventHandler((event) => {
@@ -36,7 +37,7 @@ Une mise en production peut casser silencieusement des metas, le SSR ou des cano
 ## Fonctionnalités
 
 - Double analyse SSR vs CSR (HTML brut vs rendu JavaScript) — comparaison continue sur chaque page
-- 65+ règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
+- ${RULES_COUNT} règles de détection SEO et GEO (meta, SSR, canonicals, status codes, noindex, soft 404, llms.txt, AI crawlers)
 - Performance Web monitorée sur chaque page : Core Web Vitals (LCP, CLS), temps de réponse serveur (TTFB) et poids de page ; alerte sur les régressions de poids de page
 - Crawl multi-déclencheur : à chaque déploiement (webhook CI/CD), planifié (quotidien à mensuel, configurable par zone) ou à la demande
 - Multi-zone : segmentez le site par motif d'URL (ex. /blog, /produits) — chaque zone a ses propres règles, fréquence de crawl, strictness CI/CD, notifications et accès ; le webhook peut ne crawler qu'une zone ciblée

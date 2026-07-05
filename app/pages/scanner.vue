@@ -82,7 +82,7 @@
     <!-- ═══════ CE QU'ON ANALYSE ═══════ -->
     <section class="scanner__section">
       <div class="scanner__container">
-        <span class="scanner__eyebrow">65+ règles, vérifiées à chaque crawl</span>
+        <span class="scanner__eyebrow">{{ RULES_COUNT }} règles, vérifiées à chaque crawl</span>
         <h2 class="scanner__h2">Ce que le scan détecte</h2>
         <div class="scanner__checks">
           <article v-for="c in checks" :key="c.title" class="scanner__check">
@@ -123,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
 import { formatCloudPrice } from '~~/shared/utils/pricing'
 
 definePageMeta({ layout: 'landing', auth: false })

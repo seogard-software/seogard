@@ -74,10 +74,11 @@
 </template>
 
 <script setup lang="ts">
+import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
 const FOOTER_FAQ = [
   {
     q: 'Que monitore Seogard exactement ?',
-    a: 'Seogard monitore en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.',
+    a: `Seogard monitore en continu ${RULES_COUNT} règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.`,
   },
   {
     q: 'Seogard est-il gratuit ?',

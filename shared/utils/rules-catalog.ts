@@ -89,6 +89,10 @@ export const RULES = [
   category: getRuleCategory(r.id),
 }))
 
+// SOURCE UNIQUE du nombre de règles affiché sur le site (home, scanner, outils, llms.txt…).
+// JAMAIS de littéral en dur dans les pages : le test rules-count.test.ts casse le build sinon.
+export const RULES_COUNT = RULES.length
+
 export const PRIORITY_META: Record<string, { label: string; description: string }> = {
   P0: { label: 'P0 — Désindexation', description: 'Les pages disparaissent de Google' },
   P1: { label: 'P1 — Ranking direct', description: 'Impact direct confirmé sur le positionnement' },

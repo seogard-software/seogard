@@ -9,7 +9,7 @@
         L'état de santé <em>complet</em> de votre SEO
       </h1>
       <p class="outils-page__subtitle">
-        Seogard scanne votre site contre 65 règles SEO, GEO et performance, et produit un rapport
+        Seogard scanne votre site contre {{ RULES_COUNT }} règles SEO, GEO et performance, et produit un rapport
         « État de santé SEO » clair (Markdown et PDF). Vous voyez exactement ce que Google et les IA
         voient — et vous corrigez sans coder grâce à l'export IA, collable dans ChatGPT ou l'assistant
         de votre CMS.
@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
 import type { IconName } from '~/composables/useIcons'
 import { formatCloudPrice } from '~~/shared/utils/pricing'
 
@@ -67,7 +68,7 @@ definePageMeta({ layout: 'landing', auth: false })
 const cloudPriceDisplay = formatCloudPrice()
 
 const features: { title: string, desc: string, icon: IconName }[] = [
-  { title: '65 règles SEO, GEO & performance', desc: 'Metas, canonicals, indexation, headings, données structurées, hreflang, poids de page… et les règles GEO (llms.txt, crawlers IA, FAQ, signaux de citation).', icon: 'shield-check' },
+  { title: `${RULES_COUNT} règles SEO, GEO & performance`, desc: 'Metas, canonicals, indexation, headings, données structurées, hreflang, poids de page… et les règles GEO (llms.txt, crawlers IA, FAQ, signaux de citation).', icon: 'shield-check' },
   { title: 'Comparaison HTML brut vs rendu JS', desc: 'L\'audit révèle ce qui n\'existe que dans le rendu JavaScript et reste invisible pour Google au premier passage et pour les IA.', icon: 'code' },
   { title: 'Rapport « État de santé SEO »', desc: 'Un Markdown exhaustif (toutes les règles + URLs) et un PDF de synthèse métier, figés à chaque crawl et téléchargeables.', icon: 'file' },
   { title: 'Export IA pour corriger sans coder', desc: 'Le rapport lisible par IA se colle dans ChatGPT, Claude ou l\'assistant de votre CMS, qui applique le correctif — même sans être développeur.', icon: 'zap' },
@@ -76,23 +77,23 @@ const features: { title: string, desc: string, icon: IconName }[] = [
 ]
 
 const steps = [
-  'Vous lancez un scan : Seogard crawle vos pages et les confronte aux 65 règles.',
+  `Vous lancez un scan : Seogard crawle vos pages et les confronte aux ${RULES_COUNT} règles.`,
   'Vous recevez le rapport « État de santé SEO » (Markdown + PDF), trié par sévérité.',
   'Vous collez l\'export IA dans votre assistant pour corriger, puis activez le monitoring continu.',
 ]
 
 useSeoMeta({
   title: 'Audit SEO & GEO — rapport État de santé de votre site | Seogard',
-  description: 'Audit SEO et GEO : Seogard scanne votre site contre 65 règles (SEO technique, GEO, performance), compare HTML brut et rendu JavaScript, et produit un rapport État de santé SEO (Markdown + PDF) corrigeable sans coder via l\'export IA.',
+  description: `Audit SEO et GEO : Seogard scanne votre site contre ${RULES_COUNT} règles (SEO technique, GEO, performance), compare HTML brut et rendu JavaScript, et produit un rapport État de santé SEO (Markdown + PDF) corrigeable sans coder via l'export IA.`,
   ogTitle: 'Audit SEO & GEO — l\'état de santé complet de votre site',
-  ogDescription: 'Scan contre 65 règles SEO/GEO, rapport État de santé (Markdown + PDF), export IA pour corriger sans coder.',
+  ogDescription: `Scan contre ${RULES_COUNT} règles SEO/GEO, rapport État de santé (Markdown + PDF), export IA pour corriger sans coder.`,
   ogType: 'website',
   ogUrl: 'https://seogard.io/outils/audit',
   ogImage: 'https://seogard.io/og-image.png',
   twitterCard: 'summary_large_image',
   twitterImage: 'https://seogard.io/og-image.png',
   twitterTitle: 'Audit SEO & GEO — l\'état de santé complet de votre site',
-  twitterDescription: 'Scan 65 règles SEO/GEO, rapport État de santé (md + PDF), export IA.',
+  twitterDescription: `Scan ${RULES_COUNT} règles SEO/GEO, rapport État de santé (md + PDF), export IA.`,
   robots: 'index, follow',
 })
 
@@ -105,7 +106,7 @@ useHead({
       '@type': 'Service',
       'name': 'Audit SEO & GEO — Seogard',
       'serviceType': 'Audit SEO technique et GEO',
-      'description': 'Scan d\'un site contre 65 règles SEO, GEO et performance, avec rapport État de santé SEO (Markdown + PDF) et export IA.',
+      'description': `Scan d'un site contre ${RULES_COUNT} règles SEO, GEO et performance, avec rapport État de santé SEO (Markdown + PDF) et export IA.`,
       'provider': { '@type': 'Organization', 'name': 'Seogard', 'url': 'https://seogard.io' },
       'areaServed': 'FR',
     }),

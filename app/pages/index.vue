@@ -80,7 +80,7 @@
         <span class="section-label">Fonctionnalités</span>
         <h2 class="section-title">Ce que Seogard audite et monitore en continu</h2>
         <p class="section-desc">
-          65+ règles d'audit SEO/GEO vérifiées à chaque crawl sur chaque page. Alertes instantanées dès qu'une régression apparaît.
+          {{ RULES_COUNT }} règles d'audit SEO/GEO vérifiées à chaque crawl sur chaque page. Alertes instantanées dès qu'une régression apparaît.
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
@@ -288,6 +288,7 @@
 </template>
 
 <script setup lang="ts">
+import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
 import { getCloudPricePerPage, formatCloudPrice } from '~~/shared/utils/pricing'
 
 definePageMeta({ layout: 'landing', auth: false })
@@ -301,7 +302,7 @@ const demoUrl = useRuntimeConfig().public.demoUrl
 const FAQ_ITEMS = [
   {
     q: 'Que monitore et audite Seogard exactement ?',
-    a: 'Seogard surveille en continu 65+ règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité. Au-delà du monitoring de régressions, Seogard exécute un audit technique à chaque crawl (longueur des titres, alt des images, maillage interne, données structurées, llms.txt, FAQ schema…) consolidé dans un rapport État de santé SEO.',
+    a: `Seogard surveille en continu ${RULES_COUNT} règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité. Au-delà du monitoring de régressions, Seogard exécute un audit technique à chaque crawl (longueur des titres, alt des images, maillage interne, données structurées, llms.txt, FAQ schema…) consolidé dans un rapport État de santé SEO.`,
   },
   {
     q: 'Seogard est-il gratuit ?',
@@ -317,7 +318,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Comment intégrer Seogard dans un pipeline CI/CD ?',
-    a: 'Seogard fournit un gate de déploiement SEO natif. Un webhook POST déclenche un crawl de la zone à chaque déploiement, et un endpoint GET renvoie un verdict pass/fail. Trois niveaux de strictness (strict, standard, relaxed) permettent de BLOQUER une mise en production qui introduit une régression SEO/SSR. Contrairement aux checks synthétiques génériques (type Checkly) où vous écrivez et maintenez vos propres scripts, Seogard applique nativement 65+ règles SEO/GEO sans aucun script à coder.',
+    a: `Seogard fournit un gate de déploiement SEO natif. Un webhook POST déclenche un crawl de la zone à chaque déploiement, et un endpoint GET renvoie un verdict pass/fail. Trois niveaux de strictness (strict, standard, relaxed) permettent de BLOQUER une mise en production qui introduit une régression SEO/SSR. Contrairement aux checks synthétiques génériques (type Checkly) où vous écrivez et maintenez vos propres scripts, Seogard applique nativement ${RULES_COUNT} règles SEO/GEO sans aucun script à coder.`,
   },
   {
     q: 'Seogard peut-il bloquer un déploiement qui casse le SEO ?',
@@ -427,7 +428,7 @@ useHead({
               'Alertes instantanées par email',
               'Crawl quotidien automatique',
               'Dashboard temps réel',
-              '65+ règles de détection SEO et GEO',
+              `${RULES_COUNT} règles de détection SEO et GEO`,
               'Optimisation GEO et visibilité IA',
               'Version self-hosted gratuite',
               'CI/CD webhook intégré',
@@ -468,16 +469,16 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Audit SEO/GEO technique et monitoring continu : 65+ règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Détectez les régressions avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  description: `Audit SEO/GEO technique et monitoring continu : ${RULES_COUNT} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Détectez les régressions avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   ogTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
-  ogDescription: `Audit & monitoring SEO/GEO continu : 65+ règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
+  ogDescription: `Audit & monitoring SEO/GEO continu : ${RULES_COUNT} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
   ogType: 'website',
   ogUrl: 'https://seogard.io',
   ogImage: 'https://seogard.io/og-image.png',
   twitterCard: 'summary_large_image',
   twitterImage: 'https://seogard.io/og-image.png',
   twitterTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
-  twitterDescription: `Audit & monitoring SEO/GEO continu. 65+ règles à chaque crawl. Détection des régressions avant Google. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  twitterDescription: `Audit & monitoring SEO/GEO continu. ${RULES_COUNT} règles à chaque crawl. Détection des régressions avant Google. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
   robots: 'index, follow',
 })
 </script>
