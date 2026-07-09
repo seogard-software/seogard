@@ -8,10 +8,10 @@
       @click="toggle"
     >
       {{ label }}
-      <AppIcon
-        name="chevron-down"
-        size="sm"
-        :class="['nav-dropdown__chevron', { 'nav-dropdown__chevron--open': open }]"
+      <span
+        class="nav-dropdown__caret"
+        :class="{ 'nav-dropdown__caret--open': open }"
+        aria-hidden="true"
       />
     </button>
 
@@ -24,8 +24,11 @@
         role="menuitem"
         @click="close"
       >
-        <span class="nav-dropdown__item-label">{{ item.label }}</span>
-        <span v-if="item.desc" class="nav-dropdown__item-desc">{{ item.desc }}</span>
+        <span v-if="item.emoji" class="nav-dropdown__item-ic" aria-hidden="true">{{ item.emoji }}</span>
+        <span class="nav-dropdown__item-body">
+          <span class="nav-dropdown__item-label">{{ item.label }}</span>
+          <span v-if="item.desc" class="nav-dropdown__item-desc">{{ item.desc }}</span>
+        </span>
       </NuxtLink>
     </div>
   </div>
@@ -37,6 +40,7 @@ interface NavDropdownItem {
   name: string
   label: string
   desc?: string
+  emoji?: string
 }
 
 defineProps<{ label: string, items: NavDropdownItem[] }>()
@@ -98,7 +102,14 @@ onUnmounted(() => {
     }
   }
 
-  &__chevron {
+  // Triangle plein (▾), pas un chevron en trait — fidèle à la maquette validée.
+  &__caret {
+    width: 0;
+    height: 0;
+    margin-left: $spacing-1;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid $color-gray-400;
     transition: transform $transition-fast;
 
     &--open {
@@ -125,8 +136,8 @@ onUnmounted(() => {
 
   &__item {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: $spacing-3;
     padding: $spacing-3 $spacing-4;
     border-radius: $radius-md;
     text-decoration: none;
@@ -136,6 +147,24 @@ onUnmounted(() => {
       background: $color-gray-50;
       text-decoration: none;
     }
+  }
+
+  &__item-ic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: $radius-md;
+    background: $color-gray-100;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  &__item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   &__item-label {

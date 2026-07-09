@@ -1,15 +1,6 @@
-// Canonical + hreflang des pages publiques (appelé par les layouts landing/docs). Les pages
-// FR-only (formations, legal) n'émettent PAS de hreflang `en` : leur route /en/ redirige vers le FR.
+// Canonical + hreflang des pages publiques (appelé par les layouts landing/docs). Toutes les pages
+// publiques sont bilingues → hreflang fr + en + x-default sur chacune.
 import { PUBLISHED_LOCALES } from '~~/shared/utils/i18n'
-
-const FR_ONLY_ROUTES = new Set([
-  'formations',
-  'legal-cgu',
-  'legal-cgv',
-  'legal-privacy',
-  'legal-cookies',
-  'legal-mentions',
-])
 
 export function useCanonicalHead() {
   const route = useRoute()
@@ -25,10 +16,9 @@ export function useCanonicalHead() {
     const self = `${appUrl}${route.path.replace(/\/+$/, '')}`
     const result: { rel: string, href: string, hreflang?: string }[] = [{ rel: 'canonical', href: self }]
 
-    const baseName = name.split('___')[0]!
     const frHref = `${appUrl}${(switchLocalePath('fr') || route.path).replace(/\/+$/, '')}`
 
-    if (FR_ONLY_ROUTES.has(baseName) || PUBLISHED_LOCALES.length < 2) {
+    if (PUBLISHED_LOCALES.length < 2) {
       result.push({ rel: 'alternate', hreflang: 'fr', href: self })
       result.push({ rel: 'alternate', hreflang: 'x-default', href: self })
       return result

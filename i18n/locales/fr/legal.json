@@ -1,0 +1,410 @@
+{
+  "legal": {
+    "mentions": {
+      "seo": {
+        "title": "Mentions légales — Seogard",
+        "description": "Mentions légales du site seogard.io — éditeur, hébergement, propriété intellectuelle."
+      },
+      "title": "Mentions légales",
+      "updated": "Dernière mise à jour : 18 mars 2026",
+      "editorTitle": "1. Éditeur du site",
+      "editor": "<strong>SAVEPNP</strong> (nom commercial : Seogard)<br>Forme juridique : Société par actions simplifiée (SAS)<br>Capital social : 1 000 €<br>Immatriculation : RCS Créteil n° 912 784 030 — SIRET 912 784 030 00021<br>Code APE : 6201Z — Programmation informatique<br>Siège social : 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France<br>Numéro de TVA intracommunautaire : FR04912784030<br>Directeur de la publication : Aadil TTALBI<br>Email : <a href=\"mailto:legal{'@'}seogard.io\">legal{'@'}seogard.io</a>",
+      "hostingTitle": "2. Hébergement",
+      "hosting": "<strong>Application web :</strong> Railway Corporation — 548 Market Street, San Francisco, CA 94104, USA — <a href=\"https://railway.app\" target=\"_blank\" rel=\"noopener\">railway.app</a><br><strong>Serveurs de crawl :</strong> Hetzner Online GmbH — Industriestr. 25, 91710 Gunzenhausen, Allemagne — <a href=\"https://www.hetzner.com\" target=\"_blank\" rel=\"noopener\">hetzner.com</a><br><strong>Base de données :</strong> MongoDB, Inc. — 1633 Broadway, 38th Floor, New York, NY 10019, USA — <a href=\"https://www.mongodb.com\" target=\"_blank\" rel=\"noopener\">mongodb.com</a> (données hébergées en UE)",
+      "ipTitle": "3. Propriété intellectuelle",
+      "ip": "L'ensemble du contenu du site seogard.io (textes, images, graphismes, logo, icônes, logiciels) est la propriété exclusive de SAVEPNP, sauf mention contraire. Le code source de la version self-hosted est distribué sous licence Business Source License 1.1 (BSL 1.1, code source disponible). La licence évoluera vers Apache 2.0 le 2 avril 2029.",
+      "dataTitle": "4. Données personnelles",
+      "data": "Consultez notre {link} pour le détail du traitement de vos données personnelles.",
+      "dataLink": "Politique de confidentialité",
+      "cookiesTitle": "5. Cookies",
+      "cookies": "Consultez notre {link}.",
+      "cookiesLink": "Politique de cookies"
+    },
+    "cgu": {
+      "seo": {
+        "title": "Conditions Générales d'Utilisation — Seogard",
+        "description": "Conditions Générales d'Utilisation de la plateforme Seogard, outil de monitoring SEO technique."
+      },
+      "title": "Conditions Générales d'Utilisation",
+      "updated": "Version 1.0 — En vigueur au 18 mars 2026",
+      "frPrevails": "La version française des présentes conditions fait foi ; toute traduction n'est fournie qu'à titre indicatif.",
+      "objTitle": "1. Objet",
+      "obj1": "Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») définissent les règles d'accès et d'utilisation de la plateforme Seogard (ci-après « le Service »), éditée par SAVEPNP, SAS au capital de 1 000 €, immatriculée au RCS de Créteil sous le n° 912 784 030, dont le siège social est situé 25 rue Camille Blanc, 94400 Vitry-sur-Seine (ci-après « l'Éditeur »). Les informations relatives à l'Éditeur figurent dans les {link}.",
+      "obj1Link": "mentions légales",
+      "obj2": "Toute inscription ou utilisation du Service implique l'acceptation pleine et entière des présentes CGU ainsi que des {cgv} et de la {privacy}.",
+      "obj2Cgv": "Conditions Générales de Vente",
+      "obj2Privacy": "Politique de confidentialité",
+      "proTitle": "2. Service réservé aux Professionnels",
+      "pro1": "<strong>Le Service est exclusivement destiné à des Utilisateurs agissant dans le cadre de leur activité professionnelle</strong> (ci-après « Professionnels »), au sens de l'article liminaire du Code de la consommation. En créant un compte, l'Utilisateur déclare et garantit agir à des fins professionnelles et non en qualité de consommateur.",
+      "pro2": "En conséquence, les dispositions du Code de la consommation relatives à la protection des consommateurs (notamment le droit de rétractation, la médiation de la consommation et les clauses abusives) ne s'appliquent pas aux relations entre l'Éditeur et l'Utilisateur.",
+      "defTitle": "3. Définitions",
+      "defs": [
+        "<strong>Service</strong> : la plateforme Seogard accessible à l'adresse seogard.io, incluant l'ensemble des fonctionnalités de monitoring SEO technique.",
+        "<strong>Utilisateur</strong> : toute personne physique ou morale agissant à titre professionnel et disposant d'un compte sur le Service.",
+        "<strong>Organisation</strong> : entité créée par un Utilisateur regroupant des sites, des zones et des membres.",
+        "<strong>Crawl</strong> : analyse automatisée d'un ensemble de pages web par le Service.",
+        "<strong>Page crawlée</strong> : page web effectivement analysée par le Service au cours d'une période de facturation donnée."
+      ],
+      "accountTitle": "4. Inscription et compte",
+      "account1": "L'inscription est réservée aux professionnels : personnes physiques agissant dans le cadre de leur activité professionnelle, ou personnes morales valablement représentées. L'Utilisateur s'engage à fournir des informations exactes et à jour lors de son inscription.",
+      "account2": "Chaque Utilisateur est responsable de la confidentialité de ses identifiants de connexion. Toute utilisation du compte est présumée effectuée par le titulaire. L'Utilisateur s'engage à informer immédiatement l'Éditeur de toute utilisation non autorisée de son compte.",
+      "account3": "Lors de l'inscription, l'Utilisateur accepte expressément les présentes CGU, les CGV et la Politique de confidentialité. Cette acceptation est horodatée et conservée comme preuve.",
+      "descTitle": "5. Description du Service",
+      "descIntro": "Seogard est un outil de monitoring SEO technique qui :",
+      "descList": [
+        "Analyse les pages web en comparant le HTML brut (SSR) et le rendu JavaScript (CSR)",
+        "Détecte les régressions SEO (meta, canonicals, noindex, status codes, etc.)",
+        "Envoie des alertes instantanées par email",
+        "Fournit un historique complet des modifications détectées"
+      ],
+      "oblTitle": "6. Obligations de l'Utilisateur",
+      "oblIntro": "L'Utilisateur s'engage à :",
+      "oblList": [
+        "Utiliser le Service conformément à sa destination et aux présentes CGU",
+        "Ne pas utiliser le Service pour des activités illicites ou portant atteinte aux droits de tiers",
+        "<strong>Ne crawler que des sites web dont il est propriétaire ou pour lesquels il dispose d'une autorisation explicite du propriétaire</strong>. L'Utilisateur déclare et garantit, à chaque ajout de site et à chaque lancement de crawl, qu'il dispose de l'autorité ou de l'autorisation nécessaire pour analyser le site concerné. L'Éditeur ne vérifie pas cette autorisation et n'est en aucun cas responsable de l'utilisation non autorisée du Service sur des sites tiers",
+        "Respecter les conditions d'utilisation, le fichier <code>robots.txt</code> et toute directive technique du site crawlé",
+        "Ne pas utiliser le Service à des fins de surveillance concurrentielle non autorisée, de scraping abusif, de collecte de données personnelles ou de toute activité contraire à la loi",
+        "Ne pas tenter de contourner les mesures de sécurité ou les limitations techniques du Service",
+        "Ne pas surcharger l'infrastructure du Service par un usage abusif",
+        "Ne pas revendre, sous-licencier ou mettre à disposition le Service à des tiers sans autorisation"
+      ],
+      "warrTitle": "7. Garantie et indemnisation par l'Utilisateur",
+      "warr1": "L'Utilisateur <strong>garantit</strong> qu'il dispose des droits nécessaires pour crawler chaque site ajouté au Service. Il reconnaît que l'Éditeur fournit un outil technique neutre de monitoring SEO et n'a ni l'obligation ni la capacité de vérifier que l'Utilisateur est effectivement autorisé à analyser les sites qu'il soumet.",
+      "warr2": "En cas de réclamation, mise en demeure, action en justice ou demande d'indemnisation émanant d'un tiers (notamment le propriétaire d'un site crawlé sans autorisation), <strong>l'Utilisateur s'engage à indemniser et garantir l'Éditeur</strong> de l'intégralité des dommages, frais (y compris les frais d'avocat et de justice), amendes et condamnations que l'Éditeur pourrait subir du fait de l'utilisation non autorisée du Service par l'Utilisateur.",
+      "warr3": "Cette obligation d'indemnisation survit à la résiliation du compte.",
+      "ipTitle": "8. Propriété intellectuelle",
+      "ip1": "Le Service, son interface, ses algorithmes et son code source (hors version self-hosted distribuée sous licence BSL 1.1) sont la propriété exclusive de l'Éditeur. L'Utilisateur dispose d'un droit d'utilisation personnel, non exclusif et non transférable, pour la durée de son inscription.",
+      "availTitle": "9. Disponibilité du Service",
+      "avail1": "L'Éditeur s'efforce d'assurer la disponibilité du Service 24h/24, 7j/7. Des interruptions pour maintenance ou mise à jour peuvent survenir. L'Éditeur ne garantit pas une disponibilité ininterrompue et ne pourra être tenu responsable des interruptions temporaires.",
+      "avail2": "L'Éditeur se réserve le droit de faire évoluer, modifier ou interrompre tout ou partie du Service, avec un préavis raisonnable pour les modifications substantielles.",
+      "limTitle": "10. Limitation de responsabilité",
+      "limIntro": "Le Service est fourni « en l'état ». Le Service est un <strong>outil technique neutre</strong> de monitoring SEO. L'Éditeur ne contrôle pas, ne vérifie pas et ne valide pas les sites que l'Utilisateur soumet au crawl. L'Éditeur ne saurait être tenu responsable :",
+      "limList": [
+        "De l'utilisation du Service pour crawler des sites dont l'Utilisateur n'est pas propriétaire ou pour lesquels il ne dispose pas d'autorisation",
+        "Des décisions prises par l'Utilisateur sur la base des informations fournies par le Service",
+        "Des pertes de trafic, de chiffre d'affaires ou de positionnement SEO",
+        "Des dommages indirects de quelque nature que ce soit (perte de données, perte d'exploitation, préjudice commercial, manque à gagner)",
+        "Des interruptions de service indépendantes de sa volonté (hébergeur, réseau, force majeure)",
+        "De tout préjudice subi par un tiers du fait de l'utilisation du Service par l'Utilisateur"
+      ],
+      "limOutro": "En tout état de cause, la responsabilité de l'Éditeur est limitée au montant des sommes effectivement versées par l'Utilisateur au cours des 12 derniers mois. Cette limitation ne s'applique pas en cas de faute lourde ou dolosive de l'Éditeur, ni aux cas où la loi interdit une telle limitation.",
+      "termTitle": "11. Résiliation",
+      "term1": "L'Utilisateur peut supprimer son compte à tout moment depuis les paramètres de son compte ou en contactant legal{'@'}seogard.io. L'Éditeur se réserve le droit de suspendre ou de résilier un compte en cas de violation des présentes CGU, après mise en demeure restée sans effet pendant 15 jours (sauf urgence ou violation grave justifiant une suspension immédiate).",
+      "modifTitle": "12. Modification des CGU",
+      "modif1": "L'Éditeur se réserve le droit de modifier les présentes CGU. Toute modification sera notifiée par email au moins <strong>30 jours</strong> avant son entrée en vigueur. Le numéro de version et la date sont indiqués en haut de cette page. Si l'Utilisateur n'accepte pas les nouvelles CGU, il peut résilier son compte avant leur entrée en vigueur.",
+      "lawTitle": "13. Droit applicable et juridiction",
+      "law1": "Les présentes CGU sont soumises au droit français. En cas de litige, les parties s'engagent à rechercher une solution amiable pendant <strong>30 jours</strong>. À défaut, tout litige sera soumis à la <strong>compétence exclusive des tribunaux de Créteil</strong>.",
+      "contactTitle": "14. Contact",
+      "contact": "Pour toute question relative aux présentes CGU : <a href=\"mailto:legal{'@'}seogard.io\">legal{'@'}seogard.io</a>"
+    },
+    "cgv": {
+      "seo": {
+        "title": "Conditions Générales de Vente — Seogard",
+        "description": "Conditions Générales de Vente de la plateforme Seogard Cloud — facturation à l'usage, par page monitorée."
+      },
+      "title": "Conditions Générales de Vente",
+      "updated": "Version 1.0 — En vigueur au 18 mars 2026",
+      "frPrevails": "La version française des présentes conditions fait foi ; toute traduction n'est fournie qu'à titre indicatif.",
+      "objTitle": "1. Objet",
+      "obj1": "Les présentes Conditions Générales de Vente (ci-après « CGV ») définissent les conditions dans lesquelles SAVEPNP, SAS au capital de 1 000 €, immatriculée au RCS de Créteil sous le n° 912 784 030, dont le siège social est situé 25 rue Camille Blanc, 94400 Vitry-sur-Seine (ci-après « le Prestataire ») fournit le service Cloud Seogard (ci-après « le Service ») à ses clients (ci-après « le Client »). Les informations relatives au Prestataire figurent dans les {link}.",
+      "obj1Link": "mentions légales",
+      "obj2": "Toute souscription au Service Cloud implique l'acceptation sans réserve des présentes CGV, des {cgu} et de la {privacy}.",
+      "obj2Cgu": "CGU",
+      "obj2Privacy": "Politique de confidentialité",
+      "obj3": "<strong>Le Service est exclusivement destiné aux professionnels</strong> au sens de l'article liminaire du Code de la consommation. En souscrivant, le Client déclare et garantit agir dans le cadre de son activité professionnelle.",
+      "descTitle": "2. Description du Service",
+      "descIntro": "Le Service Cloud Seogard comprend :",
+      "descList": [
+        "L'hébergement et la maintenance de l'infrastructure de monitoring SEO",
+        "Le crawl et l'analyse automatisée des pages web du Client",
+        "Les alertes instantanées et le dashboard en temps réel",
+        "Les mises à jour et améliorations continues du Service",
+        "Le support technique par email"
+      ],
+      "pricingTitle": "3. Tarification",
+      "pricingModelTitle": "3.1 Modèle de facturation",
+      "pricingModel": "Le Service Cloud est facturé <strong>à l'usage</strong>, au tarif de <strong>{price} € HT par page monitorée par mois</strong>.",
+      "pricingVat": "TVA applicable : 20 % (services numériques, France). Le tarif TTC est donc de {priceTTC} € par page monitorée par mois.",
+      "pricingCounted": "Seule une page <strong>effectivement crawlée</strong> (analysée par le Service) au cours de la période de facturation est comptabilisée. Les pages découvertes mais non crawlées ne sont pas facturées.",
+      "countingTitle": "3.2 Comptage des pages",
+      "counting1": "Le nombre de pages facturées correspond au nombre de pages distinctes ayant été analysées au moins une fois pendant la période de facturation mensuelle. <strong>Relancer un crawl sur les mêmes pages au cours du même mois ne génère aucun coût supplémentaire.</strong>",
+      "counting2": "Le comptage est effectué automatiquement par le Service sur la base du champ technique <code>lastCheckedAt</code> de chaque page. Le Client peut consulter le nombre de pages facturées à tout moment dans son espace de facturation.",
+      "examplesTitle": "3.3 Exemples de calcul",
+      "exampleScenario": "Scénario",
+      "exampleBilled": "Pages facturées",
+      "exampleCostHT": "Coût mensuel HT",
+      "exampleCostTTC": "Coût mensuel TTC",
+      "exampleRow": "{pages} pages crawlées",
+      "revisionTitle": "3.4 Révision tarifaire",
+      "revision1": "Le Prestataire se réserve le droit de modifier ses tarifs. Toute modification tarifaire sera notifiée par email au moins <strong>30 jours</strong> avant son entrée en vigueur. Le nouveau tarif s'appliquera à compter de la période de facturation suivant l'expiration de ce délai.",
+      "revision2": "Si le Client n'accepte pas le nouveau tarif, il peut résilier son abonnement avant l'entrée en vigueur de la modification, sans frais ni pénalité.",
+      "trialTitle": "3.5 Période d'essai",
+      "trial1": "Un essai gratuit de <strong>14 jours</strong> est offert à tout nouveau Client, sans engagement et sans carte bancaire. Pendant cette période, le Service est accessible sans limitation de fonctionnalités. À l'issue de la période d'essai, le Client doit activer la facturation pour continuer à utiliser le Service.",
+      "trial2": "Si le Client active la facturation avant la fin de la période d'essai, les jours d'essai restants sont conservés et la première facture ne sera émise qu'à l'expiration de ces jours restants.",
+      "trial3": "À l'issue de la période d'essai, en l'absence d'activation de la facturation, l'accès aux crawls est suspendu. Les données du Client sont conservées pendant 90 jours, après quoi elles pourront être supprimées.",
+      "billingTitle": "4. Facturation et paiement",
+      "billingModalTitle": "4.1 Modalités",
+      "billing1": "La facturation est mensuelle. Le paiement est effectué par carte bancaire via la plateforme de paiement sécurisée Stripe (certifiée PCI-DSS niveau 1). Les factures sont disponibles dans l'espace Client et envoyées par email.",
+      "billingDelayTitle": "4.2 Délai de paiement",
+      "billing2": "Le paiement est exigible à réception de la facture. Le prélèvement est automatique à chaque échéance mensuelle.",
+      "lateTitle": "4.3 Retard de paiement",
+      "lateIntro": "En cas de retard de paiement, et conformément aux articles L.441-10 et suivants du Code de commerce :",
+      "lateList": [
+        "Des <strong>pénalités de retard</strong> sont dues de plein droit, sans qu'un rappel soit nécessaire, au taux d'intérêt appliqué par la Banque Centrale Européenne à son opération de refinancement la plus récente, majoré de <strong>10 points de pourcentage</strong>, calculées sur le montant TTC de la somme restant due, à compter du jour suivant la date d'échéance",
+        "Une <strong>indemnité forfaitaire de 40 €</strong> pour frais de recouvrement est due de plein droit (article D.441-5 du Code de commerce)",
+        "Si les frais de recouvrement réels dépassent ce montant forfaitaire, le Prestataire se réserve le droit de demander une indemnisation complémentaire sur justification"
+      ],
+      "suspTitle": "4.4 Suspension pour impayé",
+      "suspIntro": "En cas d'échec de paiement, et après notification par email :",
+      "suspList": [
+        "Suspension de l'accès aux crawls après un délai de <strong>7 jours</strong> suivant la date d'échéance impayée",
+        "Suspension de l'intégralité du Service après <strong>30 jours</strong> d'impayé",
+        "Résiliation du compte et suppression des données après <strong>90 jours</strong> d'impayé, après mise en demeure par email restée sans effet pendant <strong>15 jours</strong>"
+      ],
+      "suspOutro": "Les sommes dues restent exigibles même après la suspension ou la résiliation du compte.",
+      "termTitle": "5. Durée et résiliation",
+      "termDurationTitle": "5.1 Durée",
+      "term1": "L'abonnement est souscrit <strong>sans engagement</strong>, pour une durée indéterminée, avec facturation mensuelle.",
+      "termClientTitle": "5.2 Résiliation par le Client",
+      "term2": "Le Client peut résilier son abonnement à tout moment depuis son espace de facturation (portail Stripe) ou en contactant legal{'@'}seogard.io. La résiliation prend effet à la fin de la période de facturation en cours. Aucun remboursement au prorata n'est effectué pour la période en cours.",
+      "termProviderTitle": "5.3 Résiliation par le Prestataire",
+      "term3Intro": "Le Prestataire se réserve le droit de résilier l'abonnement, après mise en demeure par email restée sans effet pendant 15 jours, en cas de :",
+      "term3List": [
+        "Violation des Conditions Générales d'Utilisation",
+        "Utilisation abusive ou frauduleuse du Service",
+        "Impayé persistant (voir article 4.4)"
+      ],
+      "dataTitle": "6. Données et portabilité",
+      "data1": "En cas de résiliation, le Client dispose d'un délai de {days} pour exporter ses données via l'API du Service. Passé ce délai, les données seront supprimées conformément à la {link}.",
+      "data1Days": "30 jours",
+      "data1Link": "Politique de confidentialité",
+      "warrTitle": "7. Garanties et responsabilité",
+      "warrIntro": "Le Prestataire s'engage à mettre en œuvre les moyens nécessaires pour assurer la disponibilité et la qualité du Service (obligation de moyens). Toutefois, le Prestataire ne garantit pas :",
+      "warrList": [
+        "L'exhaustivité ou l'exactitude des analyses SEO produites",
+        "L'amélioration du positionnement SEO du Client",
+        "Une disponibilité ininterrompue du Service"
+      ],
+      "warrLiability": "La responsabilité du Prestataire est limitée au montant total versé par le Client au cours des <strong>12 derniers mois</strong> précédant le fait générateur. Cette limitation ne s'applique pas en cas de faute lourde ou dolosive du Prestataire, ni aux cas où la loi interdit une telle limitation.",
+      "warrIndirect": "Les dommages indirects (perte de chiffre d'affaires, perte de trafic, perte de données, atteinte à l'image) sont exclus de toute indemnisation, dans les limites autorisées par la loi.",
+      "forceTitle": "8. Force majeure",
+      "force1": "Le Prestataire ne saurait être tenu responsable de l'inexécution de ses obligations en cas de force majeure telle que définie par l'article 1218 du Code civil, incluant notamment : catastrophe naturelle, pandémie, guerre, acte de terrorisme, défaillance de l'hébergeur, cyberattaque majeure, panne électrique généralisée, décision gouvernementale ou judiciaire.",
+      "lawTitle": "9. Droit applicable et juridiction",
+      "law1": "Les présentes CGV sont soumises au droit français. En cas de litige, les parties s'engagent à rechercher une solution amiable pendant <strong>30 jours</strong>. À défaut, tout litige sera soumis à la <strong>compétence exclusive des tribunaux de Créteil</strong>.",
+      "severabilityTitle": "10. Divisibilité",
+      "severability1": "Si une clause des présentes CGV est déclarée nulle ou inapplicable par une juridiction compétente, les autres clauses conservent leur plein effet.",
+      "contactTitle": "11. Contact",
+      "contact": "Pour toute question relative aux présentes CGV : <a href=\"mailto:legal{'@'}seogard.io\">legal{'@'}seogard.io</a>"
+    },
+    "cookies": {
+      "seo": {
+        "title": "Politique de cookies — Seogard",
+        "description": "Politique de cookies de Seogard. Détail des cookies utilisés, aucun cookie tiers, analytics respectueux de la vie privée."
+      },
+      "title": "Politique de cookies",
+      "updated": "Dernière mise à jour : 18 mars 2026",
+      "whatTitle": "1. Qu'est-ce qu'un cookie ?",
+      "whatP": "Un cookie est un petit fichier texte stocké sur votre appareil lors de la visite d'un site web. Il permet au site de mémoriser vos actions et préférences pendant une durée déterminée.",
+      "usedTitle": "2. Cookies utilisés par Seogard",
+      "necessaryTitle": "2.1 Cookies strictement nécessaires",
+      "necessaryP": "Ces cookies sont indispensables au fonctionnement du Service. Ils ne nécessitent pas votre consentement.",
+      "thName": "Nom",
+      "thPurpose": "Finalité",
+      "thDuration": "Durée",
+      "necessaryRows": [
+        {
+          "name": "seogard-token",
+          "purpose": "Authentification (JWT access token)",
+          "duration": "7 jours"
+        },
+        {
+          "name": "seogard-refresh",
+          "purpose": "Renouvellement de session (refresh token)",
+          "duration": "30 jours"
+        },
+        {
+          "name": "seogard-cookies",
+          "purpose": "Mémorisation de votre choix de cookies",
+          "duration": "12 mois"
+        }
+      ],
+      "analyticsTitle": "2.2 Cookies d'analyse",
+      "analyticsP": "Nous utilisons <strong>Umami</strong>, une solution d'analyse web respectueuse de la vie privée, <strong>auto-hébergée sur notre propre serveur en Europe</strong> (Allemagne). Umami :",
+      "analyticsList": [
+        "Ne dépose <strong>aucun cookie tiers</strong>",
+        "Ne collecte <strong>aucune donnée personnelle identifiable</strong>",
+        "Ne partage aucune donnée avec des tiers",
+        "Est conforme au RGPD sans nécessiter de consentement (données anonymisées)"
+      ],
+      "thirdTitle": "3. Cookies tiers",
+      "thirdP": "Seogard <strong>n'utilise aucun cookie tiers</strong> (pas de Google Analytics, pas de Facebook Pixel, pas de cookie publicitaire). Nous n'avons aucune intégration avec des régies publicitaires.",
+      "manageTitle": "4. Gestion des cookies",
+      "manageP": "Vous pouvez à tout moment supprimer les cookies via les paramètres de votre navigateur. La suppression des cookies d'authentification entraînera une déconnexion du Service.",
+      "contactTitle": "5. Contact",
+      "contact": "Pour toute question : <a href=\"mailto:dpo{'@'}seogard.io\">dpo{'@'}seogard.io</a>"
+    },
+    "privacy": {
+      "seo": {
+        "title": "Politique de confidentialité — Seogard",
+        "description": "Politique de confidentialité et RGPD de Seogard. Données collectées, finalités, droits des utilisateurs, sous-traitants."
+      },
+      "title": "Politique de confidentialité",
+      "updated": "Dernière mise à jour : 18 mars 2026",
+      "frPrevails": "La version française de la présente politique fait foi ; toute traduction n'est fournie qu'à titre indicatif.",
+      "intro": "SAVEPNP, SAS immatriculée au RCS de Créteil sous le n° 912 784 030, dont le siège social est situé 25 rue Camille Blanc, 94400 Vitry-sur-Seine (ci-après « nous », « notre »), éditrice de la plateforme Seogard, s'engage à protéger la vie privée de ses utilisateurs conformément au Règlement Général sur la Protection des Données (RGPD — Règlement UE 2016/679) et à la loi Informatique et Libertés du 6 janvier 1978 modifiée.",
+      "controllerTitle": "1. Responsable du traitement",
+      "controller": "<strong>SAVEPNP</strong> (nom commercial : Seogard)<br>25 rue Camille Blanc, 94400 Vitry-sur-Seine, France<br>RCS Créteil 912 784 030 — SIRET 912 784 030 00021<br>Email : <a href=\"mailto:dpo{'@'}seogard.io\">dpo{'@'}seogard.io</a>",
+      "collectedTitle": "2. Données collectées",
+      "registrationTitle": "2.1 Données d'inscription",
+      "thData": "Donnée",
+      "thPurpose": "Finalité",
+      "thBasis": "Base légale",
+      "thRetention": "Durée de conservation",
+      "registrationRows": [
+        {
+          "data": "Adresse email",
+          "purpose": "Authentification, communication, alertes",
+          "basis": "Exécution du contrat",
+          "retention": "Durée du compte + 3 ans"
+        },
+        {
+          "data": "Mot de passe (hashé bcrypt)",
+          "purpose": "Authentification",
+          "basis": "Exécution du contrat",
+          "retention": "Durée du compte"
+        },
+        {
+          "data": "Nom de l'organisation",
+          "purpose": "Identification du compte",
+          "basis": "Exécution du contrat",
+          "retention": "Durée du compte + 3 ans"
+        },
+        {
+          "data": "Acceptation des CGU/CGV (date + version)",
+          "purpose": "Preuve du consentement contractuel",
+          "basis": "Obligation légale",
+          "retention": "5 ans après la fin du contrat"
+        }
+      ],
+      "billingTitle": "2.2 Données de facturation",
+      "billingRows": [
+        {
+          "data": "Identifiant client Stripe",
+          "purpose": "Facturation et paiement",
+          "basis": "Exécution du contrat",
+          "retention": "Durée du contrat + 10 ans (obligation comptable)"
+        },
+        {
+          "data": "Historique des factures",
+          "purpose": "Facturation, comptabilité",
+          "basis": "Obligation légale",
+          "retention": "10 ans"
+        }
+      ],
+      "billingNote": "<strong>Note :</strong> les données bancaires (numéro de carte, CVV) ne sont jamais stockées sur nos serveurs. Elles sont traitées exclusivement par Stripe (certifié PCI-DSS niveau 1).",
+      "crawlTitle": "2.3 Données techniques de crawl",
+      "crawlRows": [
+        {
+          "data": "URLs des pages crawlées",
+          "purpose": "Monitoring SEO",
+          "basis": "Exécution du contrat",
+          "retention": "Durée du compte"
+        },
+        {
+          "data": "Snapshots HTML (SSR/CSR)",
+          "purpose": "Détection de régressions",
+          "basis": "Exécution du contrat",
+          "retention": "12 mois glissants"
+        },
+        {
+          "data": "Alertes et historique",
+          "purpose": "Suivi des régressions",
+          "basis": "Exécution du contrat",
+          "retention": "12 mois glissants"
+        }
+      ],
+      "navigationTitle": "2.4 Données de navigation",
+      "navigationRows": [
+        {
+          "data": "Cookies d'authentification (JWT)",
+          "purpose": "Maintien de la session",
+          "basis": "Exécution du contrat",
+          "retention": "7 jours (access) / 30 jours (refresh)"
+        },
+        {
+          "data": "Données d'analyse (Umami)",
+          "purpose": "Statistiques d'usage anonymes",
+          "basis": "Intérêt légitime",
+          "retention": "24 mois"
+        }
+      ],
+      "subprocessorsTitle": "3. Sous-traitants",
+      "subprocessorsIntro": "Nous faisons appel aux sous-traitants suivants, tous conformes au RGPD :",
+      "thSubprocessor": "Sous-traitant",
+      "thLocation": "Localisation des données",
+      "subprocessorsRows": [
+        {
+          "name": "MongoDB Atlas",
+          "purpose": "Base de données",
+          "location": "UE (Irlande / Belgique)"
+        },
+        {
+          "name": "Hetzner",
+          "purpose": "Serveurs de crawl",
+          "location": "UE (Allemagne / Finlande)"
+        },
+        {
+          "name": "Railway",
+          "purpose": "Hébergement application",
+          "location": "UE / US"
+        },
+        {
+          "name": "Stripe",
+          "purpose": "Paiement et facturation",
+          "location": "UE / US (PCI-DSS)"
+        },
+        {
+          "name": "Resend",
+          "purpose": "Envoi d'emails transactionnels",
+          "location": "US"
+        },
+        {
+          "name": "Umami",
+          "purpose": "Analytics (self-hosted, sans cookies tiers)",
+          "location": "UE (Allemagne — notre VPS)"
+        }
+      ],
+      "subprocessorsNote": "Pour les transferts hors UE, des Clauses Contractuelles Types (CCT) de la Commission européenne sont en place.",
+      "rightsTitle": "4. Droits des utilisateurs",
+      "rightsIntro": "Conformément au RGPD, vous disposez des droits suivants :",
+      "rightsList": [
+        "<strong>Droit d'accès</strong> (art. 15) : obtenir une copie de vos données personnelles",
+        "<strong>Droit de rectification</strong> (art. 16) : corriger des données inexactes",
+        "<strong>Droit à l'effacement</strong> (art. 17) : demander la suppression de vos données",
+        "<strong>Droit à la portabilité</strong> (art. 20) : recevoir vos données dans un format structuré",
+        "<strong>Droit à la limitation du traitement</strong> (art. 18) : restreindre l'utilisation de vos données",
+        "<strong>Droit d'opposition</strong> (art. 21) : vous opposer au traitement de vos données"
+      ],
+      "rightsExercise": "Pour exercer vos droits, contactez-nous à : <a href=\"mailto:dpo{'@'}seogard.io\">dpo{'@'}seogard.io</a>. Nous répondrons dans un délai maximum de <strong>30 jours</strong>.",
+      "rightsComplaint": "En cas de désaccord, vous pouvez introduire une réclamation auprès de la <strong>CNIL</strong> (Commission Nationale de l'Informatique et des Libertés) : <a href=\"https://www.cnil.fr\" target=\"_blank\" rel=\"noopener\">www.cnil.fr</a>",
+      "securityTitle": "5. Sécurité",
+      "securityIntro": "Nous mettons en œuvre les mesures techniques et organisationnelles suivantes :",
+      "securityList": [
+        "Chiffrement HTTPS (TLS 1.3) pour toutes les communications",
+        "Hashage des mots de passe avec bcrypt (facteur de coût 12)",
+        "Tokens JWT signés avec rotation automatique",
+        "Accès à la base de données restreint par IP et authentification",
+        "Journalisation des accès et des événements de sécurité",
+        "Sauvegardes automatiques quotidiennes"
+      ],
+      "cookiesTitle": "6. Cookies",
+      "cookies": "Consultez notre {link} pour le détail des cookies utilisés.",
+      "cookiesLink": "Politique de cookies",
+      "changesTitle": "7. Modifications",
+      "changes": "Nous pouvons modifier cette politique à tout moment. Les utilisateurs seront informés par email de toute modification substantielle. La version en vigueur est toujours accessible sur cette page.",
+      "contactTitle": "8. Contact",
+      "contact": "Délégué à la Protection des Données : <a href=\"mailto:dpo{'@'}seogard.io\">dpo{'@'}seogard.io</a>"
+    }
+  }
+}

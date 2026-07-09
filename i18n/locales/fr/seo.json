@@ -108,6 +108,18 @@
     },
     "default": {
       "description": "Monitoring SEO technique. Détectez les régressions avant Google."
+    },
+    "formations": {
+      "title": "Formations SEO technique & GEO gratuites — visibilité Google et IA",
+      "description": "Apprenez le SEO technique et le GEO (visibilité IA) : SSR vs CSR, crawlers ChatGPT/Perplexity, llms.txt, données structurées, régressions SEO et gate CI/CD. Formations gratuites, accessibles même sans coder.",
+      "ogTitle": "Formations SEO technique & GEO — rendez votre site visible par Google et par l'IA",
+      "ogDescription": "Formations gratuites SEO/GEO : ce que Google et l'IA voient de votre site, et comment corriger les régressions avant qu'elles coûtent du trafic.",
+      "twitterTitle": "Formations SEO technique & GEO gratuites",
+      "twitterDescription": "SSR/CSR, crawlers IA, llms.txt, données structurées, régressions SEO. Gratuit, même sans coder.",
+      "jsonld": {
+        "name": "Ton site et l'IA",
+        "desc": "Formation gratuite en modules pour rendre son site visible et citable par ChatGPT, Perplexity et les AI Overviews de Google."
+      }
     }
   }
 }

@@ -447,6 +447,93 @@
         "q4": "Comment fonctionnent les alertes ?",
         "a4": "Chaque page est crawlée quotidiennement. Dès qu'un changement est détecté (meta modifiée, status code anormal, SSR cassé), une alerte avec le diff avant/après est envoyée par email."
       }
+    },
+    "formations": {
+      "hero": {
+        "badge": "Formations gratuites · SEO technique & GEO",
+        "title": "Formations SEO technique & GEO : rendez votre site visible par Google <em>et</em> par l'IA",
+        "subtitle": "Des formations courtes et concrètes pour comprendre ce que Google et les moteurs IA (ChatGPT, Perplexity, Google AI Overviews) voient vraiment de votre site — et corriger les régressions SEO avant qu'elles ne vous coûtent du trafic. Accessibles même sans être développeur : vous vérifiez avec nos outils gratuits, vous corrigez avec l'export IA.",
+        "ctaPrimary": "Commencer l'essai gratuit",
+        "ctaSecondary": "Scanner mon site gratuitement"
+      },
+      "intro": "Le SEO ne se joue plus seulement sur Google. Les réponses de ChatGPT, Perplexity et des AI Overviews lisent le <strong>HTML brut</strong> de vos pages — pas le rendu JavaScript que vous voyez dans votre navigateur. Un site moderne (SSR/CSR mal configuré, données structurées injectées en JavaScript, <code>robots.txt</code> qui bloque les crawlers IA) peut être invisible sans que personne ne s'en aperçoive. Ces formations vous apprennent à le détecter et à le réparer.",
+      "program": {
+        "title": "La première formation",
+        "intro": "Une formation complète en {count} modules, publiés un par un. Chaque module = un problème concret, une démonstration sur un vrai site, et la méthode pour vérifier puis corriger le vôtre. Gratuite — les premiers modules arrivent bientôt."
+      },
+      "course": {
+        "tag": "GEO / IA",
+        "soon": "Bientôt",
+        "title": "Ton site et l'IA",
+        "desc": "Rendez votre site visible et citable par ChatGPT, Perplexity et les AI Overviews de Google. Du diagnostic (« l'IA voit-elle mon site ? ») jusqu'à la correction — sans jargon, sans savoir coder.",
+        "metaModules": "{count} modules",
+        "metaFree": "Gratuit",
+        "metaLevel": "Débutant → Avancé"
+      },
+      "why": {
+        "title": "Pourquoi ces formations sont différentes"
+      },
+      "final": {
+        "title": "Vérifiez votre site pendant que vous apprenez",
+        "desc": "Seogard surveille en continu les régressions SEO et GEO de votre site et vous alerte avant Google. Essai 14 jours, sans carte bancaire.",
+        "cta": "Démarrer gratuitement"
+      },
+      "lessons": [
+        {
+          "title": "Votre site est invisible pour l'IA : le test en 30 secondes",
+          "desc": "On commence par le diagnostic : vérifiez en 30 secondes ce que l'IA lit réellement de vos pages (le HTML brut, pas votre navigateur)."
+        },
+        {
+          "title": "Les 5 raisons pour lesquelles l'IA ne vous cite pas",
+          "desc": "La vue d'ensemble : les 5 causes qui rendent un site invisible pour les IA, et par où commencer."
+        },
+        {
+          "title": "Vous bloquez ChatGPT et Perplexity sans le savoir (1 ligne dans robots.txt)",
+          "desc": "La nuance entre entraînement et citation, et la ligne de robots.txt qui vous rend invisible dans les réponses IA."
+        },
+        {
+          "title": "llms.txt : le fichier qui vous fait citer… ou du pur bullshit ?",
+          "desc": "Le démontage honnête d'un fichier à la mode : ce qu'il fait, ce qu'il ne fait pas, et quand s'en occuper."
+        },
+        {
+          "title": "L'IA cite vos concurrents, pas vous : la vraie raison (auteur, date, sources)",
+          "desc": "Les signaux de citation qui décident qui l'IA met en avant — et comment les ajouter à vos pages."
+        },
+        {
+          "title": "Écrivez votre article pour que l'IA le recopie : les 30 premiers % décident tout",
+          "desc": "La structure citable : réponse dès l'intro, titres clairs, questions/réponses. Ce qui fait recopier votre contenu."
+        },
+        {
+          "title": "Où trouver les questions qui vous font citer par l'IA (sans les inventer)",
+          "desc": "Où récolter les vraies questions de votre audience pour des FAQ que l'IA cite — sans en inventer."
+        },
+        {
+          "title": "Votre JavaScript cache vos données structurées à l'IA (et vos liens à Google)",
+          "desc": "Pourquoi un JSON-LD ou des liens injectés en JavaScript restent invisibles, et comment les servir dès le HTML brut."
+        },
+        {
+          "title": "Refonte ou mise à jour : le jour où vous devenez invisible pour l'IA sans rien voir",
+          "desc": "Comment un déploiement casse silencieusement votre visibilité IA, et comment le détecter avant qu'il soit trop tard."
+        }
+      ],
+      "benefits": [
+        {
+          "title": "Accessible à tous",
+          "desc": "Même sans coder. Vous vérifiez avec nos outils gratuits et vous corrigez en collant l'export IA de Seogard dans ChatGPT, Claude ou l'assistant de votre CMS."
+        },
+        {
+          "title": "Sur de vrais sites",
+          "desc": "Pas de théorie : on ouvre de vraies pages, on prouve le défaut à l'écran, on montre le correctif. Vous repartez avec une méthode reproductible."
+        },
+        {
+          "title": "SEO + GEO réunis",
+          "desc": "La visibilité Google et la visibilité dans les réponses IA (ChatGPT, Perplexity, AI Overviews) traitées ensemble, parce que les deux dépendent de votre HTML brut."
+        },
+        {
+          "title": "Honnête, sans promesse magique",
+          "desc": "Aucune fausse promesse de trafic ou de ranking. On vous donne les mécaniques réelles ; vous décidez quoi prioriser."
+        }
+      ]
     }
   }
 }

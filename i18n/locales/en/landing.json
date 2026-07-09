@@ -447,6 +447,93 @@
         "q4": "How do alerts work?",
         "a4": "Every page is crawled daily. As soon as a change is detected (modified meta, abnormal status code, broken SSR), an alert with the before/after diff is sent by email."
       }
+    },
+    "formations": {
+      "hero": {
+        "badge": "Free courses · Technical SEO & GEO",
+        "title": "Technical SEO & GEO courses: make your site visible to Google <em>and</em> to AI",
+        "subtitle": "Short, hands-on courses to understand what Google and AI engines (ChatGPT, Perplexity, Google AI Overviews) actually see of your site — and to fix SEO regressions before they cost you traffic. No dev skills needed: you check with our free tools, you fix with the AI export.",
+        "ctaPrimary": "Start the free trial",
+        "ctaSecondary": "Scan my site for free"
+      },
+      "intro": "SEO is no longer only about Google. Answers from ChatGPT, Perplexity and AI Overviews read the <strong>raw HTML</strong> of your pages — not the JavaScript render you see in your browser. A modern site (misconfigured SSR/CSR, structured data injected via JavaScript, a <code>robots.txt</code> that blocks AI crawlers) can go invisible without anyone noticing. These courses teach you to catch it and fix it.",
+      "program": {
+        "title": "The first course",
+        "intro": "A complete course in {count} modules, released one at a time. Each module = one concrete problem, a demo on a real site, and the method to check then fix your own. Free — the first modules are coming soon."
+      },
+      "course": {
+        "tag": "GEO / AI",
+        "soon": "Soon",
+        "title": "Your site and AI",
+        "desc": "Make your site visible and citable by ChatGPT, Perplexity and Google's AI Overviews. From diagnosis (\"can AI see my site?\") to the fix — no jargon, no coding required.",
+        "metaModules": "{count} modules",
+        "metaFree": "Free",
+        "metaLevel": "Beginner → Advanced"
+      },
+      "why": {
+        "title": "Why these courses are different"
+      },
+      "final": {
+        "title": "Check your site while you learn",
+        "desc": "Seogard continuously monitors your site for SEO and GEO regressions and alerts you before Google does. 14-day trial, no credit card.",
+        "cta": "Get started for free"
+      },
+      "lessons": [
+        {
+          "title": "Your site is invisible to AI: the 30-second test",
+          "desc": "Start with the diagnosis: in 30 seconds, check what AI actually reads from your pages (the raw HTML, not your browser)."
+        },
+        {
+          "title": "The 5 reasons AI doesn't cite you",
+          "desc": "The big picture: the 5 causes that make a site invisible to AI, and where to start."
+        },
+        {
+          "title": "You're blocking ChatGPT and Perplexity without knowing it (1 line in robots.txt)",
+          "desc": "The difference between training and citation, and the robots.txt line that makes you invisible in AI answers."
+        },
+        {
+          "title": "llms.txt: the file that gets you cited… or pure hype?",
+          "desc": "An honest teardown of a trendy file: what it does, what it doesn't, and when it's worth your time."
+        },
+        {
+          "title": "AI cites your competitors, not you: the real reason (author, date, sources)",
+          "desc": "The citation signals that decide who AI features — and how to add them to your pages."
+        },
+        {
+          "title": "Write your article so AI copies it: the first 30% decide everything",
+          "desc": "The citable structure: answer up front, clear headings, questions and answers. What makes your content get copied."
+        },
+        {
+          "title": "Where to find the questions that get you cited by AI (without making them up)",
+          "desc": "Where to gather your audience's real questions for FAQs that AI cites — without inventing any."
+        },
+        {
+          "title": "Your JavaScript hides your structured data from AI (and your links from Google)",
+          "desc": "Why JSON-LD or links injected via JavaScript stay invisible, and how to serve them in the raw HTML."
+        },
+        {
+          "title": "Redesign or update: the day you go invisible to AI without noticing",
+          "desc": "How a deploy silently breaks your AI visibility, and how to catch it before it's too late."
+        }
+      ],
+      "benefits": [
+        {
+          "title": "Open to everyone",
+          "desc": "Even without coding. You check with our free tools and fix by pasting Seogard's AI export into ChatGPT, Claude or your CMS assistant."
+        },
+        {
+          "title": "On real sites",
+          "desc": "No theory: we open real pages, prove the flaw on screen, show the fix. You leave with a repeatable method."
+        },
+        {
+          "title": "SEO + GEO together",
+          "desc": "Google visibility and visibility in AI answers (ChatGPT, Perplexity, AI Overviews) handled together, because both depend on your raw HTML."
+        },
+        {
+          "title": "Honest, no magic promises",
+          "desc": "No fake traffic or ranking promises. We give you the real mechanics; you decide what to prioritize."
+        }
+      ]
     }
   }
 }

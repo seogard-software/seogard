@@ -24,7 +24,12 @@
       "dashboard": "Dashboard",
       "login": "Log in",
       "tryFree": "Try for free",
-      "bookDemo": "Book a demo"
+      "bookDemo": "Book a demo",
+      "switchLanguage": "Switch language",
+      "langFr": "French",
+      "langEn": "English",
+      "language": "Language",
+      "productGroup": "The product"
     },
     "cookieBanner": {
       "text": "This site only uses cookies essential to its operation (authentication). No advertising cookies or third-party trackers.",

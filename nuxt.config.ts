@@ -22,12 +22,12 @@ export default defineNuxtConfig({
       {
         code: 'fr',
         language: 'fr-FR',
-        files: ['fr/common.json', 'fr/validation.json', 'fr/landing.json', 'fr/docs.json', 'fr/auth.json', 'fr/dashboard.json', 'fr/errors.json', 'fr/seo.json'],
+        files: ['fr/common.json', 'fr/validation.json', 'fr/landing.json', 'fr/docs.json', 'fr/auth.json', 'fr/dashboard.json', 'fr/errors.json', 'fr/seo.json', 'fr/legal.json'],
       },
       {
         code: 'en',
         language: 'en-US',
-        files: ['en/common.json', 'en/validation.json', 'en/landing.json', 'en/docs.json', 'en/auth.json', 'en/dashboard.json', 'en/errors.json', 'en/seo.json'],
+        files: ['en/common.json', 'en/validation.json', 'en/landing.json', 'en/docs.json', 'en/auth.json', 'en/dashboard.json', 'en/errors.json', 'en/seo.json', 'en/legal.json'],
       },
     ],
     defaultLocale: 'fr',
@@ -75,6 +75,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/api/**': { cors: true },
     '/fr/formations': { swr: 3600 },
+    '/en/formations': { swr: 3600 },
     '/fr/outils/**': { swr: 3600 },
     // 301 des anciennes URLs racine vers leur équivalent /fr.
     '/': { redirect: { to: '/fr', statusCode: 301 } },
@@ -89,10 +90,6 @@ export default defineNuxtConfig({
     '/en/docs': { redirect: { to: '/en/docs/rules', statusCode: 301 } },
     '/docs/rules': { redirect: { to: '/fr/docs/rules', statusCode: 301 } },
     '/docs/self-hosted': { redirect: { to: '/fr/docs/self-hosted', statusCode: 301 } },
-    // Pages FR-only : leur variante /en/ (contenu FR sous URL EN) redirige vers le FR. 302 car
-    // une version EN pourra exister un jour.
-    '/en/formations': { redirect: { to: '/fr/formations', statusCode: 302 } },
-    '/en/legal/**': { redirect: { to: '/fr/legal/**', statusCode: 302 } },
   },
 
   nitro: {

@@ -4,69 +4,55 @@
     <section class="formations__hero">
       <span class="formations__badge">
         <AppIcon name="check" size="sm" />
-        Formations gratuites · SEO technique &amp; GEO
+        {{ $t('landing.formations.hero.badge') }}
       </span>
-      <h1 class="formations__title">
-        Formations SEO technique &amp; GEO : rendez votre site visible par Google <em>et</em> par l'IA
-      </h1>
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <h1 class="formations__title" v-html="$t('landing.formations.hero.title')" />
       <p class="formations__subtitle">
-        Des formations courtes et concrètes pour comprendre ce que Google et les moteurs IA
-        (ChatGPT, Perplexity, Google AI Overviews) voient vraiment de votre site — et corriger les
-        régressions SEO avant qu'elles ne vous coûtent du trafic. Accessibles même sans être
-        développeur : vous vérifiez avec nos outils gratuits, vous corrigez avec l'export IA.
+        {{ $t('landing.formations.hero.subtitle') }}
       </p>
       <div class="formations__cta">
         <NuxtLink to="/register" class="formations__btn formations__btn--primary">
-          Commencer l'essai gratuit
+          {{ $t('landing.formations.hero.ctaPrimary') }}
         </NuxtLink>
         <NuxtLink to="/scanner" class="formations__btn formations__btn--ghost">
-          Scanner mon site gratuitement
+          {{ $t('landing.formations.hero.ctaSecondary') }}
         </NuxtLink>
       </div>
     </section>
 
     <!-- Positionnement -->
     <section class="formations__intro">
-      <p>
-        Le SEO ne se joue plus seulement sur Google. Les réponses de ChatGPT, Perplexity et des
-        AI Overviews lisent le <strong>HTML brut</strong> de vos pages — pas le rendu JavaScript que
-        vous voyez dans votre navigateur. Un site moderne (SSR/CSR mal configuré, données
-        structurées injectées en JavaScript, <code>robots.txt</code> qui bloque les crawlers IA)
-        peut être invisible sans que personne ne s'en aperçoive. Ces formations vous apprennent à
-        le détecter et à le réparer.
-      </p>
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <p v-html="$t('landing.formations.intro')" />
     </section>
 
     <!-- La formation -->
     <section class="formations__program">
-      <h2 class="formations__section-title">La première formation</h2>
+      <h2 class="formations__section-title">{{ $t('landing.formations.program.title') }}</h2>
       <p class="formations__section-intro">
-        Une formation complète en {{ lessons.length }} modules, publiés un par un. Chaque module =
-        un problème concret, une démonstration sur un vrai site, et la méthode pour vérifier puis
-        corriger le vôtre. Gratuite — les premiers modules arrivent bientôt.
+        {{ $t('landing.formations.program.intro', { count: lessons.length }) }}
       </p>
 
       <article class="formations__course">
         <div class="formations__course-banner">
           <div class="formations__course-head">
-            <span class="formations__tag formations__tag--geo">GEO / IA</span>
-            <span class="formations__soon">Bientôt</span>
+            <span class="formations__tag formations__tag--geo">{{ $t('landing.formations.course.tag') }}</span>
+            <span class="formations__soon">{{ $t('landing.formations.course.soon') }}</span>
           </div>
-          <h3 class="formations__course-title">Ton site et l'IA</h3>
+          <h3 class="formations__course-title">{{ $t('landing.formations.course.title') }}</h3>
           <p class="formations__course-desc">
-            Rendez votre site visible et citable par ChatGPT, Perplexity et les AI Overviews de
-            Google. Du diagnostic (« l'IA voit-elle mon site ? ») jusqu'à la correction — sans
-            jargon, sans savoir coder.
+            {{ $t('landing.formations.course.desc') }}
           </p>
           <div class="formations__course-meta">
             <span class="formations__meta-item">
-              <AppIcon name="pages" size="sm" /> {{ lessons.length }} modules
+              <AppIcon name="pages" size="sm" /> {{ $t('landing.formations.course.metaModules', { count: lessons.length }) }}
             </span>
             <span class="formations__meta-item">
-              <AppIcon name="check" size="sm" /> Gratuit
+              <AppIcon name="check" size="sm" /> {{ $t('landing.formations.course.metaFree') }}
             </span>
             <span class="formations__meta-item">
-              <AppIcon name="chart-bar" size="sm" /> Débutant → Avancé
+              <AppIcon name="chart-bar" size="sm" /> {{ $t('landing.formations.course.metaLevel') }}
             </span>
           </div>
         </div>
@@ -88,7 +74,7 @@
 
     <!-- Pourquoi -->
     <section class="formations__why">
-      <h2 class="formations__section-title">Pourquoi ces formations sont différentes</h2>
+      <h2 class="formations__section-title">{{ $t('landing.formations.why.title') }}</h2>
       <div class="formations__why-grid">
         <div v-for="item in benefits" :key="item.title" class="formations__why-item">
           <h3 class="formations__why-title">{{ item.title }}</h3>
@@ -99,13 +85,12 @@
 
     <!-- CTA final -->
     <section class="formations__final">
-      <h2 class="formations__final-title">Vérifiez votre site pendant que vous apprenez</h2>
+      <h2 class="formations__final-title">{{ $t('landing.formations.final.title') }}</h2>
       <p class="formations__final-desc">
-        Seogard surveille en continu les régressions SEO et GEO de votre site et vous alerte avant
-        Google. Essai 14 jours, sans carte bancaire.
+        {{ $t('landing.formations.final.desc') }}
       </p>
       <NuxtLink to="/register" class="formations__btn formations__btn--primary">
-        Démarrer gratuitement
+        {{ $t('landing.formations.final.cta') }}
       </NuxtLink>
     </section>
   </div>
@@ -114,44 +99,35 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'landing', auth: false })
 
-interface Lesson {
-  title: string
-  desc: string
-}
+interface Lesson { title: string, desc: string }
+
+const { t, tm, rt, locale } = useI18n()
+const localePath = useLocalePath()
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
 
 // Modules de la formation « Ton site et l'IA » = la série vidéo (pilier + 8 épisodes) planifiée
-// dans .claude/youtube/cluster-ia.md. Publiés un par un, tous à venir. Aucun module inventé.
-const lessons: Lesson[] = [
-  { title: 'Votre site est invisible pour l\'IA : le test en 30 secondes', desc: 'On commence par le diagnostic : vérifiez en 30 secondes ce que l\'IA lit réellement de vos pages (le HTML brut, pas votre navigateur).' },
-  { title: 'Les 5 raisons pour lesquelles l\'IA ne vous cite pas', desc: 'La vue d\'ensemble : les 5 causes qui rendent un site invisible pour les IA, et par où commencer.' },
-  { title: 'Vous bloquez ChatGPT et Perplexity sans le savoir (1 ligne dans robots.txt)', desc: 'La nuance entre entraînement et citation, et la ligne de robots.txt qui vous rend invisible dans les réponses IA.' },
-  { title: 'llms.txt : le fichier qui vous fait citer… ou du pur bullshit ?', desc: 'Le démontage honnête d\'un fichier à la mode : ce qu\'il fait, ce qu\'il ne fait pas, et quand s\'en occuper.' },
-  { title: 'L\'IA cite vos concurrents, pas vous : la vraie raison (auteur, date, sources)', desc: 'Les signaux de citation qui décident qui l\'IA met en avant — et comment les ajouter à vos pages.' },
-  { title: 'Écrivez votre article pour que l\'IA le recopie : les 30 premiers % décident tout', desc: 'La structure citable : réponse dès l\'intro, titres clairs, questions/réponses. Ce qui fait recopier votre contenu.' },
-  { title: 'Où trouver les questions qui vous font citer par l\'IA (sans les inventer)', desc: 'Où récolter les vraies questions de votre audience pour des FAQ que l\'IA cite — sans en inventer.' },
-  { title: 'Votre JavaScript cache vos données structurées à l\'IA (et vos liens à Google)', desc: 'Pourquoi un JSON-LD ou des liens injectés en JavaScript restent invisibles, et comment les servir dès le HTML brut.' },
-  { title: 'Refonte ou mise à jour : le jour où vous devenez invisible pour l\'IA sans rien voir', desc: 'Comment un déploiement casse silencieusement votre visibilité IA, et comment le détecter avant qu\'il soit trop tard.' },
-]
+// dans .claude/youtube/cluster-ia.md. Wording en i18n (landing.formations.lessons/benefits).
+const lessons = computed<Lesson[]>(() =>
+  (tm('landing.formations.lessons') as Lesson[]).map(l => ({ title: rt(l.title), desc: rt(l.desc) })),
+)
+const benefits = computed<Lesson[]>(() =>
+  (tm('landing.formations.benefits') as Lesson[]).map(b => ({ title: rt(b.title), desc: rt(b.desc) })),
+)
 
-const benefits = [
-  { title: 'Accessible à tous', desc: 'Même sans coder. Vous vérifiez avec nos outils gratuits et vous corrigez en collant l\'export IA de Seogard dans ChatGPT, Claude ou l\'assistant de votre CMS.' },
-  { title: 'Sur de vrais sites', desc: 'Pas de théorie : on ouvre de vraies pages, on prouve le défaut à l\'écran, on montre le correctif. Vous repartez avec une méthode reproductible.' },
-  { title: 'SEO + GEO réunis', desc: 'La visibilité Google et la visibilité dans les réponses IA (ChatGPT, Perplexity, AI Overviews) traitées ensemble, parce que les deux dépendent de votre HTML brut.' },
-  { title: 'Honnête, sans promesse magique', desc: 'Aucune fausse promesse de trafic ou de ranking. On vous donne les mécaniques réelles ; vous décidez quoi prioriser.' },
-]
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
 
 useSeoMeta({
-  title: 'Formations SEO technique & GEO gratuites — visibilité Google et IA',
-  description: 'Apprenez le SEO technique et le GEO (visibilité IA) : SSR vs CSR, crawlers ChatGPT/Perplexity, llms.txt, données structurées, régressions SEO et gate CI/CD. Formations gratuites, accessibles même sans coder.',
-  ogTitle: 'Formations SEO technique & GEO — rendez votre site visible par Google et par l\'IA',
-  ogDescription: 'Formations gratuites SEO/GEO : ce que Google et l\'IA voient de votre site, et comment corriger les régressions avant qu\'elles coûtent du trafic.',
+  title: t('seo.formations.title'),
+  description: t('seo.formations.description'),
+  ogTitle: t('seo.formations.ogTitle'),
+  ogDescription: t('seo.formations.ogDescription'),
   ogType: 'website',
-  ogUrl: 'https://seogard.io/fr/formations',
-  ogImage: 'https://seogard.io/og-image.png',
+  ogUrl: `${appUrl}${localePath({ name: 'formations' })}`,
+  ogImage,
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://seogard.io/og-image.png',
-  twitterTitle: 'Formations SEO technique & GEO gratuites',
-  twitterDescription: 'SSR/CSR, crawlers IA, llms.txt, données structurées, régressions SEO. Gratuit, même sans coder.',
+  twitterImage: ogImage,
+  twitterTitle: t('seo.formations.twitterTitle'),
+  twitterDescription: t('seo.formations.twitterDescription'),
   robots: 'index, follow',
 })
 
@@ -162,12 +138,12 @@ useHead({
     innerHTML: JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'Course',
-      'name': 'Ton site et l\'IA',
-      'description': 'Formation gratuite en modules pour rendre son site visible et citable par ChatGPT, Perplexity et les AI Overviews de Google.',
-      'provider': { '@type': 'Organization', 'name': 'Seogard', 'url': 'https://seogard.io' },
-      'inLanguage': 'fr',
+      'name': t('seo.formations.jsonld.name'),
+      'description': t('seo.formations.jsonld.desc'),
+      'provider': { '@type': 'Organization', 'name': 'Seogard', 'url': appUrl },
+      'inLanguage': locale.value,
       'isAccessibleForFree': true,
-      'syllabusSections': lessons.map((l, i) => ({
+      'syllabusSections': lessons.value.map((l, i) => ({
         '@type': 'Syllabus',
         'position': i + 1,
         'name': l.title,

@@ -57,10 +57,11 @@ describe('GET /sitemap.xml — pages statiques (blog supprimé)', () => {
     expect(xml).toContain('hreflang="fr" href="https://seogard.io/fr/outils/monitoring"')
   })
 
-  it('FR-only : formations déclarée en FR seulement (contenu FR, /en redirige)', async () => {
+  it('formations : bilingue (FR + EN traduits) avec hreflang', async () => {
     const xml = await handler(fakeEvent)
     expect(xml).toContain('<loc>https://seogard.io/fr/formations</loc>')
-    expect(xml).not.toContain('<loc>https://seogard.io/en/formations</loc>')
+    expect(xml).toContain('<loc>https://seogard.io/en/formations</loc>')
+    expect(xml).toContain('hreflang="en" href="https://seogard.io/en/formations"')
   })
 
   it('ne déclare pas /docs (pivot 301 → /docs/rules : jamais une URL qui redirige au sitemap)', async () => {

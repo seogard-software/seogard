@@ -6,8 +6,6 @@ import { readFileSync, globSync } from 'node:fs'
 // UI/serveur, hors liste blanche (contenus volontairement FR-only) et hors commentaires.
 
 const WHITELIST = [
-  'app/pages/legal/', // légal FR-only v1 (traduction juridique dédiée plus tard)
-  'app/pages/formations/', // formations FR-only au lancement (décision plan)
   'app/pages/docs/emails/', // previews internes dev-only
   'i18n/locales/', // les locales elles-mêmes
   'server/routes/docs/emails/preview/', // sample data des previews internes (angle mort O, liste blanche plan)

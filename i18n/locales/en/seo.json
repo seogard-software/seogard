@@ -108,6 +108,18 @@
     },
     "default": {
       "description": "SEO regression monitoring. Catch SEO regressions before Google does."
+    },
+    "formations": {
+      "title": "Free Technical SEO & GEO Courses — Google and AI Visibility",
+      "description": "Learn technical SEO and GEO (AI visibility): SSR vs CSR, ChatGPT/Perplexity crawlers, llms.txt, structured data, SEO regressions and CI/CD gate. Free courses, no coding required.",
+      "ogTitle": "Technical SEO & GEO Courses — make your site visible to Google and to AI",
+      "ogDescription": "Free SEO/GEO courses: what Google and AI see of your site, and how to fix regressions before they cost you traffic.",
+      "twitterTitle": "Free Technical SEO & GEO Courses",
+      "twitterDescription": "SSR/CSR, AI crawlers, llms.txt, structured data, SEO regressions. Free, no coding needed.",
+      "jsonld": {
+        "name": "Your site and AI",
+        "desc": "A free modular course to make your site visible and citable by ChatGPT, Perplexity and Google's AI Overviews."
+      }
     }
   }
 }

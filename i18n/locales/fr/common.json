@@ -24,7 +24,12 @@
       "dashboard": "Dashboard",
       "login": "Connexion",
       "tryFree": "Tester gratuitement",
-      "bookDemo": "Réserver une démo"
+      "bookDemo": "Réserver une démo",
+      "switchLanguage": "Changer de langue",
+      "langFr": "Français",
+      "langEn": "Anglais",
+      "language": "Langue",
+      "productGroup": "Le produit"
     },
     "cookieBanner": {
       "text": "Ce site utilise uniquement des cookies essentiels à son fonctionnement (authentification). Aucun cookie publicitaire ni tracker tiers.",

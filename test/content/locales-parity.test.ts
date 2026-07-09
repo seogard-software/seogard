@@ -25,10 +25,11 @@ describe('locales — parité de clés fr/en', () => {
   })
 
   it('aucune valeur EN ne contient de français (accents)', () => {
+    // Noms propres légitimes (adresse légale, juridiction) tolérés dans du contenu EN — ex. la
+    // ville de Créteil (RCS / tribunaux) dans les pages légales.
+    const PROPER_NOUNS = /Créteil/g
     for (const f of globSync('i18n/locales/en/*.json')) {
-      const values = JSON.stringify(JSON.parse(readFileSync(f, 'utf8')))
-      // Les caractères accentués sont interdits côté EN (sauf noms propres type Créteil — tolérés
-      // explicitement ci-dessous s'ils apparaissent un jour dans les locales).
+      const values = JSON.stringify(JSON.parse(readFileSync(f, 'utf8'))).replace(PROPER_NOUNS, '')
       const hits = values.match(/[àâäéèêëîïôöùûüçœÀÂÄÉÈÊËÎÏÔÖÙÛÜÇŒ]/g) ?? []
       expect(hits, `français résiduel dans ${f}`).toEqual([])
     }

@@ -23,6 +23,14 @@
     margin-bottom: $spacing-10;
   }
 
+  &__note {
+    font-size: $font-size-sm;
+    font-style: italic;
+    color: $color-gray-500;
+    margin-top: -$spacing-6;
+    margin-bottom: $spacing-10;
+  }
+
   h2 {
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
