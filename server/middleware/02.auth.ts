@@ -50,5 +50,5 @@ export default defineEventHandler(async (event) => {
   }
 
   // 3. Nothing valid
-  throw createError({ statusCode: 401, message: 'Non authentifie' })
+  throw createError({ statusCode: 401, message: 'Not authenticated', data: { errorCode: 'UNAUTHORIZED' } })
 })

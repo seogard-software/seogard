@@ -55,14 +55,14 @@ registerRule({
     if (!newMetaRobots && !oldTracked) return []
 
     const sources: string[] = []
-    if (newMetaRobots) sources.push('balise meta robots')
-    if (includesNoindex(ctx.newMeta.robotsGooglebot)) sources.push('balise meta googlebot')
-    if (includesNoindex(ctx.newMeta.xRobotsTag)) sources.push('en-tête HTTP X-Robots-Tag')
+    if (newMetaRobots) sources.push('meta robots tag')
+    if (includesNoindex(ctx.newMeta.robotsGooglebot)) sources.push('meta googlebot tag')
+    if (includesNoindex(ctx.newMeta.xRobotsTag)) sources.push('X-Robots-Tag HTTP header')
 
     return [{
       type: 'noindex_added',
       severity: 'critical',
-      message: `noindex ajouté (${sources.join(', ')}) — la page va être désindexée`,
+      message: `noindex added (${sources.join(', ')}) — the page will be deindexed`,
       previousValue: ctx.oldMeta.robots ?? ctx.oldMeta.xRobotsTag ?? null,
       currentValue: ctx.newMeta.robots ?? ctx.newMeta.xRobotsTag ?? ctx.newMeta.robotsGooglebot ?? null,
     }]

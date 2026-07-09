@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { crawlReportTemplate } from './email-templates'
+import { crawlReportTemplate, welcomeTemplate, sitemapEstimateTemplate } from './email-templates'
 
 const base = {
   siteName: 'le-code.dev',
@@ -94,5 +94,40 @@ describe('crawlReportTemplate — corps', () => {
     const regressions = Array.from({ length: 11 }, (_, i) => ({ pageUrl: `/p${i}`, severity: 'warning', message: `M${i}` }))
     const { html } = crawlReportTemplate({ ...base, regressions })
     expect(html).toContain('+3 autres régressions') // 11 - 8
+  })
+})
+
+describe('i18n des templates (chaînes dans i18n/locales/<locale>/emails.json)', () => {
+  it('rendu en fr → contient le texte FR attendu', () => {
+    const { subject, html } = welcomeTemplate('fr')
+    expect(subject).toBe('Votre essai Seogard est actif — commencez votre premier crawl')
+    expect(html).toContain('Bienvenue sur Seogard')
+    expect(html).toContain('lang="fr"')
+  })
+
+  it('rendu en en (locale traduite) → sujet EN acté, jamais de clé brute ni de FR', () => {
+    const en = welcomeTemplate('en')
+    expect(en.subject).toBe("You're in. Here's how to catch your first regression.")
+    expect(en.html).not.toContain('Bienvenue sur Seogard')
+    expect(en.html).not.toContain('emails.welcome.') // jamais de clé brute dans un email
+  })
+})
+
+describe('sitemapEstimateTemplate — locale du prospect (lead public)', () => {
+  const data = { url: 'exemple.com', pageCount: 1234, price: '', sitemapUrl: 'https://exemple.com/sitemap.xml' }
+
+  it('FR : sujet français + nombre au format FR (espace)', () => {
+    const { subject } = sitemapEstimateTemplate({ ...data, price: '12 €' }, 'fr')
+    expect(subject).toContain('Votre estimation')
+    expect(subject).toMatch(/1.234 pages/) // 1<espace fine insécable>234
+    expect(subject).not.toContain('1,234') // jamais le format EN
+  })
+
+  it('EN : sujet anglais + nombre au format EN (virgule)', () => {
+    const { subject, html } = sitemapEstimateTemplate({ ...data, price: '$12' }, 'en')
+    expect(subject).toContain('Your estimate')
+    expect(subject).toContain('1,234 pages') // séparateur virgule EN
+    expect(html).not.toContain('Votre estimation')
+    expect(html).not.toContain('emails.sitemapEstimate.') // aucune clé brute
   })
 })

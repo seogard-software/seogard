@@ -3,17 +3,17 @@
     <div v-if="visible" class="cookie-banner">
       <div class="cookie-banner__inner">
         <p class="cookie-banner__text">
-          Ce site utilise uniquement des cookies essentiels à son fonctionnement (authentification).
-          Aucun cookie publicitaire ni tracker tiers.
-          <NuxtLink to="/legal/cookies">En savoir plus</NuxtLink>
+          {{ $t('common.cookieBanner.text') }}
+          <NuxtLink :to="localePath({ name: 'legal-cookies' })">{{ $t('common.cookieBanner.learnMore') }}</NuxtLink>
         </p>
-        <button class="cookie-banner__btn" @click="accept">Compris</button>
+        <button class="cookie-banner__btn" @click="accept">{{ $t('common.cookieBanner.accept') }}</button>
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
+const localePath = useLocalePath()
 const COOKIE_KEY = 'seogard-cookies'
 const visible = ref(false)
 

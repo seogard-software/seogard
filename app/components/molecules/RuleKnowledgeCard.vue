@@ -1,9 +1,9 @@
 <template>
   <div class="rule-knowledge">
-    <p class="rule-knowledge__block"><strong>Constat.</strong> {{ knowledge.constat }}</p>
-    <p class="rule-knowledge__block"><strong>Pourquoi c'est important.</strong> {{ knowledge.pourquoi }}</p>
-    <p class="rule-knowledge__block rule-knowledge__block--action"><strong>Action.</strong> {{ knowledge.action }}</p>
-    <p class="rule-knowledge__block rule-knowledge__block--gain"><strong>Ce que vous gagnez.</strong> {{ knowledge.gain }}</p>
+    <p class="rule-knowledge__block"><strong>{{ $t('dashboard.c.ruleKnowledge.constat') }}</strong> {{ knowledge.constat }}</p>
+    <p class="rule-knowledge__block"><strong>{{ $t('dashboard.c.ruleKnowledge.pourquoi') }}</strong> {{ knowledge.pourquoi }}</p>
+    <p class="rule-knowledge__block rule-knowledge__block--action"><strong>{{ $t('dashboard.c.ruleKnowledge.action') }}</strong> {{ knowledge.action }}</p>
+    <p class="rule-knowledge__block rule-knowledge__block--gain"><strong>{{ $t('dashboard.c.ruleKnowledge.gain') }}</strong> {{ knowledge.gain }}</p>
   </div>
 </template>
 

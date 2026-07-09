@@ -7,23 +7,23 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.code) {
-    throw createError({ statusCode: 400, message: 'Code requis' })
+    throw createError({ statusCode: 400, message: 'Code required', data: { errorCode: 'CODE_REQUIRED' } })
   }
 
   // Read pending token from cookie
   const pendingToken = getCookie(event, 'totp-pending')
   if (!pendingToken) {
-    throw createError({ statusCode: 401, message: 'Session de vérification expirée. Reconnectez-vous.' })
+    throw createError({ statusCode: 401, message: 'Verification session expired. Log in again.', data: { errorCode: 'TOTP_SESSION_EXPIRED' } })
   }
 
   const payload = verifyAccessToken(pendingToken)
   if (!payload) {
-    throw createError({ statusCode: 401, message: 'Session de vérification expirée. Reconnectez-vous.' })
+    throw createError({ statusCode: 401, message: 'Verification session expired. Log in again.', data: { errorCode: 'TOTP_SESSION_EXPIRED' } })
   }
 
   const user = await User.findById(payload.userId).select('email totpSecret totpEnabled backupCodes')
   if (!user || !user.totpEnabled || !user.totpSecret) {
-    throw createError({ statusCode: 400, message: '2FA non configuré' })
+    throw createError({ statusCode: 400, message: '2FA not configured', data: { errorCode: 'TOTP_NOT_CONFIGURED' } })
   }
 
   // Try TOTP code first
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!verified) {
-    throw createError({ statusCode: 401, message: 'Code invalide' })
+    throw createError({ statusCode: 401, message: 'Invalid code', data: { errorCode: 'CODE_INVALID' } })
   }
 
   // Clear pending cookie

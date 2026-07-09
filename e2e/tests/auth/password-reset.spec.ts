@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { gotoHydrated } from '../../helpers/hydration'
 
 const BASE = 'http://localhost:3333'
 
@@ -46,20 +47,20 @@ test.describe('Password reset — API', () => {
 
 test.describe('Password reset — UI', () => {
   test('forgot password page is accessible', async ({ page }) => {
-    await page.goto('/forgot-password')
+    await gotoHydrated(page, '/forgot-password')
     await expect(page.getByText('Mot de passe oublié')).toBeVisible()
     await expect(page.getByPlaceholder('vous@exemple.com')).toBeVisible()
   })
 
   test('forgot password shows confirmation after submit', async ({ page }) => {
-    await page.goto('/forgot-password')
+    await gotoHydrated(page, '/forgot-password')
     await page.getByPlaceholder('vous@exemple.com').fill('owner@test-seogard.io')
     await page.getByRole('button', { name: 'Envoyer le lien' }).click()
     await expect(page.getByText('Email envoyé')).toBeVisible({ timeout: 10_000 })
   })
 
   test('reset password page shows error for invalid token', async ({ page }) => {
-    await page.goto('/reset-password?token=invalid')
+    await gotoHydrated(page, '/reset-password?token=invalid')
     await page.getByPlaceholder('8 caractères minimum').fill('newpassword123')
     await page.getByPlaceholder('Retapez votre mot de passe').fill('newpassword123')
     await page.getByRole('button', { name: 'Réinitialiser le mot de passe' }).click()
@@ -67,11 +68,16 @@ test.describe('Password reset — UI', () => {
     await expect(page.getByText('expiré', { exact: false }).first()).toBeVisible({ timeout: 10_000 })
   })
 
-  test('login page has forgot password link', async ({ page }) => {
-    await page.goto('/login')
+  // /login redirige les sessions actives (redirectIfAuth) : ce parcours se teste ANONYME.
+  test.describe('anonyme', () => {
+    test.use({ storageState: { cookies: [], origins: [] } })
+
+    test('login page has forgot password link', async ({ page }) => {
+    await gotoHydrated(page, '/login')
     // Enter email to get to password step
     await page.getByPlaceholder('votre@email.com').fill('owner@test-seogard.io')
     await page.getByRole('button', { name: 'Continuer' }).click()
-    await expect(page.getByText('Mot de passe oublié')).toBeVisible({ timeout: 10_000 })
+      await expect(page.getByText('Mot de passe oublié')).toBeVisible({ timeout: 10_000 })
+    })
   })
 })

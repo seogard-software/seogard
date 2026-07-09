@@ -8,7 +8,7 @@
           type="button"
           class="perf-badge__info-btn"
           :class="{ 'perf-badge__info-btn--open': open }"
-          :aria-label="`Aide : ${label}`"
+          :aria-label="$t('dashboard.c.perfBadge.helpAria', { label })"
           @click.stop="open = !open"
         >
           <AppIcon name="help-circle" size="sm" />
@@ -36,21 +36,18 @@
             type="button"
             class="perf-badge__flag"
             :class="{ 'perf-badge__flag--open': openSyn }"
-            aria-label="Qu'est-ce qu'une mesure synthétique ?"
+            :aria-label="$t('dashboard.c.perfBadge.syntheticAria')"
             @click.stop="openSyn = !openSyn"
           >
-            Synthétique
+            {{ $t('dashboard.c.perfBadge.synthetic') }}
           </button>
           <div
             class="perf-badge__popover perf-badge__popover--syn"
             :class="{ 'perf-badge__popover--open': openSyn }"
             role="tooltip"
           >
-            <strong class="perf-badge__popover-abbr">Mesure synthétique</strong>
-            Réalisée par notre crawler en conditions labo (un passage par crawl), pas par vos
-            vrais visiteurs. La valeur varie d'un crawl à l'autre — la carte affiche la dernière
-            mesure, le graphe montre la variance sur 30 j. Google classe sur les données terrain
-            (utilisateurs réels) ; INP non mesurable en synthétique.
+            <strong class="perf-badge__popover-abbr">{{ $t('dashboard.c.perfBadge.syntheticTitle') }}</strong>
+            {{ $t('dashboard.c.perfBadge.syntheticText') }}
           </div>
         </div>
       </div>
@@ -65,8 +62,10 @@
 import type { WebVitalRating } from '~~/shared/types/perf'
 
 interface Props {
-  label: string          // libellé métier clair, ex : "Affichage du contenu"
-  value: string          // valeur formatée, ex : "2,1 s"
+  // libellé métier clair, ex : "Affichage du contenu"
+  label: string
+  // valeur formatée, ex : "2,1 s"
+  value: string
   rating: WebVitalRating // good / needs-improvement / poor
   hint: string           // explication métier affichée dans le popover
   abbr?: string          // terme technique (LCP, CLS, TTFB), affiché discrètement
@@ -75,15 +74,17 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), { abbr: '', synthetic: false })
 
+const { t } = useI18n()
+
 const open = ref(false)
 const openSyn = ref(false)
 
-const RATING_LABELS: Record<WebVitalRating, string> = {
-  'good': 'Bon',
-  'needs-improvement': 'À améliorer',
-  'poor': 'Médiocre',
+const RATING_KEYS: Record<WebVitalRating, string> = {
+  'good': 'dashboard.c.perfBadge.ratingGood',
+  'needs-improvement': 'dashboard.c.perfBadge.ratingNeedsImprovement',
+  'poor': 'dashboard.c.perfBadge.ratingPoor',
 }
-const ratingLabel = computed(() => RATING_LABELS[props.rating])
+const ratingLabel = computed(() => t(RATING_KEYS[props.rating]))
 </script>
 
 <style scoped lang="scss">

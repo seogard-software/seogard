@@ -1,18 +1,18 @@
 <template>
   <div class="docs-rules">
     <div class="docs-rules__container">
-      <h1 class="docs-rules__title">Règles SEO</h1>
-      <p class="docs-rules__subtitle">{{ data?.total }} règles vérifiées à chaque crawl.</p>
+      <h1 class="docs-rules__title">{{ $t('docs.rules.title') }}</h1>
+      <p class="docs-rules__subtitle">{{ $t('docs.rules.subtitle', { count: data?.total ?? '' }) }}</p>
 
       <template v-if="data">
         <!-- Régressions -->
         <div class="docs-rules__block">
           <div class="docs-rules__block-header">
             <div>
-              <h2 class="docs-rules__block-title">Monitoring (détection de régressions)</h2>
-              <p class="docs-rules__block-desc">Comparent l'état actuel avec le crawl précédent. Détectent ce qui a cassé, changé ou disparu. Déclenchent des alertes.</p>
+              <h2 class="docs-rules__block-title">{{ $t('docs.rules.monitoringTitle') }}</h2>
+              <p class="docs-rules__block-desc">{{ $t('docs.rules.monitoringDesc') }}</p>
             </div>
-            <span class="docs-rules__block-count">{{ data.monitoring }} règles</span>
+            <span class="docs-rules__block-count">{{ $t('docs.rules.rulesCount', { count: data.monitoring }) }}</span>
           </div>
 
           <div class="docs-rules__sections">
@@ -20,19 +20,19 @@
               <div v-if="!String(key).includes('REC')" class="docs-rules__section">
                 <div class="docs-rules__section-header">
                   <h3 :class="['docs-rules__section-title', `docs-rules__section-title--${key}`]">{{ group.label }}</h3>
-                  <span class="docs-rules__section-meta">{{ group.description }} · {{ group.rules.length }} règles</span>
+                  <span class="docs-rules__section-meta">{{ group.description }} · {{ $t('docs.rules.rulesCount', { count: group.rules.length }) }}</span>
                 </div>
                 <div class="docs-rules__table-wrap">
                   <table class="docs-rules__table">
                     <thead>
                       <tr>
                         <th v-if="isDev">Rule ID</th>
-                        <th>Label</th>
-                        <th class="docs-rules__th-center">Severity</th>
+                        <th>{{ $t('docs.rules.thLabel') }}</th>
+                        <th class="docs-rules__th-center">{{ $t('docs.rules.thSeverity') }}</th>
                         <th v-if="isDev" class="docs-rules__th-center">Category</th>
                         <th v-if="isDev" class="docs-rules__th-center">Type</th>
                         <th v-if="isDev">File</th>
-                        <th class="docs-rules__th-center">Détails</th>
+                        <th class="docs-rules__th-center">{{ $t('docs.rules.thDetails') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -48,7 +48,7 @@
                         <td v-if="isDev" class="docs-rules__cell-center docs-rules__cell-dim">{{ rule.type }}</td>
                         <td v-if="isDev" class="docs-rules__cell-mono docs-rules__cell-dim">{{ rule.file }}</td>
                         <td class="docs-rules__cell-center">
-                          <button class="docs-rules__detail-btn" @click="openModal(rule)">En savoir plus</button>
+                          <button class="docs-rules__detail-btn" @click="openModal(rule)">{{ $t('docs.rules.detailBtn') }}</button>
                         </td>
                       </tr>
                     </tbody>
@@ -66,10 +66,10 @@
         <div class="docs-rules__block">
           <div class="docs-rules__block-header">
             <div>
-              <h2 class="docs-rules__block-title">Audit (recommandations)</h2>
-              <p class="docs-rules__block-desc">Vérifient l'état absolu de chaque page à chaque crawl. Ne comparent pas avec le passé — signalent les bonnes pratiques non respectées.</p>
+              <h2 class="docs-rules__block-title">{{ $t('docs.rules.auditTitle') }}</h2>
+              <p class="docs-rules__block-desc">{{ $t('docs.rules.auditDesc') }}</p>
             </div>
-            <span class="docs-rules__block-count">{{ data.recommendations }} règles</span>
+            <span class="docs-rules__block-count">{{ $t('docs.rules.rulesCount', { count: data.recommendations }) }}</span>
           </div>
 
           <div class="docs-rules__sections">
@@ -77,7 +77,7 @@
               <div v-if="String(key).includes('REC')" class="docs-rules__section">
                 <div class="docs-rules__section-header">
                   <h3 :class="['docs-rules__section-title', `docs-rules__section-title--${key}`]">{{ group.label }}</h3>
-                  <span class="docs-rules__section-meta">{{ group.description }} · {{ group.rules.length }} règles</span>
+                  <span class="docs-rules__section-meta">{{ group.description }} · {{ $t('docs.rules.rulesCount', { count: group.rules.length }) }}</span>
                 </div>
 
                 <div class="docs-rules__table-wrap">
@@ -85,11 +85,11 @@
                     <thead>
                       <tr>
                         <th v-if="isDev">Rule ID</th>
-                        <th>Label</th>
-                        <th class="docs-rules__th-center">Severity</th>
+                        <th>{{ $t('docs.rules.thLabel') }}</th>
+                        <th class="docs-rules__th-center">{{ $t('docs.rules.thSeverity') }}</th>
                         <th v-if="isDev" class="docs-rules__th-center">Type</th>
                         <th v-if="isDev">File</th>
-                        <th class="docs-rules__th-center">Détails</th>
+                        <th class="docs-rules__th-center">{{ $t('docs.rules.thDetails') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -104,7 +104,7 @@
                         <td v-if="isDev" class="docs-rules__cell-center docs-rules__cell-dim">{{ rule.type }}</td>
                         <td v-if="isDev" class="docs-rules__cell-mono docs-rules__cell-dim">{{ rule.file }}</td>
                         <td class="docs-rules__cell-center">
-                          <button class="docs-rules__detail-btn" @click="openModal(rule)">En savoir plus</button>
+                          <button class="docs-rules__detail-btn" @click="openModal(rule)">{{ $t('docs.rules.detailBtn') }}</button>
                         </td>
                       </tr>
                     </tbody>
@@ -116,7 +116,7 @@
         </div>
       </template>
 
-      <AppSpinner v-else label="Chargement..." />
+      <AppSpinner v-else :label="$t('docs.rules.loading')" />
     </div>
 
     <!-- Modal -->
@@ -139,13 +139,21 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'docs', auth: false })
 
+const { t, locale } = useI18n()
+
 const isDev = import.meta.dev
 
-const { data } = await useFetch('/api/public/rules')
+const { data } = await useFetch('/api/public/rules', { query: { locale } })
 
-useHead({ title: 'Règles SEO' })
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
+
+useHead({ title: t('seo.docsRules.title') })
 useSeoMeta({
-  description: `${data.value?.total ?? ''} règles SEO vérifiées à chaque crawl : metas, SSR/CSR, status codes, structured data, i18n, GEO.`,
+  description: t('seo.docsRules.description', { count: data.value?.total ?? '' }),
+  ogImage: ogImage.value,
+  twitterCard: 'summary_large_image',
+  twitterImage: ogImage.value,
 })
 
 interface Rule {

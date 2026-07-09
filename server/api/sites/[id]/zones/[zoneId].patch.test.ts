@@ -71,34 +71,34 @@ describe('zone.patch — security', () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: true })
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: 'Hack' })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('zone par défaut ne peut pas être modifiée')
+    await expect(handler(fakeEvent)).rejects.toThrow('Default zone cannot be modified')
   })
 
   it('returns 404 when zone not found', async () => {
     mockZoneFindOne.mockResolvedValue(null)
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: 'X' })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Zone introuvable')
+    await expect(handler(fakeEvent)).rejects.toThrow('Zone not found')
   })
 
   it('rejects empty name', async () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: false })
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: '  ' })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('nom ne peut pas être vide')
+    await expect(handler(fakeEvent)).rejects.toThrow('Name cannot be empty')
   })
 
   it('rejects invalid pattern', async () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: false })
     vi.mocked(globalThis.readBody).mockResolvedValue({ patterns: ['no-slash'] })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Pattern invalide')
+    await expect(handler(fakeEvent)).rejects.toThrow('Invalid pattern')
   })
 
   it('rejects empty patterns array', async () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: false })
     vi.mocked(globalThis.readBody).mockResolvedValue({ patterns: [] })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Au moins un path est requis')
+    await expect(handler(fakeEvent)).rejects.toThrow('At least one path is required')
   })
 })

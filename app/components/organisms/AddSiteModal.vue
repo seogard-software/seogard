@@ -1,12 +1,12 @@
 <template>
-  <AppModal v-model="model" title="Ajouter un site" :close-on-backdrop="!loading">
+  <AppModal v-model="model" :title="$t('dashboard.c.addSiteModal.title')" :close-on-backdrop="!loading">
     <form class="add-site-modal" @submit.prevent="handleSubmit">
       <AppAlert v-if="error" variant="danger">{{ error }}</AppAlert>
 
       <AppInput
         v-model="name"
-        label="Nom du site"
-        placeholder="Mon site"
+        :label="$t('dashboard.c.addSiteModal.nameLabel')"
+        :placeholder="$t('dashboard.c.addSiteModal.namePlaceholder')"
         :error="nameError"
       />
 
@@ -19,15 +19,15 @@
 
       <label class="add-site-modal__confirm">
         <input v-model="confirmedOwnership" type="checkbox" class="add-site-modal__checkbox">
-        <span>Je confirme être propriétaire de ce site ou disposer d'une autorisation explicite pour le crawler.</span>
+        <span>{{ $t('dashboard.c.addSiteModal.ownership') }}</span>
       </label>
 
       <div class="add-site-modal__actions">
         <AppButton variant="ghost" :disabled="loading" @click="model = false">
-          Annuler
+          {{ $t('dashboard.c.addSiteModal.cancel') }}
         </AppButton>
         <AppButton variant="accent" type="submit" :loading="loading" :disabled="!confirmedOwnership">
-          Ajouter
+          {{ $t('dashboard.c.addSiteModal.submit') }}
         </AppButton>
       </div>
     </form>
@@ -52,20 +52,22 @@ const loading = ref(false)
 const { createSite } = useSites()
 const toast = useToast()
 const router = useRouter()
+const { t } = useI18n()
+const apiError = useApiError()
 
 function validate(): boolean {
   nameError.value = undefined
   urlError.value = undefined
 
   if (!name.value.trim()) {
-    nameError.value = 'Le nom est requis'
+    nameError.value = t('dashboard.c.addSiteModal.nameRequired')
   }
 
   if (!url.value.trim()) {
-    urlError.value = "L'URL est requise"
+    urlError.value = t('dashboard.c.addSiteModal.urlRequired')
   }
   else if (!isValidUrl(url.value)) {
-    urlError.value = "L'URL n'est pas valide"
+    urlError.value = t('dashboard.c.addSiteModal.urlInvalid')
   }
 
   return !nameError.value && !urlError.value
@@ -89,17 +91,17 @@ async function handleSubmit() {
       confirmedOwnership.value = false
       model.value = false
       emit('success', site)
-      toast.success('Site ajouté avec succès')
+      toast.success(t('dashboard.c.addSiteModal.success'))
       await router.push(`/dashboard/sites/${site._id}`)
     }
   }
   catch (err: unknown) {
     const fetchError = err as { statusCode?: number; data?: { message?: string } }
     if (fetchError.statusCode === 409) {
-      error.value = 'Ce site existe déjà'
+      error.value = t('dashboard.c.addSiteModal.alreadyExists')
     }
     else {
-      error.value = fetchError.data?.message ?? 'Une erreur est survenue'
+      error.value = apiError(fetchError, t('dashboard.c.addSiteModal.genericError'))
     }
   }
   finally {

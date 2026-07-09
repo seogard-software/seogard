@@ -6,13 +6,13 @@ export default defineEventHandler(async (event) => {
   // Get the user's active org
   const orgId = getHeader(event, 'x-org-id')
   if (!orgId) {
-    throw createError({ statusCode: 400, message: 'Organization requise' })
+    throw createError({ statusCode: 400, message: 'Organization required', data: { errorCode: 'ORG_REQUIRED' } })
   }
 
   // Verify membership
   const membership = await OrgMember.findOne({ orgId, userId }).lean()
   if (!membership) {
-    throw createError({ statusCode: 403, message: 'Accès refusé' })
+    throw createError({ statusCode: 403, message: 'Forbidden', data: { errorCode: 'FORBIDDEN' } })
   }
 
   const invoices = await Payment.find({ orgId })

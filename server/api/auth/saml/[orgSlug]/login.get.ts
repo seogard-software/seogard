@@ -4,16 +4,16 @@ import { Organization } from '../../../../database/models'
 export default defineEventHandler(async (event) => {
   const orgSlug = getRouterParam(event, 'orgSlug')
   if (!orgSlug) {
-    throw createError({ statusCode: 400, message: 'Organisation requise' })
+    throw createError({ statusCode: 400, message: 'Organization required', data: { errorCode: 'ORG_REQUIRED' } })
   }
 
   const org = await Organization.findOne({ slug: orgSlug }).lean() as any
   if (!org || org.ssoProvider !== 'saml') {
-    throw createError({ statusCode: 404, message: 'SSO SAML non configuré pour cette organisation' })
+    throw createError({ statusCode: 404, message: 'SAML SSO not configured for this organization', data: { errorCode: 'SAML_NOT_CONFIGURED' } })
   }
 
   if (!org.samlEntryPoint || !org.samlCertificate) {
-    throw createError({ statusCode: 500, message: 'Configuration SAML incomplète' })
+    throw createError({ statusCode: 500, message: 'SAML configuration incomplete', data: { errorCode: 'SAML_CONFIG_INCOMPLETE' } })
   }
 
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'

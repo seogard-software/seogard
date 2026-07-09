@@ -29,7 +29,9 @@ async function getUserCount(): Promise<number> {
 export default defineEventHandler(async (event) => {
   if (String(process.env.NUXT_PUBLIC_SELF_HOSTED) !== 'true') return
 
-  const path = getRequestURL(event).pathname
+  // Le site public vit sous /fr/ (et /en/) : on retire le préfixe de locale avant de matcher
+  // la whitelist, sinon /fr/docs/rules et /fr/bot (self-hosted) partiraient en boucle /login.
+  const path = getRequestURL(event).pathname.replace(/^\/(?:fr|en)(?=\/|$)/, '') || '/'
 
   // Assets et fichiers statiques — toujours accessibles
   if (path.includes('.') && !path.endsWith('.html')) return

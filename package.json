@@ -25,6 +25,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1068.0",
     "@logtail/pino": "^0.5.7",
     "@node-saml/node-saml": "^5.1.0",
+    "@nuxtjs/i18n": "^9",
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
     "@pinia/nuxt": "^0.9.0",
     "@shikijs/rehype": "^4.0.1",

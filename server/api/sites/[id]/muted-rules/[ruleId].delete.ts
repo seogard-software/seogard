@@ -6,13 +6,13 @@ export default defineEventHandler(async (event) => {
 
   const ruleId = getRouterParam(event, 'ruleId')
   if (!ruleId) {
-    throw createError({ statusCode: 400, message: 'ruleId requis' })
+    throw createError({ statusCode: 400, message: 'ruleId required', data: { errorCode: 'RULE_ID_REQUIRED' } })
   }
 
   const result = await MutedRule.deleteOne({ siteId, ruleId })
 
   if (result.deletedCount === 0) {
-    throw createError({ statusCode: 404, message: 'Règle non trouvée dans les règles désactivées' })
+    throw createError({ statusCode: 404, message: 'Rule not found in muted rules', data: { errorCode: 'MUTED_RULE_NOT_FOUND' } })
   }
 
   return { unmuted: true }

@@ -1,0 +1,131 @@
+{
+  "docs": {
+    "selfHosted": {
+      "title": "Self-Hosted Guide",
+      "subtitle": "Everything you need to host Seogard on your own server.",
+      "gettingStarted": {
+        "heading": "Getting Started",
+        "prereq": "Prerequisites: <strong>Docker</strong> and <strong>Docker Compose</strong> installed on your server.",
+        "stepClone": "Clone the repo",
+        "stepEnv": "Copy and configure the environment file",
+        "editEnv": "Edit <code>.env</code> — you <strong>must</strong> change:",
+        "thVariable": "Variable",
+        "thDescription": "Description",
+        "mongoPasswordDesc": "MongoDB password — pick a strong one",
+        "jwtSecretDesc": "JWT signing key — 64+ random characters",
+        "appUrlDesc": "Public URL of your instance (e.g. <code>https://seo.mysite.com</code>)",
+        "stepRun": "Run",
+        "stepOpen": "Open <code>http://localhost:3000</code> and create your admin account",
+        "firstAccount": "The first account created becomes the <strong>administrator</strong> (owner). Registration then closes automatically — subsequent members are added by invitation.",
+        "singleEnv": "A single <code>.env</code> file for everything (web + crawler). MongoDB and Redis connections are handled automatically by Docker."
+      },
+      "architecture": {
+        "heading": "Architecture",
+        "serverLabel": "Your server",
+        "webDesc": "Dashboard + API",
+        "workersDesc": "Playwright crawler",
+        "mongoDesc": "Database",
+        "redisDesc": "Crawl queue",
+        "text": "The <strong>Web</strong> serves the dashboard and the API. The <strong>Workers</strong> crawl pages with Playwright (headless browser). <strong>Redis</strong> distributes pages to the workers. <strong>MongoDB</strong> stores the data."
+      },
+      "sizing": {
+        "heading": "Sizing",
+        "intro": "Each crawler worker uses <strong>~1 GB of RAM</strong>. MongoDB needs a RAM cache to perform well. The rest (~2 GB) is shared between Redis, the web server and the OS.",
+        "formula": "Formula: <strong>MongoDB cache = server RAM - (workers × 1 GB) - 2 GB</strong>",
+        "thRam": "Server RAM",
+        "thWorkers": "Workers",
+        "thCache": "MongoDB cache",
+        "thPages": "Pages you can monitor",
+        "cacheDefault": "The MongoDB cache defaults to <strong>2 GB</strong> in the docker-compose. Adjust it to your server by editing <code>docker-compose.self-hosted.yml</code> → <code>--wiredTigerCacheSizeGB X</code>."
+      },
+      "workers": {
+        "heading": "Adjusting workers",
+        "text": "Change the number of workers to match your server resources:",
+        "orEdit": "Or edit <code>docker-compose.self-hosted.yml</code> directly → <code>replicas: 5</code>"
+      },
+      "email": {
+        "heading": "Email notifications",
+        "optional": "Optional — without email configuration, Seogard still works but sends no alerts and no password resets.",
+        "step1Before": "Create a free account on",
+        "step1After": "(100 emails/day)",
+        "step2": "Verify your domain in the Resend dashboard",
+        "step3": "Add to your <code>.env</code>:",
+        "step4": "Restart:"
+      },
+      "oauth": {
+        "heading": "OAuth login",
+        "optional": "Optional — without OAuth, users log in with email + password.",
+        "intro": "Add the keys to your <code>.env</code> to enable each provider:",
+        "googleStep1": "Create an OAuth Client on",
+        "microsoftStep1": "Create an app on",
+        "githubStep1": "Create an OAuth App on",
+        "and": "and"
+      },
+      "whitelisting": {
+        "heading": "Crawler whitelisting",
+        "text": "If your sites are behind a WAF (Cloudflare, Akamai, etc.), you must whitelist your server's IP.",
+        "link": "See the whitelisting guide"
+      },
+      "update": {
+        "heading": "Updating",
+        "text": "MongoDB data persists in a Docker volume. No data loss during an update."
+      },
+      "license": {
+        "heading": "License",
+        "text1": "Seogard is distributed under the <strong>Business Source License 1.1 (BSL)</strong>. You can use it for free for internal use (monitoring your own sites). Using it as a competing commercial service is prohibited.",
+        "text2": "Each release automatically converts to <strong>Apache 2.0</strong> after 3 years.",
+        "link": "Read the full license"
+      },
+      "backup": {
+        "heading": "Backup"
+      }
+    },
+    "rules": {
+      "title": "SEO rules",
+      "subtitle": "{count} rules checked on every crawl.",
+      "monitoringTitle": "Monitoring (regression detection)",
+      "monitoringDesc": "Compare the current state with the previous crawl. Detect what broke, changed or disappeared. Trigger alerts.",
+      "auditTitle": "Audit (recommendations)",
+      "auditDesc": "Check the absolute state of every page on every crawl. No comparison with the past — they flag best practices that are not followed.",
+      "rulesCount": "{count} rules",
+      "thLabel": "Label",
+      "thSeverity": "Severity",
+      "thDetails": "Details",
+      "detailBtn": "Learn more",
+      "loading": "Loading..."
+    },
+    "layout": {
+      "menuAria": "Menu",
+      "rulesHeading": "SEO rules",
+      "allRules": "All rules",
+      "selfHostedHeading": "Self-Hosted",
+      "emailsHeading": "Emails",
+      "allTemplates": "All templates",
+      "sections": {
+        "gettingStarted": "Getting Started",
+        "architecture": "Architecture",
+        "sizing": "Sizing",
+        "workers": "Workers",
+        "email": "Email notifications",
+        "oauth": "OAuth login",
+        "whitelisting": "Crawler whitelisting",
+        "update": "Updating",
+        "backup": "Backup",
+        "licence": "License (BSL 1.1)"
+      },
+      "emailTemplates": {
+        "welcome": "Welcome",
+        "crawlReport": "Crawl report",
+        "logDigest": "Workers log digest",
+        "sitemapBlocked": "Sitemap blocked",
+        "sitemapInvalidHostname": "Sitemap wrong hostname",
+        "crawlerBlocked": "Crawler blocked",
+        "resetPassword": "Password reset",
+        "sitemapEstimate": "Sitemap estimate",
+        "sitemapEstimateLarge": "Estimate (large site)",
+        "paymentFailed": "Payment failed",
+        "invite": "Invitation organisation"
+      }
+    }
+  }
+}

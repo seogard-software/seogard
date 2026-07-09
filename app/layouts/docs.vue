@@ -3,14 +3,14 @@
     <!-- Same header as landing -->
     <header :class="['layout-docs__header', { 'layout-docs__header--scrolled': isScrolled }]">
       <div class="layout-docs__header-inner">
-        <NuxtLink to="/" class="layout-docs__logo">
+        <NuxtLink :to="localePath({ name: 'index' })" class="layout-docs__logo">
           <AppLogo size="sm" />
         </NuxtLink>
 
         <!-- Source unique : PublicNav (partagée avec le layout landing) -->
         <PublicNav />
 
-        <button class="layout-docs__burger" aria-label="Menu" @click="sidebarOpen = !sidebarOpen">
+        <button class="layout-docs__burger" :aria-label="$t('docs.layout.menuAria')" @click="sidebarOpen = !sidebarOpen">
           <svg v-if="!sidebarOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
           <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
@@ -20,16 +20,16 @@
     <div class="layout-docs__body">
       <aside :class="['layout-docs__sidebar', { 'layout-docs__sidebar--open': sidebarOpen }]">
         <nav class="layout-docs__sidebar-nav">
-          <span class="layout-docs__sidebar-heading">Règles SEO</span>
-          <NuxtLink to="/docs/rules" class="layout-docs__sidebar-link" active-class="layout-docs__sidebar-link--active" @click="sidebarOpen = false">
-            Toutes les règles
+          <span class="layout-docs__sidebar-heading">{{ $t('docs.layout.rulesHeading') }}</span>
+          <NuxtLink :to="localePath({ name: 'docs-rules' })" class="layout-docs__sidebar-link" active-class="layout-docs__sidebar-link--active" @click="sidebarOpen = false">
+            {{ $t('docs.layout.allRules') }}
           </NuxtLink>
 
-          <span class="layout-docs__sidebar-heading">Self-Hosted</span>
+          <span class="layout-docs__sidebar-heading">{{ $t('docs.layout.selfHostedHeading') }}</span>
           <NuxtLink
             v-for="section in selfHostedSections"
             :key="section.id"
-            :to="`/docs/self-hosted#${section.id}`"
+            :to="localePath({ name: 'docs-self-hosted', hash: `#${section.id}` })"
             class="layout-docs__sidebar-link layout-docs__sidebar-link--sub"
             @click="sidebarOpen = false"
           >
@@ -38,11 +38,11 @@
 
           <template v-if="isDev">
             <span class="layout-docs__sidebar-heading">
-              Emails
+              {{ $t('docs.layout.emailsHeading') }}
               <span class="layout-docs__sidebar-badge">DEV</span>
             </span>
             <NuxtLink to="/docs/emails" class="layout-docs__sidebar-link" exact-active-class="layout-docs__sidebar-link--active" @click="sidebarOpen = false">
-              Tous les templates
+              {{ $t('docs.layout.allTemplates') }}
             </NuxtLink>
             <NuxtLink
               v-for="tpl in emailTemplates"
@@ -68,35 +68,41 @@
 <script setup lang="ts">
 const isDev = import.meta.dev
 
-const selfHostedSections = [
-  { id: 'getting-started', label: 'Getting Started' },
-  { id: 'architecture', label: 'Architecture' },
-  { id: 'dimensionnement', label: 'Dimensionnement' },
-  { id: 'workers', label: 'Workers' },
-  { id: 'email', label: 'Notifications email' },
-  { id: 'oauth', label: 'Connexion OAuth' },
-  { id: 'whitelisting', label: 'Whitelisting crawler' },
-  { id: 'mise-a-jour', label: 'Mise à jour' },
-  { id: 'sauvegarde', label: 'Sauvegarde' },
-  { id: 'licence', label: 'Licence (BSL 1.1)' },
-]
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+useCanonicalHead()
+
+// Les ids d'ancres sont techniques (stables toutes locales) ; seuls les labels se traduisent.
+const selfHostedSections = computed(() => [
+  { id: 'getting-started', label: t('docs.layout.sections.gettingStarted') },
+  { id: 'architecture', label: t('docs.layout.sections.architecture') },
+  { id: 'dimensionnement', label: t('docs.layout.sections.sizing') },
+  { id: 'workers', label: t('docs.layout.sections.workers') },
+  { id: 'email', label: t('docs.layout.sections.email') },
+  { id: 'oauth', label: t('docs.layout.sections.oauth') },
+  { id: 'whitelisting', label: t('docs.layout.sections.whitelisting') },
+  { id: 'mise-a-jour', label: t('docs.layout.sections.update') },
+  { id: 'sauvegarde', label: t('docs.layout.sections.backup') },
+  { id: 'licence', label: t('docs.layout.sections.licence') },
+])
 
 const isScrolled = ref(false)
 const sidebarOpen = ref(false)
 
-const emailTemplates = [
-  { id: 'welcome', label: 'Bienvenue' },
-  { id: 'crawl-report', label: 'Rapport de crawl' },
-  { id: 'log-digest', label: 'Digest logs workers' },
-  { id: 'sitemap-blocked', label: 'Sitemap bloqué' },
-  { id: 'sitemap-invalid-hostname', label: 'Sitemap mauvais hostname' },
-  { id: 'crawler-blocked', label: 'Crawler bloqué' },
-  { id: 'reset-password', label: 'Reset mot de passe' },
-  { id: 'sitemap-estimate', label: 'Estimation sitemap' },
-  { id: 'sitemap-estimate-large', label: 'Estimation (gros site)' },
-  { id: 'payment-failed', label: 'Échec paiement' },
-  { id: 'invite', label: 'Invitation organisation' },
-]
+const emailTemplates = computed(() => [
+  { id: 'welcome', label: t('docs.layout.emailTemplates.welcome') },
+  { id: 'crawl-report', label: t('docs.layout.emailTemplates.crawlReport') },
+  { id: 'log-digest', label: t('docs.layout.emailTemplates.logDigest') },
+  { id: 'sitemap-blocked', label: t('docs.layout.emailTemplates.sitemapBlocked') },
+  { id: 'sitemap-invalid-hostname', label: t('docs.layout.emailTemplates.sitemapInvalidHostname') },
+  { id: 'crawler-blocked', label: t('docs.layout.emailTemplates.crawlerBlocked') },
+  { id: 'reset-password', label: t('docs.layout.emailTemplates.resetPassword') },
+  { id: 'sitemap-estimate', label: t('docs.layout.emailTemplates.sitemapEstimate') },
+  { id: 'sitemap-estimate-large', label: t('docs.layout.emailTemplates.sitemapEstimateLarge') },
+  { id: 'payment-failed', label: t('docs.layout.emailTemplates.paymentFailed') },
+  { id: 'invite', label: t('docs.layout.emailTemplates.invite') }
+])
 
 function onScroll() {
   isScrolled.value = window.scrollY > 40

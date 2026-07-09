@@ -37,7 +37,7 @@ registerRule({
     return [{
       type: 'perf_page_weight_explosion',
       severity: 'warning',
-      message: `Le poids de votre page a augmenté de ${pct}% (${weight(oldTotal)} → ${weight(newTotal)}). Une page lourde charge lentement, surtout sur mobile et en 4G.`,
+      message: `Page weight increased by ${pct}% (${weight(oldTotal)} → ${weight(newTotal)}). A heavy page loads slowly, especially on mobile and 4G.`,
       previousValue: weight(oldTotal),
       currentValue: weight(newTotal),
     }]
@@ -56,7 +56,7 @@ registerRule({
     return [{
       type: 'rec_perf_page_heavy',
       severity: rating === 'poor' ? 'warning' : 'info',
-      message: `Cette page pèse ${weight(total)} (recommandé : moins de 1,6 MB). Compresser les images et alléger le JavaScript accélérerait son chargement.`,
+      message: `This page weighs ${weight(total)} (recommended: under 1.6 MB). Compressing images and trimming JavaScript would speed up loading.`,
       previousValue: null,
       currentValue: weight(total),
     }]

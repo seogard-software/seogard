@@ -3,6 +3,8 @@ import { EmailLog } from '../server/database/models'
 import { crawlReportTemplate, crawlerBlockedTemplate, sitemapBlockedTemplate, sitemapInvalidHostnameTemplate, sitemapEstimateTemplate } from '../server/utils/email-templates'
 import type { SitemapEstimateData } from '../server/utils/email-templates'
 import type { TopReco } from '../shared/utils/recommendations'
+import type { Locale } from '../shared/utils/i18n'
+import { DEFAULT_LOCALE, isLocale } from '../shared/utils/i18n'
 
 const log = createLogger('notifications')
 
@@ -30,10 +32,16 @@ export interface CrawlReportNotification {
 /** Pièce jointe d'email (transport, pas du contenu) — PDF court du crawl en base64. */
 export interface EmailAttachment { filename: string, content: string }
 
+/** Coercition sûre de User.locale (valeur inconnue/absente → locale par défaut). */
+export function toLocale(value: unknown): Locale {
+  return isLocale(value) ? value : DEFAULT_LOCALE
+}
+
 export async function sendEmailNotification(
   to: string,
   notification: CrawlReportNotification,
   attachment?: EmailAttachment | null,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -52,7 +60,7 @@ export async function sendEmailNotification(
     fixed: notification.fixed,
     topRecos: notification.topRecos,
     recoCount: notification.recoCount,
-  })
+  }, locale)
 
   const body: Record<string, unknown> = { from: fromEmail, to, subject, html }
   if (attachment) {
@@ -102,6 +110,7 @@ export async function sendSitemapInvalidHostnameNotification(
   siteUrl: string,
   foreignHostnames: string[],
   foreignUrlCount: number,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -110,7 +119,7 @@ export async function sendSitemapInvalidHostnameNotification(
   }
 
   const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${getFromDomain()}>`
-  const { subject, html } = sitemapInvalidHostnameTemplate({ siteName, siteUrl, foreignHostnames, foreignUrlCount })
+  const { subject, html } = sitemapInvalidHostnameTemplate({ siteName, siteUrl, foreignHostnames, foreignUrlCount }, locale)
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -136,6 +145,7 @@ export async function sendSitemapBlockedNotification(
   to: string,
   siteName: string,
   siteUrl: string,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -144,7 +154,7 @@ export async function sendSitemapBlockedNotification(
   }
 
   const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${getFromDomain()}>`
-  const { subject, html } = sitemapBlockedTemplate({ siteName, siteUrl })
+  const { subject, html } = sitemapBlockedTemplate({ siteName, siteUrl }, locale)
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -175,6 +185,7 @@ export async function sendCrawlerBlockedNotification(
   siteName: string,
   pagesBlocked: number,
   pagesTotal: number,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -183,7 +194,7 @@ export async function sendCrawlerBlockedNotification(
   }
 
   const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${getFromDomain()}>`
-  const { subject, html } = crawlerBlockedTemplate({ siteName, pagesBlocked, pagesTotal })
+  const { subject, html } = crawlerBlockedTemplate({ siteName, pagesBlocked, pagesTotal }, locale)
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -211,6 +222,7 @@ export async function sendCrawlerBlockedNotification(
 export async function sendEstimateEmail(
   to: string,
   data: SitemapEstimateData,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -218,7 +230,7 @@ export async function sendEstimateEmail(
     return
   }
 
-  const { subject, html } = sitemapEstimateTemplate(data)
+  const { subject, html } = sitemapEstimateTemplate(data, locale)
 
   try {
     const response = await fetch('https://api.resend.com/emails', {

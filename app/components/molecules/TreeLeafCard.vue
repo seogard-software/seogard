@@ -10,12 +10,12 @@
       <div class="tree-leaf-card__info">
         <span class="tree-leaf-card__label">{{ data.label }}</span>
         <div class="tree-leaf-card__meta">
-          <span v-if="data.statusCode" class="tree-leaf-card__status" :title="data.redirectTarget ?? undefined">Status : {{ data.statusCode }}<template v-if="redirectLabel"> → {{ redirectLabel }}</template></span>
+          <span v-if="data.statusCode" class="tree-leaf-card__status" :title="data.redirectTarget ?? undefined">{{ $t('dashboard.c.treeLeafCard.status', { code: data.statusCode }) }}<template v-if="redirectLabel"> → {{ redirectLabel }}</template></span>
           <span v-if="data.regressionCount > 0" class="tree-leaf-card__tag tree-leaf-card__tag--reg">
-            {{ data.regressionCount }} reg
+            {{ $t('dashboard.c.treeLeafCard.reg', { count: data.regressionCount }) }}
           </span>
           <span v-if="data.recommendationCount > 0" class="tree-leaf-card__tag tree-leaf-card__tag--reco">
-            {{ data.recommendationCount }} reco
+            {{ $t('dashboard.c.treeLeafCard.reco', { count: data.recommendationCount }) }}
           </span>
         </div>
       </div>

@@ -8,29 +8,29 @@ export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
   const zoneId = getRouterParam(event, 'zoneId')
   if (!zoneId) {
-    throw createError({ statusCode: 400, message: 'zoneId requis' })
+    throw createError({ statusCode: 400, message: 'zoneId required', data: { errorCode: 'ZONE_ID_REQUIRED' } })
   }
 
   const { site } = await requireZoneAccess(event, siteId, zoneId, 'admin')
 
   const zone = await Zone.findById(zoneId).lean()
   if (!zone || (zone as any).siteId.toString() !== siteId) {
-    throw createError({ statusCode: 404, message: 'Zone non trouvée' })
+    throw createError({ statusCode: 404, message: 'Zone not found', data: { errorCode: 'ZONE_NOT_FOUND' } })
   }
 
   const log = useRequestLog(event, 'api.zone-members')
   const body = await readBody(event)
 
   if (!body?.email || typeof body.email !== 'string') {
-    throw createError({ statusCode: 400, message: 'Email requis' })
+    throw createError({ statusCode: 400, message: 'Email required', data: { errorCode: 'EMAIL_REQUIRED' } })
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
-    throw createError({ statusCode: 400, message: 'Adresse email invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid email address', data: { errorCode: 'EMAIL_INVALID' } })
   }
 
   if (!body.role || !VALID_ROLES.includes(body.role)) {
-    throw createError({ statusCode: 400, message: 'Rôle invalide. Doit être admin, member ou viewer' })
+    throw createError({ statusCode: 400, message: 'Invalid role: must be admin, member or viewer', data: { errorCode: 'ROLE_INVALID' } })
   }
 
   const orgId = (site as any).orgId
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
         (zr: any) => zr.zoneId.toString() === zoneId,
       )
       if (hasZoneRole) {
-        throw createError({ statusCode: 409, message: 'Cet utilisateur a déjà un rôle dans cette zone' })
+        throw createError({ statusCode: 409, message: 'User already has a role in this zone', data: { errorCode: 'INVITE_ALREADY_MEMBER' } })
       }
 
       await OrgMember.updateOne(
@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
     status: 'pending',
   }).lean()
   if (existingInvite) {
-    throw createError({ statusCode: 409, message: 'Une invitation est déjà en attente pour cet email' })
+    throw createError({ statusCode: 409, message: 'An invitation is already pending for this email', data: { errorCode: 'INVITE_ALREADY_PENDING' } })
   }
 
   // Create invite with zone info
@@ -78,10 +78,10 @@ export default defineEventHandler(async (event) => {
     invitedBy: userId,
   })
 
-  // Send invitation email
+  // Send invitation email — dans la langue de l'inviteur (langue de travail de l'org).
   const org = await Organization.findById(orgId).select('name').lean()
   if (org) {
-    sendInviteEmail(body.email, org.name, body.role, (invite as any).token)
+    sendInviteEmail(body.email, org.name, body.role, (invite as any).token, body.locale)
   }
 
   log.info({ orgId, zoneId, invitedEmail: body.email, zoneRole: body.role }, 'zone invite sent')

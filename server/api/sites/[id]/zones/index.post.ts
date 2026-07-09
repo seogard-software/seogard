@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   // Create zone requires: owner org OR admin of the default zone
   const defaultZone = await Zone.findOne({ siteId, isDefault: true }).lean()
   if (!defaultZone) {
-    throw createError({ statusCode: 500, message: 'Zone par défaut introuvable' })
+    throw createError({ statusCode: 500, message: 'Default zone not found', data: { errorCode: 'DEFAULT_ZONE_NOT_FOUND' } })
   }
 
   await requireZoneAccess(event, siteId, defaultZone._id.toString(), 'admin')
@@ -16,23 +16,23 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.name || typeof body.name !== 'string' || !body.name.trim()) {
-    throw createError({ statusCode: 400, message: 'Le nom est requis' })
+    throw createError({ statusCode: 400, message: 'Name is required', data: { errorCode: 'NAME_REQUIRED' } })
   }
 
   if (!Array.isArray(body.patterns) || body.patterns.length === 0) {
-    throw createError({ statusCode: 400, message: 'Au moins un path est requis' })
+    throw createError({ statusCode: 400, message: 'At least one path is required', data: { errorCode: 'PATTERNS_REQUIRED' } })
   }
 
   for (const pattern of body.patterns) {
     if (typeof pattern !== 'string' || !isValidPattern(pattern)) {
-      throw createError({ statusCode: 400, message: `Pattern invalide : "${pattern}". Doit commencer par / ou être **` })
+      throw createError({ statusCode: 400, message: `Invalid pattern: "${pattern}". Must start with / or be **`, data: { errorCode: 'PATTERN_INVALID', pattern } })
     }
   }
 
   // Check name uniqueness within site
   const existing = await Zone.findOne({ siteId, name: body.name.trim() }).lean()
   if (existing) {
-    throw createError({ statusCode: 409, message: 'Une zone avec ce nom existe déjà' })
+    throw createError({ statusCode: 409, message: 'A zone with this name already exists', data: { errorCode: 'ZONE_NAME_TAKEN' } })
   }
 
   const normalizedPatterns = body.patterns.map((p: string) => normalizePattern(p))

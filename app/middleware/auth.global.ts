@@ -1,6 +1,17 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Route non matchée (URL inconnue) : laisser la page d'erreur répondre en 404 — sinon le
+  // guard « route protégée » ci-dessous la redirige vers /login (soft-404 côté Google).
+  if (to.matched?.length === 0) return
+
+  // Le site PUBLIC vit entièrement sous /fr et /en ; les pages protégées (dashboard, onboarding,
+  // settings…) sont à la RACINE (defineI18nRoute(false)). Donc une route localisée ne doit
+  // JAMAIS forcer /login : soit c'est une page publique, soit elle n'existe pas (404). Ce garde
+  // couvre aussi les routes catch-all que @nuxtjs/i18n génère pour les slugs traduits
+  // (/fr/outils/:pathMatch…), qui n'ont pas meta.auth: false et partaient à tort vers /login.
+  const isLocalizedPath = /^\/(fr|en)(\/|$)/.test(to.path)
+
   const authStore = useAuthStore()
-  const requiresAuth = to.meta.auth !== false
+  const requiresAuth = to.meta.auth !== false && !isLocalizedPath
 
   if (!requiresAuth) {
     // Route publique — on hydrate le store seulement si le cookie flag existe

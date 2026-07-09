@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   await requireZoneAccess(event, siteId, zoneId, 'viewer')
 
   const crawlId = getQuery(event).crawlId as string | undefined
-  if (!crawlId) throw createError({ statusCode: 400, message: 'crawlId requis' })
+  if (!crawlId) throw createError({ statusCode: 400, message: 'crawlId required', data: { errorCode: 'CRAWL_ID_REQUIRED' } })
 
   const url = await getCrawlReportSignedUrl(siteId, zoneId, crawlId, 'pdf')
   return sendRedirect(event, url, 302)

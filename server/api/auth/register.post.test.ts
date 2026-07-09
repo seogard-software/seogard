@@ -147,7 +147,7 @@ describe('register.post — self-hosted mode', () => {
     const mod = await import('./register.post')
     const blockedHandler = mod.default
 
-    await expect(blockedHandler(fakeEvent)).rejects.toThrow('Inscription désactivée')
+    await expect(blockedHandler(fakeEvent)).rejects.toThrow('Registration disabled')
   })
 
   it('allows registration when 0 users (first admin)', async () => {

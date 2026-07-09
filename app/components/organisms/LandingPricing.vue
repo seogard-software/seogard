@@ -1,10 +1,10 @@
 <template>
   <section id="pricing" class="landing-pricing">
     <div class="landing-pricing__container">
-      <span class="section-label">Tarifs</span>
-      <h2 class="section-title">Self-hosted <span class="landing-pricing__highlight">gratuit</span>. Cloud à l'usage.</h2>
+      <span class="section-label">{{ $t('landing.pricing.label') }}</span>
+      <h2 class="section-title">{{ $t('landing.pricing.title1') }} <span class="landing-pricing__highlight">{{ $t('landing.pricing.titleHighlight') }}</span>{{ $t('landing.pricing.title2') }}</h2>
       <p class="section-desc">
-        Même moteur d'audit et de monitoring continu partout. Choisissez le niveau de support, de sécurité et d'accompagnement qui vous convient.
+        {{ $t('landing.pricing.desc') }}
       </p>
 
       <!-- Desktop table -->
@@ -14,34 +14,34 @@
             <tr>
               <th class="landing-pricing__th landing-pricing__th--feature" />
               <th class="landing-pricing__th landing-pricing__th--plan">
-                <span class="landing-pricing__plan-name">Self-hosted</span>
-                <span class="landing-pricing__price landing-pricing__price--gradient">Gratuit</span>
-                <span class="landing-pricing__subtitle">Pour toujours</span>
+                <span class="landing-pricing__plan-name">{{ $t('landing.pricing.plans.selfHosted.name') }}</span>
+                <span class="landing-pricing__price landing-pricing__price--gradient">{{ $t('landing.pricing.plans.selfHosted.price') }}</span>
+                <span class="landing-pricing__subtitle">{{ $t('landing.pricing.plans.selfHosted.subtitle') }}</span>
               </th>
               <th class="landing-pricing__th landing-pricing__th--plan landing-pricing__th--cloud">
-                <span class="landing-pricing__popular">Populaire</span>
-                <span class="landing-pricing__plan-name">Cloud</span>
-                <span class="landing-pricing__price landing-pricing__price--gradient">{{ cloudPriceDisplay }} €</span>
-                <span class="landing-pricing__subtitle">par page monitorée / mois</span>
-                <span class="landing-pricing__trial-badge">14 jours gratuit</span>
+                <span class="landing-pricing__popular">{{ $t('landing.pricing.popular') }}</span>
+                <span class="landing-pricing__plan-name">{{ $t('landing.pricing.plans.cloud.name') }}</span>
+                <span class="landing-pricing__price landing-pricing__price--gradient">{{ $t('landing.pricing.plans.cloud.price', { price: cloudPriceDisplay }) }}</span>
+                <span class="landing-pricing__subtitle">{{ $t('landing.pricing.plans.cloud.subtitle') }}</span>
+                <span class="landing-pricing__trial-badge">{{ $t('landing.pricing.trialBadge') }}</span>
               </th>
               <th class="landing-pricing__th landing-pricing__th--plan">
-                <span class="landing-pricing__plan-name">Enterprise</span>
-                <span class="landing-pricing__price">Sur devis</span>
-                <span class="landing-pricing__subtitle">Contactez-nous</span>
+                <span class="landing-pricing__plan-name">{{ $t('landing.pricing.plans.enterprise.name') }}</span>
+                <span class="landing-pricing__price">{{ $t('landing.pricing.plans.enterprise.price') }}</span>
+                <span class="landing-pricing__subtitle">{{ $t('landing.pricing.plans.enterprise.subtitle') }}</span>
               </th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="(row, i) in PRICING_ROWS"
-              :key="row.label"
+              :key="row.key"
               :class="[
                 'landing-pricing__row',
                 { 'landing-pricing__row--separator': i === PRICING_SHARED_COUNT || i === PRICING_SHARED_COUNT + PRICING_CLOUD_COUNT },
               ]"
             >
-              <td class="landing-pricing__td landing-pricing__td--feature">{{ row.label }}</td>
+              <td class="landing-pricing__td landing-pricing__td--feature">{{ $t('landing.pricing.features.' + row.key, { count: RULES_COUNT }) }}</td>
               <td class="landing-pricing__td landing-pricing__td--check">
                 <span v-if="row.selfHosted" class="landing-pricing__check landing-pricing__check--yes">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -66,18 +66,18 @@
               <td class="landing-pricing__td" />
               <td class="landing-pricing__td landing-pricing__td--cta">
                 <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="landing-pricing__cta landing-pricing__cta--ghost">
-                  Télécharger gratuitement
+                  {{ $t('landing.pricing.ctaDownload') }}
                 </a>
               </td>
               <td class="landing-pricing__td landing-pricing__td--cta landing-pricing__td--cloud">
                 <NuxtLink to="/register" class="landing-pricing__cta landing-pricing__cta--primary">
-                  Essai gratuit 14 jours
+                  {{ $t('landing.pricing.ctaTrial') }}
                 </NuxtLink>
-                <a :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">ou réserver une démo</a>
+                <a :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">{{ $t('landing.pricing.ctaDemo') }}</a>
               </td>
               <td class="landing-pricing__td landing-pricing__td--cta">
                 <a href="mailto:support@seogard.io" class="landing-pricing__cta landing-pricing__cta--ghost">
-                  Contactez-nous
+                  {{ $t('landing.pricing.ctaContact') }}
                 </a>
               </td>
             </tr>
@@ -87,9 +87,9 @@
 
       <!-- Dynamic estimation -->
       <div v-if="estimatedPages" class="landing-pricing__estimate">
-        <span class="landing-pricing__estimate-value">{{ estimatedCloudPrice }} €/mois</span>
+        <span class="landing-pricing__estimate-value">{{ $t('landing.pricing.estimateValue', { price: estimatedCloudPrice }) }}</span>
         <span class="landing-pricing__estimate-label">
-          estimation Cloud pour {{ estimatedPages.toLocaleString('fr-FR') }} pages
+          {{ $t('landing.pricing.estimateLabel', { pages: estimatedPages.toLocaleString(numberLocale) }) }}
         </span>
       </div>
 
@@ -97,26 +97,26 @@
       <div class="landing-pricing__mobile">
         <div v-for="plan in mobilePlans" :key="plan.id" class="landing-pricing__mobile-section">
           <div :class="['landing-pricing__mobile-plan', { 'landing-pricing__mobile-plan--cloud': plan.id === 'cloud' }]">
-            <span v-if="plan.id === 'cloud'" class="landing-pricing__popular">Populaire</span>
+            <span v-if="plan.id === 'cloud'" class="landing-pricing__popular">{{ $t('landing.pricing.popular') }}</span>
             <h3 class="landing-pricing__mobile-name">{{ plan.name }}</h3>
             <span class="landing-pricing__price landing-pricing__price--gradient">{{ plan.price }}</span>
             <span class="landing-pricing__subtitle">{{ plan.subtitle }}</span>
           </div>
           <div class="landing-pricing__mobile-features">
-            <div v-for="row in PRICING_ROWS.filter(r => r[plan.key])" :key="row.label" class="landing-pricing__mobile-row">
+            <div v-for="row in PRICING_ROWS.filter(r => r[plan.key])" :key="row.key" class="landing-pricing__mobile-row">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              <span>{{ row.label }}</span>
+              <span>{{ $t('landing.pricing.features.' + row.key, { count: RULES_COUNT }) }}</span>
             </div>
           </div>
           <a v-if="plan.id === 'self-hosted'" href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="landing-pricing__cta landing-pricing__cta--ghost">
-            Télécharger gratuitement
+            {{ $t('landing.pricing.ctaDownload') }}
           </a>
           <NuxtLink v-else-if="plan.id === 'cloud'" to="/register" class="landing-pricing__cta landing-pricing__cta--primary">
-            Essai gratuit 14 jours
+            {{ $t('landing.pricing.ctaTrial') }}
           </NuxtLink>
-          <a v-if="plan.id === 'cloud'" :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">ou réserver une démo</a>
+          <a v-if="plan.id === 'cloud'" :href="demoUrl" target="_blank" rel="noopener" class="landing-pricing__demo-link">{{ $t('landing.pricing.ctaDemo') }}</a>
           <a v-else href="mailto:support@seogard.io" class="landing-pricing__cta landing-pricing__cta--ghost">
-            Contactez-nous
+            {{ $t('landing.pricing.ctaContact') }}
           </a>
         </div>
       </div>
@@ -126,23 +126,26 @@
 
 <script setup lang="ts">
 import { PRICING_ROWS, PRICING_SHARED_COUNT, PRICING_CLOUD_COUNT, formatCloudPrice, calculateCloudPrice } from '~~/shared/utils/pricing'
+import { RULES_COUNT } from '~~/shared/utils/rules-list'
 
+const { t, locale } = useI18n()
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
 const estimatedPages = inject<Ref<number | null>>('estimatedPages', ref(null))
-const cloudPriceDisplay = formatCloudPrice()
+const cloudPriceDisplay = formatCloudPrice(locale.value)
 const demoUrl = useRuntimeConfig().public.demoUrl
 
 const estimatedCloudPrice = computed(() => {
   if (!estimatedPages.value) return ''
-  return calculateCloudPrice(estimatedPages.value).toLocaleString('fr-FR', {
+  return calculateCloudPrice(estimatedPages.value).toLocaleString(numberLocale.value, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })
 })
 
 const mobilePlans = [
-  { id: 'self-hosted', name: 'Self-hosted', price: 'Gratuit', subtitle: 'Pour toujours', key: 'selfHosted' as const },
-  { id: 'cloud', name: 'Cloud', price: `${cloudPriceDisplay} €`, subtitle: 'par page monitorée / mois', key: 'cloud' as const },
-  { id: 'enterprise', name: 'Enterprise', price: 'Sur devis', subtitle: 'Contactez-nous', key: 'enterprise' as const },
+  { id: 'self-hosted', name: t('landing.pricing.plans.selfHosted.name'), price: t('landing.pricing.plans.selfHosted.price'), subtitle: t('landing.pricing.plans.selfHosted.subtitle'), key: 'selfHosted' as const },
+  { id: 'cloud', name: t('landing.pricing.plans.cloud.name'), price: t('landing.pricing.plans.cloud.price', { price: cloudPriceDisplay }), subtitle: t('landing.pricing.plans.cloud.subtitle'), key: 'cloud' as const },
+  { id: 'enterprise', name: t('landing.pricing.plans.enterprise.name'), price: t('landing.pricing.plans.enterprise.price'), subtitle: t('landing.pricing.plans.enterprise.subtitle'), key: 'enterprise' as const },
 ]
 </script>
 

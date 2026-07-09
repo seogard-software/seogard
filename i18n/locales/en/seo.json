@@ -1,0 +1,113 @@
+{
+  "seo": {
+    "login": {
+      "title": "Log in"
+    },
+    "register": {
+      "title": "Sign up"
+    },
+    "forgot": {
+      "title": "Forgot password"
+    },
+    "reset": {
+      "title": "Reset password"
+    },
+    "onboarding": {
+      "title": "Create an organization"
+    },
+    "invite": {
+      "title": "Invitation"
+    },
+    "index": {
+      "title": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
+      "description": "Seogard compares the raw HTML Google indexes with your JavaScript render, continuously. Detect SEO regressions after every deploy — before rankings drop.",
+      "ogTitle": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
+      "ogDescription": "Continuous SEO regression monitoring: {count} rules checked on every crawl + raw HTML vs JS render comparison. Self-hosted free or Cloud from ${price}/page/month.",
+      "twitterTitle": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
+      "twitterDescription": "Continuous SEO regression monitoring. {count} rules on every crawl. Catch regressions before Google. Self-hosted free or Cloud from ${price}/page/month.",
+      "jsonld": {
+        "appDescription": "Continuous SEO regression monitoring: compares the raw HTML and the JavaScript render to catch invisible regressions. Self-hosted free or Cloud from ${price}/page/month.",
+        "offerSelfHostedDesc": "Free self-hosted version, full source code",
+        "offerCloudDesc": "${price} per monitored page per month (billed in EUR), managed infrastructure",
+        "feature1": "Raw HTML vs JavaScript render comparison",
+        "feature2": "Meta and canonical monitoring",
+        "feature3": "Accidental noindex detection",
+        "feature4": "Instant email alerts",
+        "feature5": "Automatic daily crawl",
+        "feature6": "Real-time dashboard",
+        "feature7": "{count} SEO and GEO detection rules",
+        "feature8": "GEO optimization and AI visibility",
+        "feature9": "Free self-hosted version",
+        "feature10": "Built-in CI/CD webhook",
+        "nav1": "SEO & GEO courses",
+        "nav2": "Continuous SEO monitoring",
+        "nav3": "SEO & GEO audit",
+        "nav4": "Free SSR checker",
+        "nav5": "Pricing",
+        "nav6": "Documentation",
+        "nav7": "SEO rules",
+        "nav8": "Self-Hosted"
+      }
+    },
+    "outilsMonitoring": {
+      "title": "Continuous SEO Monitoring — Catch Regressions Before Google",
+      "description": "Continuous SEO monitoring: Seogard compares the raw HTML (what Google and AI see) with the JavaScript render, detects SEO regressions (metas, canonical, noindex, status codes) and alerts you before Google. CI/CD gate, multi-zone, GEO.",
+      "ogTitle": "Continuous SEO Monitoring — Catch Regressions Before Google",
+      "ogDescription": "Continuous SSR vs CSR monitoring, instant alerts, CI/CD gate. Catch SEO regressions before Google.",
+      "twitterTitle": "Continuous SEO Monitoring — Catch Regressions Before Google",
+      "twitterDescription": "Continuous SSR vs CSR monitoring, alerts, CI/CD gate. Before Google.",
+      "jsonld": {
+        "name": "Continuous SEO Monitoring — Seogard",
+        "serviceType": "SEO and GEO regression monitoring",
+        "description": "Continuous SEO monitoring that compares the raw HTML and the JavaScript render to catch SEO regressions before Google."
+      }
+    },
+    "outilsAudit": {
+      "title": "Technical SEO Audit Tool — Your Site's SEO Health Report",
+      "description": "Technical SEO audit tool: Seogard scans your site once against {count} rules (technical SEO, GEO, performance), compares raw HTML and JavaScript render, and produces an SEO health report (Markdown + PDF) you can fix without coding via the AI export.",
+      "ogTitle": "Technical SEO Audit Tool — the complete health check of your site",
+      "ogDescription": "One scan against {count} SEO/GEO rules, SEO health report (Markdown + PDF), AI export to fix without coding.",
+      "twitterTitle": "Technical SEO Audit Tool — the complete health check of your site",
+      "twitterDescription": "Scan {count} SEO/GEO rules, SEO health report (md + PDF), AI export.",
+      "jsonld": {
+        "name": "SEO & GEO Audit — Seogard",
+        "serviceType": "Technical SEO and GEO audit",
+        "description": "One scan of a site against {count} SEO, GEO and performance rules, with an SEO health report (Markdown + PDF) and an AI export."
+      }
+    },
+    "docsSelfHosted": {
+      "title": "Self-Hosted",
+      "description": "Install Seogard self-hosted (Docker Compose): free SEO/GEO monitoring on your own infrastructure, source available (BSL 1.1). Step-by-step guide.",
+      "ogTitle": "Self-Hosted — Seogard"
+    },
+    "docsRules": {
+      "title": "SEO & GEO Rules — Every Check Explained",
+      "description": "{count} SEO rules checked on every crawl: metas, SSR/CSR, status codes, structured data, i18n, GEO."
+    },
+    "scanner": {
+      "title": "Free SSR Checker — Test SSR vs JavaScript Rendering",
+      "description": "Free SSR checker: Seogard compares the raw HTML (what Google and AI see) with the JavaScript render, and detects the invisible regressions. Instant results, no credit card.",
+      "ogTitle": "Free SSR Checker — see your site the way Google does",
+      "ogDescription": "Compare raw HTML and JavaScript render, catch SEO/GEO regressions before Google. Free scan, no credit card.",
+      "twitterTitle": "Free SSR Checker — see your site the way Google does",
+      "twitterDescription": "Compare raw HTML and JS render, catch regressions before Google. Free, no card.",
+      "jsonld": {
+        "breadcrumbHome": "Home",
+        "breadcrumbScanner": "Free SSR checker"
+      }
+    },
+    "tarifs": {
+      "title": "Pricing — SEO Monitoring from ${price}/page",
+      "description": "Seogard pricing: continuous SEO regression monitoring and audit. Self-hosted free or Cloud from ${price}/page/month (billed in EUR). Estimate your price by monitored pages. No commitment, 14-day trial, no credit card.",
+      "ogTitle": "Pricing — Seogard",
+      "ogDescription": "Continuous SEO regression monitoring and audit. Self-hosted free or Cloud from ${price}/page/month. Estimate your volume-based price."
+    },
+    "bot": {
+      "title": "Seogard-Bot — Crawler Documentation & User Agent",
+      "description": "Everything about Seogard-Bot, our technical SEO crawler. Whitelisting guides for Cloudflare, Akamai, AWS WAF and other firewalls."
+    },
+    "default": {
+      "description": "SEO regression monitoring. Catch SEO regressions before Google does."
+    }
+  }
+}

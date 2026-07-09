@@ -6,22 +6,22 @@
           v-model="url"
           type="text"
           class="scan-bar__input"
-          :placeholder="size === 'compact' ? 'votresite.fr' : 'Saisissez votre site Web'"
+          :placeholder="size === 'compact' ? $t('common.scanBar.placeholderCompact') : $t('common.scanBar.placeholder')"
           autocapitalize="off"
           autocorrect="off"
           spellcheck="false"
           :aria-invalid="!!error"
-          aria-label="Adresse de votre site Web"
+          :aria-label="$t('common.scanBar.ariaLabel')"
         >
-        <span class="scan-bar__badge">Gratuit</span>
+        <span class="scan-bar__badge">{{ $t('common.scanBar.badge') }}</span>
       </div>
       <AppButton type="submit" variant="accent" :loading="loading" class="scan-bar__btn">
-        Analyser
+        {{ $t('common.scanBar.submit') }}
       </AppButton>
     </form>
     <p v-if="error" class="scan-bar__error">{{ error }}</p>
     <p class="scan-bar__consent">
-      En cliquant sur Analyser, je certifie être propriétaire du site ou disposer d'une autorisation pour le crawler.
+      {{ $t('common.scanBar.consent') }}
     </p>
     <AuthModal v-model="showAuth" @success="onAuthSuccess" @dismiss="onboarding.clearPending()" />
   </div>
@@ -34,6 +34,7 @@
 interface Props { size?: 'hero' | 'compact' }
 const { size = 'hero' } = defineProps<Props>()
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const onboarding = useScanOnboarding()
 
@@ -55,7 +56,7 @@ async function handleSubmit() {
   error.value = ''
   const candidate = toCandidate(url.value)
   if (!candidate) {
-    error.value = 'Entrez une adresse valide (ex. votresite.fr)'
+    error.value = t('common.scanBar.errorInvalid')
     return
   }
   pendingUrl.value = candidate
@@ -71,7 +72,7 @@ async function handleSubmit() {
     }
   }
   catch {
-    error.value = 'Une erreur est survenue. Réessayez.'
+    error.value = t('common.scanBar.errorGeneric')
   }
   finally {
     loading.value = false
@@ -87,7 +88,7 @@ async function onAuthSuccess() {
     await onboarding.runScan(pendingUrl.value)
   }
   catch {
-    error.value = 'Une erreur est survenue. Réessayez.'
+    error.value = t('common.scanBar.errorGeneric')
   }
   finally {
     loading.value = false

@@ -1,21 +1,21 @@
 <template>
   <div class="page-settings">
-    <DashboardHeader title="Paramètres du compte" />
+    <DashboardHeader :title="$t('dashboard.settings.title')" />
 
     <!-- Profil -->
     <section class="page-settings__section">
       <div class="page-settings__section-header">
         <AppIcon name="user" size="sm" />
-        <h2 class="page-settings__section-title">Profil</h2>
+        <h2 class="page-settings__section-title">{{ $t('dashboard.settings.profile') }}</h2>
       </div>
       <div class="page-settings__section-body">
         <AppInput
           :model-value="email"
-          label="Email"
+          :label="$t('dashboard.settings.emailLabel')"
           type="email"
           disabled
         />
-        <p class="page-settings__hint">L'email ne peut pas être modifié.</p>
+        <p class="page-settings__hint">{{ $t('dashboard.settings.emailHint') }}</p>
       </div>
     </section>
 
@@ -25,9 +25,9 @@
     <section class="page-settings__section">
       <div class="page-settings__section-header">
         <AppIcon name="shield-check" size="sm" />
-        <h2 class="page-settings__section-title">Sécurité</h2>
-        <AppBadge v-if="totpEnabled" variant="success">2FA activée</AppBadge>
-        <span v-else class="page-settings__flag">Non configuré</span>
+        <h2 class="page-settings__section-title">{{ $t('dashboard.settings.security') }}</h2>
+        <AppBadge v-if="totpEnabled" variant="success">{{ $t('dashboard.settings.twoFaEnabled') }}</AppBadge>
+        <span v-else class="page-settings__flag">{{ $t('dashboard.settings.notConfigured') }}</span>
       </div>
       <div class="page-settings__section-body">
         <TwoFactorSetup />
@@ -40,7 +40,7 @@
     <section v-if="orgId" class="page-settings__section page-settings__section--link">
       <NuxtLink :to="`/dashboard/organizations/${orgId}/settings`" class="page-settings__nav-link">
         <AppIcon name="building" size="sm" />
-        <span>Paramètres de l'organisation</span>
+        <span>{{ $t('dashboard.settings.orgSettingsLink') }}</span>
         <AppIcon name="chevron-right" size="sm" class="page-settings__nav-chevron" />
       </NuxtLink>
     </section>
@@ -48,9 +48,11 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 
-useHead({ title: 'Paramètres' })
+const { t } = useI18n()
+useHead({ title: t('dashboard.settings.tabTitle') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const authStore = useAuthStore()

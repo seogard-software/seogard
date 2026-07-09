@@ -30,7 +30,7 @@
       </template>
     </svg>
     <span class="app-toast__message">{{ toast.message }}</span>
-    <button class="app-toast__close" aria-label="Fermer" @click="emit('dismiss')">
+    <button class="app-toast__close" :aria-label="$t('common.aria.close')" @click="emit('dismiss')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M6 18L18 6M6 6l12 12" />
       </svg>

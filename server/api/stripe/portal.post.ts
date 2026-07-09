@@ -8,11 +8,11 @@ export default defineEventHandler(async (event) => {
   await requireOrgRole(event, orgId, 'owner')
 
   const stripe = getStripe()
-  if (!stripe) throw createError({ statusCode: 500, message: 'Stripe not configured' })
+  if (!stripe) throw createError({ statusCode: 500, message: 'Stripe not configured', data: { errorCode: 'STRIPE_NOT_CONFIGURED' } })
 
   const sub = await Subscription.findOne({ orgId }).lean()
   if (!sub?.stripeCustomerId) {
-    throw createError({ statusCode: 400, message: 'No Stripe customer linked to this account' })
+    throw createError({ statusCode: 400, message: 'No Stripe customer linked to this account', data: { errorCode: 'NO_STRIPE_CUSTOMER' } })
   }
 
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'

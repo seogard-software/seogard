@@ -32,7 +32,8 @@ export function checkLoginRateLimit(ip: string, email: string): void {
     const minutesLeft = Math.ceil((entry.blockedUntil - Date.now()) / 60000)
     throw createError({
       statusCode: 429,
-      message: `Trop de tentatives. Reessayez dans ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''}.`,
+      message: `Too many attempts. Retry in ${minutesLeft} min.`,
+      data: { errorCode: 'TOO_MANY_ATTEMPTS', minutes: minutesLeft },
     })
   }
 
@@ -84,7 +85,8 @@ export function checkSitemapRateLimit(ip: string): void {
       const minutesLeft = Math.ceil((entry.windowStart + SITEMAP_WINDOW_MS - now) / 60000)
       throw createError({
         statusCode: 429,
-        message: `Trop de requêtes. Réessayez dans ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''}.`,
+        message: `Too many requests. Retry in ${minutesLeft} min.`,
+        data: { errorCode: 'TOO_MANY_REQUESTS', minutes: minutesLeft },
       })
     }
     entry.count++

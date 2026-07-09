@@ -22,12 +22,12 @@ export default defineEventHandler(async (event) => {
     patterns = [query.patterns]
   }
   else {
-    throw createError({ statusCode: 400, message: 'Le paramètre patterns est requis' })
+    throw createError({ statusCode: 400, message: 'patterns parameter required', data: { errorCode: 'PATTERNS_REQUIRED' } })
   }
 
   for (const p of patterns) {
     if (!isValidPattern(p)) {
-      throw createError({ statusCode: 400, message: `Pattern invalide : "${p}"` })
+      throw createError({ statusCode: 400, message: `Invalid pattern: "${p}"`, data: { errorCode: 'PATTERN_INVALID', pattern: p } })
     }
   }
 

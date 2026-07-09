@@ -18,8 +18,8 @@
     <div v-if="open" class="nav-dropdown__panel" role="menu">
       <NuxtLink
         v-for="item in items"
-        :key="item.to"
-        :to="item.to"
+        :key="item.name"
+        :to="localePath({ name: item.name })"
         class="nav-dropdown__item"
         role="menuitem"
         @click="close"
@@ -32,8 +32,9 @@
 </template>
 
 <script setup lang="ts">
+const localePath = useLocalePath()
 interface NavDropdownItem {
-  to: string
+  name: string
   label: string
   desc?: string
 }

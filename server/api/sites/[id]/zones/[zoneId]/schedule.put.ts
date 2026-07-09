@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
   const zoneId = getRouterParam(event, 'zoneId')
   if (!zoneId) {
-    throw createError({ statusCode: 400, message: 'zoneId requis' })
+    throw createError({ statusCode: 400, message: 'zoneId required', data: { errorCode: 'ZONE_ID_REQUIRED' } })
   }
 
   await requireZoneAccess(event, siteId, zoneId, 'admin')
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   // already enforces this, but defense in depth prevents orphaned schedules).
   const zone = await Zone.findOne({ _id: zoneId, siteId }).select('_id').lean()
   if (!zone) {
-    throw createError({ statusCode: 404, message: 'Zone introuvable' })
+    throw createError({ statusCode: 404, message: 'Zone not found', data: { errorCode: 'ZONE_NOT_FOUND' } })
   }
 
   const existing = await CrawlSchedule.findOne({ zoneId, siteId }).lean()

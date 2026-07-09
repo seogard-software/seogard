@@ -68,13 +68,13 @@ describe('zone crawl.post — auth (clé/session) + garde abonnement + crawl de 
 
   it('404 si la zone est introuvable', async () => {
     mockZoneFindOne.mockResolvedValue(null)
-    await expect(handler(fakeEvent)).rejects.toThrow('Zone introuvable')
+    await expect(handler(fakeEvent)).rejects.toThrow('Zone not found')
   })
 
   it('trial : owner de l\'orga expiré → 403, MÊME pour un membre en session avec un trial frais (anti-farming)', async () => {
     mockSubscriptionFindOne.mockResolvedValue({ stripeStatus: 'trialing' })
     mockUserFindById.mockResolvedValue({ trialEndsAt: pastDate }) // = trial du OWNER
-    await expect(handler(fakeEvent)).rejects.toThrow('essai de 14 jours')
+    await expect(handler(fakeEvent)).rejects.toThrow('14-day trial')
     expect(mockTriggerSiteCrawl).not.toHaveBeenCalled()
     expect(mockOrgFindById).toHaveBeenCalled() // l'entitlement vient du owner, pas du user courant
   })
@@ -88,7 +88,7 @@ describe('zone crawl.post — auth (clé/session) + garde abonnement + crawl de 
 
   it('bloque si pas d\'abonnement', async () => {
     mockSubscriptionFindOne.mockResolvedValue(null)
-    await expect(handler(fakeEvent)).rejects.toThrow('essai de 14 jours')
+    await expect(handler(fakeEvent)).rejects.toThrow('14-day trial')
   })
 
   it('self-hosted : crawl autorisé sans abonnement', async () => {

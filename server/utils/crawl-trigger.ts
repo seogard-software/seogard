@@ -19,7 +19,7 @@ export async function triggerSiteCrawl(
     trigger,
     status: 'pending',
   })
-  if (!crawl) throw createError({ statusCode: 500, message: 'Database insert failed' })
+  if (!crawl) throw createError({ statusCode: 500, message: 'Database insert failed', data: { errorCode: 'INTERNAL_ERROR' } })
 
   return crawl
 }

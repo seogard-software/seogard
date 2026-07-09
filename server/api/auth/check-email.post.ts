@@ -4,12 +4,12 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.email || typeof body.email !== 'string') {
-    throw createError({ statusCode: 400, message: 'Email requis' })
+    throw createError({ statusCode: 400, message: 'Email required', data: { errorCode: 'EMAIL_REQUIRED' } })
   }
 
   const parts = body.email.split('@')
   if (parts.length !== 2 || !parts[1]) {
-    throw createError({ statusCode: 400, message: 'Email invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid email', data: { errorCode: 'EMAIL_INVALID' } })
   }
 
   const domain = parts[1].toLowerCase()

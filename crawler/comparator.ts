@@ -6,13 +6,15 @@ import { runAllRules, type RuleContext, type RuleResult } from './rules/engine'
 import { getRuleCategory } from '../shared/utils/constants'
 import { getH1, getH1Count, getHeadingLevels, hasHierarchySkip } from './rules/heading'
 import { isCleanRemoval, isInSitemap } from './rules/helpers'
+// content.ts est chargé (et ses règles enregistrées : soft_404/thin_content/content_removed) par
+// cet import nommé — il tient lieu du `import './rules/content'` de side-effect des autres règles.
+// Ne pas retirer. Filet : test/crawler/registry-completeness.test.ts casse si une règle manque.
 import { THIN_CONTENT_MIN_WORDS } from './rules/content'
 // Import rules for side-effect registration
 import './rules/meta'
 import './rules/indexing'
 import './rules/status-code'
 import './rules/ssr-csr'
-import './rules/content'
 import './rules/structured-data'
 import './rules/technical'
 import './rules/opengraph'

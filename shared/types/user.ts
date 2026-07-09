@@ -7,6 +7,7 @@ export interface User {
   avatarUrl: string | null
   authProvider: AuthProvider
   totpEnabled: boolean
+  locale?: 'fr' | 'en'
   createdAt: string
 }
 

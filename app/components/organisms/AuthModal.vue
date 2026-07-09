@@ -1,23 +1,20 @@
 <template>
-  <AppModal v-model="open" wide title="Plus qu'une étape avant votre analyse" @close="emit('dismiss')">
+  <AppModal v-model="open" wide :title="$t('auth.modal.title')" @close="emit('dismiss')">
     <div class="auth-modal">
       <div class="auth-modal__pitch">
-        <p class="auth-modal__intro">
-          Votre site est prêt à être analysé. Créez votre compte et le scan démarre <strong>immédiatement</strong> :
-          votre rapport SEO/GEO complet vous attend en quelques minutes.
-        </p>
+        <p class="auth-modal__intro" v-html="$t('auth.modal.intro')" />
         <ul class="auth-modal__perks">
-          <li class="auth-modal__perk">Sans carte bancaire</li>
-          <li class="auth-modal__perk">14 jours d'essai gratuit, sans engagement</li>
-          <li class="auth-modal__perk">Analyse complète de votre site en quelques minutes</li>
+          <li class="auth-modal__perk">{{ $t('auth.modal.perk1') }}</li>
+          <li class="auth-modal__perk">{{ $t('auth.modal.perk2') }}</li>
+          <li class="auth-modal__perk">{{ $t('auth.modal.perk3') }}</li>
         </ul>
       </div>
 
       <div class="auth-modal__form">
         <AuthRegisterForm @success="emit('success')" />
         <p class="auth-modal__login">
-          Déjà un compte ?
-          <NuxtLink to="/login" @click="open = false">Se connecter</NuxtLink>
+          {{ $t('auth.common.alreadyAccount') }}
+          <NuxtLink to="/login" @click="open = false">{{ $t('auth.common.signIn') }}</NuxtLink>
         </p>
       </div>
     </div>

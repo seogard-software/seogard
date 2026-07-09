@@ -4,8 +4,8 @@
       <div class="alerts-list__empty-icon">
         <AppIcon name="shield-check" size="lg" />
       </div>
-      <p class="alerts-list__empty-title">Tout est sous contrôle</p>
-      <p class="alerts-list__empty-text">Aucune alerte détectée. Votre site est en bonne santé.</p>
+      <p class="alerts-list__empty-title">{{ $t('dashboard.c.alertsList.emptyTitle') }}</p>
+      <p class="alerts-list__empty-text">{{ $t('dashboard.c.alertsList.emptyText') }}</p>
     </div>
     <AlertGroupCard
       v-for="group in groups"

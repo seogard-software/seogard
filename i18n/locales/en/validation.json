@@ -1,0 +1,13 @@
+{
+  "validation": {
+    "emailRequired": "Email required",
+    "emailInvalid": "Invalid email",
+    "passwordRequired": "Password required",
+    "passwordTooShort": "8 characters minimum",
+    "passwordMinChars": "Minimum 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "codeRequired": "Code required",
+    "nameRequired": "Name required",
+    "termsRequired": "You must accept the Terms of Use and Terms of Sale"
+  }
+}

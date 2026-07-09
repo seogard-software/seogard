@@ -9,22 +9,18 @@
       <div class="scanner__container scanner__container--narrow">
         <span class="scanner__badge">
           <AppIcon name="search" size="sm" />
-          Scan gratuit · sans carte bancaire
+          {{ $t('landing.scanner.hero.badge') }}
         </span>
         <h1 class="scanner__title">
-          Le scanner SEO qui voit<br>
-          <span class="scanner__title-accent">ce que Google voit vraiment.</span>
+          {{ $t('landing.scanner.hero.title') }}<br>
+          <span class="scanner__title-accent">{{ $t('landing.scanner.hero.titleAccent') }}</span>
         </h1>
-        <p class="scanner__subtitle">
-          Entrez votre URL. Seogard compare le <strong>HTML brut</strong> — ce que Google et les IA indexent —
-          au <strong>rendu JavaScript</strong> que voit votre navigateur, et remonte les régressions invisibles.
-          Résultat immédiat sur votre dashboard.
-        </p>
+        <p class="scanner__subtitle" v-html="$t('landing.scanner.hero.subtitle')" />
         <div class="scanner__bar">
           <ScanBar size="hero" />
         </div>
         <p class="scanner__trust">
-          Self-hosted gratuit · Cloud dès {{ cloudPriceDisplay }} €/mois/page · essai 14 jours sans engagement
+          {{ $t('landing.scanner.hero.trust', { price: cloudPriceDisplay }) }}
         </p>
       </div>
     </section>
@@ -32,43 +28,40 @@
     <!-- ═══════ DIFFÉRENCIATEUR — HTML brut vs rendu JS ═══════ -->
     <section class="scanner__section">
       <div class="scanner__container">
-        <span class="scanner__eyebrow">Le point aveugle des autres outils</span>
-        <h2 class="scanner__h2">Votre page est belle dans le navigateur.<br>Mais que lit Google ?</h2>
+        <span class="scanner__eyebrow">{{ $t('landing.scanner.compare.eyebrow') }}</span>
+        <h2 class="scanner__h2" v-html="$t('landing.scanner.compare.title')" />
         <div class="scanner__compare">
           <article class="scanner__pane scanner__pane--raw">
             <header class="scanner__pane-head">
-              <span class="scanner__pane-tag">HTML brut · ce que Google indexe</span>
+              <span class="scanner__pane-tag">{{ $t('landing.scanner.compare.rawTag') }}</span>
             </header>
-            <pre class="scanner__code"><span class="scanner__code-ok">&lt;title&gt;Chaussures running&lt;/title&gt;</span>
-<span class="scanner__code-bad">&lt;!-- meta description : vide --&gt;</span>
-<span class="scanner__code-bad">&lt;!-- h1 : injecté par JS --&gt;</span>
-<span class="scanner__code-bad">&lt;!-- canonical : absent --&gt;</span></pre>
-            <p class="scanner__pane-verdict scanner__pane-verdict--bad">Google indexe une page à moitié vide.</p>
+            <pre class="scanner__code"><span class="scanner__code-ok">{{ $t('landing.scanner.compare.rawLine1') }}</span>
+<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine2') }}</span>
+<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine3') }}</span>
+<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine4') }}</span></pre>
+            <p class="scanner__pane-verdict scanner__pane-verdict--bad">{{ $t('landing.scanner.compare.rawVerdict') }}</p>
           </article>
 
           <article class="scanner__pane scanner__pane--rendered">
             <header class="scanner__pane-head">
-              <span class="scanner__pane-tag">Rendu JS · ce que vous voyez</span>
+              <span class="scanner__pane-tag">{{ $t('landing.scanner.compare.renderedTag') }}</span>
             </header>
-            <pre class="scanner__code"><span class="scanner__code-ok">&lt;title&gt;Chaussures running&lt;/title&gt;</span>
-<span class="scanner__code-ok">&lt;meta name="description" …&gt;</span>
-<span class="scanner__code-ok">&lt;h1&gt;Chaussures running homme&lt;/h1&gt;</span>
-<span class="scanner__code-ok">&lt;link rel="canonical" …&gt;</span></pre>
-            <p class="scanner__pane-verdict scanner__pane-verdict--ok">Tout est là — dans le navigateur seulement.</p>
+            <pre class="scanner__code"><span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine1') }}</span>
+<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine2') }}</span>
+<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine3') }}</span>
+<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine4') }}</span></pre>
+            <p class="scanner__pane-verdict scanner__pane-verdict--ok">{{ $t('landing.scanner.compare.renderedVerdict') }}</p>
           </article>
         </div>
-        <p class="scanner__compare-note">
-          C'est exactement la fenêtre où un SSR cassé indexe du vide. Oncrawl, Lumar, ContentKing crawlent sans
-          comparer en continu les deux. <strong>Seogard, si.</strong>
-        </p>
+        <p class="scanner__compare-note" v-html="$t('landing.scanner.compare.note')" />
       </div>
     </section>
 
     <!-- ═══════ ÉTAPES ═══════ -->
     <section class="scanner__section scanner__section--muted">
       <div class="scanner__container">
-        <span class="scanner__eyebrow">En 30 secondes</span>
-        <h2 class="scanner__h2">Comment ça marche</h2>
+        <span class="scanner__eyebrow">{{ $t('landing.scanner.steps.eyebrow') }}</span>
+        <h2 class="scanner__h2">{{ $t('landing.scanner.steps.title') }}</h2>
         <ol class="scanner__steps">
           <li v-for="(step, i) in steps" :key="step.title" class="scanner__step">
             <span class="scanner__step-num">{{ i + 1 }}</span>
@@ -82,8 +75,8 @@
     <!-- ═══════ CE QU'ON ANALYSE ═══════ -->
     <section class="scanner__section">
       <div class="scanner__container">
-        <span class="scanner__eyebrow">{{ RULES_COUNT }} règles, vérifiées à chaque crawl</span>
-        <h2 class="scanner__h2">Ce que le scan détecte</h2>
+        <span class="scanner__eyebrow">{{ $t('landing.scanner.checks.eyebrow', { count: RULES_COUNT }) }}</span>
+        <h2 class="scanner__h2">{{ $t('landing.scanner.checks.title') }}</h2>
         <div class="scanner__checks">
           <article v-for="c in checks" :key="c.title" class="scanner__check">
             <span class="scanner__check-icon"><AppIcon :name="c.icon" size="md" /></span>
@@ -99,7 +92,7 @@
     <!-- ═══════ FAQ ═══════ -->
     <section class="scanner__section scanner__section--muted">
       <div class="scanner__container scanner__container--narrow">
-        <h2 class="scanner__h2">Questions fréquentes</h2>
+        <h2 class="scanner__h2">{{ $t('landing.scanner.faq.title') }}</h2>
         <div class="scanner__faq">
           <details v-for="item in faq" :key="item.q" class="scanner__faq-item">
             <summary class="scanner__faq-q">{{ item.q }}</summary>
@@ -112,8 +105,8 @@
     <!-- ═══════ CTA FINAL ═══════ -->
     <section class="scanner__cta">
       <div class="scanner__container scanner__container--narrow">
-        <h2 class="scanner__cta-title">Lancez votre scan maintenant</h2>
-        <p class="scanner__cta-sub">Gratuit, sans carte bancaire. Vous voyez les régressions avant Google.</p>
+        <h2 class="scanner__cta-title">{{ $t('landing.scanner.cta.title') }}</h2>
+        <p class="scanner__cta-sub">{{ $t('landing.scanner.cta.subtitle') }}</p>
         <div class="scanner__bar">
           <ScanBar size="hero" />
         </div>
@@ -123,39 +116,44 @@
 </template>
 
 <script setup lang="ts">
-import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
+import { RULES_COUNT } from '~~/shared/utils/rules-list'
 import { formatCloudPrice } from '~~/shared/utils/pricing'
 
 definePageMeta({ layout: 'landing', auth: false })
 
-const cloudPriceDisplay = formatCloudPrice()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+const abs = (name: string): string => `${appUrl}${localePath({ name })}`
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
+
+const cloudPriceDisplay = formatCloudPrice(locale.value)
 
 const steps = [
-  { title: 'Entrez votre URL', text: 'Aucune installation, aucune configuration. Juste l\'adresse de votre site.' },
-  { title: 'On crawle en double vision', text: 'Seogard lit votre sitemap, récupère le HTML brut et le rendu JavaScript de chaque page, puis les compare.' },
-  { title: 'Vos régressions, classées', text: 'Les écarts et erreurs SEO/GEO arrivent sur votre dashboard, triés par sévérité, avec la marche à suivre pour corriger.' },
+  { title: t('landing.scanner.steps.step1Title'), text: t('landing.scanner.steps.step1Text') },
+  { title: t('landing.scanner.steps.step2Title'), text: t('landing.scanner.steps.step2Text') },
+  { title: t('landing.scanner.steps.step3Title'), text: t('landing.scanner.steps.step3Text') },
 ]
 
 const checks: { icon: IconName, title: string, text: string }[] = [
-  { icon: 'code', title: 'Régressions SSR / CSR', text: 'Metas, H1, canonical ou contenu présents dans le navigateur mais absents du HTML brut indexé.' },
-  { icon: 'file', title: 'Metas & titles', text: 'Title, meta description, Open Graph manquants, vides ou modifiés sans que vous le sachiez.' },
-  { icon: 'shield-check', title: 'Indexabilité', text: 'noindex accidentels, canonicals cassés, robots.txt bloquant Googlebot.' },
-  { icon: 'activity', title: 'Status codes', text: '404, 500, soft 404, redirections vers la home, chaînes de redirection.' },
-  { icon: 'chart-bar', title: 'Données structurées', text: 'JSON-LD absent, invalide ou injecté uniquement par JavaScript.' },
-  { icon: 'radar', title: 'Visibilité IA (GEO)', text: 'llms.txt, blocage des crawlers IA de citation, signaux exploités par ChatGPT et Perplexity.' },
+  { icon: 'code', title: t('landing.scanner.checks.check1Title'), text: t('landing.scanner.checks.check1Text') },
+  { icon: 'file', title: t('landing.scanner.checks.check2Title'), text: t('landing.scanner.checks.check2Text') },
+  { icon: 'shield-check', title: t('landing.scanner.checks.check3Title'), text: t('landing.scanner.checks.check3Text') },
+  { icon: 'activity', title: t('landing.scanner.checks.check4Title'), text: t('landing.scanner.checks.check4Text') },
+  { icon: 'chart-bar', title: t('landing.scanner.checks.check5Title'), text: t('landing.scanner.checks.check5Text') },
+  { icon: 'radar', title: t('landing.scanner.checks.check6Title'), text: t('landing.scanner.checks.check6Text') },
 ]
 
 const faq = [
-  { q: 'Le scan est-il vraiment gratuit ?', a: 'Oui. Le scan démarre un essai de 14 jours sans carte bancaire. Vous pouvez aussi installer Seogard en self-hosted, gratuit pour toujours (code source disponible, BSL 1.1).' },
-  { q: 'En quoi c\'est différent de Screaming Frog, Oncrawl ou Lumar ?', a: 'Ces outils crawlent une version de la page. Seogard compare en continu le HTML brut (ce que Google et les IA lisent) et le rendu JavaScript (ce que vous voyez) — la seule façon de détecter un SSR cassé avant qu\'il n\'indexe du vide.' },
-  { q: 'Combien de temps pour avoir les résultats ?', a: 'Le crawl démarre dès l\'inscription. Les premières pages et alertes apparaissent en quelques secondes, le scan complet suit selon la taille du site.' },
-  { q: 'Dois-je être propriétaire du site ?', a: 'Vous devez être propriétaire du site ou disposer d\'une autorisation pour le crawler. Le scan respecte votre robots.txt.' },
-  { q: 'Mon site est protégé par un pare-feu / anti-bot ?', a: 'Certaines protections (Cloudflare strict, BitNinja…) peuvent bloquer notre crawler. Dans ce cas, il suffit d\'autoriser notre IP — la marche à suivre est indiquée sur votre dashboard.' },
+  { q: t('landing.scanner.faq.q1'), a: t('landing.scanner.faq.a1') },
+  { q: t('landing.scanner.faq.q2'), a: t('landing.scanner.faq.a2') },
+  { q: t('landing.scanner.faq.q3'), a: t('landing.scanner.faq.a3') },
+  { q: t('landing.scanner.faq.q4'), a: t('landing.scanner.faq.a4') },
+  { q: t('landing.scanner.faq.q5'), a: t('landing.scanner.faq.a5') },
 ]
 
 useHead({
-  title: 'Scanner SEO gratuit de votre site',
-  link: [{ rel: 'canonical', href: 'https://seogard.io/scanner' }],
+  title: t('seo.scanner.title'),
   script: [
     {
       type: 'application/ld+json',
@@ -165,12 +163,13 @@ useHead({
           {
             '@type': 'BreadcrumbList',
             'itemListElement': [
-              { '@type': 'ListItem', 'position': 1, 'name': 'Accueil', 'item': 'https://seogard.io' },
-              { '@type': 'ListItem', 'position': 2, 'name': 'Scanner SEO gratuit', 'item': 'https://seogard.io/scanner' },
+              { '@type': 'ListItem', 'position': 1, 'name': t('seo.scanner.jsonld.breadcrumbHome'), 'item': abs('index') },
+              { '@type': 'ListItem', 'position': 2, 'name': t('seo.scanner.jsonld.breadcrumbScanner'), 'item': abs('scanner') },
             ],
           },
           {
             '@type': 'FAQPage',
+            'inLanguage': locale.value,
             'mainEntity': faq.map(item => ({
               '@type': 'Question',
               'name': item.q,
@@ -184,16 +183,16 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Scannez gratuitement le SEO de votre site : Seogard compare le HTML brut (vu par Google et les IA) et le rendu JavaScript, et détecte les régressions invisibles. Résultat immédiat, sans carte bancaire.`,
-  ogTitle: 'Scanner SEO gratuit — voyez votre site comme Google',
-  ogDescription: `Comparez HTML brut et rendu JavaScript, détectez les régressions SEO/GEO avant Google. Scan gratuit, sans carte bancaire.`,
+  description: t('seo.scanner.description'),
+  ogTitle: t('seo.scanner.ogTitle'),
+  ogDescription: t('seo.scanner.ogDescription'),
   ogType: 'website',
-  ogUrl: 'https://seogard.io/scanner',
-  ogImage: 'https://seogard.io/og-image.png',
+  ogUrl: abs('scanner'),
+  ogImage: ogImage.value,
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://seogard.io/og-image.png',
-  twitterTitle: 'Scanner SEO gratuit — voyez votre site comme Google',
-  twitterDescription: `Comparez HTML brut et rendu JS, détectez les régressions avant Google. Gratuit, sans CB.`,
+  twitterImage: ogImage.value,
+  twitterTitle: t('seo.scanner.twitterTitle'),
+  twitterDescription: t('seo.scanner.twitterDescription'),
   robots: 'index, follow',
 })
 </script>

@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import { createLogger } from './logger'
-import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/constants'
+import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/cookies'
 
 const log = createLogger('web', 'auth')
 
@@ -19,7 +19,7 @@ function getJwtSecret(): string {
   const secret = process.env.NUXT_JWT_SECRET || useRuntimeConfig().jwtSecret
   if (!secret) {
     log.fatal({}, 'JWT_SECRET is not configured')
-    throw createError({ statusCode: 500, message: 'Server misconfigured' })
+    throw createError({ statusCode: 500, message: 'Server misconfigured', data: { errorCode: 'INTERNAL_ERROR' } })
   }
   return secret
 }
@@ -92,7 +92,7 @@ export function getRefreshTokenExpiresAt(): Date {
 
 export function requireAuth(event: H3Event): string {
   if (!event.context.auth?.userId) {
-    throw createError({ statusCode: 401, message: 'Non authentifie' })
+    throw createError({ statusCode: 401, message: 'Not authenticated', data: { errorCode: 'UNAUTHORIZED' } })
   }
   return event.context.auth.userId
 }
@@ -101,7 +101,7 @@ export function requireValidId(event: H3Event, param = 'id'): string {
   const id = getRouterParam(event, param)
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    throw createError({ statusCode: 400, message: 'ID invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid ID', data: { errorCode: 'INVALID_ID' } })
   }
 
   return id

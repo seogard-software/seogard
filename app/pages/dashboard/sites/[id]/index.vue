@@ -1,10 +1,11 @@
 <template>
   <div class="page-site-redirect">
-    <AppSpinner label="Chargement..." />
+    <AppSpinner :label="$t('dashboard.siteRedirect.loading')" />
   </div>
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()

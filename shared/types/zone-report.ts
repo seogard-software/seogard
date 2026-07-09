@@ -1,4 +1,5 @@
 import type { RuleKnowledge } from '../utils/rule-knowledge'
+import type { Locale } from '../utils/i18n'
 
 // Contrat du rapport « État de santé SEO » d'une zone. Produit par
 // server/utils/report-builder.ts (fonction pure), consommé par les
@@ -19,6 +20,8 @@ export interface ZoneReportMeta {
   pagesPurged: number
   /** Date de génération du rapport (ISO) — fournie par l'appelant (pureté). */
   generatedAt: string
+  /** Langue du rapport (libellés, dates) — figée à la génération, portée par le rapport lui-même. */
+  locale: Locale
 }
 
 export interface ZoneReportVerdict {

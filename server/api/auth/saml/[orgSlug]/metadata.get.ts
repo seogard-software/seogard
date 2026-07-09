@@ -3,12 +3,12 @@ import { Organization } from '../../../../database/models'
 export default defineEventHandler(async (event) => {
   const orgSlug = getRouterParam(event, 'orgSlug')
   if (!orgSlug) {
-    throw createError({ statusCode: 400, message: 'Organisation requise' })
+    throw createError({ statusCode: 400, message: 'Organization required', data: { errorCode: 'ORG_REQUIRED' } })
   }
 
   const org = await Organization.findOne({ slug: orgSlug }).lean() as any
   if (!org) {
-    throw createError({ statusCode: 404, message: 'Organisation non trouvée' })
+    throw createError({ statusCode: 404, message: 'Organization not found', data: { errorCode: 'ORG_NOT_FOUND' } })
   }
 
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'

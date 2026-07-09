@@ -1,26 +1,26 @@
 <template>
   <div class="page-forgot">
     <template v-if="sent">
-      <h1 class="page-forgot__title">Email envoyé</h1>
-      <p class="page-forgot__text">
-        Si un compte existe pour <strong>{{ email }}</strong>, vous recevrez un lien de réinitialisation dans quelques instants.
-      </p>
-      <p class="page-forgot__text">Pensez à vérifier vos spams.</p>
+      <h1 class="page-forgot__title">{{ $t('auth.forgot.sentTitle') }}</h1>
+      <i18n-t keypath="auth.forgot.sentText" tag="p" class="page-forgot__text" scope="global">
+        <template #email><strong>{{ email }}</strong></template>
+      </i18n-t>
+      <p class="page-forgot__text">{{ $t('auth.forgot.checkSpam') }}</p>
       <NuxtLink to="/login" class="page-forgot__link">
-        <AppButton variant="secondary" size="lg">Retour à la connexion</AppButton>
+        <AppButton variant="secondary" size="lg">{{ $t('auth.common.backToLogin') }}</AppButton>
       </NuxtLink>
     </template>
 
     <template v-else>
-      <h1 class="page-forgot__title">Mot de passe oublié</h1>
-      <p class="page-forgot__text">Entrez votre adresse email. Vous recevrez un lien pour réinitialiser votre mot de passe.</p>
+      <h1 class="page-forgot__title">{{ $t('auth.forgot.title') }}</h1>
+      <p class="page-forgot__text">{{ $t('auth.forgot.text') }}</p>
 
       <form class="page-forgot__form" @submit.prevent="handleSubmit">
         <AppInput
           v-model="email"
-          label="Email"
+          :label="$t('auth.common.emailLabel')"
           type="email"
-          placeholder="vous@exemple.com"
+          :placeholder="$t('auth.forgot.emailPlaceholder')"
           :error="errors.email"
         />
 
@@ -29,11 +29,11 @@
         </AppAlert>
 
         <AppButton type="submit" :loading="loading" size="lg">
-          Envoyer le lien
+          {{ $t('auth.forgot.submit') }}
         </AppButton>
 
         <NuxtLink to="/login" class="page-forgot__back">
-          Retour à la connexion
+          {{ $t('auth.common.backToLogin') }}
         </NuxtLink>
       </form>
     </template>
@@ -41,9 +41,12 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth', auth: false })
 
-useHead({ title: 'Mot de passe oublié' })
+const { t } = useI18n()
+
+useHead({ title: t('seo.forgot.title') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const email = ref('')
@@ -55,7 +58,7 @@ async function handleSubmit() {
   errors.value = {}
 
   if (!email.value || !email.value.includes('@')) {
-    errors.value.email = 'Email invalide'
+    errors.value.email = t('validation.emailInvalid')
     return
   }
 
@@ -68,7 +71,7 @@ async function handleSubmit() {
     sent.value = true
   }
   catch {
-    errors.value.general = 'Une erreur est survenue. Réessayez.'
+    errors.value.general = t('auth.forgot.errorGeneric')
   }
   finally {
     loading.value = false

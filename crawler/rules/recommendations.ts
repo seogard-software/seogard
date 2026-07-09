@@ -19,7 +19,7 @@ registerRule({
     return [{
       type: 'rec_img_alt_audit',
       severity: count >= 10 ? 'warning' : 'info',
-      message: `${count} image(s) sans attribut alt`,
+      message: `${count} image(s) missing an alt attribute`,
       previousValue: null,
       currentValue: `${count} images sans alt`,
     }]
@@ -37,9 +37,9 @@ registerRule({
     return [{
       type: 'rec_title_length_audit',
       severity: 'info',
-      message: `Title ${issue} (${len} caractères, recommandé : 15-60)`,
+      message: `Title ${issue} (${len} characters, recommended: 15-60)`,
       previousValue: null,
-      currentValue: `${len} caractères`,
+      currentValue: `${len} characters`,
     }]
   },
 })
@@ -55,9 +55,9 @@ registerRule({
     return [{
       type: 'rec_description_length_audit',
       severity: 'info',
-      message: `Meta description ${issue} (${len} caractères, recommandé : 50-160)`,
+      message: `Meta description ${issue} (${len} characters, recommended: 50-160)`,
       previousValue: null,
-      currentValue: `${len} caractères`,
+      currentValue: `${len} characters`,
     }]
   },
 })
@@ -76,7 +76,7 @@ registerRule({
     return [{
       type: 'rec_h1_missing_audit',
       severity: 'warning',
-      message: 'Aucun H1 trouvé sur la page',
+      message: 'No H1 found on the page',
       previousValue: null,
       currentValue: '0 H1',
     }]
@@ -104,7 +104,7 @@ registerRule({
     return [{
       type: 'rec_h1_missing_in_ssr',
       severity: 'warning',
-      message: `H1 absent ou vide en SSR mais rempli côté JavaScript ("${csrH1Text}"). Google peut le voir avec délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.`,
+      message: `H1 missing or empty in SSR but filled by JavaScript ("${csrH1Text}"). Google may only see it after a delay (24h to several weeks). LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read raw HTML.`,
       previousValue: null,
       currentValue: csrH1Text,
     }]
@@ -144,7 +144,7 @@ registerRule({
     return [{
       type: 'rec_content_missing_in_ssr',
       severity: 'warning',
-      message: `${missing} mots sur ${csr} ne sont présents qu'après exécution JavaScript. Les robots d'IA (ChatGPT, Perplexity, Claude) lisent le HTML brut et ne verront probablement pas ce contenu.`,
+      message: `${missing} of ${csr} words only appear after JavaScript execution. AI crawlers (ChatGPT, Perplexity, Claude) read raw HTML and will probably never see this content.`,
       previousValue: null,
       currentValue: `SSR ${ssr} mots / CSR ${csr} mots`,
     }]
@@ -169,7 +169,7 @@ registerRule({
     return [{
       type: 'rec_title_missing_in_ssr',
       severity: 'warning',
-      message: `Le <title> est absent du HTML brut mais rempli après JavaScript ("${csrTitle}"). Google peut le voir avec délai et les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement pas — ils lisent principalement le HTML brut. Rendez le titre côté serveur (SSR).`,
+      message: `The <title> is missing from raw HTML but filled after JavaScript ("${csrTitle}"). Google may only see it after a delay and LLMs (ChatGPT, Perplexity, Claude) probably never do — they mostly read raw HTML. Render the title server-side (SSR).`,
       previousValue: null,
       currentValue: csrTitle,
     }]
@@ -191,7 +191,7 @@ registerRule({
     return [{
       type: 'rec_description_missing_in_ssr',
       severity: 'info',
-      message: 'La meta description est absente du HTML brut mais présente après JavaScript. Google et les LLM lisent surtout le HTML brut — votre snippet de recherche et votre visibilité IA peuvent en pâtir. Rendez la meta description côté serveur (SSR).',
+      message: 'The meta description is missing from raw HTML but present after JavaScript. Google and LLMs mostly read raw HTML — your search snippet and AI visibility may suffer. Render the meta description server-side (SSR).',
       previousValue: null,
       currentValue: csrDescription,
     }]
@@ -205,7 +205,7 @@ registerRule({
     return [{
       type: 'rec_favicon_missing_audit',
       severity: 'info',
-      message: 'Aucun favicon détecté',
+      message: 'No favicon detected',
       previousValue: null,
       currentValue: null,
     }]
@@ -228,7 +228,7 @@ registerRule({
     return [{
       type: 'rec_semantic_structure_audit',
       severity: 'info',
-      message: `Balises sémantiques manquantes : ${missing.join(', ')}`,
+      message: `Missing semantic tags: ${missing.join(', ')}`,
       previousValue: null,
       currentValue: missing.join(', '),
     }]
@@ -252,7 +252,7 @@ registerRule({
     return [{
       type: 'rec_semantic_structure_missing_in_ssr',
       severity: 'info',
-      message: `Balises sémantiques (${missingInSsr.join(', ')}) absentes du HTML brut envoyé par votre serveur — elles apparaissent uniquement après chargement JavaScript. Google et les lecteurs d'écran (accessibilité) comprennent mieux la structure de votre page quand ces balises sont présentes dès le premier rendu. Solution : structurer votre layout avec ces balises côté serveur.`,
+      message: `Semantic tags (${missingInSsr.join(', ')}) missing from the raw HTML sent by your server — they only appear after JavaScript loads. Google and screen readers (accessibility) understand your page structure better when these tags are present in the first render. Fix: structure your layout with these tags server-side.`,
       previousValue: null,
       currentValue: missingInSsr.join(', '),
     }]
@@ -270,7 +270,7 @@ registerRule({
     return [{
       type: 'rec_structured_data_missing_audit',
       severity: 'info',
-      message: 'Aucune donnée structurée JSON-LD détectée',
+      message: 'No JSON-LD structured data detected',
       previousValue: null,
       currentValue: null,
     }]
@@ -292,7 +292,7 @@ registerRule({
     return [{
       type: 'rec_structured_data_missing_in_ssr',
       severity: 'warning',
-      message: `Données structurées (${csrTypes.join(', ')}) injectées par JavaScript uniquement. Les IA (ChatGPT, Perplexity, Claude) ne les voient probablement pas — elles lisent surtout le HTML brut. Pour une meilleure visibilité IA, rendez le JSON-LD côté serveur.`,
+      message: `Structured data (${csrTypes.join(', ')}) injected by JavaScript only. AIs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read raw HTML. For better AI visibility, render JSON-LD server-side.`,
       previousValue: null,
       currentValue: csrTypes.join(', '),
     }]
@@ -310,7 +310,7 @@ registerRule({
     return [{
       type: 'rec_og_missing_audit',
       severity: 'info',
-      message: `Balises Open Graph manquantes : ${missing.join(', ')}`,
+      message: `Missing Open Graph tags: ${missing.join(', ')}`,
       previousValue: null,
       currentValue: missing.join(', '),
     }]
@@ -329,7 +329,7 @@ registerRule({
     return [{
       type: 'rec_internal_links_audit',
       severity: count === 0 ? 'warning' : 'info',
-      message: `Seulement ${count} lien(s) interne(s) (recommandé : >= 3)`,
+      message: `Only ${count} internal link(s) (recommended: >= 3)`,
       previousValue: null,
       currentValue: `${count} liens internes`,
     }]
@@ -353,9 +353,9 @@ registerRule({
     return [{
       type: 'rec_internal_links_missing_in_ssr',
       severity: 'info',
-      message: `Vos liens internes ne sont pas dans le HTML brut envoyé par votre serveur (${ssrCount} liens) mais apparaissent uniquement après chargement JavaScript (${csrCount} liens). Google découvre vos pages plus lentement car il commence par scanner le HTML brut. Solution : rendre les liens de menu, footer et navigation côté serveur (SSR).`,
-      previousValue: `${ssrCount} en HTML brut`,
-      currentValue: `${csrCount} après JavaScript`,
+      message: `Your internal links are not in the raw HTML sent by your server (${ssrCount} links) — they only appear after JavaScript loads (${csrCount} links). Google discovers your pages more slowly because it scans raw HTML first. Fix: render menu, footer and navigation links server-side (SSR).`,
+      previousValue: `${ssrCount} in raw HTML`,
+      currentValue: `${csrCount} after JavaScript`,
     }]
   },
 })
@@ -380,7 +380,7 @@ registerRule({
     return [{
       type: 'rec_img_alt_missing_in_ssr',
       severity: 'info',
-      message: `${newlyAddedWithoutAlt.length} image(s) ajoutée(s) par JavaScript n'ont pas d'attribut alt. Google Image Search ne les indexera probablement pas (il lit le HTML brut), et les utilisateurs malvoyants ne pourront pas les comprendre. Solution : ajouter un attribut alt descriptif sur chaque image, et les rendre côté serveur si possible.`,
+      message: `${newlyAddedWithoutAlt.length} image(s) added by JavaScript have no alt attribute. Google Image Search will probably not index them (it reads raw HTML), and visually impaired users cannot understand them. Fix: add a descriptive alt attribute to every image, and render them server-side when possible.`,
       previousValue: null,
       currentValue: `${newlyAddedWithoutAlt.length} images JS sans alt`,
     }]

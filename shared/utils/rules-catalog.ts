@@ -1,107 +1,38 @@
+import frRules from '../../i18n/locales/fr/rules.json' with { type: 'json' }
+import enRules from '../../i18n/locales/en/rules.json' with { type: 'json' }
+import type { Locale } from './i18n'
 import { ALERT_TYPE_LABELS, getRuleCategory } from './constants'
+import { RAW_RULES } from './rules-list'
+
+// RULES_COUNT vit dans rules-list.ts (module léger, sans rules.json) → la landing l'importe de LÀ
+// pour ne pas embarquer le wording des règles. Re-exporté ici pour le serveur et les tests existants.
+export { RULES_COUNT } from './rules-list'
 
 // Catalogue officiel des règles (source unique : endpoint /api/public/rules,
-// rapport de zone, docs). Extrait verbatim de rules.get.ts — NE PAS reformuler
-// les descriptions ici sans mettre à jour le snapshot de non-régression.
-export const RULES = [
-  // P0 — Deindexation
-  { id: 'noindex_added', severity: 'critical', type: 'cross-crawl', file: 'indexing.ts', priority: 'P0', description: 'Une directive noindex a été ajoutée (balise meta robots/googlebot ou en-tête HTTP X-Robots-Tag). La page va disparaître des résultats Google sous quelques jours.' },
-  { id: 'status_code_changed', severity: 'critical/warning', type: 'cross-crawl', file: 'status-code.ts', priority: 'P0', description: 'Le code HTTP a changé (ex : 200 → 404 ou 301). Critical si erreur serveur (4xx/5xx), warning si redirection (3xx).' },
-  { id: 'canonical_missing', severity: 'critical', type: 'cross-crawl', file: 'meta.ts', priority: 'P0', description: 'La balise canonical a disparu. Risque de contenu dupliqué — Google ne sait plus quelle URL indexer.' },
-  { id: 'canonical_changed', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P0', description: 'La balise canonical pointe vers une URL différente. Peut être voulu (migration) ou accidentel.' },
-  { id: 'meta_title_missing', severity: 'critical', type: 'cross-crawl', file: 'meta.ts', priority: 'P0', description: 'Le meta title a disparu. Google affichera un titre généré automatiquement dans les résultats de recherche.' },
-  { id: 'soft_404', severity: 'critical', type: 'within-crawl', file: 'content.ts', priority: 'P0', description: 'La page renvoie un code 200 mais affiche un message "page introuvable". Google la considère comme supprimée.' },
-  { id: 'redirect_to_homepage', severity: 'critical', type: 'within-crawl', file: 'redirect.ts', priority: 'P0', description: 'La page redirige vers la homepage. Tout le contenu et le référencement de cette URL sont perdus.' },
-  { id: 'page_redirected', severity: 'warning', type: 'cross-crawl', file: 'redirect.ts', priority: 'P1', description: 'Une page encore déclarée dans votre sitemap s’est mise à rediriger vers une autre URL : le sitemap présente comme canonique une adresse qui rebondit. Retrait voulu → sortez-la du sitemap ; sinon, souvent une route cassée. Une page redirigée ET sortie du sitemap est un retrait propre : aucune alerte.' },
-  { id: 'js_redirect_detected', severity: 'warning', type: 'within-crawl', file: 'redirect.ts', priority: 'P1', description: 'La page répond 200 mais son JavaScript redirige le navigateur ailleurs. Google ne la suit qu’après rendu (différé, ou jamais si le rendu échoue) et les IA lisent le HTML d’origine, pas la destination : machines et humains voient deux pages différentes.' },
-  { id: 'redirect_broken', severity: 'warning', type: 'cross-crawl', file: 'redirect.ts', priority: 'P1', description: 'Une page retirée proprement (redirection + sortie du sitemap) renvoie désormais une erreur 4xx : sa redirection a cassé. Le jus des backlinks qui pointaient vers l’ancienne URL cesse d’être transmis — typiquement un refactor qui a supprimé la règle de redirection ou sa cible.' },
-  { id: 'rec_redirect_temporary', severity: 'info', type: 'cross-crawl', file: 'redirect.ts', priority: 'P2', description: 'Une page sortie du sitemap redirige en 302/307 (temporaire). Google garde l’ancienne URL indexée et consolide mal les signaux vers la cible. Si le retrait est définitif, une redirection 301 (permanente) transmet le jus proprement.' },
-  { id: 'rec_unclean_removal', severity: 'info', type: 'cross-crawl', file: 'redirect.ts', priority: 'P2', description: 'Une page sortie du sitemap renvoie un 404 nu. Ça fonctionne, mais le signal est ambigu : Google la re-crawle pendant des semaines. Suppression définitive → 410 (désindexation plus rapide) ; contenu déplacé → 301 (préserve le jus des backlinks).' },
-  { id: 'rec_sitemap_noindex_conflict', severity: 'warning', type: 'within-crawl', file: 'indexing.ts', priority: 'P2', description: 'Cette page est déclarée dans votre sitemap mais porte une directive noindex (balise meta ou en-tête X-Robots-Tag) : vous demandez à Google de l’indexer et de l’ignorer en même temps. Budget de crawl gaspillé et rapports d’indexation GSC pollués. Retirez-la du sitemap, ou retirez le noindex.' },
-  // P1 — Direct ranking
-  { id: 'ssr_rendering_failed', severity: 'critical', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P1', description: 'Le HTML renvoyé par le serveur (SSR) est quasiment vide alors que la page fonctionne côté navigateur. Google indexe une page vide.' },
-  { id: 'ssr_content_mismatch', severity: 'critical', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P1', description: 'Le contenu SSR représente moins de 10% du contenu affiché par le navigateur. Google voit une version très appauvrie de la page.' },
-  { id: 'h1_missing', severity: 'critical', type: 'cross-crawl', file: 'heading.ts', priority: 'P1', description: 'Le H1 a disparu. C\'est le titre principal de la page — un signal SEO fort pour Google.' },
-  { id: 'h1_multiple', severity: 'warning', type: 'cross-crawl', file: 'heading.ts', priority: 'P1', description: 'Plusieurs H1 détectés. Cela dilue le signal SEO — une page ne devrait avoir qu\'un seul titre principal.' },
-  { id: 'h1_changed', severity: 'warning', type: 'cross-crawl', file: 'heading.ts', priority: 'P1', description: 'Le texte du H1 a changé. Peut être voulu (mise à jour éditoriale) ou accidentel (bug de template).' },
-  { id: 'viewport_missing', severity: 'critical', type: 'cross-crawl', file: 'technical.ts', priority: 'P1', description: 'La balise viewport a disparu. La page n\'est plus adaptée au mobile — Google pénalise en mobile-first indexing.' },
-  { id: 'thin_content', severity: 'warning', type: 'cross-crawl', file: 'content.ts', priority: 'P1', description: 'Le contenu est passé sous 200 mots. Les pages avec peu de contenu ont moins de chances de ranker.' },
-  { id: 'content_removed', severity: 'critical', type: 'cross-crawl', file: 'content.ts', priority: 'P1', description: 'Plus de 50% du contenu a disparu. Suppression massive — probablement un bug de déploiement ou de template.' },
-  { id: 'hreflang_removed', severity: 'critical', type: 'cross-crawl', file: 'i18n.ts', priority: 'P1', description: 'Toutes les balises hreflang ont été supprimées. Le ciblage international est cassé — Google peut servir la mauvaise langue.' },
-  { id: 'hreflang_changed', severity: 'warning', type: 'cross-crawl', file: 'i18n.ts', priority: 'P1', description: 'Les langues déclarées dans les hreflang ont changé. Peut être voulu (ajout/retrait de langue) ou accidentel.' },
-  { id: 'https_mixed_content', severity: 'warning', type: 'within-crawl', file: 'technical.ts', priority: 'P1', description: 'Des images, scripts ou styles sont chargés en HTTP sur une page HTTPS. Le cadenas de sécurité disparaît et les navigateurs peuvent bloquer ces ressources.' },
-  // P2 — CTR / SERP
-  { id: 'meta_description_missing', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P2', description: 'La meta description a disparu. Google régénère un extrait automatique : impact possible sur le taux de clic, mais ni désindexation ni perte de ranking.' },
-  { id: 'structured_data_removed', severity: 'warning', type: 'cross-crawl', file: 'structured-data.ts', priority: 'P2', description: 'Les données structurées (JSON-LD) ont été supprimées. Perte des rich snippets (étoiles, prix, FAQ) dans les résultats Google.' },
-  { id: 'structured_data_error', severity: 'warning', type: 'within-crawl', file: 'structured-data.ts', priority: 'P2', description: 'Le JSON-LD est invalide (erreur de syntaxe). Google ignore les données structurées mal formées.' },
-  { id: 'og_image_removed', severity: 'warning', type: 'cross-crawl', file: 'opengraph.ts', priority: 'P2', description: 'L\'image Open Graph a été supprimée. Les partages sur les réseaux sociaux n\'afficheront plus de visuel.' },
-  { id: 'og_title_removed', severity: 'warning', type: 'cross-crawl', file: 'opengraph.ts', priority: 'P2', description: 'Le titre Open Graph a été supprimé. Les réseaux sociaux utiliseront le meta title comme fallback.' },
-  { id: 'meta_refresh_detected', severity: 'warning', type: 'within-crawl', file: 'technical.ts', priority: 'P2', description: 'Une balise meta refresh redirige la page. Mauvaise pratique — utilisez une redirection HTTP 301 à la place.' },
-  { id: 'robots_txt_changed', severity: 'warning', type: 'cross-crawl', file: 'indexing.ts', priority: 'P2', description: 'Les directives robots ont changé (hors noindex). Vérifiez que les bons crawlers ont toujours accès aux bonnes pages.' },
-  // P3 — Quality
-  { id: 'heading_hierarchy_broken', severity: 'info', type: 'cross-crawl', file: 'heading.ts', priority: 'P3', description: 'Saut de niveau dans les titres (ex : H1 → H3 sans H2). Micro-impact accessibilité ; effet quasi nul sur le ranking.' },
-  { id: 'lang_attribute_missing', severity: 'warning', type: 'cross-crawl', file: 'i18n.ts', priority: 'P3', description: 'L\'attribut lang du HTML a disparu. Google peut mal identifier la langue de la page.' },
-  { id: 'lang_attribute_changed', severity: 'warning', type: 'cross-crawl', file: 'i18n.ts', priority: 'P3', description: 'L\'attribut lang a changé (ex : fr → en). Peut casser le ciblage linguistique si c\'est accidentel.' },
-  { id: 'word_count_changed', severity: 'info', type: 'cross-crawl', file: 'content.ts', priority: 'P3', description: 'Le volume de contenu a changé de 30 à 50%. Changement notable mais pas catastrophique — à vérifier.' },
-  { id: 'charset_missing', severity: 'warning', type: 'cross-crawl', file: 'technical.ts', priority: 'P3', description: 'La déclaration charset a disparu. Risque de caractères mal affichés (accents, emojis) sur certains navigateurs.' },
-  { id: 'ssr_title_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'Le titre dans le HTML brut (envoyé par le serveur) est différent du titre affiché après chargement JavaScript. Google indexe la version du HTML brut.' },
-  { id: 'ssr_meta_description_mismatch', severity: 'warning', type: 'within-crawl', file: 'ssr-csr.ts', priority: 'P3', description: 'La meta description du HTML brut est différente de celle rendue après chargement JavaScript. Google utilise la version du HTML brut.' },
-  { id: 'meta_title_changed', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P3', description: 'Le meta title a été modifié. Peut être voulu (A/B test, rebrand) ou accidentel (bug de template).' },
-  { id: 'meta_description_changed', severity: 'info', type: 'cross-crawl', file: 'meta.ts', priority: 'P3', description: 'La meta description a été modifiée. Rarement un problème — souvent une mise à jour éditoriale.' },
-  { id: 'ssr_blocked', severity: 'warning', type: 'within-crawl', file: 'worker.ts', priority: 'P3', description: 'Le crawler a reçu une page de challenge anti-bot (Cloudflare, Akamai, etc.) au lieu du vrai contenu. Les données de cette page ne sont pas fiables.' },
-  // GEO — monitoring
-  { id: 'llms_txt_removed', severity: 'info', type: 'site-level', file: 'geo.ts', priority: 'GEO', description: 'Le fichier /llms.txt a été supprimé. Fichier optionnel : aucun grand LLM ne confirme le consommer à ce jour (proposition non adoptée) — utile surtout pour la documentation et les agents, pas un facteur de citation.' },
-  { id: 'ai_crawlers_blocked_changed', severity: 'warning', type: 'site-level', file: 'geo.ts', priority: 'GEO', description: 'Le robots.txt bloque de nouveaux crawlers IA de citation (recherche/browse live d\'OpenAI, Perplexity, Anthropic) — réduit votre visibilité dans ChatGPT search, Perplexity et Claude. Les crawlers d\'entraînement (GPTBot, Google-Extended…) ne sont pas surveillés : les bloquer n\'affecte pas la citation.' },
-  { id: 'robots_blocks_googlebot', severity: 'critical', type: 'site-level', file: 'geo.ts', priority: 'P0', description: 'Le robots.txt s\'est mis à bloquer Googlebot (Disallow sous User-agent: Googlebot ou *) sur un chemin auparavant autorisé. Risque de désindexation de toute une section.' },
-  { id: 'faq_schema_removed', severity: 'info', type: 'cross-crawl', file: 'geo.ts', priority: 'GEO', description: 'Le schema FAQPage a été supprimé. Google n\'affiche plus de rich result FAQ en SERP : impact direct faible, mais la suppression peut signaler un composant retiré par erreur. Le contenu Q/R visible reste lisible par Google et les LLM.' },
-  { id: 'structured_data_author_removed', severity: 'warning', type: 'cross-crawl', file: 'geo.ts', priority: 'GEO', description: 'L\'auteur a disparu des données structurées. Les IA citent moins les contenus anonymes — perte de crédibilité.' },
-  // Recommendations
-  { id: 'rec_img_alt_audit', severity: 'info/warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Des images n\'ont pas d\'attribut alt. Important pour l\'accessibilité et le référencement des images. Warning si 10+ images concernées.' },
-  { id: 'rec_title_length_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Le meta title est trop court (< 15 caractères) ou trop long (> 60 caractères). Google risque de le tronquer ou de le réécrire.' },
-  { id: 'rec_description_length_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'La meta description est trop courte (< 50 caractères) ou trop longue (> 160 caractères). Idéalement entre 120 et 155 caractères.' },
-  { id: 'rec_h1_missing_audit', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Aucun H1 sur la page (vérifié sur le DOM rendu après hydratation JavaScript). Le titre principal est un signal SEO fort — chaque page devrait en avoir un.' },
-  { id: 'rec_h1_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Le H1 est absent ou vide dans le HTML brut envoyé par votre serveur mais rempli après chargement JavaScript. Google peut le voir avec un délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.' },
-  { id: 'rec_content_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'GEO-REC', description: 'Une part majoritaire du corps de texte n\'est présente qu\'après exécution JavaScript (absente du HTML brut). Les robots d\'IA (ChatGPT, Perplexity, Claude) lisent le HTML brut et ne verront probablement pas ce contenu.' },
-  { id: 'rec_title_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'GEO-REC', description: 'Le <title> est absent du HTML brut envoyé par votre serveur mais rempli après chargement JavaScript. Google peut le voir avec délai et les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement pas — ils lisent principalement le HTML brut. Solution : rendre le titre côté serveur (SSR).' },
-  { id: 'rec_description_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'GEO-REC', description: 'La meta description est absente du HTML brut mais présente après chargement JavaScript. Google et les LLM lisent surtout le HTML brut — votre snippet de recherche et votre visibilité IA peuvent en pâtir. Solution : rendre la meta description côté serveur (SSR).' },
-  { id: 'rec_internal_links_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Vos liens internes ne sont pas dans le HTML brut envoyé par votre serveur mais apparaissent uniquement après chargement JavaScript. Google découvre vos pages plus lentement. Solution : rendre les liens de menu, footer et navigation côté serveur (SSR).' },
-  { id: 'rec_structured_data_missing_in_ssr', severity: 'warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Données structurées (JSON-LD) injectées par JavaScript uniquement. Les IA (ChatGPT, Perplexity, Claude) ne les voient probablement pas — elles lisent surtout le HTML brut. Pour une meilleure visibilité IA, rendez le JSON-LD côté serveur.' },
-  { id: 'rec_img_alt_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Des images ajoutées par JavaScript n\'ont pas d\'attribut alt. Google Image Search ne les indexera probablement pas (il lit le HTML brut), et les utilisateurs malvoyants ne pourront pas les comprendre. Solution : ajouter un attribut alt et rendre les images côté serveur si possible.' },
-  { id: 'rec_semantic_structure_missing_in_ssr', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Balises sémantiques (main, header, footer) absentes du HTML brut envoyé par votre serveur — elles apparaissent uniquement après chargement JavaScript. Google et les lecteurs d\'écran (accessibilité) comprennent mieux la structure de votre page quand ces balises sont présentes dès le premier rendu. Solution : structurer votre layout avec ces balises côté serveur.' },
-  { id: 'rec_favicon_missing_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Pas de favicon détecté. Impact mineur mais visible dans les onglets du navigateur et les résultats Google.' },
-  { id: 'rec_semantic_structure_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Balises sémantiques manquantes (main, header, footer). Améliore l\'accessibilité et aide les moteurs à comprendre la structure.' },
-  { id: 'rec_structured_data_missing_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Aucune donnée structurée (JSON-LD) détectée. Vous passez à côté des rich snippets dans les résultats Google.' },
-  { id: 'rec_og_missing_audit', severity: 'info', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Balises Open Graph manquantes (og:title, og:description ou og:image). Les partages sociaux seront moins attractifs.' },
-  { id: 'rec_internal_links_audit', severity: 'info/warning', type: 'within-crawl', file: 'recommendations.ts', priority: 'REC', description: 'Moins de 3 liens internes sur la page. Warning si aucun lien — la page est orpheline et mal maillée.' },
-  // GEO — recommendations
-  { id: 'rec_llms_txt_missing', severity: 'info', type: 'site-level', file: 'geo.ts', priority: 'GEO-REC', description: 'Pas de fichier /llms.txt détecté. Convention spéculative : son usage par les grands LLM n\'est pas confirmé à ce jour (proposition non adoptée par Google/OpenAI). Utile surtout pour la documentation et les agents.' },
-  { id: 'rec_ai_crawlers_blocked', severity: 'warning', type: 'site-level', file: 'geo.ts', priority: 'GEO-REC', description: 'Le robots.txt bloque des crawlers IA de citation (OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User) — réduit votre visibilité dans les réponses de ChatGPT search, Perplexity et Claude. Les crawlers d\'entraînement (GPTBot, ClaudeBot, Google-Extended…) ne sont pas surveillés : les bloquer n\'affecte pas la citation.' },
-  { id: 'rec_structured_data_incomplete', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Les données structurées existent mais sont incomplètes (auteur, date ou publisher manquant). Les IA exploitent ces champs pour citer vos contenus.' },
-  { id: 'rec_faq_schema_missing', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Page de contenu (plus de 300 mots) sans schema FAQPage. Si le contenu traite des questions récurrentes, le structurer en Q/R claires aide les moteurs de réponse IA à le reprendre. Le schema FAQPage ne déclenche plus de rich result en SERP : c\'est la structure éditoriale qui compte.' },
-  { id: 'rec_citation_signals_missing', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Plusieurs signaux de citation manquent (auteur, date, sources). Les IA privilégient les contenus attribuables et datés.' },
-  { id: 'rec_content_structure_audit', severity: 'info', type: 'within-crawl', file: 'geo.ts', priority: 'GEO-REC', description: 'Le contenu n\'a ni sous-titres (H2) ni listes. Les IA extraient mieux l\'information quand le contenu est bien structuré.' },
-  // Performance — poids de page (LCP/CLS/TTFB = monitoring synthétique, sans alerte)
-  { id: 'perf_page_weight_explosion', severity: 'warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF', description: 'Le poids de la page a fortement augmenté. Une page lourde charge lentement, surtout sur mobile et en 4G.' },
-  { id: 'rec_perf_page_heavy', severity: 'info/warning', type: 'within-crawl', file: 'performance.ts', priority: 'PERF-REC', description: 'La page dépasse 1,6 MB (seuil Lighthouse), excessif au-delà de 5 MB. Compresser les images et alléger le JavaScript accélérerait son chargement.' },
-].map(r => ({
+// rapport de zone, docs). Le wording (label/description) est ajouté depuis rules.json.
+export const RULES = RAW_RULES.map(r => ({
   ...r,
+  // Wording (label + description) : i18n/locales/<locale>/rules.json — RULES = vue FR historique.
   label: ALERT_TYPE_LABELS[r.id] || r.id,
+  description: (frRules.descriptions as Record<string, string>)[r.id] ?? '',
   category: getRuleCategory(r.id),
 }))
 
-// SOURCE UNIQUE du nombre de règles affiché sur le site (home, scanner, outils, llms.txt…).
-// JAMAIS de littéral en dur dans les pages : le test rules-count.test.ts casse le build sinon.
-export const RULES_COUNT = RULES.length
+/** Catalogue localisé (labels + descriptions de la locale, fallback FR). */
+export function getRulesCatalog(locale: Locale): typeof RULES {
+  if (locale !== 'en') return RULES
+  const labels = (enRules as { labels?: Record<string, string> }).labels ?? {}
+  const descriptions = (enRules as { descriptions?: Record<string, string> }).descriptions ?? {}
+  return RULES.map(r => ({ ...r, label: labels[r.id] ?? r.label, description: descriptions[r.id] ?? r.description }))
+}
 
-export const PRIORITY_META: Record<string, { label: string; description: string }> = {
-  P0: { label: 'P0 — Désindexation', description: 'Les pages disparaissent de Google' },
-  P1: { label: 'P1 — Ranking direct', description: 'Impact direct confirmé sur le positionnement' },
-  P2: { label: 'P2 — CTR / SERP', description: 'Apparence dans les résultats de recherche' },
-  P3: { label: 'P3 — Qualité', description: 'Best practices, impact indirect' },
-  GEO: { label: 'GEO — Visibilité IA', description: 'Monitoring des signaux LLM/IA' },
-  REC: { label: 'Recommandations', description: 'Audit — vérifications à chaque crawl' },
-  'GEO-REC': { label: 'Recommandations GEO', description: 'Audit — signaux de visibilité IA' },
-  PERF: { label: 'Performance', description: 'Régressions de vitesse et de poids (Core Web Vitals)' },
-  'PERF-REC': { label: 'Recommandations performance', description: 'Audit — vitesse et poids dans l\'absolu' },
+
+type PriorityMeta = Record<string, { label: string, description: string }>
+
+// Libellés des groupes de priorité : i18n/locales/<locale>/rules.json (PRIORITY_META = vue FR).
+export const PRIORITY_META: PriorityMeta = frRules.priorities
+
+export function getPriorityMeta(locale: Locale): PriorityMeta {
+  return locale === 'en' ? { ...frRules.priorities, ...(enRules as { priorities?: PriorityMeta }).priorities } : frRules.priorities
 }
 

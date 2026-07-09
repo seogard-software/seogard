@@ -5,12 +5,8 @@ import { ALERT_TYPE_LABELS } from './constants'
 // même très répandues. Set explicite (reflet de leur portée réelle, pas une table de poids).
 const SITE_LEVEL_RECOS = new Set(['rec_llms_txt_missing', 'rec_ai_crawlers_blocked'])
 
-// Bénéfice métier affiché pour les recos site-level (sinon le libellé brut suffit).
-const RECO_HINTS: Record<string, string> = {
-  rec_llms_txt_missing: 'visibilité IA (ChatGPT, Claude, Perplexity)',
-  rec_ai_crawlers_blocked: 'les IA ne peuvent pas indexer votre site',
-}
-
+// Le bénéfice métier (hint) des recos site-level est résolu PAR LOCALE au rendu du
+// template email (emails.recoHints.<ruleId>) — jamais figé ici.
 const SEVERITY_RANK: Record<string, number> = { warning: 0, info: 1 }
 
 export interface RecoInput {
@@ -46,7 +42,7 @@ export function rankRecommendations(recos: RecoInput[], limit = 2): { topRecos: 
       label: ALERT_TYPE_LABELS[ruleId] ?? ruleId,
       pagesAffected: group.pages.size,
       siteLevel: SITE_LEVEL_RECOS.has(ruleId),
-      hint: RECO_HINTS[ruleId] ?? null,
+      hint: null,
       severity: group.severity,
     }))
     .sort((a, b) =>

@@ -1,7 +1,10 @@
 import type { ReportAnnexPage, ReportRuleEntry, ReportSeverity, ZoneReport } from '../../shared/types/zone-report'
-import { ALERT_TYPE_LABELS, getRuleCategory } from '../../shared/utils/constants'
+import type { Locale } from '../../shared/utils/i18n'
+import { DEFAULT_LOCALE } from '../../shared/utils/i18n'
+import { getAlertTypeLabels, getRuleCategory } from '../../shared/utils/constants'
 import { getRuleKnowledge } from '../../shared/utils/rule-knowledge'
 import { RULES } from '../../shared/utils/rules-catalog'
+import { t } from './i18n'
 
 // Construit le rapport « État de santé SEO » d'une zone — FONCTION PURE :
 // aucune requête DB, aucune date implicite (generatedAt fourni par l'appelant).
@@ -67,6 +70,8 @@ export interface BuildZoneReportInput {
   openAlerts: ReportAlertInput[]
   repairedAlerts: { ruleId: string, pageUrl: string }[]
   generatedAt: string
+  /** Langue du rapport (labels de règles, fiches, libellés) — défaut fr. */
+  locale?: Locale
 }
 
 function truncate(value: string | null | undefined, max: number): string | null {
@@ -74,12 +79,8 @@ function truncate(value: string | null | undefined, max: number): string | null 
   return value.length > max ? `${value.slice(0, max)}…` : value
 }
 
-function ruleLabel(ruleId: string): string {
-  return ALERT_TYPE_LABELS[ruleId] || ruleId
-}
-
 /** Groupe des alertes par (ruleId, severity) en entrées de sommaire triées par nb de pages décroissant. */
-function toRuleEntries(alerts: ReportAlertInput[], caps: ReportCaps): ReportRuleEntry[] {
+function toRuleEntries(alerts: ReportAlertInput[], caps: ReportCaps, labels: Record<string, string>, locale: Locale): ReportRuleEntry[] {
   const byKey = new Map<string, { ruleId: string, severity: ReportSeverity, pages: Set<string> }>()
   for (const alert of alerts) {
     const key = `${alert.ruleId}|${alert.severity}`
@@ -95,13 +96,13 @@ function toRuleEntries(alerts: ReportAlertInput[], caps: ReportCaps): ReportRule
     const urls = [...group.pages].sort()
     return {
       ruleId: group.ruleId,
-      label: ruleLabel(group.ruleId),
+      label: labels[group.ruleId] || group.ruleId,
       severity: group.severity,
       pagesCount: urls.length,
       sampleUrls: Number.isFinite(caps.SAMPLE_URLS) ? urls.slice(0, caps.SAMPLE_URLS) : urls,
       extraPagesCount: Number.isFinite(caps.SAMPLE_URLS) ? Math.max(0, urls.length - caps.SAMPLE_URLS) : 0,
       siteLevel: SITE_LEVEL_RULES.has(group.ruleId),
-      knowledge: getRuleKnowledge(group.ruleId),
+      knowledge: getRuleKnowledge(group.ruleId, locale),
     }
   })
 
@@ -110,6 +111,10 @@ function toRuleEntries(alerts: ReportAlertInput[], caps: ReportCaps): ReportRule
 }
 
 export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = REPORT_CAPS): ZoneReport {
+  const locale = input.locale ?? DEFAULT_LOCALE
+  const labels = getAlertTypeLabels(locale)
+  const ruleLabel = (ruleId: string): string => labels[ruleId] || ruleId
+
   const regressionAlerts = input.openAlerts.filter(a => getRuleCategory(a.ruleId) !== 'recommendation')
   const recommendationAlerts = input.openAlerts.filter(a => getRuleCategory(a.ruleId) === 'recommendation')
 
@@ -123,7 +128,7 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
   }
 
   // ── Régressions par sévérité ──
-  const regressionEntries = toRuleEntries(regressionAlerts, caps)
+  const regressionEntries = toRuleEntries(regressionAlerts, caps, labels, locale)
   const regressions: Record<ReportSeverity, ReportRuleEntry[]> = {
     critical: regressionEntries.filter(e => e.severity === 'critical'),
     warning: regressionEntries.filter(e => e.severity === 'warning'),
@@ -141,7 +146,7 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
     .sort((a, b) => b.pagesCount - a.pagesCount || a.label.localeCompare(b.label))
 
   // ── Recommandations : site-level d'abord, puis par nb de pages ──
-  const recommendationEntries = toRuleEntries(recommendationAlerts, caps)
+  const recommendationEntries = toRuleEntries(recommendationAlerts, caps, labels, locale)
   const recommendations = [
     ...recommendationEntries.filter(e => e.siteLevel),
     ...recommendationEntries.filter(e => !e.siteLevel),
@@ -181,13 +186,14 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
     meta: {
       siteName: input.site.name,
       siteDomain: input.site.domain,
-      zoneName: input.zone.isDefault ? 'Toutes les pages' : (input.zone.name ?? 'Zone'),
+      zoneName: input.zone.isDefault ? t(locale, 'report.zone_default') : (input.zone.name ?? t(locale, 'report.zone_unnamed')),
       zoneIsDefault: input.zone.isDefault,
       crawlCompletedAt: input.crawl?.completedAt ?? null,
       pagesScanned: input.crawl?.pagesScanned ?? 0,
       pagesTotal: input.crawl?.pagesTotal ?? 0,
       pagesPurged: input.crawl?.pagesPurged ?? 0,
       generatedAt: input.generatedAt,
+      locale,
     },
     verdict: {
       ...counts,

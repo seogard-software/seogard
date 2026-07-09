@@ -90,7 +90,7 @@ describe('site.delete — security', () => {
   it('returns 404 when site not found', async () => {
     mockSiteFindOneAndDelete.mockResolvedValue(null)
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Site non trouvé')
+    await expect(handler(fakeEvent)).rejects.toThrow('Site not found')
   })
 
   it('cascade deletes all related documents', async () => {

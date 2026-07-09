@@ -1,15 +1,15 @@
 <template>
   <div class="page-org-new">
-    <h1 class="page-org-new__title">Créer une organisation</h1>
+    <h1 class="page-org-new__title">{{ $t('dashboard.orgNew.title') }}</h1>
     <p class="page-org-new__subtitle">
-      Créez une organisation pour collaborer avec votre équipe.
+      {{ $t('dashboard.orgNew.subtitle') }}
     </p>
 
     <form class="page-org-new__form" @submit.prevent="handleCreate">
       <AppInput
         v-model="name"
-        label="Nom de l'organisation"
-        placeholder="Ex: La Poste"
+        :label="$t('dashboard.orgNew.nameLabel')"
+        :placeholder="$t('dashboard.orgNew.namePlaceholder')"
         :error="errors.name"
       />
 
@@ -18,15 +18,19 @@
       </AppAlert>
 
       <AppButton type="submit" :loading="loading" size="lg">
-        Créer l'organisation
+        {{ $t('dashboard.orgNew.submit') }}
       </AppButton>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
-useHead({ title: 'Nouvelle organisation' })
+
+const { t } = useI18n()
+const apiError = useApiError()
+useHead({ title: t('dashboard.orgNew.tabTitle') })
 
 const orgStore = useOrganizationStore()
 
@@ -38,7 +42,7 @@ async function handleCreate() {
   errors.value = {}
 
   if (!name.value.trim()) {
-    errors.value.name = 'Nom requis'
+    errors.value.name = t('dashboard.orgNew.errorNameRequired')
     return
   }
 
@@ -60,7 +64,7 @@ async function handleCreate() {
     await navigateTo('/dashboard/sites')
   } catch (error: unknown) {
     const fetchError = error as { data?: { message?: string } }
-    errors.value.general = fetchError?.data?.message || 'Erreur lors de la création'
+    errors.value.general = apiError(fetchError, t('dashboard.orgNew.errorGeneric'))
   } finally {
     loading.value = false
   }

@@ -11,7 +11,7 @@ export async function createSiteWithDefaultZone(input: { orgId: string, name: st
     url: input.url,
     discovering: 'pending',
   })
-  if (!site) throw createError({ statusCode: 500, message: 'Database insert failed' })
+  if (!site) throw createError({ statusCode: 500, message: 'Database insert failed', data: { errorCode: 'INTERNAL_ERROR' } })
 
   await Zone.create({ siteId: site._id, name: null, patterns: ['**'], isDefault: true, createdBy: null })
 

@@ -41,4 +41,12 @@ describe('middleware 410 Gone (tout /blog supprimé, racine comprise)', () => {
     expect(statusOf('/formations')).toBe(200)
     expect(statusOf('/blogueur')).toBe(200)
   })
+
+  it('couvre les préfixes de locale : /fr/blog et /en/blog → 410, /fr/formations intact', () => {
+    expect(statusOf('/fr/blog')).toBe(410)
+    expect(statusOf('/fr/blog/un-article')).toBe(410)
+    expect(statusOf('/en/blog/some-post')).toBe(410)
+    expect(statusOf('/fr/formations')).toBe(200)
+    expect(statusOf('/friture')).toBe(200)
+  })
 })

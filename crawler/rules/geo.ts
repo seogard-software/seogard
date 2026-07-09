@@ -32,7 +32,7 @@ registerRule({
     return [{
       type: 'rec_llms_txt_missing',
       severity: 'info',
-      message: 'Aucun /llms.txt détecté — convention spéculative : son usage par les grands LLM (ChatGPT, Claude, Perplexity) n\'est pas confirmé à ce jour. Utile surtout pour la documentation et les agents, pas un facteur de citation prouvé.',
+      message: 'No /llms.txt detected — speculative convention: its use by major LLMs (ChatGPT, Claude, Perplexity) is not confirmed to date. Mostly useful for documentation and agents, not a proven citation factor.',
       previousValue: null,
       currentValue: null,
     }]
@@ -49,7 +49,7 @@ registerRule({
     return [{
       type: 'rec_ai_crawlers_blocked',
       severity: 'warning',
-      message: `robots.txt bloque des crawlers IA de citation (${blocked}) — réduit votre visibilité dans les réponses de ChatGPT search, Perplexity et Claude.`,
+      message: `robots.txt blocks AI citation crawlers (${blocked}) — reduces your visibility in ChatGPT search, Perplexity and Claude answers.`,
       previousValue: null,
       currentValue: blocked,
     }]
@@ -72,7 +72,7 @@ registerRule({
     return [{
       type: 'rec_structured_data_incomplete',
       severity: 'info',
-      message: `Données structurées incomplètes : ${missing.join(', ')} manquant(s) — réduit la crédibilité pour les moteurs IA`,
+      message: `Incomplete structured data: ${missing.join(', ')} missing — reduces credibility for AI engines`,
       previousValue: null,
       currentValue: missing.join(', '),
     }]
@@ -92,7 +92,7 @@ registerRule({
     return [{
       type: 'rec_faq_schema_missing',
       severity: 'info',
-      message: 'Page de contenu sans schema FAQPage — si elle traite des questions récurrentes, une structure Q/R claire aide les moteurs de réponse IA',
+      message: 'Content page without FAQPage schema — if it covers recurring questions, a clear Q/A structure helps AI answer engines',
       previousValue: null,
       currentValue: null,
     }]
@@ -116,7 +116,7 @@ registerRule({
     return [{
       type: 'rec_citation_signals_missing',
       severity: 'info',
-      message: `Signaux de citation faibles : ${signals.join(', ')} absent(s) — les LLM citent moins les contenus sans autorité`,
+      message: `Weak citation signals: ${signals.join(', ')} missing — LLMs cite content without authority signals less`,
       previousValue: null,
       currentValue: signals.join(', '),
     }]
@@ -139,7 +139,7 @@ registerRule({
     return [{
       type: 'rec_content_structure_audit',
       severity: 'info',
-      message: `Structure de contenu peu adaptée aux IA : ${issues.join(', ')} — les LLM extraient mieux les réponses d'un contenu structuré`,
+      message: `Content structure poorly suited to AIs: ${issues.join(', ')} — LLMs extract answers better from structured content`,
       previousValue: null,
       currentValue: issues.join(', '),
     }]
@@ -159,8 +159,8 @@ registerRule({
     return [{
       type: 'llms_txt_removed',
       severity: 'info',
-      message: '/llms.txt supprimé — fichier optionnel (non consommé par les grands LLM à ce jour), utile surtout pour la documentation et les agents',
-      previousValue: '/llms.txt présent',
+      message: '/llms.txt removed — optional file (not consumed by major LLMs to date), mostly useful for documentation and agents',
+      previousValue: '/llms.txt present',
       currentValue: null,
     }]
   },
@@ -180,8 +180,8 @@ registerRule({
     return [{
       type: 'ai_crawlers_blocked_changed',
       severity: 'warning',
-      message: `Nouveaux crawlers IA de citation bloqués dans robots.txt (${newlyBlocked.join(', ')}) — réduit votre visibilité dans ChatGPT search, Perplexity et Claude.`,
-      previousValue: oldBlocked.length > 0 ? oldBlocked.join(', ') : 'aucun bloqué',
+      message: `New AI citation crawlers blocked in robots.txt (${newlyBlocked.join(', ')}) — reduces your visibility in ChatGPT search, Perplexity and Claude.`,
+      previousValue: oldBlocked.length > 0 ? oldBlocked.join(', ') : 'none blocked',
       currentValue: newBlocked.join(', '),
     }]
   },
@@ -202,7 +202,7 @@ registerRule({
     return [{
       type: 'robots_blocks_googlebot',
       severity: 'critical',
-      message: `robots.txt bloque désormais Googlebot sur : ${newlyBlocked.join(', ')} — risque de désindexation de cette section`,
+      message: `robots.txt now blocks Googlebot on: ${newlyBlocked.join(', ')} — this section may get deindexed`,
       previousValue: oldPaths.length > 0 ? oldPaths.join(', ') : 'aucun blocage',
       currentValue: newPaths.length > 0 ? newPaths.join(', ') : 'aucun blocage',
     }]
@@ -218,8 +218,8 @@ registerRule({
     return [{
       type: 'faq_schema_removed',
       severity: 'info',
-      message: 'Schema FAQPage supprimé — Google n\'affiche plus de rich result FAQ, impact direct faible ; vérifier que c\'est intentionnel',
-      previousValue: 'FAQPage présent',
+      message: 'FAQPage schema removed — Google no longer shows the FAQ rich result, low direct impact; check it is intentional',
+      previousValue: 'FAQPage present',
       currentValue: null,
     }]
   },
@@ -234,7 +234,7 @@ registerRule({
     return [{
       type: 'structured_data_author_removed',
       severity: 'warning',
-      message: `Auteur supprimé des données structurées (était : ${ctx.oldMeta.jsonLdAuthor}) — réduit la crédibilité pour les IA`,
+      message: `Author removed from structured data (was: ${ctx.oldMeta.jsonLdAuthor}) — reduces credibility for AIs`,
       previousValue: ctx.oldMeta.jsonLdAuthor,
       currentValue: null,
     }]

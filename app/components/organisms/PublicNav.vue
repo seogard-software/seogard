@@ -6,8 +6,8 @@
         <span class="public-nav__mobile-group">{{ link.label }}</span>
         <NuxtLink
           v-for="child in link.children"
-          :key="child.to"
-          :to="child.to"
+          :key="child.name"
+          :to="localePath({ name: child.name })"
           class="public-nav__mobile-link public-nav__mobile-link--sub"
           @click="emit('navigate')"
         >
@@ -26,7 +26,7 @@
       <!-- Lien simple -->
       <NuxtLink
         v-else
-        :to="link.to!"
+        :to="localePath({ name: link.name! })"
         :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__link'"
         @click="emit('navigate')"
       >
@@ -40,7 +40,7 @@
         :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__cta'"
         @click="emit('navigate')"
       >
-        Dashboard
+        {{ $t('common.nav.dashboard') }}
       </NuxtLink>
     </template>
     <template v-else>
@@ -49,17 +49,17 @@
         :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__link'"
         @click="emit('navigate')"
       >
-        Connexion
+        {{ $t('common.nav.login') }}
       </NuxtLink>
       <NuxtLink
         to="/register"
         :class="variant === 'mobile' ? 'public-nav__mobile-link' : 'public-nav__link'"
         @click="emit('navigate')"
       >
-        Tester gratuitement
+        {{ $t('common.nav.tryFree') }}
       </NuxtLink>
       <a :href="demoUrl" target="_blank" rel="noopener" class="public-nav__cta" @click="emit('navigate')">
-        Réserver une démo
+        {{ $t('common.nav.bookDemo') }}
       </a>
     </template>
   </nav>
@@ -80,21 +80,25 @@ const demoUrl = useRuntimeConfig().public.demoUrl
 // Scanner et Tarifs vivent désormais dans le footer (maillage) ; le header se concentre sur
 // Formations et Outils (sous-menu Monitoring / Audit).
 interface NavLink {
-  to?: string
+  name?: string
   label: string
-  children?: { to: string, label: string, desc?: string }[]
+  children?: { name: string, label: string, desc?: string }[]
 }
 
-const links: NavLink[] = [
-  { to: '/formations', label: 'Formations' },
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+// Liens par NOM de route (les chemins par locale sont résolus par localePath).
+const links = computed<NavLink[]>(() => [
+  { name: 'formations', label: t('common.nav.formations') },
   {
-    label: 'Outils',
+    label: t('common.nav.tools'),
     children: [
-      { to: '/outils/monitoring', label: 'Monitoring', desc: 'Surveillance continue, alerte avant Google' },
-      { to: '/outils/audit', label: 'Audit', desc: 'Scan + rapport SEO/GEO complet' },
+      { name: 'outils-monitoring', label: t('common.nav.toolMonitoring'), desc: t('common.nav.toolMonitoringDesc') },
+      { name: 'outils-audit', label: t('common.nav.toolAudit'), desc: t('common.nav.toolAuditDesc') },
     ],
   },
-]
+])
 </script>
 
 <style scoped lang="scss">

@@ -1,0 +1,47 @@
+{
+  "common": {
+    "scanBar": {
+      "placeholder": "Saisissez votre site Web",
+      "placeholderCompact": "votresite.fr",
+      "ariaLabel": "Adresse de votre site Web",
+      "badge": "Gratuit",
+      "submit": "Analyser",
+      "consent": "En cliquant sur Analyser, je certifie être propriétaire du site ou disposer d'une autorisation pour le crawler.",
+      "errorInvalid": "Entrez une adresse valide (ex. votresite.fr)",
+      "errorGeneric": "Une erreur est survenue. Réessayez."
+    },
+    "aria": {
+      "close": "Fermer",
+      "githubSource": "Code source de Seogard sur GitHub"
+    },
+    "nav": {
+      "formations": "Formations",
+      "tools": "Outils",
+      "toolMonitoring": "Monitoring",
+      "toolMonitoringDesc": "Surveillance continue, alerte avant Google",
+      "toolAudit": "Audit",
+      "toolAuditDesc": "Scan + rapport SEO/GEO complet",
+      "dashboard": "Dashboard",
+      "login": "Connexion",
+      "tryFree": "Tester gratuitement",
+      "bookDemo": "Réserver une démo"
+    },
+    "cookieBanner": {
+      "text": "Ce site utilise uniquement des cookies essentiels à son fonctionnement (authentification). Aucun cookie publicitaire ni tracker tiers.",
+      "learnMore": "En savoir plus",
+      "accept": "Compris"
+    },
+    "errorPage": {
+      "title404": "Page introuvable",
+      "text404": "Cette page n'existe pas ou a été déplacée.",
+      "title500": "Erreur serveur",
+      "text500": "Quelque chose s'est mal passé de notre côté. Réessayez dans un instant.",
+      "backHome": "Retour à l'accueil"
+    },
+    "severity": {
+      "critical": "Critique",
+      "warning": "Attention",
+      "info": "Info"
+    }
+  }
+}

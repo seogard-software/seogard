@@ -2,71 +2,73 @@
   <div class="zone-webhook">
     <div v-if="!canManage" class="zone-webhook__denied" data-testid="zone-denied">
       <AppIcon name="shield-check" size="sm" />
-      <span>Vous n'avez pas la permission d'accéder à cette page.</span>
+      <span>{{ $t('dashboard.webhook.denied') }}</span>
     </div>
 
     <template v-else>
-      <DashboardHeader :title="`Webhook — ${zoneName}`" subtitle="Lancez un crawl sur cette zone à chaque déploiement" />
+      <DashboardHeader :title="$t('dashboard.webhook.title', { zone: zoneName })" :subtitle="$t('dashboard.webhook.subtitle')" />
 
       <AppCard :bordered="false" class="zone-webhook__card">
         <!-- Crawl endpoint -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Déclencher un crawl</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.triggerCrawl') }}</h3>
           <div class="zone-webhook__field">
             <code class="zone-webhook__code">POST {{ crawlEndpoint }}</code>
             <button class="zone-webhook__copy" @click="copy(crawlEndpoint, 'crawl')">
-              {{ justCopied === 'crawl' ? 'Copié !' : 'Copier' }}
+              {{ justCopied === 'crawl' ? $t('dashboard.webhook.copied') : $t('dashboard.webhook.copy') }}
             </button>
           </div>
         </div>
 
         <!-- Status endpoint -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Vérifier le verdict</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.checkVerdict') }}</h3>
           <div class="zone-webhook__field">
             <code class="zone-webhook__code">GET {{ statusEndpoint }}</code>
             <button class="zone-webhook__copy" @click="copy(statusEndpoint, 'status')">
-              {{ justCopied === 'status' ? 'Copié !' : 'Copier' }}
+              {{ justCopied === 'status' ? $t('dashboard.webhook.copied') : $t('dashboard.webhook.copy') }}
             </button>
           </div>
         </div>
 
         <!-- API Key -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">API Key</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.apiKeyTitle') }}</h3>
           <div class="zone-webhook__field">
             <code class="zone-webhook__code zone-webhook__code--key">
               {{ keyVisible ? apiKey : maskedKey }}
             </code>
             <button class="zone-webhook__icon-btn" @click="keyVisible = !keyVisible">
-              {{ keyVisible ? 'Masquer' : 'Voir' }}
+              {{ keyVisible ? $t('dashboard.webhook.hide') : $t('dashboard.webhook.show') }}
             </button>
             <button class="zone-webhook__copy" @click="copy(apiKey, 'key')">
-              {{ justCopied === 'key' ? 'Copié !' : 'Copier' }}
+              {{ justCopied === 'key' ? $t('dashboard.webhook.copied') : $t('dashboard.webhook.copy') }}
             </button>
           </div>
           <button class="zone-webhook__regenerate" @click="showRegenModal = true">
-            Régénérer la clé
+            {{ $t('dashboard.webhook.regenerateKey') }}
           </button>
           <p class="zone-webhook__hint">
-            La clé API du site est partagée entre toutes les zones.
+            {{ $t('dashboard.webhook.keyHint') }}
           </p>
         </div>
 
         <!-- How it works -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Comment ça marche</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.howTitle') }}</h3>
           <ol class="zone-webhook__steps">
-            <li><strong>POST</strong> déclenche un crawl et retourne un <code>crawlId</code></li>
-            <li><strong>GET</strong> avec <code>?crawlId=xxx</code> retourne le statut et le verdict</li>
-            <li>Si <code>pass: false</code> (alertes critiques) → <code>exit 1</code> bloque la pipeline</li>
+            <!-- eslint-disable vue/no-v-html -->
+            <li v-html="$t('dashboard.webhook.step1')" />
+            <li v-html="$t('dashboard.webhook.step2')" />
+            <li v-html="$t('dashboard.webhook.step3')" />
+            <!-- eslint-enable vue/no-v-html -->
           </ol>
         </div>
 
         <!-- Strictness level -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Niveau de blocage</h3>
-          <p class="zone-webhook__section-desc">Quand est-ce que la pipeline doit échouer ?</p>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.strictnessTitle') }}</h3>
+          <p class="zone-webhook__section-desc">{{ $t('dashboard.webhook.strictnessDesc') }}</p>
 
           <div class="zone-webhook__strictness">
             <button
@@ -85,7 +87,7 @@
 
         <!-- Patterns -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Paths couverts par cette zone</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.patternsTitle') }}</h3>
           <div class="zone-webhook__patterns">
             <code v-for="pattern in patterns" :key="pattern" class="zone-webhook__pattern">
               {{ pattern }}
@@ -95,7 +97,7 @@
 
         <!-- CI/CD Snippets -->
         <div class="zone-webhook__section">
-          <h3 class="zone-webhook__section-title">Snippets CI/CD</h3>
+          <h3 class="zone-webhook__section-title">{{ $t('dashboard.webhook.snippetsTitle') }}</h3>
 
           <div class="zone-webhook__tabs">
             <button
@@ -112,23 +114,22 @@
           <div class="zone-webhook__snippet">
             <pre class="zone-webhook__pre"><code>{{ snippets[activeTab] }}</code></pre>
             <button class="zone-webhook__copy zone-webhook__copy--snippet" @click="copy(snippets[activeTab], 'snippet')">
-              {{ justCopied === 'snippet' ? 'Copié !' : 'Copier' }}
+              {{ justCopied === 'snippet' ? $t('dashboard.webhook.copied') : $t('dashboard.webhook.copy') }}
             </button>
           </div>
         </div>
       </AppCard>
 
       <!-- Regenerate confirmation modal -->
-      <AppModal v-model="showRegenModal" title="Régénérer la clé API">
-        <p class="zone-webhook__modal-text">
-          L'ancienne clé sera <strong>immédiatement invalidée</strong>. Tous vos pipelines CI/CD devront être mis à jour.
-        </p>
+      <AppModal v-model="showRegenModal" :title="$t('dashboard.webhook.regenModalTitle')">
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <p class="zone-webhook__modal-text" v-html="$t('dashboard.webhook.regenModalText')" />
         <template #footer>
           <AppButton variant="secondary" :disabled="regenerating" @click="showRegenModal = false">
-            Annuler
+            {{ $t('dashboard.webhook.cancel') }}
           </AppButton>
           <AppButton variant="danger" :loading="regenerating" @click="handleRegenerate">
-            Régénérer
+            {{ $t('dashboard.webhook.regenerate') }}
           </AppButton>
         </template>
       </AppModal>
@@ -137,10 +138,12 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const route = useRoute()
+const { t } = useI18n()
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
 // Zone info from shared state
@@ -148,10 +151,10 @@ const { zones, hasMinZoneRole } = useZones()
 const canManage = computed(() => hasMinZoneRole(zoneId.value, 'admin'))
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
-const zoneName = computed(() => isDefaultZone.value ? 'Toutes les pages' : (zone.value?.name ?? 'Zone'))
+const zoneName = computed(() => isDefaultZone.value ? t('dashboard.webhook.defaultZoneName') : (zone.value?.name ?? t('dashboard.webhook.zoneFallback')))
 const patterns = computed(() => zone.value?.patterns ?? ['**'])
 
-useHead({ title: computed(() => `Webhook — ${zoneName.value}`) })
+useHead({ title: computed(() => t('dashboard.webhook.tabTitle', { zone: zoneName.value })) })
 
 const config = useRuntimeConfig()
 const appUrl = computed(() => config.public.appUrl || 'https://seogard.io')
@@ -175,26 +178,26 @@ const ciStrictness = computed<'strict' | 'standard' | 'relaxed'>(
 )
 const activeTab = ref<'curl' | 'github' | 'vercel' | 'gitlab'>('curl')
 
-const strictnessLevels = [
+const strictnessLevels = computed(() => [
   {
     value: 'strict' as const,
-    label: 'Tolérance zéro',
-    rule: 'Bloque dès la première alerte',
-    description: 'Le moindre warning ou régression SEO fait échouer le deploy. Idéal en pré-prod ou pour les équipes SEO exigeantes.',
+    label: t('dashboard.webhook.strictLabel'),
+    rule: t('dashboard.webhook.strictRule'),
+    description: t('dashboard.webhook.strictDescription'),
   },
   {
     value: 'standard' as const,
-    label: 'Régressions critiques',
-    rule: 'Bloque si méta disparue, SSR cassé, noindex...',
-    description: 'Seules les régressions graves bloquent : titre/description supprimé, SSR cassé, page désindexée. Les warnings passent.',
+    label: t('dashboard.webhook.standardLabel'),
+    rule: t('dashboard.webhook.standardRule'),
+    description: t('dashboard.webhook.standardDescription'),
   },
   {
     value: 'relaxed' as const,
-    label: 'Catastrophes uniquement',
-    rule: 'Bloque si 5+ alertes critiques',
-    description: 'Tolère quelques alertes isolées, bloque uniquement quand un problème touche plusieurs pages. Pour les gros sites avec du bruit.',
+    label: t('dashboard.webhook.relaxedLabel'),
+    rule: t('dashboard.webhook.relaxedRule'),
+    description: t('dashboard.webhook.relaxedDescription'),
   },
-]
+])
 
 const tabs = [
   { id: 'curl' as const, label: 'cURL / API' },

@@ -1,4 +1,6 @@
 import type { CrawlScheduleFrequency } from '../types/zone'
+import type { Locale } from './i18n'
+import { DEFAULT_LOCALE } from './i18n'
 
 export interface CrawlScheduleConfig {
   enabled: boolean
@@ -11,8 +13,67 @@ export interface CrawlScheduleConfig {
   nextCrawlAt: string | Date | null
 }
 
-const DAYS_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
-const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+// ── Libellés par locale — code PARTAGÉ front/back : pas d'accès au helper serveur t(),
+// les chaînes vivent donc ici, dans des Records par locale. Défaut fr (les consommateurs
+// front existants restent inchangés).
+
+const DAYS: Record<Locale, string[]> = {
+  fr: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+}
+
+const MONTHS: Record<Locale, string[]> = {
+  fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+}
+
+type RelativeUnit = 'minute' | 'hour' | 'day' | 'month'
+
+// Temps relatif + placeholders : le pluriel suit une logique PROPRE à chaque locale
+// (fr : n > 1, « mois » invariable ; en : n ≠ 1) — plus de suffixe manuel partagé.
+const LABELS: Record<Locale, {
+  notScheduled: string
+  notRun: string
+  justNow: string
+  nextAt: (day: string, dayNum: number, month: string, hour: string) => string
+  ago: (n: number, unit: RelativeUnit) => string
+}> = {
+  fr: {
+    notScheduled: 'Pas encore planifié',
+    notRun: 'Pas encore exécuté',
+    justNow: 'À l\'instant',
+    nextAt: (day, dayNum, month, hour) => `${day} ${dayNum} ${month} à ${hour}:00 UTC`,
+    ago: (n, unit) => {
+      const base: Record<RelativeUnit, string> = { minute: 'minute', hour: 'heure', day: 'jour', month: 'mois' }
+      const label = unit === 'month' ? base.month : `${base[unit]}${n > 1 ? 's' : ''}`
+      return `il y a ${n} ${label}`
+    },
+  },
+  en: {
+    notScheduled: 'Not scheduled yet',
+    notRun: 'Not run yet',
+    justNow: 'Just now',
+    nextAt: (day, dayNum, month, hour) => `${day}, ${month} ${dayNum} at ${hour}:00 UTC`,
+    ago: (n, unit) => `${n} ${unit}${n === 1 ? '' : 's'} ago`,
+  },
+}
+
+const VALIDATION_MESSAGES: Record<Locale, Record<'enabled' | 'hour' | 'frequency' | 'dayOfWeek' | 'dayOfMonth', string>> = {
+  fr: {
+    enabled: 'enabled doit être un booléen',
+    hour: 'L\'heure doit être comprise entre 0 et 23 (UTC)',
+    frequency: 'Fréquence invalide',
+    dayOfWeek: 'Le jour de la semaine doit être compris entre 0 (dim) et 6 (sam)',
+    dayOfMonth: 'Le jour du mois doit être compris entre 1 et 31',
+  },
+  en: {
+    enabled: 'enabled must be a boolean',
+    hour: 'Hour must be between 0 and 23 (UTC)',
+    frequency: 'Invalid frequency',
+    dayOfWeek: 'Day of week must be between 0 (Sun) and 6 (Sat)',
+    dayOfMonth: 'Day of month must be between 1 and 31',
+  },
+}
 
 function startOfHourUtc(date: Date, hour: number): Date {
   const d = new Date(date)
@@ -81,22 +142,23 @@ export function computeNextCrawlAt(schedule: Pick<CrawlScheduleConfig, 'frequenc
 
 /**
  * Validate a schedule payload coming from the API. Returns null if valid,
- * or a user-facing error message otherwise.
+ * or a user-facing error message (in the given locale) otherwise.
  */
-export function validateSchedule(payload: Partial<CrawlScheduleConfig>): string | null {
-  if (typeof payload.enabled !== 'boolean') return 'enabled doit être un booléen'
+export function validateSchedule(payload: Partial<CrawlScheduleConfig>, locale: Locale = DEFAULT_LOCALE): string | null {
+  const messages = VALIDATION_MESSAGES[locale]
+  if (typeof payload.enabled !== 'boolean') return messages.enabled
   if (typeof payload.hour !== 'number' || payload.hour < 0 || payload.hour > 23) {
-    return 'L\'heure doit être comprise entre 0 et 23 (UTC)'
+    return messages.hour
   }
 
   const freq = payload.frequency
   if (freq !== 'daily' && freq !== 'weekly' && freq !== 'biweekly' && freq !== 'monthly') {
-    return 'Fréquence invalide'
+    return messages.frequency
   }
 
   if (freq === 'weekly' || freq === 'biweekly') {
     if (typeof payload.dayOfWeek !== 'number' || payload.dayOfWeek < 0 || payload.dayOfWeek > 6) {
-      return 'Le jour de la semaine doit être compris entre 0 (dim) et 6 (sam)'
+      return messages.dayOfWeek
     }
   }
 
@@ -105,7 +167,7 @@ export function validateSchedule(payload: Partial<CrawlScheduleConfig>): string 
     const dom = payload.dayOfMonth
     if (!wantsLast) {
       if (typeof dom !== 'number' || dom < 1 || dom > 31) {
-        return 'Le jour du mois doit être compris entre 1 et 31'
+        return messages.dayOfMonth
       }
     }
   }
@@ -113,27 +175,29 @@ export function validateSchedule(payload: Partial<CrawlScheduleConfig>): string 
   return null
 }
 
-export function formatNextCrawlLabel(date: Date | string | null | undefined): string {
-  if (!date) return 'Pas encore planifié'
+export function formatNextCrawlLabel(date: Date | string | null | undefined, locale: Locale = DEFAULT_LOCALE): string {
+  const labels = LABELS[locale]
+  if (!date) return labels.notScheduled
   const d = typeof date === 'string' ? new Date(date) : date
-  const day = DAYS_FR[d.getUTCDay()]
+  const day = DAYS[locale][d.getUTCDay()]
   const num = d.getUTCDate()
-  const month = MONTHS_FR[d.getUTCMonth()]
+  const month = MONTHS[locale][d.getUTCMonth()]
   const hh = String(d.getUTCHours()).padStart(2, '0')
-  return `${day} ${num} ${month} à ${hh}:00 UTC`
+  return labels.nextAt(day!, num, month!, hh)
 }
 
-export function formatLastCrawlLabel(date: Date | string | null | undefined, now: Date = new Date()): string {
-  if (!date) return 'Pas encore exécuté'
+export function formatLastCrawlLabel(date: Date | string | null | undefined, now: Date = new Date(), locale: Locale = DEFAULT_LOCALE): string {
+  const labels = LABELS[locale]
+  if (!date) return labels.notRun
   const d = typeof date === 'string' ? new Date(date) : date
   const diffMs = now.getTime() - d.getTime()
   const minutes = Math.round(diffMs / 60_000)
-  if (minutes < 1) return 'À l\'instant'
-  if (minutes < 60) return `il y a ${minutes} minute${minutes > 1 ? 's' : ''}`
+  if (minutes < 1) return labels.justNow
+  if (minutes < 60) return labels.ago(minutes, 'minute')
   const hours = Math.round(minutes / 60)
-  if (hours < 24) return `il y a ${hours} heure${hours > 1 ? 's' : ''}`
+  if (hours < 24) return labels.ago(hours, 'hour')
   const days = Math.round(hours / 24)
-  if (days < 30) return `il y a ${days} jour${days > 1 ? 's' : ''}`
+  if (days < 30) return labels.ago(days, 'day')
   const months = Math.round(days / 30)
-  return `il y a ${months} mois`
+  return labels.ago(months, 'month')
 }

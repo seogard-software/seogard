@@ -259,7 +259,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   if (org) {
     const user = await User.findById((org as any).ownerId).lean()
     if (user?.email) {
-      sendPaymentFailedEmail(user.email, user._id.toString(), sub.orgId.toString())
+      sendPaymentFailedEmail(user.email, user._id.toString(), sub.orgId.toString(), (user as { locale?: string }).locale)
     }
   }
 

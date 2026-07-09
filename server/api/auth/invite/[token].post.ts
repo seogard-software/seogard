@@ -6,18 +6,18 @@ export default defineEventHandler(async (event) => {
   const token = getRouterParam(event, 'token')
 
   if (!token) {
-    throw createError({ statusCode: 400, message: 'Token manquant' })
+    throw createError({ statusCode: 400, message: 'Token required', data: { errorCode: 'TOKEN_REQUIRED' } })
   }
 
   const invite = await OrgInvite.findOne({ token, status: 'pending' })
   if (!invite) {
-    throw createError({ statusCode: 404, message: 'Invitation non trouvée ou déjà utilisée' })
+    throw createError({ statusCode: 404, message: 'Invitation not found or already used', data: { errorCode: 'INVITE_NOT_FOUND' } })
   }
 
   if (invite.expiresAt && new Date() > invite.expiresAt) {
     invite.status = 'expired'
     await invite.save()
-    throw createError({ statusCode: 410, message: 'Invitation expirée' })
+    throw createError({ statusCode: 410, message: 'Invitation expired', data: { errorCode: 'INVITE_EXPIRED' } })
   }
 
   let userId: string
@@ -34,10 +34,10 @@ export default defineEventHandler(async (event) => {
   if (authUserId) {
     const authUser = await User.findById(authUserId).select('email').lean()
     if (!authUser) {
-      throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
+      throw createError({ statusCode: 404, message: 'User not found', data: { errorCode: 'USER_NOT_FOUND' } })
     }
     if (authUser.email !== invite.email) {
-      throw createError({ statusCode: 403, message: 'Cette invitation est destinée à un autre email' })
+      throw createError({ statusCode: 403, message: 'Invitation intended for another email', data: { errorCode: 'INVITE_EMAIL_MISMATCH' } })
     }
     userId = authUserId
   } else {
@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
       const body = await readBody(event)
 
       if (!body?.password || body.password.length < 8) {
-        throw createError({ statusCode: 400, message: 'Le mot de passe doit faire au moins 8 caractères' })
+        throw createError({ statusCode: 400, message: 'Password must be at least 8 characters', data: { errorCode: 'PASSWORD_TOO_SHORT' } })
       }
 
       const passwordHash = await hashPassword(body.password)

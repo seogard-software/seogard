@@ -6,6 +6,7 @@ const userSchema = new Schema({
   name: { type: String, default: null },
   avatarUrl: { type: String, default: null },
   authProvider: { type: String, enum: ['local', 'google', 'microsoft', 'github'], default: 'local' },
+  locale: { type: String, enum: ['fr', 'en'], default: 'fr' },
   oauthProviderId: { type: String, default: null },
   totpSecret: { type: String, default: null },
   totpEnabled: { type: Boolean, default: false },

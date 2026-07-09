@@ -6,12 +6,12 @@ export default defineEventHandler(async (event) => {
   const provider = getRouterParam(event, 'provider')
 
   if (!provider || !isValidOAuthProvider(provider)) {
-    throw createError({ statusCode: 400, message: 'Provider OAuth invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid OAuth provider', data: { errorCode: 'OAUTH_PROVIDER_INVALID' } })
   }
 
   const client = getOAuthClient(provider)
   if (!client) {
-    throw createError({ statusCode: 500, message: `Provider ${provider} non configuré` })
+    throw createError({ statusCode: 500, message: `Provider ${provider} not configured`, data: { errorCode: 'OAUTH_PROVIDER_NOT_CONFIGURED', provider } })
   }
 
   const state = generateState()

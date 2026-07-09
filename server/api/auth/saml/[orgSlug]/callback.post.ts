@@ -9,12 +9,12 @@ const log = createLogger('web', 'api.auth.saml')
 export default defineEventHandler(async (event) => {
   const orgSlug = getRouterParam(event, 'orgSlug')
   if (!orgSlug) {
-    throw createError({ statusCode: 400, message: 'Organisation requise' })
+    throw createError({ statusCode: 400, message: 'Organization required', data: { errorCode: 'ORG_REQUIRED' } })
   }
 
   const org = await Organization.findOne({ slug: orgSlug }).lean() as any
   if (!org || org.ssoProvider !== 'saml') {
-    throw createError({ statusCode: 404, message: 'SSO SAML non configuré' })
+    throw createError({ statusCode: 404, message: 'SAML SSO not configured', data: { errorCode: 'SAML_NOT_CONFIGURED' } })
   }
 
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
   const samlResponse = body?.SAMLResponse
 
   if (!samlResponse) {
-    throw createError({ statusCode: 400, message: 'SAMLResponse manquant' })
+    throw createError({ statusCode: 400, message: 'Missing SAMLResponse', data: { errorCode: 'SAML_RESPONSE_MISSING' } })
   }
 
   let profile: any
@@ -40,12 +40,12 @@ export default defineEventHandler(async (event) => {
     profile = result.profile
   } catch (err) {
     log.error({ orgSlug, errorCode: 'SAML_VALIDATION_FAILED', error: (err as Error).message }, 'SAML response validation failed')
-    throw createError({ statusCode: 401, message: 'Réponse SAML invalide' })
+    throw createError({ statusCode: 401, message: 'Invalid SAML response', data: { errorCode: 'SAML_RESPONSE_INVALID' } })
   }
 
   const email = profile?.email || (profile?.nameID?.includes('@') ? profile.nameID : null)
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw createError({ statusCode: 400, message: 'Email valide non trouvé dans la réponse SAML' })
+    throw createError({ statusCode: 400, message: 'No valid email in SAML response', data: { errorCode: 'SAML_EMAIL_MISSING' } })
   }
 
   const name = profile?.firstName

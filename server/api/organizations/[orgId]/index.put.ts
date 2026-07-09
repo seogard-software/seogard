@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const updated = await Organization.findByIdAndUpdate(orgId, update, { returnDocument: 'after' }).lean()
   if (!updated) {
-    throw createError({ statusCode: 404, message: 'Organisation non trouvée' })
+    throw createError({ statusCode: 404, message: 'Organization not found', data: { errorCode: 'ORG_NOT_FOUND' } })
   }
 
   return updated

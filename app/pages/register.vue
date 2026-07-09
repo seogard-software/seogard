@@ -3,13 +3,14 @@
     <AuthRegisterForm @success="navigateTo('/dashboard/sites')" />
 
     <p class="page-register__link">
-      Déjà un compte ?
-      <NuxtLink to="/login">Se connecter</NuxtLink>
+      {{ $t('auth.common.alreadyAccount') }}
+      <NuxtLink to="/login">{{ $t('auth.common.signIn') }}</NuxtLink>
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth', auth: false, redirectIfAuth: true })
 
 // Self-hosted: block registration if a user already exists
@@ -20,7 +21,9 @@ if (isSelfHosted.value && import.meta.client) {
     .catch(() => {})
 }
 
-useHead({ title: 'Inscription' })
+const { t } = useI18n()
+
+useHead({ title: t('seo.register.title') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 </script>
 

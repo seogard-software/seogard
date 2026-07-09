@@ -2,63 +2,64 @@
   <div class="page-invite">
     <!-- Loading -->
     <div v-if="loading" class="page-invite__loading">
-      Chargement de l'invitation...
+      {{ $t('auth.invite.loading') }}
     </div>
 
     <!-- Error: invalid/expired token -->
     <div v-else-if="error" class="page-invite__error">
-      <h1>Invitation invalide</h1>
+      <h1>{{ $t('auth.invite.invalidTitle') }}</h1>
       <p>{{ error }}</p>
-      <NuxtLink to="/login">Se connecter</NuxtLink>
+      <NuxtLink to="/login">{{ $t('auth.common.signIn') }}</NuxtLink>
     </div>
 
     <!-- Invite loaded -->
     <template v-else-if="invite">
       <!-- Case 1: Already logged in -->
       <div v-if="authStore.isAuthenticated" class="page-invite__content">
-        <h1 class="page-invite__title">Rejoindre {{ invite.orgName }}</h1>
-        <p class="page-invite__info">
-          Vous avez été invité en tant que <strong>{{ roleLabel(invite.role) }}</strong>.
-        </p>
+        <h1 class="page-invite__title">{{ $t('auth.invite.joinTitle', { org: invite.orgName }) }}</h1>
+        <i18n-t keypath="auth.invite.invitedAs" tag="p" class="page-invite__info" scope="global">
+          <template #role><strong>{{ roleLabel(invite.role) }}</strong></template>
+        </i18n-t>
         <AppButton :loading="accepting" size="lg" @click="handleAccept">
-          Accepter l'invitation
+          {{ $t('auth.invite.accept') }}
         </AppButton>
       </div>
 
       <!-- Case 2: Account exists → auto-login -->
       <div v-else-if="invite.hasAccount" class="page-invite__content">
-        <h1 class="page-invite__title">Rejoindre {{ invite.orgName }}</h1>
+        <h1 class="page-invite__title">{{ $t('auth.invite.joinTitle', { org: invite.orgName }) }}</h1>
         <p class="page-invite__email">{{ invite.email }}</p>
-        <p class="page-invite__info">
-          Vous avez été invité en tant que <strong>{{ roleLabel(invite.role) }}</strong>.
-        </p>
+        <i18n-t keypath="auth.invite.invitedAs" tag="p" class="page-invite__info" scope="global">
+          <template #role><strong>{{ roleLabel(invite.role) }}</strong></template>
+        </i18n-t>
         <AppAlert v-if="acceptError" variant="danger">
           {{ acceptError }}
         </AppAlert>
         <AppButton :loading="accepting" size="lg" @click="handleAccept">
-          Accepter et continuer
+          {{ $t('auth.invite.acceptContinue') }}
         </AppButton>
       </div>
 
       <!-- Case 3: No account → register -->
       <form v-else class="page-invite__content" @submit.prevent="handleAccept">
-        <h1 class="page-invite__title">Créez votre compte</h1>
-        <p class="page-invite__info">
-          Pour rejoindre <strong>{{ invite.orgName }}</strong> en tant que <strong>{{ roleLabel(invite.role) }}</strong>.
-        </p>
+        <h1 class="page-invite__title">{{ $t('auth.invite.createAccountTitle') }}</h1>
+        <i18n-t keypath="auth.invite.joinAs" tag="p" class="page-invite__info" scope="global">
+          <template #org><strong>{{ invite.orgName }}</strong></template>
+          <template #role><strong>{{ roleLabel(invite.role) }}</strong></template>
+        </i18n-t>
         <p class="page-invite__email">{{ invite.email }}</p>
         <AppInput
           v-model="password"
-          label="Mot de passe"
+          :label="$t('auth.common.passwordLabel')"
           type="password"
-          placeholder="Minimum 8 caractères"
+          :placeholder="$t('auth.common.passwordMinPlaceholder')"
           :error="errors.password"
         />
         <AppAlert v-if="acceptError" variant="danger">
           {{ acceptError }}
         </AppAlert>
         <AppButton type="submit" :loading="accepting" size="lg">
-          Créer mon compte
+          {{ $t('auth.invite.submit') }}
         </AppButton>
       </form>
     </template>
@@ -66,8 +67,13 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth', auth: false })
-useHead({ title: 'Invitation' })
+
+const { t } = useI18n()
+const apiError = useApiError()
+
+useHead({ title: t('seo.invite.title') })
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -92,9 +98,9 @@ const invite = ref<InviteDetails | null>(null)
 
 function roleLabel(role: string): string {
   const labels: Record<string, string> = {
-    admin: 'Administrateur',
-    member: 'Membre',
-    viewer: 'Lecteur',
+    admin: t('auth.invite.roleAdmin'),
+    member: t('auth.invite.roleMember'),
+    viewer: t('auth.invite.roleViewer'),
   }
   return labels[role] ?? role
 }
@@ -105,11 +111,11 @@ onMounted(async () => {
     const data = await $fetch<InviteDetails>(`/api/auth/invite/${token.value}`)
     invite.value = data
   } catch (err: unknown) {
-    const fetchError = err as { statusCode?: number; data?: { message?: string } }
+    const fetchError = err as { statusCode?: number }
     if (fetchError.statusCode === 410) {
-      error.value = 'Cette invitation a expiré. Demandez une nouvelle invitation.'
+      error.value = t('auth.invite.errorExpired')
     } else {
-      error.value = fetchError?.data?.message || 'Invitation non trouvée'
+      error.value = apiError(err, t('auth.invite.errorNotFound'))
     }
   } finally {
     loading.value = false
@@ -123,11 +129,11 @@ async function handleAccept() {
   // Validate password for new accounts
   if (invite.value && !invite.value.hasAccount && !authStore.isAuthenticated) {
     if (!password.value) {
-      errors.value.password = 'Mot de passe requis'
+      errors.value.password = t('validation.passwordRequired')
       return
     }
     if (password.value.length < 8) {
-      errors.value.password = 'Minimum 8 caractères'
+      errors.value.password = t('validation.passwordMinChars')
       return
     }
   }
@@ -159,8 +165,7 @@ async function handleAccept() {
     await sitesStore.fetchSites()
     navigateTo('/dashboard/sites')
   } catch (err: unknown) {
-    const fetchError = err as { data?: { message?: string } }
-    acceptError.value = fetchError?.data?.message || 'Erreur lors de l\'acceptation'
+    acceptError.value = apiError(err, t('auth.invite.errorAccept'))
   } finally {
     accepting.value = false
   }

@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
   const userId = requireAuth(event)
 
   const user = await User.findById(userId).select('email totpEnabled').lean()
-  if (!user) throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
+  if (!user) throw createError({ statusCode: 404, message: 'User not found', data: { errorCode: 'USER_NOT_FOUND' } })
 
   if (user.totpEnabled) {
-    throw createError({ statusCode: 400, message: '2FA déjà activé' })
+    throw createError({ statusCode: 400, message: '2FA already enabled', data: { errorCode: 'TOTP_ALREADY_ENABLED' } })
   }
 
   const secret = generateTotpSecret()

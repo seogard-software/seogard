@@ -159,10 +159,10 @@ describe('getPriceExamples', () => {
 // ── PRICING_ROWS ──
 
 describe('PRICING_ROWS', () => {
-  it('has rows with label and boolean flags', () => {
+  it('has rows with key and boolean flags', () => {
     expect(PRICING_ROWS.length).toBeGreaterThan(0)
     for (const row of PRICING_ROWS) {
-      expect(row.label).toBeTruthy()
+      expect(row.key).toBeTruthy()
       expect(typeof row.selfHosted).toBe('boolean')
       expect(typeof row.cloud).toBe('boolean')
     }

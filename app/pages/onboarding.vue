@@ -1,26 +1,31 @@
 <template>
   <div class="page-onboarding">
     <form class="page-onboarding__form" @submit.prevent="handleCreate">
-      <h1 class="page-onboarding__title">Créez votre organisation</h1>
-      <p class="page-onboarding__desc">Choisissez un nom pour votre espace de travail.</p>
+      <h1 class="page-onboarding__title">{{ $t('auth.onboarding.title') }}</h1>
+      <p class="page-onboarding__desc">{{ $t('auth.onboarding.desc') }}</p>
 
       <AppInput
         v-model="orgName"
-        label="Nom de l'organisation"
-        placeholder="Mon entreprise"
+        :label="$t('auth.onboarding.nameLabel')"
+        :placeholder="$t('auth.onboarding.namePlaceholder')"
         :error="error"
       />
 
       <AppButton type="submit" :loading="loading" size="lg">
-        Continuer
+        {{ $t('auth.common.continue') }}
       </AppButton>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth' })
-useHead({ title: 'Créer une organisation' })
+
+const { t } = useI18n()
+const apiError = useApiError()
+
+useHead({ title: t('seo.onboarding.title') })
 
 const authStore = useAuthStore()
 const orgStore = useOrganizationStore()
@@ -40,7 +45,7 @@ async function handleCreate() {
   error.value = ''
 
   if (!orgName.value.trim()) {
-    error.value = 'Nom requis'
+    error.value = t('validation.nameRequired')
     return
   }
 
@@ -58,7 +63,7 @@ async function handleCreate() {
     await sitesStore.fetchSites()
     navigateTo('/dashboard/sites')
   } catch (err: unknown) {
-    error.value = (err as any)?.data?.message || 'Erreur lors de la création'
+    error.value = apiError(err, t('auth.onboarding.errorGeneric'))
   } finally {
     loading.value = false
   }

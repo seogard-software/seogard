@@ -2,13 +2,10 @@
   <div class="layout-auth">
     <div class="layout-auth__brand">
       <div class="layout-auth__brand-content">
-        <NuxtLink to="/" class="layout-auth__logo-link">
+        <NuxtLink :to="localePath({ name: 'index' })" class="layout-auth__logo-link">
           <AppLogo size="lg" />
         </NuxtLink>
-        <p class="layout-auth__tagline">
-          Votre gardien SEO technique.<br>
-          Détecte les régressions avant qu'elles ne coûtent cher.
-        </p>
+        <p class="layout-auth__tagline" v-html="$t('auth.layout.tagline')" />
       </div>
       <div class="layout-auth__arcs">
         <div class="layout-auth__arc layout-auth__arc--1" />
@@ -26,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+const localePath = useLocalePath()
 </script>
 
 <style scoped lang="scss">

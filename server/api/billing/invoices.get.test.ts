@@ -84,13 +84,13 @@ describe('/api/billing/invoices', () => {
     const mod = await import('./invoices.get')
     handler = mod.default
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Organization requise')
+    await expect(handler(fakeEvent)).rejects.toThrow('Organization required')
   })
 
   it('throws 403 when user is not a member of the org', async () => {
     mockOrgMemberFindOne.mockResolvedValue(null)
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Accès refusé')
+    await expect(handler(fakeEvent)).rejects.toThrow('Forbidden')
   })
 
   it('returns empty array when no invoices exist', async () => {

@@ -3,6 +3,7 @@ import { Schema, model } from 'mongoose'
 const leadSchema = new Schema({
   url: { type: String, required: true },
   email: { type: String, default: null },
+  locale: { type: String, enum: ['fr', 'en'], default: 'fr' },
   pageCount: { type: Number, default: null },
   estimatedPrice: { type: Number, default: null },
   sitemapUrl: { type: String, default: null },

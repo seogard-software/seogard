@@ -14,18 +14,18 @@ export default defineEventHandler(async (event) => {
   log.info('subscribe: owner role OK')
 
   const stripe = getStripe()
-  if (!stripe) throw createError({ statusCode: 500, message: 'Stripe not configured' })
+  if (!stripe) throw createError({ statusCode: 500, message: 'Stripe not configured', data: { errorCode: 'STRIPE_NOT_CONFIGURED' } })
   log.info('subscribe: stripe OK')
 
   const priceId = process.env.STRIPE_PRICE_METERED
-  if (!priceId) throw createError({ statusCode: 500, message: 'STRIPE_PRICE_METERED not configured' })
+  if (!priceId) throw createError({ statusCode: 500, message: 'STRIPE_PRICE_METERED not configured', data: { errorCode: 'STRIPE_PRICE_NOT_CONFIGURED' } })
 
   const sub = await Subscription.findOne({ orgId }).lean()
-  if (!sub) throw createError({ statusCode: 404, message: 'Subscription not found' })
+  if (!sub) throw createError({ statusCode: 404, message: 'Subscription not found', data: { errorCode: 'SUBSCRIPTION_NOT_FOUND' } })
 
   const { User } = await import('../../database/models')
   const user = await User.findById(userId).lean()
-  if (!user) throw createError({ statusCode: 404, message: 'User not found' })
+  if (!user) throw createError({ statusCode: 404, message: 'User not found', data: { errorCode: 'USER_NOT_FOUND' } })
 
   let customerId = sub.stripeCustomerId
 
@@ -72,6 +72,6 @@ export default defineEventHandler(async (event) => {
     return { url: session.url }
   } catch (err: any) {
     log.error({ userId, orgId, stripeError: err.message, code: err.code, priceId }, 'stripe checkout session failed')
-    throw createError({ statusCode: err.statusCode || 500, message: err.message || 'Stripe error' })
+    throw createError({ statusCode: err.statusCode || 500, message: err.message || 'Stripe error', data: { errorCode: 'STRIPE_ERROR' } })
   }
 })

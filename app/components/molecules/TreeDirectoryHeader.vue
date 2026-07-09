@@ -9,8 +9,7 @@
         <div class="tree-directory-header__title-info">
           <h2 class="tree-directory-header__path">{{ node.path === '/' ? node.label : node.path }}</h2>
           <span class="tree-directory-header__subtitle">
-            {{ formatNumber(node.totalPageCount) }} page{{ node.totalPageCount > 1 ? 's' : '' }}
-            dans ce répertoire
+            {{ $t('dashboard.c.treeDirectoryHeader.pagesInDir', { count: fmt(node.totalPageCount) }, node.totalPageCount) }}
           </span>
         </div>
         <AppSpinner v-if="loading" size="sm" class="tree-directory-header__spinner" />
@@ -29,13 +28,13 @@
     <div class="tree-directory-header__stats">
       <template v-if="neverCrawled">
         <div class="tree-directory-header__stat">
-          <span class="tree-directory-header__stat-value">{{ formatNumber(node.totalPageCount) }}</span>
-          <span class="tree-directory-header__stat-label">Pages</span>
+          <span class="tree-directory-header__stat-value">{{ fmt(node.totalPageCount) }}</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.pages') }}</span>
         </div>
         <div class="tree-directory-header__stat-divider" />
         <div class="tree-directory-header__stat">
           <span class="tree-directory-header__stat-value tree-directory-header__stat-value--muted">—</span>
-          <span class="tree-directory-header__stat-label">Aucun crawl</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.noCrawl') }}</span>
         </div>
       </template>
       <template v-else>
@@ -43,12 +42,12 @@
           <span class="tree-directory-header__stat-value" :class="`tree-directory-header__stat-value--${healthLevel}`">
             {{ node.healthScore }}
           </span>
-          <span class="tree-directory-header__stat-label">Santé</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.health') }}</span>
         </div>
         <div class="tree-directory-header__stat-divider" />
         <div class="tree-directory-header__stat">
-          <span class="tree-directory-header__stat-value">{{ formatNumber(node.totalPageCount) }}</span>
-          <span class="tree-directory-header__stat-label">Pages</span>
+          <span class="tree-directory-header__stat-value">{{ fmt(node.totalPageCount) }}</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.pages') }}</span>
         </div>
         <div class="tree-directory-header__stat-divider" />
         <div class="tree-directory-header__stat">
@@ -56,9 +55,9 @@
             class="tree-directory-header__stat-value"
             :class="{ 'tree-directory-header__stat-value--danger': node.regressionCount > 0 }"
           >
-            {{ formatNumber(node.regressionCount) }}
+            {{ fmt(node.regressionCount) }}
           </span>
-          <span class="tree-directory-header__stat-label">Régressions</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.regressions') }}</span>
         </div>
         <div class="tree-directory-header__stat-divider" />
         <div class="tree-directory-header__stat">
@@ -66,9 +65,9 @@
             class="tree-directory-header__stat-value"
             :class="{ 'tree-directory-header__stat-value--info': node.recommendationCount > 0 }"
           >
-            {{ formatNumber(node.recommendationCount) }}
+            {{ fmt(node.recommendationCount) }}
           </span>
-          <span class="tree-directory-header__stat-label">Reco</span>
+          <span class="tree-directory-header__stat-label">{{ $t('dashboard.c.treeDirectoryHeader.reco') }}</span>
         </div>
       </template>
     </div>
@@ -89,6 +88,13 @@ defineEmits<{
 }>()
 
 const props = defineProps<Props>()
+
+const { locale } = useI18n()
+
+// Format des nombres selon la locale active.
+function fmt(n: number): string {
+  return formatNumber(n, locale.value === 'en' ? 'en' : 'fr')
+}
 
 const healthLevel = computed(() => {
   if (!props.node) return 'good'

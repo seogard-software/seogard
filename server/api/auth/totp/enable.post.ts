@@ -6,23 +6,23 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.code) {
-    throw createError({ statusCode: 400, message: 'Code requis' })
+    throw createError({ statusCode: 400, message: 'Code required', data: { errorCode: 'CODE_REQUIRED' } })
   }
 
   const user = await User.findById(userId).select('totpSecret totpEnabled')
-  if (!user) throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
+  if (!user) throw createError({ statusCode: 404, message: 'User not found', data: { errorCode: 'USER_NOT_FOUND' } })
 
   if (user.totpEnabled) {
-    throw createError({ statusCode: 400, message: '2FA déjà activé' })
+    throw createError({ statusCode: 400, message: '2FA already enabled', data: { errorCode: 'TOTP_ALREADY_ENABLED' } })
   }
 
   if (!user.totpSecret) {
-    throw createError({ statusCode: 400, message: 'Lancez le setup 2FA d\'abord' })
+    throw createError({ statusCode: 400, message: 'Run 2FA setup first', data: { errorCode: 'TOTP_SETUP_REQUIRED' } })
   }
 
   const valid = verifyTotpCode(user.totpSecret, body.code)
   if (!valid) {
-    throw createError({ statusCode: 400, message: 'Code invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid code', data: { errorCode: 'CODE_INVALID' } })
   }
 
   const backupCodes = generateBackupCodes()

@@ -11,44 +11,49 @@ export default defineEventHandler(async (event) => {
   if (isSelfHosted()) {
     const userCount = await User.countDocuments()
     if (userCount > 0) {
-      throw createError({ statusCode: 403, message: 'Inscription désactivée. Contactez l\'administrateur pour recevoir une invitation.' })
+      throw createError({ statusCode: 403, message: 'Registration disabled. Contact the administrator for an invitation.', data: { errorCode: 'REGISTRATION_DISABLED' } })
     }
   }
 
   const body = await readBody(event)
 
   if (!body?.email || !body?.password) {
-    throw createError({ statusCode: 400, message: 'Email et mot de passe requis' })
+    throw createError({ statusCode: 400, message: 'Email and password required', data: { errorCode: 'CREDENTIALS_REQUIRED' } })
   }
 
   if (body.password.length < 8) {
-    throw createError({ statusCode: 400, message: 'Le mot de passe doit faire au moins 8 caractères' })
+    throw createError({ statusCode: 400, message: 'Password must be at least 8 characters', data: { errorCode: 'PASSWORD_TOO_SHORT' } })
   }
 
   if (!body.acceptedTerms) {
-    throw createError({ statusCode: 400, message: 'Vous devez accepter les CGU et CGV pour créer un compte' })
+    throw createError({ statusCode: 400, message: 'Terms of service must be accepted', data: { errorCode: 'TERMS_NOT_ACCEPTED' } })
   }
 
   const existing = await User.findOne({ email: body.email }).lean()
 
   if (existing) {
-    throw createError({ statusCode: 409, message: 'Cet email est déjà utilisé' })
+    throw createError({ statusCode: 409, message: 'Email already in use', data: { errorCode: 'EMAIL_ALREADY_USED' } })
   }
 
   const passwordHash = await hashPassword(body.password)
 
   const CURRENT_TERMS_VERSION = '2026-03-18'
 
+  // Locale du compte : dérivée de l'en-tête Accept-Language du navigateur à l'inscription
+  const acceptLanguage = getHeader(event, 'accept-language') ?? ''
+  const locale = acceptLanguage.trim().toLowerCase().startsWith('en') ? 'en' : 'fr'
+
   const user = await User.create({
     email: body.email,
     passwordHash,
     authProvider: 'local',
+    locale,
     trialEndsAt: isSelfHosted() ? null : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     acceptedTermsAt: new Date(),
     acceptedTermsVersion: CURRENT_TERMS_VERSION,
   })
 
-  if (!user) throw createError({ statusCode: 500, message: 'Database insert failed' })
+  if (!user) throw createError({ statusCode: 500, message: 'Database insert failed', data: { errorCode: 'INTERNAL_ERROR' } })
 
   const orgName = body.orgName?.trim() || body.email.split('@')[0]
 
@@ -63,7 +68,7 @@ export default defineEventHandler(async (event) => {
   catch (err) {
     await User.deleteOne({ _id: user._id }).catch(e => log.error({ error: (e as Error).message }, 'cleanup failed'))
     log.error({ userId: user._id, errorCode: 'REGISTER_ROLLBACK', error: (err as Error).message }, 'registration rollback after org creation failure')
-    throw createError({ statusCode: 500, message: 'Erreur lors de la création du compte' })
+    throw createError({ statusCode: 500, message: 'Account creation failed', data: { errorCode: 'REGISTRATION_FAILED' } })
   }
 
   const accessToken = generateAccessToken(user._id.toString())
@@ -79,7 +84,7 @@ export default defineEventHandler(async (event) => {
 
   log.info({ userId: user._id, email: user.email, orgId: org._id }, 'user registered')
 
-  sendWelcomeEmail(user.email, user._id.toString())
+  sendWelcomeEmail(user.email, user._id.toString(), user.locale)
 
   return {
     user: {

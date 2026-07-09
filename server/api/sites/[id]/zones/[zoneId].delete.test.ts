@@ -56,13 +56,13 @@ describe('zone.delete — security', () => {
   it('blocks deletion of default zone', async () => {
     mockZoneFindOne.mockResolvedValue({ _id: 'zone789', isDefault: true })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('zone par défaut ne peut pas être supprimée')
+    await expect(handler(fakeEvent)).rejects.toThrow('Default zone cannot be deleted')
   })
 
   it('returns 404 when zone not found', async () => {
     mockZoneFindOne.mockResolvedValue(null)
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Zone introuvable')
+    await expect(handler(fakeEvent)).rejects.toThrow('Zone not found')
   })
 
   it('deletes custom zone and cascades zoneRoles and schedules', async () => {

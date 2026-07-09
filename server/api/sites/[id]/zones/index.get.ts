@@ -6,12 +6,12 @@ export default defineEventHandler(async (event) => {
 
   const site = await Site.findById(siteId).lean()
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const member = await OrgMember.findOne({ orgId: (site as any).orgId, userId }).lean()
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const zones = await Zone.find({ siteId })

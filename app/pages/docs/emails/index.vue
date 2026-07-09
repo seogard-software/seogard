@@ -17,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'docs', auth: false })
 
 if (import.meta.server && process.env.NODE_ENV === 'production') {

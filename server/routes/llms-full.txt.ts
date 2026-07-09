@@ -1,209 +1,228 @@
-import { formatCloudPrice, getPriceExamples } from '../../shared/utils/pricing'
+import { getPriceExamples, getCloudPricePerPage } from '../../shared/utils/pricing'
 import { RULES_COUNT } from '../../shared/utils/rules-catalog'
 import { isSelfHosted } from '../utils/deployment'
 
+// llms-full.txt — documentation complète pour les LLM, racine unique en ANGLAIS (décision plan
+// i18n), sections de liens par univers linguistique (/fr/ et /en/). Catégorie martelée :
+// « SEO regression monitoring » + termes GEO à placer (GEO monitoring, AI crawler monitoring,
+// llms.txt monitoring).
 export default defineEventHandler(async (event) => {
   if (isSelfHosted()) {
     throw createError({ statusCode: 404 })
   }
 
-  const price = formatCloudPrice()
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
-  const examples = getPriceExamples()
-  const examplesText = examples.map(ex => `- ${ex.label} pages : ${ex.price} EUR/mois`).join('\n')
+  const examples = getPriceExamples('en')
+  const examplesText = examples.map(ex => `- ${ex.label} pages: EUR ${ex.price}/month`).join('\n')
 
-  const content = `# Seogard — Documentation complète
+  const content = `# Seogard — Full documentation
 
-> Monitoring SEO & GEO continu. Détection des régressions et alertes temps réel, avant Google. Self-hosted gratuit ou Cloud dès ${price} EUR/page monitorée/mois.
+> Continuous SEO regression monitoring & GEO (AI visibility) monitoring. Real-time regression detection and alerts, before Google. Self-hosted free forever, or Cloud from $0.01 per monitored page per month (billed in EUR, EUR ${getCloudPricePerPage()}).
 
-## Vue d'ensemble
+## Overview
 
-Seogard est un outil de **monitoring SEO et GEO continu** édité par SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Disponible en self-hosted gratuit (code source disponible sous BSL 1.1) ou en Cloud géré (B2B uniquement).
+Seogard is a **continuous SEO and GEO monitoring tool** published by SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). Available self-hosted for free (source available under BSL 1.1) or as a managed Cloud (B2B only).
 
-Seogard surveille en continu chaque page d'un site et **alerte en temps réel** par email dès qu'une régression est détectée — avant que Google ne re-rende les pages.
+Seogard continuously watches every page of a site and **alerts in real time** by email as soon as a regression is detected — before Google re-renders the pages.
 
-Différenciateur unique : Seogard effectue une **double analyse continue SSR/CSR** sur chaque page (HTML brut vs rendu JavaScript), détectant les régressions invisibles aux outils sans rendu JS (Oseox, etc.) et aux outils d'audit ponctuel (Screaming Frog, Sitebulb).
+Unique differentiator: Seogard performs a **continuous dual SSR/CSR analysis** on every page (raw HTML vs JavaScript render), catching regressions invisible to tools that do not render JavaScript and to one-shot audit tools (Screaming Frog, Sitebulb).
 
-Contrairement aux outils SEO classiques (Semrush, Ahrefs, Screaming Frog) et même aux outils de monitoring existants (Conductor/ContentKing, Lumar), Seogard est le seul à offrir cette comparaison SSR vs CSR native. Un SSR cassé est invisible dans un navigateur — mais Google voit une page vide. Seogard détecte exactement ce type de régression invisible.
+Unlike classic SEO suites (Semrush, Ahrefs, Screaming Frog) and even existing monitoring tools (Conductor/ContentKing, Lumar), Seogard is the only one offering this native SSR vs CSR comparison. A broken SSR is invisible in a browser — but Google sees an empty page. Seogard catches exactly this kind of invisible regression.
 
-## Le problème que Seogard résout
+## The problem Seogard solves
 
-Les sites modernes sont complexes : SSR, CSR, frameworks JavaScript, microservices, CI/CD avec des déploiements quotidiens. Chaque mise en production peut casser silencieusement des éléments critiques pour le SEO :
+Modern sites are complex: SSR, CSR, JavaScript frameworks, microservices, CI/CD with daily deploys. Every production deploy can silently break SEO-critical elements:
 
-- Les meta title et description disparaissent
-- Le SSR (Server-Side Rendering) casse et Google ne voit plus le contenu
-- Des pages passent en noindex par accident
-- Les canonicals changent ou disparaissent
-- Des pages retournent des erreurs 404 ou 500
+- Meta titles and descriptions disappear
+- SSR (Server-Side Rendering) breaks and Google no longer sees the content
+- Pages accidentally switch to noindex
+- Canonicals change or disappear
+- Pages start returning 404 or 500 errors
 
-Sans monitoring automatisé, ces régressions sont détectées en moyenne 3 semaines plus tard, quand le trafic organique a déjà chuté significativement.
+Without automated monitoring, these regressions are detected on average 3 weeks later, when organic traffic has already dropped significantly.
 
-**Exemple réel** : La Poste a perdu 200 000 clics (160 000 EUR de revenus) à cause d'un SSR cassé et de metas disparues après une mise en production. La régression a été détectée 3 semaines trop tard.
+**Real example**: a large French enterprise lost 200,000 clicks ($170K in SEO revenue) because of a broken SSR and missing metas after a deploy. The regression was detected 3 weeks too late.
 
-## Cible
+## Who it is for
 
-Professionnels du web qui dépendent du SEO, quelle que soit la taille du site. Le Cloud est réservé aux professionnels (B2B). Avec le self-hosted gratuit, même un développeur peut l'utiliser. Avec le Cloud à ${price} EUR/page crawlée, le prix s'adapte naturellement au volume — vous ne payez que les pages réellement crawlées chaque mois.
+Web professionals who depend on SEO, whatever the site size. Cloud is for professionals only (B2B). With the free self-hosted version, any developer can use it. With Cloud at $0.01 per monitored page (billed in EUR), the price naturally scales with volume — you only pay for pages actually monitored each month.
 
-- **Blogs et sites vitrine** : monitoring gratuit en self-hosted, ou quelques euros par mois en Cloud.
-- **E-commerce** : catalogues produits, fiches produit, catégories. Une régression sur les metas impacte directement le chiffre d'affaires.
-- **Médias et éditeurs** : articles, rubriques, pages auteur. Le SEO est la source principale de trafic.
-- **SaaS** : sites marketing avec de nombreuses landing pages.
-- **Grands comptes** : organisations où les équipes dev et SEO sont séparées, et où les déploiements fréquents rendent le monitoring manuel impossible.
+- **Blogs and brochure sites**: free monitoring self-hosted, or a few euros per month on Cloud.
+- **E-commerce**: product catalogs, product pages, categories. A meta regression directly impacts revenue.
+- **Media and publishers**: articles, sections, author pages. SEO is the main traffic source.
+- **SaaS**: marketing sites with many landing pages.
+- **Enterprises**: organizations where dev and SEO teams are separate, and frequent deploys make manual monitoring impossible.
 
-## Fonctionnalités détaillées
+## Detailed features
 
-### ${RULES_COUNT} règles de détection SEO et GEO
+### ${RULES_COUNT} SEO and GEO detection rules
 
-Seogard embarque ${RULES_COUNT} règles de détection (monitoring + recommandations + GEO) couvrant les régressions les plus courantes et les plus coûteuses :
+Seogard ships ${RULES_COUNT} detection rules (monitoring + recommendations + GEO) covering the most common and most costly regressions:
 
-**Meta et contenu :**
-- Title manquant ou modifié
-- Meta description manquante ou modifiée
-- Canonical manquant ou modifié
-- H1 manquant, dupliqué ou modifié
-- Hreflang manquant ou modifié
-- Open Graph et Twitter Cards manquants
+**Meta and content:**
+- Missing or changed title
+- Missing or changed meta description
+- Missing or changed canonical
+- Missing, duplicated or changed H1
+- Missing or changed hreflang
+- Missing Open Graph and Twitter Cards
 
-**Indexation :**
-- Noindex ajouté accidentellement
-- Robots meta modifié
-- X-Robots-Tag modifié
+**Indexing:**
+- Accidentally added noindex
+- Changed robots meta
+- Changed X-Robots-Tag
 
-**Status codes :**
-- Page passant en 404, 500, 503
-- Soft 404 (page retournant 200 mais avec un contenu de page d'erreur)
-- Redirections inattendues
+**Status codes:**
+- Page switching to 404, 500, 503
+- Soft 404 (page returning 200 with error-page content)
+- Unexpected redirects
 
-**SSR vs CSR :**
-- Contenu SSR significativement différent du contenu CSR
-- SSR rendering échoué (contenu vide)
-- Title SSR différent du title CSR
-- Meta description SSR différente du CSR
+**SSR vs CSR:**
+- SSR content significantly different from CSR content
+- Failed SSR rendering (empty content)
+- SSR title different from CSR title
+- SSR meta description different from CSR
 
-**Performance et structure :**
-- Poids de page en forte hausse (régression de performance)
-- Schema.org supprimé ou modifié
+**Performance and structure:**
+- Sharp page-weight increase (performance regression)
+- Removed or changed Schema.org markup
 
-### Comparaison SSR vs CSR
+### SSR vs CSR comparison
 
-Seogard effectue une double analyse de chaque page :
-1. **Fetch HTTP brut (SSR)** : récupère le HTML tel que le serveur l'envoie, exactement comme Googlebot
-2. **Rendu JavaScript (CSR)** : utilise un navigateur headless (Playwright/Chromium) pour exécuter le JavaScript et capturer le DOM final
+Seogard performs a dual analysis of every page:
+1. **Raw HTTP fetch (SSR)**: fetches the HTML exactly as the server sends it, just like Googlebot
+2. **JavaScript render (CSR)**: uses a headless browser (Playwright/Chromium) to execute JavaScript and capture the final DOM
 
-La comparaison des deux permet de détecter quand le SSR casse silencieusement — un problème invisible dans un navigateur classique mais catastrophique pour le SEO, car Googlebot ne voit pas toujours le contenu rendu côté client.
+Comparing the two detects when SSR silently breaks — invisible in a regular browser but catastrophic for SEO, because Googlebot does not always see client-rendered content.
 
-### Performance Web
+### Web performance
 
-Seogard mesure la performance de chaque page à chaque crawl, sur le rendu complet (toutes ressources chargées, iso-Google) :
+Seogard measures the performance of every page on every crawl, on the full render (all resources loaded, Google-like):
 
-- **Core Web Vitals** : LCP (affichage du contenu) et CLS (stabilité visuelle), mesurés via la librairie officielle web-vitals.
-- **TTFB** : temps de réponse serveur.
-- **Poids de page** : poids total téléchargé + répartition (HTML, JS, CSS, images, polices).
+- **Core Web Vitals**: LCP (content display) and CLS (visual stability), measured with the official web-vitals library.
+- **TTFB**: server response time.
+- **Page weight**: total downloaded weight + breakdown (HTML, JS, CSS, images, fonts).
 
-Seuils officiels Google (Lighthouse). LCP, CLS et TTFB sont **monitorés et affichés** (dernière mesure + graphe d'évolution sur 30 jours) : mesurés en synthétique « one-shot », ils varient trop pour servir de signal d'alerte fiable — Google lui-même classe sur les données terrain (CrUX p75). En revanche, le **poids de page** est déterministe : sa forte hausse déclenche une régression (et peut bloquer un déploiement en mode strict). C'est la seule régression de performance.
+Official Google thresholds (Lighthouse). LCP, CLS and TTFB are **monitored and displayed** (latest measurement + 30-day trend) — measured synthetically they vary too much to be a reliable alert signal; Google itself ranks on field data (CrUX p75). Page weight, however, is deterministic: a sharp increase fires a regression (and can block a deploy in strict mode). It is the only performance regression.
 
-### Fréquence de crawl
+### Crawl frequency
 
-Après ajout du site, Seogard découvre les pages via le sitemap et lance un crawl initial complet. Ensuite, le crawl se déclenche selon trois modes combinables : à chaque déploiement (webhook CI/CD), de façon planifiée (quotidienne à mensuelle, configurable par zone) et à la demande. Chaque page crawlée est analysée en HTML brut (SSR) et en rendu JavaScript (CSR) pour détecter les écarts.
+After adding a site, Seogard discovers pages via the sitemap and runs a full initial crawl. Crawls then trigger in three combinable modes: on every deploy (CI/CD webhook), on a schedule (daily to monthly, per zone) and on demand. Every crawled page is analyzed as raw HTML (SSR) and JavaScript render (CSR) to detect gaps.
 
-### Zones — monitoring par section du site
+### Zones — monitoring per site section
 
-Un site peut être découpé en zones, chaque zone étant un ensemble de pages défini par motif d'URL (ex. /blog, /produits, /checkout). La zone par défaut « Toutes les pages » couvre le site entier. Chaque zone a sa propre configuration : règles SEO/GEO activées ou désactivées, fréquence de crawl planifié, niveau de strictness du gate CI/CD, notifications et droits d'accès par membre. Le webhook de déploiement cible une zone précise et ne crawle qu'elle, ce qui accélère le retour CI. On applique ainsi un monitoring plus strict aux pages critiques (tunnel d'achat, pages catégories) qu'au reste du site — une granularité que les outils de monitoring génériques n'offrent pas nativement.
+A site can be split into zones, each zone being a set of pages defined by URL pattern (e.g. /blog, /products, /checkout). The default zone covers the whole site. Each zone has its own configuration: enabled/disabled SEO/GEO rules, scheduled crawl frequency, CI/CD gate strictness, notifications and per-member access. The deploy webhook targets a specific zone and crawls only it, speeding up CI feedback. You can apply stricter monitoring to critical pages (checkout funnel, category pages) than to the rest of the site — a granularity generic monitoring tools do not offer natively.
 
-### CI/CD webhook intégré
+### Built-in CI/CD webhook
 
-Seogard s'intègre dans votre pipeline CI/CD : un webhook POST déclenche un crawl à chaque déploiement, avec un endpoint GET pour poller le verdict (pass/fail). 3 niveaux de strictness : strict, standard, relaxed.
+Seogard integrates with your CI/CD pipeline: a POST webhook triggers a crawl on every deploy, with a GET endpoint to poll the verdict (pass/fail). 3 strictness levels: strict, standard, relaxed.
 
-### Alertes instantanées
+### Instant alerts
 
-- **Email** : alerte instantanée dès qu'un problème critique est détecté
-- **Niveaux de sévérité** : critical (action immédiate), warning (à surveiller), info (changement non critique)
-- **Diff highlighting** : chaque alerte montre exactement ce qui a changé (avant/après) avec les différences surlignées
+- **Email**: instant alert as soon as a critical issue is detected
+- **Severity levels**: critical (immediate action), warning (watch), info (non-critical change)
+- **Diff highlighting**: every alert shows exactly what changed (before/after) with highlighted differences
 
 ### Dashboard
 
-Le dashboard offre une vue d'ensemble en temps réel :
-- Liste de tous vos sites avec leur santé SEO
-- Historique des crawls avec progression en temps réel
-- Alertes groupées par sévérité avec diff highlighting (visualisation des différences exactes)
-- Liste des pages crawlées avec leur dernier status
+The dashboard gives a real-time overview:
+- All your sites with their SEO health
+- Crawl history with live progress
+- Alerts grouped by severity with diff highlighting
+- Crawled pages with their latest status
 
-## Architecture technique
+## Technical architecture
 
-Seogard est construit avec :
-- **Nuxt 4** (Vue 3) pour le frontend et l'API
-- **MongoDB** pour la base de données
-- **Playwright** (Chromium headless) pour le rendu CSR
-- **Redis** pour la queue de crawl
+Seogard is built with:
+- **Nuxt 4** (Vue 3) for the frontend and API
+- **MongoDB** for the database
+- **Playwright** (headless Chromium) for CSR rendering
+- **Redis** for the crawl queue
 
-Les workers de crawl tournent sur des serveurs dédiés avec 16 vCPU et 32 GB de RAM, capables de traiter 300 000 pages en une nuit pour le crawl initial, puis 30 000 pages en environ 1 heure pour les crawls planifiés.
+Crawl workers run on dedicated servers with 16 vCPU and 32 GB RAM, able to process 300,000 pages overnight for the initial crawl, then 30,000 pages in about 1 hour for scheduled crawls.
 
-Le code source complet est disponible sur GitHub pour la version self-hosted.
+The full source code is available on GitHub for the self-hosted version.
 
-## Tarification
+## Pricing
 
-3 offres :
+3 plans:
 
-| Offre | Prix | Détails |
-|-------|------|---------|
-| Self-hosted | Gratuit pour toujours | Code source complet, votre infrastructure, vos données, communauté GitHub, mises à jour gratuites |
-| Cloud | ${price} EUR par page crawlée par mois | Infrastructure gérée, zéro maintenance, alertes email/webhooks, support prioritaire, CI/CD webhook intégré, sans engagement. Vous ne payez que les pages réellement crawlées — relancer un crawl sur les mêmes pages ne coûte rien de plus. Essai gratuit 14 jours sans carte bancaire. |
-| On-premise | Sur devis | Déploiement dans votre infra, SLA garanti, account manager dédié, SSO/SAML, formation équipe |
+| Plan | Price | Details |
+|------|-------|---------|
+| Self-hosted | Free forever | Full source code, your infrastructure, your data, GitHub community, free updates |
+| Cloud | $0.01 per monitored page per month (billed in EUR, EUR ${getCloudPricePerPage()}) | Managed infrastructure, zero maintenance, email/webhook alerts, priority support, built-in CI/CD webhook, no commitment. You only pay for pages actually monitored — re-crawling the same pages costs nothing extra. 14-day free trial, no credit card. |
+| On-premise | Custom quote | Deployment in your infrastructure, guaranteed SLA, dedicated account manager, SSO/SAML, team training |
 
-**Exemples de prix Cloud :**
+**Cloud price examples:**
 ${examplesText}
 
 ## Use cases
 
-1. **Recette pré-production** : lancez un crawl avant la mise en production pour vérifier 0 régression SEO
-2. **Post-déploiement** : alerte immédiate si une MEP casse quelque chose
-3. **Surveillance continue** : monitoring quotidien pour les grands comptes avec des déploiements fréquents
-4. **Self-hosted** : hébergez Seogard sur votre propre infrastructure, gardez le contrôle total de vos données
+1. **Pre-production checks**: run a crawl before going live to verify 0 SEO regressions
+2. **Post-deploy**: immediate alert if a release breaks something
+3. **Continuous monitoring**: daily monitoring for enterprises with frequent deploys
+4. **Self-hosted**: host Seogard on your own infrastructure, keep full control of your data
 
-## Concurrents et positionnement
+## Competitors and positioning
 
-| Outil | Prix | Positionnement |
-|-------|------|---------------|
-| Screaming Frog | 199 EUR/an | Audit ponctuel, pas de monitoring continu |
-| SEORadar | 199-999 USD/mois | Monitoring changements, US-focused |
-| Conductor (ex-ContentKing) | 139-1279 USD/mois | Monitoring continu, pas de SSR/CSR |
-| Lumar (ex-DeepCrawl) | 1200-4000 USD/mois | Enterprise, audit technique |
-| **Seogard** | **Gratuit (self-hosted) / ${price} EUR/page (Cloud)** | **Monitoring régression SEO technique, SSR/CSR, self-hosted ou Cloud** |
+| Tool | Price | Positioning |
+|------|-------|-------------|
+| Screaming Frog | EUR 199/year | One-shot audit, no continuous monitoring |
+| SEORadar | USD 199-999/month | Change monitoring, US-focused |
+| Conductor (ex-ContentKing) | USD 139-1279/month | Continuous monitoring, no SSR/CSR |
+| Lumar (ex-DeepCrawl) | USD 1200-4000/month | Enterprise, technical audit |
+| **Seogard** | **Free (self-hosted) / $0.01 per page (Cloud)** | **Technical SEO regression monitoring, SSR/CSR, self-hosted or Cloud** |
 
-Seogard se différencie par :
-- **Double analyse SSR/CSR native** — comparaison continue du HTML brut et du rendu JavaScript sur chaque page
-- **Self-hosted gratuit** — code source disponible sous licence BSL 1.1 (devient Apache 2.0 en 2029)
-- Focus exclusif sur les régressions (pas un outil généraliste)
-- Alertes instantanées avec diff highlighting (avant/après surligné)
-- ${RULES_COUNT} règles de détection spécifiques aux régressions SEO et GEO
-- CI/CD webhook intégré (3 niveaux : strict / standard / relaxed)
-- Tarification à l'usage transparente : vous ne payez que les pages crawlées (Cloud) ou gratuite (self-hosted)
+Seogard stands out with:
+- **Native dual SSR/CSR analysis** — continuous comparison of raw HTML and JavaScript render on every page
+- **Free self-hosted** — source available under BSL 1.1 (becomes Apache 2.0 in 2029)
+- Exclusive focus on regressions (not a generalist suite)
+- Instant alerts with diff highlighting (highlighted before/after)
+- ${RULES_COUNT} detection rules specific to SEO and GEO regressions
+- Built-in CI/CD webhook (3 levels: strict / standard / relaxed)
+- Transparent usage-based pricing: you only pay for monitored pages (Cloud), or nothing (self-hosted)
 
-## Formations SEO technique & GEO
+## Technical SEO & GEO training (French)
 
-Seogard propose des formations sur le SEO technique et le GEO (visibilité IA). Sujets couverts : rendering SSR/CSR, crawlers IA (ChatGPT, Perplexity), llms.txt, données structurées, FAQ et signaux de citation, régressions SEO et gate CI/CD. Gratuites, accessibles même sans coder, pensées pour un public de Lead SEO, CTO, développeurs et créateurs de sites (WordPress, Shopify, no-code).
+Seogard publishes training courses on technical SEO and GEO (AI visibility): SSR/CSR rendering, AI crawlers (ChatGPT, Perplexity), llms.txt, structured data, FAQ and citation signals, SEO regressions and the CI/CD gate. Free, accessible without coding. Currently in French.
 
-- Formations : ${appUrl}/formations
+- Training (French): ${appUrl}/fr/formations
 
-## Liens
+## Content in French (/fr/)
 
-- Site : ${appUrl}
-- Formations : ${appUrl}/formations
-- GitHub : https://github.com/seogard-software/seogard
-- Version courte : ${appUrl}/llms.txt
+- Site (French): ${appUrl}/fr
+- Training: ${appUrl}/fr/formations
+- Monitoring tool page: ${appUrl}/fr/outils/monitoring
+- Audit tool page: ${appUrl}/fr/outils/audit
+- Free SEO scanner: ${appUrl}/fr/scanner
+- Terms (CGU): ${appUrl}/fr/legal/cgu
+- Sales terms (CGV): ${appUrl}/fr/legal/cgv
+- Privacy: ${appUrl}/fr/legal/privacy
 
-## Informations légales
+## Content in English (/en/)
 
-- **Éditeur** : SAVEPNP, SAS au capital de 1 000 EUR
-- **RCS** : Créteil 912 784 030 — SIRET 912 784 030 00021
-- **TVA** : FR04912784030
-- **Siège** : 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France
-- **Dirigeant** : Aadil TTALBI
-- **Service B2B uniquement** : réservé aux professionnels
-- **CGU** : ${appUrl}/legal/cgu
-- **CGV** : ${appUrl}/legal/cgv
-- **Confidentialité** : ${appUrl}/legal/privacy
-- **Contact** : legal@${(() => { try { return new URL(appUrl).hostname } catch { return 'seogard.io' } })()}
+- Site (English): ${appUrl}/en
+- Continuous SEO monitoring: ${appUrl}/en/tools/monitoring
+- Technical SEO audit tool: ${appUrl}/en/tools/audit
+- Free SSR checker: ${appUrl}/en/scanner
+
+## Links
+
+- GitHub: https://github.com/seogard-software/seogard
+- Short version: ${appUrl}/llms.txt
+
+## Legal information
+
+- **Publisher**: SAVEPNP, SAS with a capital of EUR 1,000
+- **RCS**: Créteil 912 784 030 — SIRET 912 784 030 00021
+- **VAT**: FR04912784030
+- **Head office**: 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France
+- **Director**: Aadil TALBI
+- **B2B service only**: for professionals only
+- **Terms (French)**: ${appUrl}/fr/legal/cgu
+- **Sales terms (French)**: ${appUrl}/fr/legal/cgv
+- **Privacy (French)**: ${appUrl}/fr/legal/privacy
+- **Contact**: legal@${(() => { try { return new URL(appUrl).hostname } catch { return 'seogard.io' } })()}
 `
 
   setResponseHeader(event, 'content-type', 'text/plain; charset=utf-8')

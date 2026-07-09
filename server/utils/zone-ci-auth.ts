@@ -18,7 +18,7 @@ export async function requireZoneCrawlAccess(
   if (apiKey) {
     const site = await Site.findOne({ _id: siteId, apiKey }).lean()
     if (!site) {
-      throw createError({ statusCode: 401, message: 'API key invalide' })
+      throw createError({ statusCode: 401, message: 'Invalid API key', data: { errorCode: 'API_KEY_INVALID' } })
     }
     return { site, viaApiKey: true }
   }

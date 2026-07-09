@@ -9,16 +9,16 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.memberId || typeof body.memberId !== 'string') {
-    throw createError({ statusCode: 400, message: 'memberId requis' })
+    throw createError({ statusCode: 400, message: 'memberId required', data: { errorCode: 'MEMBER_ID_REQUIRED' } })
   }
 
   const targetMember = await OrgMember.findOne({ _id: body.memberId, orgId })
   if (!targetMember) {
-    throw createError({ statusCode: 404, message: 'Membre non trouvé' })
+    throw createError({ statusCode: 404, message: 'Member not found', data: { errorCode: 'MEMBER_NOT_FOUND' } })
   }
 
   if (targetMember.role === 'owner') {
-    throw createError({ statusCode: 400, message: 'Ce membre est déjà owner' })
+    throw createError({ statusCode: 400, message: 'Member is already an owner', data: { errorCode: 'ALREADY_OWNER' } })
   }
 
   // Promote target to owner

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const member = await OrgMember.findOne({ orgId, userId })
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Vous n\'êtes pas membre de cette organisation' })
+    throw createError({ statusCode: 404, message: 'Not a member of this organization', data: { errorCode: 'NOT_ORG_MEMBER' } })
   }
 
   if (member.role === 'owner') {
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     if (otherOwners === 0) {
       throw createError({
         statusCode: 403,
-        message: 'Vous êtes le seul owner. Transférez la propriété à un autre membre ou supprimez l\'organisation.',
+        message: 'Sole owner cannot leave. Transfer ownership or delete the organization.', data: { errorCode: 'SOLE_OWNER_CANNOT_LEAVE' },
       })
     }
   }

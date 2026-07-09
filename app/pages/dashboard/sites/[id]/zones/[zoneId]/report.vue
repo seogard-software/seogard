@@ -1,20 +1,20 @@
 <template>
   <div class="zone-report">
-    <DashboardHeader :title="`Rapport — ${history?.zoneName ?? 'Zone'}`" />
+    <DashboardHeader :title="$t('dashboard.report.title', { zone: history?.zoneName ?? $t('dashboard.report.zoneFallback') })" />
 
     <!-- Échec de chargement -->
     <AppCard v-if="error" class="zone-report__empty">
       <AppIcon name="alert-triangle" size="lg" />
-      <h3>Impossible de charger l'historique</h3>
-      <p>Réessayez dans un instant. Si le problème persiste, vérifiez vos droits sur cette zone.</p>
-      <AppButton variant="secondary" size="sm" @click="refresh()">Réessayer</AppButton>
+      <h3>{{ $t('dashboard.report.errorTitle') }}</h3>
+      <p>{{ $t('dashboard.report.errorText') }}</p>
+      <AppButton variant="secondary" size="sm" @click="refresh()">{{ $t('dashboard.report.retry') }}</AppButton>
     </AppCard>
 
     <!-- Zone jamais crawlée -->
     <AppCard v-else-if="timeline.length === 0" class="zone-report__empty">
       <AppIcon name="radar" size="lg" />
-      <h3>Pas encore de rapport</h3>
-      <p>Le rapport de cette zone apparaîtra ici dès le premier crawl terminé.</p>
+      <h3>{{ $t('dashboard.report.emptyTitle') }}</h3>
+      <p>{{ $t('dashboard.report.emptyText') }}</p>
     </AppCard>
 
     <template v-else>
@@ -23,34 +23,34 @@
         <div class="zone-report__latest-head">
           <span class="zone-report__dot" :class="`zone-report__dot--${latest.verdict}`" />
           <div>
-            <p class="zone-report__latest-title">Dernier crawl — {{ formatDate(latest.completedAt) }}</p>
+            <p class="zone-report__latest-title">{{ $t('dashboard.report.latestTitle', { date: formatDate(latest.completedAt) }) }}</p>
             <p class="zone-report__latest-meta">
-              {{ verdictLabel(latest.verdict) }} · {{ latest.regressions.toLocaleString('fr-FR') }} régression{{ latest.regressions > 1 ? 's' : '' }}
-              · {{ latest.fixed.toLocaleString('fr-FR') }} réparée{{ latest.fixed > 1 ? 's' : '' }}
-              · {{ latest.pagesScanned.toLocaleString('fr-FR') }} pages
+              {{ verdictLabel(latest.verdict) }} · {{ $t('dashboard.report.regressionCount', { count: latest.regressions.toLocaleString(numberLocale) }, latest.regressions) }}
+              · {{ $t('dashboard.report.fixedCount', { count: latest.fixed.toLocaleString(numberLocale) }, latest.fixed) }}
+              · {{ $t('dashboard.report.pagesCount', { count: latest.pagesScanned.toLocaleString(numberLocale) }) }}
             </p>
           </div>
         </div>
         <div class="zone-report__dl">
           <a :href="pdfUrl(latest.crawlId)" class="zone-report__dl-link zone-report__dl-link--pdf">
-            <AppIcon name="download" size="sm" /> PDF <span>synthèse métier</span>
+            <AppIcon name="download" size="sm" /> PDF <span>{{ $t('dashboard.report.pdfHint') }}</span>
           </a>
           <a :href="mdUrl(latest.crawlId)" class="zone-report__dl-link zone-report__dl-link--md">
-            <AppIcon name="download" size="sm" /> Markdown <span>exhaustif, pour IA</span>
+            <AppIcon name="download" size="sm" /> Markdown <span>{{ $t('dashboard.report.mdHint') }}</span>
           </a>
         </div>
       </AppCard>
 
       <!-- Crawls précédents : cliquer pour révéler les downloads de ce crawl -->
       <section v-if="previous.length" class="zone-report__history">
-        <h2 class="zone-report__history-title">Crawls précédents</h2>
+        <h2 class="zone-report__history-title">{{ $t('dashboard.report.historyTitle') }}</h2>
         <details v-for="entry in previous" :key="entry.crawlId" class="zone-report__crawl">
           <summary class="zone-report__crawl-row">
             <span class="zone-report__dot" :class="`zone-report__dot--${entry.verdict}`" />
             <span class="zone-report__crawl-date">{{ formatDate(entry.completedAt) }}</span>
             <span class="zone-report__crawl-verdict">{{ verdictLabel(entry.verdict) }}</span>
             <span class="zone-report__crawl-counts">
-              {{ entry.regressions.toLocaleString('fr-FR') }} régr. · {{ entry.fixed.toLocaleString('fr-FR') }} rép. · {{ entry.pagesScanned.toLocaleString('fr-FR') }} pages
+              {{ $t('dashboard.report.crawlCounts', { regressions: entry.regressions.toLocaleString(numberLocale), fixed: entry.fixed.toLocaleString(numberLocale), pages: entry.pagesScanned.toLocaleString(numberLocale) }) }}
             </span>
             <AppIcon name="chevron-down" size="sm" class="zone-report__crawl-chevron" />
           </summary>
@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import type { CrawlActivityVerdict, ZoneCrawlHistory } from '~~/shared/types/zone-report'
 import { crawlReportDownloadPath } from '~~/shared/utils/report-links'
+defineI18nRoute(false)
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
@@ -79,9 +80,12 @@ const route = useRoute()
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
 
+const { t, locale } = useI18n()
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
+
 const { data: history, error, refresh } = await useFetch<ZoneCrawlHistory>(`/api/sites/${siteId.value}/zones/${zoneId.value}/report`)
 
-useHead({ title: computed(() => `Rapport — ${history.value?.zoneName ?? 'Zone'}`) })
+useHead({ title: computed(() => t('dashboard.report.tabTitle', { zone: history.value?.zoneName ?? t('dashboard.report.zoneFallback') })) })
 
 const timeline = computed(() => history.value?.timeline ?? [])
 const latest = computed(() => timeline.value[0])
@@ -90,17 +94,11 @@ const previous = computed(() => timeline.value.slice(1))
 function mdUrl(crawlId: string) { return crawlReportDownloadPath(siteId.value, zoneId.value, crawlId, 'md') }
 function pdfUrl(crawlId: string) { return crawlReportDownloadPath(siteId.value, zoneId.value, crawlId, 'pdf') }
 
-const VERDICT_LABELS: Record<CrawlActivityVerdict, string> = {
-  critical: 'Régressions critiques',
-  warning: 'Régressions à surveiller',
-  info: 'Régressions mineures',
-  stable: 'Stable',
-}
-function verdictLabel(v: CrawlActivityVerdict) { return VERDICT_LABELS[v] }
+function verdictLabel(v: CrawlActivityVerdict) { return t(`dashboard.report.verdict.${v}`) }
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(numberLocale.value, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 </script>
 

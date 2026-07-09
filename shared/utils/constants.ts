@@ -1,91 +1,14 @@
-export const LOGGED_IN_COOKIE_NAME = 'seogard_logged_in'
+import frRules from '../../i18n/locales/fr/rules.json' with { type: 'json' }
+import enRules from '../../i18n/locales/en/rules.json' with { type: 'json' }
 
-export const ALERT_SEVERITY_LABELS: Record<string, string> = {
-  critical: 'Critique',
-  warning: 'Attention',
-  info: 'Info',
-}
 
-export const ALERT_TYPE_LABELS: Record<string, string> = {
-  // P0
-  noindex_added: 'Noindex ajouté',
-  rec_sitemap_noindex_conflict: 'Page noindex déclarée au sitemap',
-  status_code_changed: 'Code HTTP modifié',
-  canonical_missing: 'Canonical manquant',
-  canonical_changed: 'Canonical modifié',
-  meta_title_missing: 'Meta title supprimé',
-  soft_404: 'Soft 404 détecté',
-  redirect_to_homepage: 'Redirection vers la homepage',
-  page_redirected: 'Page redirigée',
-  js_redirect_detected: 'Redirection JavaScript',
-  redirect_broken: 'Redirection cassée',
-  rec_redirect_temporary: 'Redirection temporaire sur page retirée',
-  rec_unclean_removal: 'Suppression sans 410 ni 301',
-  // P1
-  ssr_rendering_failed: 'SSR cassé',
-  ssr_content_mismatch: 'Écart SSR/CSR',
-  h1_missing: 'H1 supprimé',
-  h1_multiple: 'H1 multiples',
-  h1_changed: 'H1 modifié',
-  viewport_missing: 'Viewport supprimé',
-  thin_content: 'Contenu trop mince',
-  content_removed: 'Contenu supprimé',
-  hreflang_removed: 'Hreflang supprimé',
-  hreflang_changed: 'Hreflang modifié',
-  https_mixed_content: 'Ressources HTTP sur page HTTPS',
-  // P2
-  meta_description_missing: 'Meta description supprimée',
-  structured_data_removed: 'Données structurées supprimées',
-  structured_data_error: 'JSON-LD invalide',
-  og_image_removed: 'og:image supprimé',
-  og_title_removed: 'og:title supprimé',
-  meta_refresh_detected: 'Meta refresh détecté',
-  robots_txt_changed: 'Robots.txt modifié',
-  // P3
-  heading_hierarchy_broken: 'Hiérarchie des titres cassée',
-  lang_attribute_missing: 'Attribut lang supprimé',
-  lang_attribute_changed: 'Attribut lang modifié',
-  word_count_changed: 'Volume de contenu modifié',
-  charset_missing: 'Charset supprimé',
-  ssr_blocked: 'Crawler bloqué (anti-bot)',
-  ssr_title_mismatch: 'Title SSR ≠ CSR',
-  ssr_meta_description_mismatch: 'Description SSR ≠ CSR',
-  meta_title_changed: 'Meta title modifié',
-  meta_description_changed: 'Meta description modifiée',
-  // GEO — monitoring
-  llms_txt_removed: '/llms.txt supprimé',
-  ai_crawlers_blocked_changed: 'Nouveau blocage de crawlers IA de citation',
-  robots_blocks_googlebot: 'robots.txt bloque Googlebot',
-  faq_schema_removed: 'FAQ schema supprimé',
-  structured_data_author_removed: 'Auteur supprimé (JSON-LD)',
-  // Recommendations
-  rec_img_alt_audit: 'Images sans alt',
-  rec_img_alt_missing_in_ssr: 'Images sans alt absentes du HTML brut (injectées par JavaScript)',
-  rec_title_length_audit: 'Longueur du title',
-  rec_description_length_audit: 'Longueur de la description',
-  rec_h1_missing_audit: 'H1 manquant',
-  rec_h1_missing_in_ssr: 'H1 absent du HTML brut (rempli par JavaScript)',
-  rec_content_missing_in_ssr: 'Contenu visible seulement après JavaScript',
-  rec_title_missing_in_ssr: 'Title absent du HTML brut (rempli par JavaScript)',
-  rec_description_missing_in_ssr: 'Meta description absente du HTML brut (remplie par JavaScript)',
-  rec_favicon_missing_audit: 'Favicon manquant',
-  rec_semantic_structure_audit: 'Structure sémantique',
-  rec_semantic_structure_missing_in_ssr: 'Balises sémantiques absentes du HTML brut',
-  rec_structured_data_missing_audit: 'Données structurées manquantes',
-  rec_structured_data_missing_in_ssr: 'JSON-LD absent du HTML brut (injecté par JavaScript)',
-  rec_og_missing_audit: 'Open Graph manquant',
-  rec_internal_links_audit: 'Liens internes insuffisants',
-  rec_internal_links_missing_in_ssr: 'Liens internes absents du HTML brut (injectés par JavaScript)',
-  // GEO — recommendations
-  rec_llms_txt_missing: '/llms.txt manquant',
-  rec_ai_crawlers_blocked: 'Crawlers IA de citation bloqués (robots.txt)',
-  rec_structured_data_incomplete: 'Données structurées incomplètes',
-  rec_faq_schema_missing: 'FAQ schema manquant',
-  rec_citation_signals_missing: 'Signaux de citation faibles',
-  rec_content_structure_audit: 'Structure de contenu (GEO)',
-  // Performance — poids de page uniquement (LCP/CLS/TTFB = monitoring, sans alerte)
-  perf_page_weight_explosion: 'Poids de page en hausse',
-  rec_perf_page_heavy: 'Page trop lourde',
+// Labels des règles : SOURCE = i18n/locales/<locale>/rules.json (extraction i18n 2026-07).
+// ALERT_TYPE_LABELS reste l'export historique (vue FR) — les consommateurs localisés passent
+// par getAlertTypeLabels(locale).
+export const ALERT_TYPE_LABELS: Record<string, string> = frRules.labels
+
+export function getAlertTypeLabels(locale: 'fr' | 'en'): Record<string, string> {
+  return locale === 'en' ? { ...frRules.labels, ...(enRules as { labels?: Record<string, string> }).labels } : frRules.labels
 }
 
 export const STATE_RULES: Set<string> = new Set([
@@ -125,14 +48,3 @@ export function getRuleCategory(ruleId: string): AlertCategory {
   return 'event'
 }
 
-export const ALERT_STATUS_LABELS: Record<string, string> = {
-  open: 'Ouvertes',
-  resolved: 'Résolues',
-}
-
-export const CRAWL_STATUS_LABELS: Record<string, string> = {
-  pending: 'En attente',
-  running: 'En cours',
-  completed: 'Terminé',
-  failed: 'Échoué',
-}

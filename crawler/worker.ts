@@ -8,7 +8,7 @@ import { compareSnapshots, REDIRECT_SAFE_RESOLVE, type AlertData } from './compa
 import { purgeableFilter } from './page-lifecycle'
 import { deletePagesCascade } from '../server/database/cascade'
 import { isSsrBlocked, isRedirectToWaf, normalizeUrl } from './rules/helpers'
-import { sendEmailNotification, sendCrawlerBlockedNotification, type CrawlReportNotification, type EmailAttachment } from './notifications'
+import { sendEmailNotification, sendCrawlerBlockedNotification, toLocale, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
 import { isCrawlComplete, claimCrawlFinalization } from './crawl-completion'
@@ -378,9 +378,9 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
           const blockedRatio = crawlForNotif.pagesBlocked / crawlForNotif.pagesTotal
           if (blockedRatio > 0.1) {
             const org = await Organization.findById(site.orgId).select('ownerId').lean()
-            const user = org ? await User.findById(org.ownerId).select('email') : null
+            const user = org ? await User.findById(org.ownerId).select('email locale') : null
             if (user) {
-              await sendCrawlerBlockedNotification(user.email, site.name, crawlForNotif.pagesBlocked, crawlForNotif.pagesTotal)
+              await sendCrawlerBlockedNotification(user.email, site.name, crawlForNotif.pagesBlocked, crawlForNotif.pagesTotal, toLocale(user.locale))
             }
           }
         }
@@ -621,13 +621,14 @@ async function sendNotifications(
     recoCount: report.recoCount,
   }
 
-  // Collect recipients: org owner + zone admin/member (not viewer)
-  const emails = new Set<string>()
+  // Collect recipients: org owner + zone admin/member (not viewer) — avec la locale de chacun
+  // (le mail de crawl est rendu par destinataire, dans SA langue).
+  const recipients = new Map<string, ReturnType<typeof toLocale>>()
 
   const org = await Organization.findById(site.orgId).select('ownerId').lean()
   if (org) {
-    const owner = await User.findById(org.ownerId).select('email').lean()
-    if (owner) emails.add(owner.email)
+    const owner = await User.findById(org.ownerId).select('email locale').lean()
+    if (owner) recipients.set(owner.email, toLocale(owner.locale))
   }
 
   // If zone-scoped, also notify admin/member of this zone
@@ -639,13 +640,12 @@ async function sendNotifications(
     }).select('userId').lean()
 
     if (members.length > 0) {
-      const users = await User.find({ _id: { $in: members.map(m => m.userId) } }).select('email').lean()
-      for (const u of users) emails.add(u.email)
+      const users = await User.find({ _id: { $in: members.map(m => m.userId) } }).select('email locale').lean()
+      for (const u of users) recipients.set(u.email, toLocale(u.locale))
     }
   }
 
-  const emailList = Array.from(emails)
-  for (let i = 0; i < emailList.length; i++) {
-    await sendEmailNotification(emailList[i], notification, attachment)
+  for (const [email, locale] of recipients) {
+    await sendEmailNotification(email, notification, attachment, locale)
   }
 }

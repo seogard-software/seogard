@@ -1631,7 +1631,7 @@ describe('rec_content_missing_in_ssr', () => {
     }))
     expect(r).toHaveLength(1)
     expect(r[0].severity).toBe('warning')
-    expect(r[0].message).toContain('460 mots sur 760')
+    expect(r[0].message).toContain('460 of 760 words')
     expect(r[0].message).not.toMatch(/%/) // pas de pourcentage présenté comme une mesure
   })
 

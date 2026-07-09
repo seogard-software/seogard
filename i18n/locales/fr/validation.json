@@ -1,0 +1,13 @@
+{
+  "validation": {
+    "emailRequired": "Email requis",
+    "emailInvalid": "Email invalide",
+    "passwordRequired": "Mot de passe requis",
+    "passwordTooShort": "8 caractères minimum",
+    "passwordMinChars": "Minimum 8 caractères",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "codeRequired": "Code requis",
+    "nameRequired": "Nom requis",
+    "termsRequired": "Vous devez accepter les CGU et CGV"
+  }
+}

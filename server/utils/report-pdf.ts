@@ -2,6 +2,9 @@ import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces'
 import type { ReportRuleEntry, ZoneReport } from '../../shared/types/zone-report'
+import type { Locale } from '../../shared/utils/i18n'
+import { INTL_LOCALE } from '../../shared/utils/format'
+import { t, tc } from './i18n'
 
 // Enregistre les polices Roboto (normal/bold/italique) dans le système de fichiers virtuel.
 // API pdfmake 0.3 absente des types publiés (qui couvrent la 0.2) — cast justifié.
@@ -26,18 +29,18 @@ const COLORS = {
 // Largeur utile (A4 595pt - marges 40+40) pour les filets pleine largeur.
 const CONTENT_WIDTH = 515
 
-const STATUS_LABEL: Record<string, string> = { ok: 'OK', warning: 'À surveiller', critical: 'Action requise' }
 const STATUS_COLOR: Record<string, string> = { ok: COLORS.ok, warning: COLORS.warning, critical: COLORS.critical }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return 'jamais'
-  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+// Libellés : i18n/locales/<locale>/report.json via t()/tc(), locale portée par report.meta.locale.
+function formatDate(iso: string | null, locale: Locale): string {
+  if (!iso) return t(locale, 'report.date_never')
+  return new Date(iso).toLocaleDateString(INTL_LOCALE[locale], { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-// Séparateur de milliers = espace normal. toLocaleString('fr-FR') injecte U+202F
-// (espace fine insécable) que la police Roboto du PDF ne rend pas → glyphe parasite.
-function fmtNum(n: number): string {
-  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+// Séparateur de milliers : virgule en EN, espace normal en FR. On évite toLocaleString('fr-FR')
+// qui injecte U+202F (espace fine insécable) que la police Roboto du PDF ne rend pas → glyphe parasite.
+function fmtNum(n: number, locale: Locale): string {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, locale === 'en' ? ',' : ' ')
 }
 
 // Titre de section + filet coloré pleine largeur dessous.
@@ -48,26 +51,24 @@ function sectionHeader(title: string, accent: string): Content[] {
   ]
 }
 
-const SEVERITY_LABEL: Record<string, string> = { critical: 'Critique', warning: 'Warning', info: 'Info' }
-
-function scopeLabel(entry: ReportRuleEntry): string {
-  if (entry.siteLevel) return 'Site entier'
-  return `${fmtNum(entry.pagesCount)} page${entry.pagesCount > 1 ? 's' : ''}`
+function scopeLabel(entry: ReportRuleEntry, locale: Locale): string {
+  if (entry.siteLevel) return t(locale, 'report.scope_site_capitalized')
+  return tc(locale, 'report.scope_pages', entry.pagesCount, { count: fmtNum(entry.pagesCount, locale) })
 }
 
 // Tableau compact : une ligne par règle (sévérité · règle · étendue · action focus).
 // Remplace les fiches longues — le détail complet vit dans l'export Markdown.
-function compactTable(entries: ReportRuleEntry[]): Content {
+function compactTable(entries: ReportRuleEntry[], locale: Locale): Content {
   const header: TableCell[] = [
-    { text: 'Sévérité', style: 'th' },
-    { text: 'Règle', style: 'th' },
-    { text: 'Étendue', style: 'th' },
-    { text: 'Action recommandée', style: 'th' },
+    { text: t(locale, 'report.pdf.th_severity'), style: 'th' },
+    { text: t(locale, 'report.pdf.th_rule'), style: 'th' },
+    { text: t(locale, 'report.pdf.th_scope'), style: 'th' },
+    { text: t(locale, 'report.pdf.th_action'), style: 'th' },
   ]
   const rows: TableCell[][] = entries.map(entry => [
-    { text: SEVERITY_LABEL[entry.severity] ?? entry.severity, color: COLORS[entry.severity], bold: true, style: 'td' },
+    { text: t(locale, `report.severity.${entry.severity}`), color: COLORS[entry.severity], bold: true, style: 'td' },
     { text: entry.label, style: 'td', bold: true },
-    { text: scopeLabel(entry), style: 'td' },
+    { text: scopeLabel(entry, locale), style: 'td' },
     { text: entry.knowledge?.action ?? '—', style: 'td', color: COLORS.muted },
   ])
   return {
@@ -87,37 +88,42 @@ function compactTable(entries: ReportRuleEntry[]): Content {
 }
 
 // Bloc « ce que ça signifie » — cadrage métier QUALITATIF (jamais de chiffre inventé).
-function businessMeaning(report: ZoneReport): Content[] {
+function businessMeaning(report: ZoneReport, locale: Locale): Content[] {
   const { verdict } = report
   const points: Content[] = []
   if (verdict.critical > 0) {
-    points.push({ text: `${fmtNum(verdict.critical)} régression(s) critique(s) : des pages risquent de sortir de l'index Google ou de perdre leur position. À traiter en priorité.`, style: 'body', color: COLORS.critical })
+    points.push({ text: t(locale, 'report.pdf.meaning_critical', { count: fmtNum(verdict.critical, locale) }), style: 'body', color: COLORS.critical })
   }
   if (verdict.warning > 0) {
-    points.push({ text: `${fmtNum(verdict.warning)} régression(s) warning : des signaux se sont dégradés — à vérifier avant qu'ils ne pèsent.`, style: 'body', color: COLORS.warning })
+    points.push({ text: t(locale, 'report.pdf.meaning_warning', { count: fmtNum(verdict.warning, locale) }), style: 'body', color: COLORS.warning })
   }
   if (verdict.signaturePagesCount > 0) {
-    points.push({ text: `${fmtNum(verdict.signaturePagesCount)} page(s) au contenu différent pour les machines : Google ne les voit pas complètement au premier passage, et les IA (ChatGPT, Perplexity, Claude) ne les voient quasiment pas.`, style: 'body' })
+    points.push({ text: t(locale, 'report.pdf.meaning_signature', { count: fmtNum(verdict.signaturePagesCount, locale) }), style: 'body' })
   }
   if (points.length === 0) {
-    points.push({ text: 'Aucune régression ouverte : ce que voient vos visiteurs, Google et les IA est cohérent. Le monitoring continue à chaque crawl.', style: 'body', color: COLORS.ok })
+    points.push({ text: t(locale, 'report.pdf.meaning_ok'), style: 'body', color: COLORS.ok })
   }
   return [
-    { text: 'Ce que ça signifie pour vous', style: 'h3', margin: [0, 4, 0, 4] },
+    { text: t(locale, 'report.pdf.meaning_title'), style: 'h3', margin: [0, 4, 0, 4] },
     { ul: points, margin: [0, 0, 0, 4] },
   ]
 }
 
 export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitions {
   const { meta, verdict } = report
+  const locale = meta.locale
   const content: Content[] = []
 
   // ── En-tête / verdict ──
   content.push(
-    { text: 'État de santé SEO', style: 'h1' },
+    { text: t(locale, 'report.title'), style: 'h1' },
     { text: `${meta.siteDomain} · ${meta.zoneName}`, style: 'subtitle' },
-    { text: 'Comparaison HTML brut (indexé par Google) vs rendu JavaScript', style: 'tagline' },
-    { text: `Dernier crawl : ${formatDate(meta.crawlCompletedAt)} · ${fmtNum(meta.pagesScanned)} pages crawlées · Généré le ${formatDate(meta.generatedAt)}`, style: 'meta', margin: [0, 4, 0, 16] },
+    { text: t(locale, 'report.tagline'), style: 'tagline' },
+    { text: t(locale, 'report.crawl_line', {
+      lastCrawl: formatDate(meta.crawlCompletedAt, locale),
+      pages: fmtNum(meta.pagesScanned, locale),
+      generated: formatDate(meta.generatedAt, locale),
+    }), style: 'meta', margin: [0, 4, 0, 16] },
     {
       table: {
         widths: ['*', '*', '*', '*'],
@@ -126,13 +132,13 @@ export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitio
             { text: `${verdict.critical}`, style: 'bigNumber', color: verdict.critical > 0 ? COLORS.critical : COLORS.muted },
             { text: `${verdict.warning}`, style: 'bigNumber', color: verdict.warning > 0 ? COLORS.warning : COLORS.muted },
             { text: `${verdict.recommendations}`, style: 'bigNumber', color: COLORS.muted },
-            { text: STATUS_LABEL[verdict.status] ?? verdict.status, style: 'bigNumberLabel', color: STATUS_COLOR[verdict.status] ?? COLORS.text },
+            { text: t(locale, `report.status.${verdict.status}`), style: 'bigNumberLabel', color: STATUS_COLOR[verdict.status] ?? COLORS.text },
           ],
           [
-            { text: 'régressions critiques', style: 'numberLabel' },
-            { text: 'warnings', style: 'numberLabel' },
-            { text: 'recommandations', style: 'numberLabel' },
-            { text: 'verdict', style: 'numberLabel' },
+            { text: t(locale, 'report.pdf.label_critical'), style: 'numberLabel' },
+            { text: t(locale, 'report.pdf.label_warnings'), style: 'numberLabel' },
+            { text: t(locale, 'report.pdf.label_recommendations'), style: 'numberLabel' },
+            { text: t(locale, 'report.pdf.label_verdict'), style: 'numberLabel' },
           ],
         ] satisfies TableCell[][],
       },
@@ -149,8 +155,8 @@ export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitio
   )
 
   const signatureText = verdict.signaturePagesCount > 0
-    ? `${fmtNum(verdict.signaturePagesCount)} page${verdict.signaturePagesCount > 1 ? 's' : ''} où Google et les IA voient un contenu différent de vos visiteurs (écart HTML brut vs rendu JavaScript).`
-    : 'Aucun écart détecté entre ce que voient vos visiteurs et ce que voient Google et les IA.'
+    ? tc(locale, 'report.pdf.signature_mismatch', verdict.signaturePagesCount, { count: fmtNum(verdict.signaturePagesCount, locale) })
+    : t(locale, 'report.pdf.signature_ok')
   content.push({
     table: { widths: ['*'], body: [[{ text: signatureText, style: 'signature', color: verdict.signaturePagesCount > 0 ? COLORS.critical : COLORS.ok }]] },
     layout: {
@@ -166,41 +172,41 @@ export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitio
   })
 
   // ── Ce que ça signifie (métier) ──
-  content.push(...businessMeaning(report))
+  content.push(...businessMeaning(report, locale))
 
   // ── Régressions (tableau compact) ──
   const allRegressions = [...report.regressions.critical, ...report.regressions.warning, ...report.regressions.info]
-  content.push(...sectionHeader('Régressions — ce qui fonctionnait et s’est dégradé', COLORS.critical))
+  content.push(...sectionHeader(t(locale, 'report.pdf.regressions_title'), COLORS.critical))
   if (allRegressions.length === 0) {
-    content.push({ text: 'Aucune régression ouverte sur cette zone. Le monitoring continue à chaque crawl.', style: 'body', color: COLORS.ok })
+    content.push({ text: t(locale, 'report.pdf.regressions_empty'), style: 'body', color: COLORS.ok })
   }
   else {
-    content.push(compactTable(allRegressions))
+    content.push(compactTable(allRegressions, locale))
   }
 
   // ── Recommandations (tableau compact) ──
-  content.push(...sectionHeader('Recommandations d’audit — jamais bloquant', COLORS.info))
+  content.push(...sectionHeader(t(locale, 'report.pdf.recommendations_title'), COLORS.info))
   if (report.recommendations.length === 0) {
-    content.push({ text: 'Aucune recommandation ouverte.', style: 'body', color: COLORS.muted })
+    content.push({ text: t(locale, 'report.pdf.recommendations_empty'), style: 'body', color: COLORS.muted })
   }
   else {
-    content.push(compactTable(report.recommendations))
+    content.push(compactTable(report.recommendations, locale))
   }
 
   // ── Réparé ──
-  content.push(...sectionHeader('Réparé depuis le dernier crawl', COLORS.ok))
+  content.push(...sectionHeader(t(locale, 'report.pdf.repaired_title'), COLORS.ok))
   if (report.repaired.length === 0) {
-    content.push({ text: 'Aucune régression réparée détectée lors du dernier crawl.', style: 'body', color: COLORS.muted })
+    content.push({ text: t(locale, 'report.pdf.repaired_empty'), style: 'body', color: COLORS.muted })
   }
   else {
-    content.push({ ul: report.repaired.map(item => ({ text: `${item.label} — ${fmtNum(item.pagesCount)} page${item.pagesCount > 1 ? 's' : ''}`, style: 'body', color: COLORS.ok })) })
+    content.push({ ul: report.repaired.map(item => ({ text: tc(locale, 'report.pdf.repaired_line', item.pagesCount, { label: item.label, count: fmtNum(item.pagesCount, locale) }), style: 'body', color: COLORS.ok })) })
   }
 
   // ── Renvoi vers l'export exhaustif ──
   content.push({
     table: { widths: ['*'], body: [[{ text: [
-      { text: 'Détail complet — ', bold: true },
-      { text: 'ce PDF est une synthèse. Pour TOUTES les pages et alertes (URLs comprises), téléchargez l’export Markdown du rapport depuis le dashboard Seogard (bouton « Export pour IA »).' },
+      { text: t(locale, 'report.pdf.detail_title'), bold: true },
+      { text: t(locale, 'report.pdf.detail_body') },
     ], style: 'body' }]] },
     layout: {
       fillColor: () => COLORS.cardBg,
@@ -215,13 +221,13 @@ export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitio
     pageMargins: [40, 50, 40, 50],
     footer: (currentPage, pageCount) => ({
       columns: [
-        { text: 'Généré par Seogard — seogard.io', style: 'footer' },
+        { text: t(locale, 'report.pdf.footer'), style: 'footer' },
         { text: `${currentPage} / ${pageCount}`, style: 'footer', alignment: 'right' },
       ],
       margin: [40, 10, 40, 0],
     }),
     header: () => ({
-      text: `${meta.siteDomain} · ${meta.zoneName} · ${formatDate(meta.generatedAt)}`,
+      text: `${meta.siteDomain} · ${meta.zoneName} · ${formatDate(meta.generatedAt, locale)}`,
       style: 'pageHeader',
       margin: [40, 20, 40, 0],
     }),

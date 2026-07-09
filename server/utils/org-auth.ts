@@ -19,7 +19,7 @@ export function hasMinRole(userRole: AnyRole, minRole: AnyRole): boolean {
 export function getOrgIdFromHeader(event: H3Event): string {
   const orgId = getHeader(event, 'x-org-id')
   if (!orgId || !mongoose.Types.ObjectId.isValid(orgId)) {
-    throw createError({ statusCode: 400, message: 'x-org-id header manquant ou invalide' })
+    throw createError({ statusCode: 400, message: 'Missing or invalid x-org-id header', data: { errorCode: 'ORG_HEADER_INVALID' } })
   }
   return orgId
 }
@@ -31,12 +31,12 @@ export async function requireOrgRole(event: H3Event, orgId: string, minRole: Any
   const member = await OrgMember.findOne({ orgId, userId }).lean()
 
   if (!member) {
-    throw createError({ statusCode: 403, message: 'Vous n\'êtes pas membre de cette organisation' })
+    throw createError({ statusCode: 403, message: 'Not a member of this organization', data: { errorCode: 'NOT_ORG_MEMBER' } })
   }
 
   const role = member.role as OrgRole
   if (!hasMinRole(role, minRole)) {
-    throw createError({ statusCode: 403, message: 'Permissions insuffisantes' })
+    throw createError({ statusCode: 403, message: 'Insufficient permissions', data: { errorCode: 'INSUFFICIENT_PERMISSIONS' } })
   }
 
   return { role }
@@ -49,18 +49,18 @@ export async function requireSiteAccess(event: H3Event, siteId: string, minRole:
   const site = await Site.findById(siteId).lean()
 
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const member = await OrgMember.findOne({ orgId: (site as any).orgId, userId }).lean()
 
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const role = member.role as OrgRole
   if (!hasMinRole(role, minRole)) {
-    throw createError({ statusCode: 403, message: 'Permissions insuffisantes' })
+    throw createError({ statusCode: 403, message: 'Insufficient permissions', data: { errorCode: 'INSUFFICIENT_PERMISSIONS' } })
   }
 
   return { site, role }
@@ -77,13 +77,13 @@ export async function requireSiteOrAnyZoneAccess(event: H3Event, siteId: string,
   const site = await Site.findById(siteId).lean()
 
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const member = await OrgMember.findOne({ orgId: (site as any).orgId, userId }).lean()
 
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   // Owner bypasses all zone checks. `member` is a membership marker, not a
@@ -103,7 +103,7 @@ export async function requireSiteOrAnyZoneAccess(event: H3Event, siteId: string,
     return { site, role: bestRole as AnyRole }
   }
 
-  throw createError({ statusCode: 403, message: 'Permissions insuffisantes' })
+  throw createError({ statusCode: 403, message: 'Insufficient permissions', data: { errorCode: 'INSUFFICIENT_PERMISSIONS' } })
 }
 
 export async function requireZoneAccess(
@@ -118,13 +118,13 @@ export async function requireZoneAccess(
   const site = await Site.findById(siteId).lean()
 
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   const member = await OrgMember.findOne({ orgId: (site as any).orgId, userId }).lean()
 
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   // Owner org → all access
@@ -138,11 +138,11 @@ export async function requireZoneAccess(
   )?.role as ZoneRole | undefined
 
   if (!zoneRole) {
-    throw createError({ statusCode: 403, message: 'Vous n\'avez pas accès à cette zone' })
+    throw createError({ statusCode: 403, message: 'No access to this zone', data: { errorCode: 'ZONE_ACCESS_DENIED' } })
   }
 
   if (!hasMinRole(zoneRole, minRole)) {
-    throw createError({ statusCode: 403, message: 'Permissions insuffisantes pour cette zone' })
+    throw createError({ statusCode: 403, message: 'Insufficient permissions for this zone', data: { errorCode: 'INSUFFICIENT_PERMISSIONS' } })
   }
 
   return { site, role: zoneRole }

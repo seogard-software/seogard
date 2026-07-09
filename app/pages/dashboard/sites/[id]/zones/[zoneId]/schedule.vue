@@ -2,18 +2,18 @@
   <div class="zone-schedule">
     <div v-if="!canManage" class="zone-schedule__denied" data-testid="zone-denied">
       <AppIcon name="shield-check" size="sm" />
-      <span>Vous n'avez pas la permission d'accéder à cette page.</span>
+      <span>{{ $t('dashboard.schedule.denied') }}</span>
     </div>
 
     <template v-else>
-      <DashboardHeader :title="`Planification — ${zoneName}`" subtitle="Programmez des crawls récurrents alignés sur votre rythme" />
+      <DashboardHeader :title="$t('dashboard.schedule.title', { zone: zoneName })" :subtitle="$t('dashboard.schedule.subtitle')" />
 
       <AppCard :bordered="false" class="zone-schedule__card">
         <!-- Activation -->
         <div class="zone-schedule__section">
-          <h3 class="zone-schedule__section-title">Activation</h3>
+          <h3 class="zone-schedule__section-title">{{ $t('dashboard.schedule.activationTitle') }}</h3>
           <p class="zone-schedule__section-desc">
-            Votre site est mis à jour chaque jeudi. Le crawl planifié se lance vendredi 03:00 UTC pour vérifier que rien n'a cassé.
+            {{ $t('dashboard.schedule.activationDesc') }}
           </p>
 
           <label class="zone-schedule__toggle">
@@ -23,13 +23,13 @@
               :disabled="saving"
               @change="onToggleEnabled(($event.target as HTMLInputElement).checked)"
             >
-            <span>Activer la planification</span>
+            <span>{{ $t('dashboard.schedule.enableToggle') }}</span>
           </label>
         </div>
 
         <!-- Frequency -->
         <div :class="['zone-schedule__section', !form.enabled && 'zone-schedule__section--disabled']">
-          <h3 class="zone-schedule__section-title">Fréquence</h3>
+          <h3 class="zone-schedule__section-title">{{ $t('dashboard.schedule.frequencyTitle') }}</h3>
 
           <div class="zone-schedule__options">
             <button
@@ -49,11 +49,11 @@
 
         <!-- Quand -->
         <div :class="['zone-schedule__section', !form.enabled && 'zone-schedule__section--disabled']">
-          <h3 class="zone-schedule__section-title">Quand</h3>
+          <h3 class="zone-schedule__section-title">{{ $t('dashboard.schedule.whenTitle') }}</h3>
 
           <div class="zone-schedule__fields">
             <label v-if="form.frequency === 'weekly' || form.frequency === 'biweekly'" class="zone-schedule__field-group">
-              <span class="zone-schedule__field-label">Jour de la semaine</span>
+              <span class="zone-schedule__field-label">{{ $t('dashboard.schedule.dayOfWeekLabel') }}</span>
               <select
                 :value="form.dayOfWeek ?? 1"
                 :disabled="!form.enabled || saving"
@@ -65,7 +65,7 @@
             </label>
 
             <label v-if="form.frequency === 'monthly'" class="zone-schedule__field-group">
-              <span class="zone-schedule__field-label">Jour du mois</span>
+              <span class="zone-schedule__field-label">{{ $t('dashboard.schedule.dayOfMonthLabel') }}</span>
               <select
                 :value="form.lastDayOfMonth ? 'last' : (form.dayOfMonth ?? 1)"
                 :disabled="!form.enabled || saving"
@@ -73,12 +73,12 @@
                 @change="setDayOfMonth(($event.target as HTMLSelectElement).value)"
               >
                 <option v-for="n in 31" :key="n" :value="n">{{ n }}</option>
-                <option value="last">Dernier jour du mois</option>
+                <option value="last">{{ $t('dashboard.schedule.lastDayOfMonth') }}</option>
               </select>
             </label>
 
             <label class="zone-schedule__field-group">
-              <span class="zone-schedule__field-label">Heure UTC</span>
+              <span class="zone-schedule__field-label">{{ $t('dashboard.schedule.hourUtcLabel') }}</span>
               <select
                 :value="form.hour"
                 :disabled="!form.enabled || saving"
@@ -91,22 +91,22 @@
           </div>
 
           <p class="zone-schedule__hint">
-            Les crawls sont déclenchés en UTC, quelle que soit votre zone horaire.
+            {{ $t('dashboard.schedule.utcHint') }}
           </p>
         </div>
 
         <!-- Status -->
         <div class="zone-schedule__section">
-          <h3 class="zone-schedule__section-title">Statut</h3>
+          <h3 class="zone-schedule__section-title">{{ $t('dashboard.schedule.statusTitle') }}</h3>
           <div class="zone-schedule__status">
             <div class="zone-schedule__status-row">
               <AppIcon name="clock" size="sm" />
-              <span class="zone-schedule__status-label">Prochain crawl</span>
+              <span class="zone-schedule__status-label">{{ $t('dashboard.schedule.nextCrawl') }}</span>
               <span class="zone-schedule__status-value">{{ nextLabel }}</span>
             </div>
             <div class="zone-schedule__status-row">
               <AppIcon name="check" size="sm" />
-              <span class="zone-schedule__status-label">Dernier crawl planifié</span>
+              <span class="zone-schedule__status-label">{{ $t('dashboard.schedule.lastScheduledCrawl') }}</span>
               <span class="zone-schedule__status-value">{{ lastLabel }}</span>
             </div>
           </div>
@@ -119,12 +119,15 @@
 <script setup lang="ts">
 import type { CrawlSchedule, CrawlScheduleFrequency } from '~~/shared/types/zone'
 import { formatLastCrawlLabel, formatNextCrawlLabel } from '~~/shared/utils/crawl-schedule'
+defineI18nRoute(false)
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const route = useRoute()
 const toast = useToast()
+const { t, locale } = useI18n()
+const apiError = useApiError()
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
 
@@ -132,9 +135,9 @@ const { zones, hasMinZoneRole } = useZones()
 const canManage = computed(() => hasMinZoneRole(zoneId.value, 'admin'))
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
-const zoneName = computed(() => isDefaultZone.value ? 'Toutes les pages' : (zone.value?.name ?? 'Zone'))
+const zoneName = computed(() => isDefaultZone.value ? t('dashboard.schedule.defaultZoneName') : (zone.value?.name ?? t('dashboard.schedule.zoneFallback')))
 
-useHead({ title: computed(() => `Planification — ${zoneName.value}`) })
+useHead({ title: computed(() => t('dashboard.schedule.tabTitle', { zone: zoneName.value })) })
 
 interface ScheduleForm {
   enabled: boolean
@@ -158,25 +161,25 @@ const lastCrawledAt = ref<string | null>(null)
 const nextCrawlAt = ref<string | null>(null)
 const saving = ref(false)
 
-const FREQUENCY_OPTIONS: { value: CrawlScheduleFrequency; label: string; description: string }[] = [
-  { value: 'daily', label: 'Tous les jours', description: 'Idéal pour les sites e-commerce à forte fréquence de mise à jour.' },
-  { value: 'weekly', label: 'Toutes les semaines', description: 'Suit le rythme des déploiements hebdomadaires.' },
-  { value: 'biweekly', label: 'Toutes les 2 semaines', description: 'Pour un suivi régulier sans surveillance quotidienne.' },
-  { value: 'monthly', label: 'Tous les mois', description: 'Couvre les changements éditoriaux ou de template mensuels.' },
-]
+const FREQUENCY_OPTIONS = computed<{ value: CrawlScheduleFrequency; label: string; description: string }[]>(() => [
+  { value: 'daily', label: t('dashboard.schedule.freqDailyLabel'), description: t('dashboard.schedule.freqDailyDesc') },
+  { value: 'weekly', label: t('dashboard.schedule.freqWeeklyLabel'), description: t('dashboard.schedule.freqWeeklyDesc') },
+  { value: 'biweekly', label: t('dashboard.schedule.freqBiweeklyLabel'), description: t('dashboard.schedule.freqBiweeklyDesc') },
+  { value: 'monthly', label: t('dashboard.schedule.freqMonthlyLabel'), description: t('dashboard.schedule.freqMonthlyDesc') },
+])
 
-const DAY_OF_WEEK_OPTIONS = [
-  { value: 1, label: 'Lundi' },
-  { value: 2, label: 'Mardi' },
-  { value: 3, label: 'Mercredi' },
-  { value: 4, label: 'Jeudi' },
-  { value: 5, label: 'Vendredi' },
-  { value: 6, label: 'Samedi' },
-  { value: 0, label: 'Dimanche' },
-]
+const DAY_OF_WEEK_OPTIONS = computed(() => [
+  { value: 1, label: t('dashboard.schedule.dayMonday') },
+  { value: 2, label: t('dashboard.schedule.dayTuesday') },
+  { value: 3, label: t('dashboard.schedule.dayWednesday') },
+  { value: 4, label: t('dashboard.schedule.dayThursday') },
+  { value: 5, label: t('dashboard.schedule.dayFriday') },
+  { value: 6, label: t('dashboard.schedule.daySaturday') },
+  { value: 0, label: t('dashboard.schedule.daySunday') },
+])
 
-const nextLabel = computed(() => form.value.enabled ? formatNextCrawlLabel(nextCrawlAt.value) : 'Désactivé')
-const lastLabel = computed(() => formatLastCrawlLabel(lastCrawledAt.value))
+const nextLabel = computed(() => form.value.enabled ? formatNextCrawlLabel(nextCrawlAt.value, locale.value) : t('dashboard.schedule.disabled'))
+const lastLabel = computed(() => formatLastCrawlLabel(lastCrawledAt.value, undefined, locale.value))
 
 function applySchedule(schedule: CrawlSchedule | null) {
   if (!schedule) {
@@ -225,11 +228,11 @@ async function persist() {
       { method: 'PUT', body: payload },
     )
     applySchedule(data.schedule)
-    toast.success('Modifications enregistrées')
+    toast.success(t('dashboard.schedule.saveSuccess'))
   }
   catch (error) {
     const fetchError = error as { data?: { message?: string } }
-    toast.error(fetchError?.data?.message || 'Erreur lors de la sauvegarde')
+    toast.error(apiError(fetchError, t('dashboard.schedule.saveError')))
   }
   finally {
     saving.value = false

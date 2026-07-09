@@ -52,6 +52,6 @@ describe('api-key.post handler', () => {
   it('returns 404 when site not found', async () => {
     mockSiteFindOneAndUpdate.mockResolvedValue(null)
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Site non trouvé')
+    await expect(handler(fakeEvent)).rejects.toThrow('Site not found')
   })
 })

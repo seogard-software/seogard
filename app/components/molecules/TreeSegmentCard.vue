@@ -7,7 +7,7 @@
       </div>
       <div class="tree-segment-card__title">
         <span class="tree-segment-card__label">{{ data.path === '/' ? data.label : `/${data.label}` }}</span>
-        <span class="tree-segment-card__pages">{{ data.totalPageCount }} page{{ data.totalPageCount > 1 ? 's' : '' }}</span>
+        <span class="tree-segment-card__pages">{{ $t('dashboard.c.treeSegmentCard.pageCount', data.totalPageCount) }}</span>
       </div>
     </div>
 
@@ -23,13 +23,13 @@
     <div class="tree-segment-card__footer">
       <div class="tree-segment-card__tags">
         <span v-if="data.regressionCount > 0" class="tree-segment-card__tag tree-segment-card__tag--regression">
-          {{ data.regressionCount }} régression{{ data.regressionCount > 1 ? 's' : '' }}
+          {{ $t('dashboard.c.treeSegmentCard.regressionCount', data.regressionCount) }}
         </span>
         <span v-if="data.recommendationCount > 0" class="tree-segment-card__tag tree-segment-card__tag--recommendation">
-          {{ data.recommendationCount }} reco
+          {{ $t('dashboard.c.treeSegmentCard.reco', { count: data.recommendationCount }) }}
         </span>
         <span v-if="data.regressionCount === 0 && data.recommendationCount === 0" class="tree-segment-card__tag tree-segment-card__tag--clean">
-          {{ neverCrawled ? 'Aucun crawl lancé' : 'Aucun problème' }}
+          {{ neverCrawled ? $t('dashboard.c.treeSegmentCard.neverCrawled') : $t('dashboard.c.treeSegmentCard.noIssue') }}
         </span>
       </div>
       <AppIcon name="chevron-right" size="sm" class="tree-segment-card__chevron" />

@@ -28,3 +28,17 @@ describe('renderReportMarkdown — purge du monitoring (410 digérés)', () => {
     expect(md).not.toContain('retirée')
   })
 })
+
+describe('renderReportMarkdown — locale en (traduite)', () => {
+  it('rend le rapport en anglais, clés YAML inchangées', () => {
+    const md = renderReportMarkdown(buildZoneReport({
+      ...BASE,
+      locale: 'en',
+      crawl: { completedAt: '2026-07-02T10:00:00.000Z', pagesScanned: 100, pagesTotal: 100 },
+    }))
+    expect(md).not.toContain('État de santé SEO') // rendu EN (en/report.json traduit)
+    expect(md).not.toContain('Toutes les pages') // zone par défaut traduite aussi
+    expect(md).toContain('genere_le:') // clés YAML language-agnostic, jamais traduites
+    expect(md).not.toContain('report.') // aucune clé i18n brute qui fuit dans le rendu
+  })
+})

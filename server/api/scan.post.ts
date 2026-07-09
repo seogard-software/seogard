@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   if (!body?.url || typeof body.url !== 'string' || !isValidUrl(body.url)) {
-    throw createError({ statusCode: 400, message: 'URL invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid URL', data: { errorCode: 'INVALID_URL' } })
   }
   const url = normalizeUrl(body.url)
   log.info({ userId, url }, 'scan requested')

@@ -11,14 +11,14 @@
       <div class="landing__container">
         <div class="hero__badge">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-          Audit & monitoring SEO/GEO en continu
+          {{ $t('landing.index.hero.badge') }}
         </div>
         <h1 class="hero__title">
-          Détectez les régressions SEO<br>
-          <span class="hero__title-accent">avant Google.</span>
+          {{ $t('landing.index.hero.title') }}<br>
+          <span class="hero__title-accent">{{ $t('landing.index.hero.titleAccent') }}</span>
         </h1>
         <p class="hero__subtitle">
-          À chaque crawl, on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript. Une régression cassée en prod ? Alerte email avant l'indexation.
+          {{ $t('landing.index.hero.subtitle') }}
         </p>
         <div class="hero__scan">
           <ScanBar size="hero" />
@@ -26,17 +26,17 @@
         <div class="hero__ctas">
           <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-            Réserver une démo
+            {{ $t('landing.index.hero.ctaDemo') }}
           </a>
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-            Télécharger gratuitement
+            {{ $t('landing.index.hero.ctaDownload') }}
           </a>
-          <NuxtLink to="/tarifs" class="hero__cta hero__cta--ghost">
-            Voir les tarifs
+          <NuxtLink :to="localePath({ name: 'tarifs' })" class="hero__cta hero__cta--ghost">
+            {{ $t('landing.index.hero.ctaPricing') }}
           </NuxtLink>
         </div>
-        <p class="hero__no-cc">Self-hosted gratuit, code source disponible (BSL 1.1). Cloud dès {{ cloudPriceDisplay }} €/mois/page. Essai gratuit 14 jours — sans carte bancaire.</p>
+        <p class="hero__no-cc">{{ $t('landing.index.hero.noCc', { price: cloudPriceDisplay }) }}</p>
       </div>
     </section>
 
@@ -45,30 +45,28 @@
     <!-- ═══════ PROBLEM — storytelling + impact ═══════ -->
     <section id="problem" class="landing__section problem">
       <div class="landing__container">
-        <span class="section-label">Le problème</span>
-        <h2 class="section-title">Vous déployez vendredi.<br>Lundi, Google voit une page vide.</h2>
+        <span class="section-label">{{ $t('landing.index.problem.label') }}</span>
+        <h2 class="section-title">{{ $t('landing.index.problem.title1') }}<br>{{ $t('landing.index.problem.title2') }}</h2>
         <p class="section-desc problem__story">
-          Vendredi 17h, l'équipe pousse une refonte du header. Dans le navigateur, tout fonctionne.
-          Mais côté serveur, le SSR a cassé sur 200 pages produit — les metas ont disparu.
-          Google indexe du vide. Personne ne s'en aperçoit.
+          {{ $t('landing.index.problem.story1') }}
           <br><br>
-          3 semaines plus tard, le trafic organique a chuté de 40%.
+          {{ $t('landing.index.problem.story2') }}
         </p>
         <div class="problem__cards">
           <div class="problem__card">
-            <span class="problem__card-value">200K</span>
-            <span class="problem__card-label">clics perdus — incident réel chez un grand compte français</span>
+            <span class="problem__card-value">{{ $t('landing.index.problem.card1Value') }}</span>
+            <span class="problem__card-label">{{ $t('landing.index.problem.card1Label') }}</span>
           </div>
           <div class="problem__card">
-            <span class="problem__card-value">160K&euro;</span>
-            <span class="problem__card-label">de revenus SEO perdus en une seule régression</span>
+            <span class="problem__card-value">{{ $t('landing.index.problem.card2Value') }}</span>
+            <span class="problem__card-label">{{ $t('landing.index.problem.card2Label') }}</span>
           </div>
           <div class="problem__card problem__card--danger">
-            <span class="problem__card-value">21 jours</span>
-            <span class="problem__card-label">délai moyen de détection sans monitoring automatisé</span>
+            <span class="problem__card-value">{{ $t('landing.index.problem.card3Value') }}</span>
+            <span class="problem__card-label">{{ $t('landing.index.problem.card3Label') }}</span>
           </div>
         </div>
-        <p class="problem__footer">Avec Seogard, l'alerte serait arrivée vendredi à 17h30.</p>
+        <p class="problem__footer">{{ $t('landing.index.problem.footer') }}</p>
       </div>
     </section>
 
@@ -77,47 +75,37 @@
     <!-- ═══════ FEATURES — hero + 6-card grid ═══════ -->
     <section id="features" class="landing__section features">
       <div class="landing__container">
-        <span class="section-label">Fonctionnalités</span>
-        <h2 class="section-title">Ce que Seogard audite et monitore en continu</h2>
+        <span class="section-label">{{ $t('landing.index.features.label') }}</span>
+        <h2 class="section-title">{{ $t('landing.index.features.title') }}</h2>
         <p class="section-desc">
-          {{ RULES_COUNT }} règles d'audit SEO/GEO vérifiées à chaque crawl sur chaque page. Alertes instantanées dès qu'une régression apparaît.
+          {{ $t('landing.index.features.desc', { count: RULES_COUNT }) }}
         </p>
 
         <!-- Feature hero — SSR vs CSR -->
         <div class="features__hero">
           <div class="features__hero-text">
-            <span class="features__hero-badge">Exclusif</span>
-            <h3 class="features__hero-title">Comparaison HTML brut vs rendu JavaScript</h3>
+            <span class="features__hero-badge">{{ $t('landing.index.features.heroBadge') }}</span>
+            <h3 class="features__hero-title">{{ $t('landing.index.features.heroTitle') }}</h3>
             <p class="features__hero-desc">
-              Google indexe le HTML brut envoyé par votre serveur — pas le rendu JavaScript
-              que vous voyez dans Chrome. Si votre SSR casse, Google voit une page vide
-              alors que tout semble normal dans votre navigateur.
+              {{ $t('landing.index.features.heroDesc1') }}
             </p>
             <p class="features__hero-desc">
-              Seogard compare automatiquement les deux versions de chaque page,
-              en continu, à chaque crawl. Détecte les régressions avant que Google
-              ne re-rende vos pages.
+              {{ $t('landing.index.features.heroDesc2') }}
             </p>
           </div>
           <div class="features__hero-visual">
             <div class="features__hero-panel features__hero-panel--ssr">
-              <span class="features__hero-panel-label features__hero-panel-label--danger">HTML brut — ce que Google voit</span>
+              <span class="features__hero-panel-label features__hero-panel-label--danger">{{ $t('landing.index.features.panelSsrLabel') }}</span>
               <pre class="features__hero-code"><code>&lt;title&gt;&lt;/title&gt;
 &lt;meta name="description" content=""&gt;
 &lt;h1&gt;&lt;/h1&gt;
 &lt;div id="app"&gt;&lt;/div&gt;</code></pre>
-              <span class="features__hero-verdict features__hero-verdict--danger">SSR cassé</span>
+              <span class="features__hero-verdict features__hero-verdict--danger">{{ $t('landing.index.features.panelSsrVerdict') }}</span>
             </div>
             <div class="features__hero-panel features__hero-panel--csr">
-              <span class="features__hero-panel-label features__hero-panel-label--success">Rendu JS — ce que vous voyez</span>
-              <pre class="features__hero-code"><code>&lt;title&gt;Mon Produit&lt;/title&gt;
-&lt;meta name="description"
-  content="Découvrez notre..."&gt;
-&lt;h1&gt;Mon Produit Premium&lt;/h1&gt;
-&lt;div id="app"&gt;
-  &lt;section&gt;...&lt;/section&gt;
-&lt;/div&gt;</code></pre>
-              <span class="features__hero-verdict features__hero-verdict--success">Rendu OK</span>
+              <span class="features__hero-panel-label features__hero-panel-label--success">{{ $t('landing.index.features.panelCsrLabel') }}</span>
+              <pre class="features__hero-code"><code>{{ $t('landing.index.features.panelCsrCode') }}</code></pre>
+              <span class="features__hero-verdict features__hero-verdict--success">{{ $t('landing.index.features.panelCsrVerdict') }}</span>
             </div>
           </div>
         </div>
@@ -127,57 +115,57 @@
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
             <div>
-              <strong class="features__item-title">Alertes instantanées</strong>
-              <span class="features__item-desc">Email, diff exact avant/après avec sévérité</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item1Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item1Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
             <div>
-              <strong class="features__item-title">Monitoring continu</strong>
-              <span class="features__item-desc">À chaque déploiement + planifié — SSR + CSR complet</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item2Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item2Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <div>
-              <strong class="features__item-title">Metas, canonicals, noindex</strong>
-              <span class="features__item-desc">Title, description, canonical, hreflang, Open Graph</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item3Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item3Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
             <div>
-              <strong class="features__item-title">Status codes & soft 404</strong>
-              <span class="features__item-desc">404, 500, redirections — alerte avant la désindexation</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item4Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item4Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
             <div>
-              <strong class="features__item-title">Performance Web</strong>
-              <span class="features__item-desc">LCP, CLS, TTFB et poids affichés sur chaque page — alerte sur l'explosion du poids</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item5Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item5Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
             <div>
-              <strong class="features__item-title">CI/CD webhook</strong>
-              <span class="features__item-desc">Bloquez la mise en prod si une régression SEO est détectée</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item6Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item6Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="9" y1="21" x2="9" y2="9" /></svg>
             <div>
-              <strong class="features__item-title">Dashboard temps réel</strong>
-              <span class="features__item-desc">Tous vos sites, alertes et crawls en un coup d'oeil</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item7Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item7Desc') }}</span>
             </div>
           </div>
           <div class="features__item">
             <svg class="features__item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             <div>
-              <strong class="features__item-title">Visibilité IA (GEO)</strong>
-              <span class="features__item-desc">llms.txt, crawlers IA de citation (OAI-SearchBot, PerplexityBot…), FAQ & données structurées</span>
+              <strong class="features__item-title">{{ $t('landing.index.features.item8Title') }}</strong>
+              <span class="features__item-desc">{{ $t('landing.index.features.item8Desc') }}</span>
             </div>
           </div>
         </div>
@@ -189,10 +177,10 @@
     <!-- ═══════ COMPARE — competitor comparison ═══════ -->
     <section id="compare" class="landing__section compare">
       <div class="landing__container">
-        <span class="section-label">Pourquoi Seogard</span>
-        <h2 class="section-title">Ce que les autres ne font pas</h2>
+        <span class="section-label">{{ $t('landing.index.comparison.label') }}</span>
+        <h2 class="section-title">{{ $t('landing.index.comparison.title') }}</h2>
         <p class="section-desc">
-          L'un des rares outils avec comparaison HTML brut vs rendu JS native, intégration CI/CD et version self-hosted gratuite à code source disponible.
+          {{ $t('landing.index.comparison.desc') }}
         </p>
 
         <!-- Desktop table -->
@@ -249,38 +237,51 @@
     <div id="pricing" class="landing__section">
       <LandingPricing />
       <div class="landing__pricing-cta">
-        <NuxtLink to="/tarifs" class="hero__cta hero__cta--ghost">
-          Estimez votre tarif
+        <NuxtLink :to="localePath({ name: 'tarifs' })" class="hero__cta hero__cta--ghost">
+          {{ $t('landing.index.pricing.cta') }}
         </NuxtLink>
       </div>
     </div>
 
     <div class="landing__separator" />
 
+    <!-- ═══════ FAQ — rendue VISIBLE (le JSON-LD FAQPage doit refléter du contenu affiché) ═══════ -->
+    <section id="faq" class="landing__section faq">
+      <div class="landing__container">
+        <span class="section-label">{{ $t('landing.index.faq.label') }}</span>
+        <h2 class="section-title">{{ $t('landing.index.faq.title') }}</h2>
+        <div class="faq__list">
+          <AppAccordion :items="FAQ_ITEMS" />
+        </div>
+      </div>
+    </section>
+
+    <div class="landing__separator" />
+
     <!-- ═══════ FINAL CTA ═══════ -->
     <section id="download" class="landing__section final-cta">
       <div class="landing__container">
-        <h2 class="final-cta__title">Ne découvrez pas vos régressions SEO<br>3 semaines trop tard.</h2>
+        <h2 class="final-cta__title">{{ $t('landing.index.finalCta.title1') }}<br>{{ $t('landing.index.finalCta.title2') }}</h2>
         <p class="final-cta__desc">
-          Monitoring continu. Alertes temps réel. Self-hosted gratuit, Cloud sans engagement.
+          {{ $t('landing.index.finalCta.desc') }}
         </p>
         <div class="final-cta__buttons">
           <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-            Réserver une démo
+            {{ $t('landing.index.hero.ctaDemo') }}
           </a>
           <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="hero__cta hero__cta--ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-            Télécharger gratuitement
+            {{ $t('landing.index.hero.ctaDownload') }}
           </a>
           <NuxtLink to="/register" class="hero__cta hero__cta--ghost">
-            Créer un compte Cloud
+            {{ $t('landing.index.finalCta.ctaRegister') }}
           </NuxtLink>
         </div>
         <div class="final-cta__trust">
-          <span>Code source disponible (BSL 1.1)</span>
-          <span>Données exportables</span>
-          <span>Sans engagement</span>
+          <span>{{ $t('landing.index.finalCta.trust1') }}</span>
+          <span>{{ $t('landing.index.finalCta.trust2') }}</span>
+          <span>{{ $t('landing.index.finalCta.trust3') }}</span>
         </div>
       </div>
     </section>
@@ -288,82 +289,58 @@
 </template>
 
 <script setup lang="ts">
-import { RULES_COUNT } from '~~/shared/utils/rules-catalog'
+import { RULES_COUNT } from '~~/shared/utils/rules-list'
 import { getCloudPricePerPage, formatCloudPrice } from '~~/shared/utils/pricing'
 
 definePageMeta({ layout: 'landing', auth: false })
 
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
+// URLs absolues localisées pour le head (JSON-LD, og:url) : suivent la locale de la route —
+// jamais /fr en dur sur une page /en (sinon Google choisit son propre canonical).
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+function abs(name: string): string {
+  return `${appUrl}${localePath({ name })}`
+}
+// og:image décliné par locale (le texte de l'image est traduit — og-image-en.png).
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
+
 const estimatedPages = ref<number | null>(null)
 provide('estimatedPages', estimatedPages)
 
-const cloudPriceDisplay = formatCloudPrice()
+const cloudPriceDisplay = formatCloudPrice(locale.value)
 const demoUrl = useRuntimeConfig().public.demoUrl
 
 const FAQ_ITEMS = [
-  {
-    q: 'Que monitore et audite Seogard exactement ?',
-    a: `Seogard surveille en continu ${RULES_COUNT} règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité. Au-delà du monitoring de régressions, Seogard exécute un audit technique à chaque crawl (longueur des titres, alt des images, maillage interne, données structurées, llms.txt, FAQ schema…) consolidé dans un rapport État de santé SEO.`,
-  },
-  {
-    q: 'Seogard est-il gratuit ?',
-    a: 'La version self-hosted est gratuite, sous licence BSL 1.1 (code source disponible) et sans limite de pages. Vous l\'installez sur votre serveur avec Docker. La version Cloud est facturée à l\'usage pour ceux qui préfèrent ne pas gérer l\'infrastructure.',
-  },
-  {
-    q: 'En quoi Seogard est différent d\'un crawler classique ?',
-    a: 'Les crawlers classiques (Screaming Frog, Sitebulb) analysent le HTML brut ou le rendu JavaScript, mais pas les deux simultanément. Seogard compare automatiquement les deux versions de chaque page pour détecter les régressions invisibles, comme un SSR cassé que le navigateur masque.',
-  },
-  {
-    q: 'Comment fonctionnent les alertes ?',
-    a: 'Seogard crawle selon trois déclencheurs : à chaque déploiement (via le webhook CI/CD), de façon planifiée (de quotidienne à mensuelle, configurable par zone) et à la demande. Dès qu\'une régression est détectée, une alerte avec le diff exact avant/après est envoyée par email, avec la page concernée, la règle déclenchée et le niveau de sévérité.',
-  },
-  {
-    q: 'Comment intégrer Seogard dans un pipeline CI/CD ?',
-    a: `Seogard fournit un gate de déploiement SEO natif. Un webhook POST déclenche un crawl de la zone à chaque déploiement, et un endpoint GET renvoie un verdict pass/fail. Trois niveaux de strictness (strict, standard, relaxed) permettent de BLOQUER une mise en production qui introduit une régression SEO/SSR. Contrairement aux checks synthétiques génériques (type Checkly) où vous écrivez et maintenez vos propres scripts, Seogard applique nativement ${RULES_COUNT} règles SEO/GEO sans aucun script à coder.`,
-  },
-  {
-    q: 'Seogard peut-il bloquer un déploiement qui casse le SEO ?',
-    a: 'Oui. Via le webhook CI/CD, Seogard crawle la zone à chaque déploiement et renvoie un verdict pass/fail. En mode strict, toute régression critique bloque la mise en production ; les modes standard et relaxed ajustent le seuil. C\'est un gate de déploiement SEO-natif : aucun script à écrire, contrairement aux outils de monitoring synthétique génériques.',
-  },
-  {
-    q: 'À quelle fréquence Seogard crawle-t-il mon site ?',
-    a: 'Trois déclencheurs combinables : à chaque déploiement (webhook CI/CD), de façon planifiée (quotidienne, hebdomadaire, bimensuelle ou mensuelle, configurable par zone) et à la demande depuis le dashboard. Vous n\'attendez pas un crawl planifié pour détecter une régression post-déploiement : le webhook la détecte au moment du deploy.',
-  },
-  {
-    q: 'Peut-on appliquer des règles et une fréquence différentes par section du site ?',
-    a: 'Oui, grâce aux zones. Une zone regroupe des pages par motif d\'URL (ex. /blog, /produits, /checkout) et possède sa propre configuration : règles SEO/GEO activées ou non, fréquence de crawl planifié, niveau de strictness du gate CI/CD, notifications et accès équipe. Le webhook de déploiement peut ne crawler qu\'une zone ciblée, pour un retour CI plus rapide. Vous surveillez ainsi vos pages critiques (checkout, catégories) plus strictement que le reste du site.',
-  },
-  {
-    q: 'Combien de pages puis-je surveiller ?',
-    a: 'En self-hosted, aucune limite : cela dépend uniquement des ressources de votre serveur. En Cloud, seules les pages réellement crawlées dans le mois sont facturées — relancer un crawl sur les mêmes pages ne coûte rien de plus. Sans engagement ni minimum.',
-  },
-  {
-    q: 'Le crawler respecte-t-il le robots.txt ?',
-    a: 'Oui. Seogard-Bot respecte les directives robots.txt et ne surcharge pas vos serveurs. Il s\'identifie avec le User-Agent « Seogard-Bot/1.0 » et utilise une adresse IP fixe unique pour faciliter le whitelisting.',
-  },
-  {
-    q: 'Quelles intégrations sont disponibles ?',
-    a: 'Email, avec le diff avant/après pour chaque alerte. Le webhook CI/CD permet aussi de connecter Seogard à n\'importe quel pipeline de déploiement.',
-  },
+  { q: t('landing.index.faq.q1'), a: t('landing.index.faq.a1', { count: RULES_COUNT }) },
+  { q: t('landing.index.faq.q2'), a: t('landing.index.faq.a2') },
+  { q: t('landing.index.faq.q3'), a: t('landing.index.faq.a3') },
+  { q: t('landing.index.faq.q4'), a: t('landing.index.faq.a4') },
+  { q: t('landing.index.faq.q5'), a: t('landing.index.faq.a5', { count: RULES_COUNT }) },
+  { q: t('landing.index.faq.q6'), a: t('landing.index.faq.a6') },
+  { q: t('landing.index.faq.q7'), a: t('landing.index.faq.a7') },
+  { q: t('landing.index.faq.q8'), a: t('landing.index.faq.a8') },
+  { q: t('landing.index.faq.q9'), a: t('landing.index.faq.a9') },
+  { q: t('landing.index.faq.q10'), a: t('landing.index.faq.a10') },
+  { q: t('landing.index.faq.q11'), a: t('landing.index.faq.a11') },
 ]
 
 const COMPARISON_ROWS = [
-  { feature: 'Comparaison HTML brut vs rendu JS', seogard: 'Auto', contentking: false, lumar: 'Partiel', botify: 'Partiel' },
-  { feature: 'Rendu JavaScript (navigateur)', seogard: true, contentking: true, lumar: true, botify: true },
-  { feature: 'Monitoring 24/7', seogard: true, contentking: true, lumar: false, botify: false },
-  { feature: 'Performance Web (Core Web Vitals + poids)', seogard: true, contentking: true, lumar: true, botify: true },
-  { feature: 'Optimisation GEO & visibilité IA', seogard: true, contentking: false, lumar: false, botify: false },
-  { feature: 'Crawl on deploy (CI/CD)', seogard: true, contentking: false, lumar: true, botify: false },
-  { feature: 'Code source disponible (BSL 1.1)', seogard: true, contentking: false, lumar: false, botify: false },
-  { feature: 'Self-hosted gratuit', seogard: true, contentking: false, lumar: false, botify: false },
-  { feature: 'Prix', seogard: 'Gratuit', contentking: 'Sur devis', lumar: 'Dès 250 $/mois', botify: 'Dès 500 $/mois' },
+  { feature: t('landing.index.comparison.feature1'), seogard: t('landing.index.comparison.valueAuto'), contentking: false, lumar: t('landing.index.comparison.valuePartial'), botify: t('landing.index.comparison.valuePartial') },
+  { feature: t('landing.index.comparison.feature2'), seogard: true, contentking: true, lumar: true, botify: true },
+  { feature: t('landing.index.comparison.feature3'), seogard: true, contentking: true, lumar: false, botify: false },
+  { feature: t('landing.index.comparison.feature4'), seogard: true, contentking: true, lumar: true, botify: true },
+  { feature: t('landing.index.comparison.feature5'), seogard: true, contentking: false, lumar: false, botify: false },
+  { feature: t('landing.index.comparison.feature6'), seogard: true, contentking: false, lumar: true, botify: false },
+  { feature: t('landing.index.comparison.feature7'), seogard: true, contentking: false, lumar: false, botify: false },
+  { feature: t('landing.index.comparison.feature8'), seogard: true, contentking: false, lumar: false, botify: false },
+  { feature: t('landing.index.comparison.feature9'), seogard: t('landing.index.comparison.valueFree'), contentking: t('landing.index.comparison.valueQuote'), lumar: t('landing.index.comparison.valueLumarPrice'), botify: t('landing.index.comparison.valueBotifyPrice') },
 ]
 
 useHead({
-  title: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
+  title: t('seo.index.title'),
   titleTemplate: '%s',
-  link: [
-    { rel: 'canonical', href: 'https://seogard.io' },
-  ],
   script: [
     {
       type: 'application/ld+json',
@@ -374,8 +351,8 @@ useHead({
             '@type': 'Organization',
             'name': 'Seogard',
             'legalName': 'SAVEPNP',
-            'url': 'https://seogard.io',
-            'logo': 'https://seogard.io/og-image.png',
+            'url': abs('index'),
+            'logo': ogImage.value,
             'sameAs': ['https://github.com/seogard-software/seogard'],
             'address': {
               '@type': 'PostalAddress',
@@ -399,8 +376,9 @@ useHead({
             'name': 'Seogard',
             'applicationCategory': 'BusinessApplication',
             'operatingSystem': 'Web',
-            'description': `Audit SEO/GEO technique en continu : compare le HTML brut et le rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
-            'url': 'https://seogard.io',
+            'inLanguage': locale.value,
+            'description': t('seo.index.jsonld.appDescription', { price: cloudPriceDisplay }),
+            'url': abs('index'),
             'author': { '@type': 'Organization', 'name': 'Seogard', 'legalName': 'SAVEPNP' },
             'publisher': { '@type': 'Organization', 'name': 'Seogard', 'legalName': 'SAVEPNP' },
             'datePublished': '2025-06-01',
@@ -410,28 +388,28 @@ useHead({
                 'name': 'Self-hosted',
                 'price': '0',
                 'priceCurrency': 'EUR',
-                'description': 'Version self-hosted gratuite, code source complet',
+                'description': t('seo.index.jsonld.offerSelfHostedDesc'),
               },
               {
                 '@type': 'Offer',
                 'name': 'Cloud',
                 'price': String(getCloudPricePerPage()),
                 'priceCurrency': 'EUR',
-                'description': `${cloudPriceDisplay} € par page monitorée par mois, infrastructure gérée`,
+                'description': t('seo.index.jsonld.offerCloudDesc', { price: cloudPriceDisplay }),
                 'unitCode': 'PAGE',
               },
             ],
             'featureList': [
-              'Comparaison HTML brut vs rendu JavaScript',
-              'Monitoring meta et canonicals',
-              'Détection noindex accidentels',
-              'Alertes instantanées par email',
-              'Crawl quotidien automatique',
-              'Dashboard temps réel',
-              `${RULES_COUNT} règles de détection SEO et GEO`,
-              'Optimisation GEO et visibilité IA',
-              'Version self-hosted gratuite',
-              'CI/CD webhook intégré',
+              t('seo.index.jsonld.feature1'),
+              t('seo.index.jsonld.feature2'),
+              t('seo.index.jsonld.feature3'),
+              t('seo.index.jsonld.feature4'),
+              t('seo.index.jsonld.feature5'),
+              t('seo.index.jsonld.feature6'),
+              t('seo.index.jsonld.feature7', { count: RULES_COUNT }),
+              t('seo.index.jsonld.feature8'),
+              t('seo.index.jsonld.feature9'),
+              t('seo.index.jsonld.feature10'),
               'SSO / SAML',
             ],
           },
@@ -441,14 +419,14 @@ useHead({
             // Uniquement des pages réelles indexables (aucune ancre #) → cohérent avec la nav HTML,
             // candidats légitimes aux sitelinks Google.
             'itemListElement': [
-              { '@type': 'SiteNavigationElement', 'position': 1, 'name': 'Formations SEO & GEO', 'url': 'https://seogard.io/formations' },
-              { '@type': 'SiteNavigationElement', 'position': 2, 'name': 'Monitoring SEO continu', 'url': 'https://seogard.io/outils/monitoring' },
-              { '@type': 'SiteNavigationElement', 'position': 3, 'name': 'Audit SEO & GEO', 'url': 'https://seogard.io/outils/audit' },
-              { '@type': 'SiteNavigationElement', 'position': 4, 'name': 'Scanner SEO gratuit', 'url': 'https://seogard.io/scanner' },
-              { '@type': 'SiteNavigationElement', 'position': 5, 'name': 'Tarifs', 'url': 'https://seogard.io/tarifs' },
-              { '@type': 'SiteNavigationElement', 'position': 6, 'name': 'Documentation', 'url': 'https://seogard.io/docs' },
-              { '@type': 'SiteNavigationElement', 'position': 7, 'name': 'Règles SEO', 'url': 'https://seogard.io/docs/rules' },
-              { '@type': 'SiteNavigationElement', 'position': 8, 'name': 'Self-Hosted', 'url': 'https://seogard.io/docs/self-hosted' },
+              { '@type': 'SiteNavigationElement', 'position': 1, 'name': t('seo.index.jsonld.nav1'), 'url': abs('formations') },
+              { '@type': 'SiteNavigationElement', 'position': 2, 'name': t('seo.index.jsonld.nav2'), 'url': abs('outils-monitoring') },
+              { '@type': 'SiteNavigationElement', 'position': 3, 'name': t('seo.index.jsonld.nav3'), 'url': abs('outils-audit') },
+              { '@type': 'SiteNavigationElement', 'position': 4, 'name': t('seo.index.jsonld.nav4'), 'url': abs('scanner') },
+              { '@type': 'SiteNavigationElement', 'position': 5, 'name': t('seo.index.jsonld.nav5'), 'url': abs('tarifs') },
+              { '@type': 'SiteNavigationElement', 'position': 6, 'name': t('seo.index.jsonld.nav6'), 'url': abs('docs-rules') },
+              { '@type': 'SiteNavigationElement', 'position': 7, 'name': t('seo.index.jsonld.nav7'), 'url': abs('docs-rules') },
+              { '@type': 'SiteNavigationElement', 'position': 8, 'name': t('seo.index.jsonld.nav8'), 'url': abs('docs-self-hosted') },
             ],
           },
           {
@@ -469,16 +447,16 @@ useHead({
 })
 
 useSeoMeta({
-  description: `Audit SEO/GEO technique et monitoring continu : ${RULES_COUNT} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Détectez les régressions avant Google et les IA. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
-  ogTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
-  ogDescription: `Audit & monitoring SEO/GEO continu : ${RULES_COUNT} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Self-hosted gratuit ou Cloud à ${cloudPriceDisplay} €/mois/page.`,
+  description: t('seo.index.description', { count: RULES_COUNT, price: cloudPriceDisplay }),
+  ogTitle: t('seo.index.ogTitle'),
+  ogDescription: t('seo.index.ogDescription', { count: RULES_COUNT, price: cloudPriceDisplay }),
   ogType: 'website',
-  ogUrl: 'https://seogard.io',
-  ogImage: 'https://seogard.io/og-image.png',
+  ogUrl: abs('index'),
+  ogImage: ogImage.value,
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://seogard.io/og-image.png',
-  twitterTitle: 'Seogard — Audit & monitoring SEO/GEO continu | Détection de régressions',
-  twitterDescription: `Audit & monitoring SEO/GEO continu. ${RULES_COUNT} règles à chaque crawl. Détection des régressions avant Google. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page.`,
+  twitterImage: ogImage.value,
+  twitterTitle: t('seo.index.twitterTitle'),
+  twitterDescription: t('seo.index.twitterDescription', { count: RULES_COUNT, price: cloudPriceDisplay }),
   robots: 'index, follow',
 })
 </script>
@@ -1078,6 +1056,18 @@ useSeoMeta({
       background: rgba($color-success, 0.05);
       color: $color-success;
     }
+  }
+}
+
+// ═══════════════════════════════════════
+// FAQ — visible section (feeds FAQPage JSON-LD)
+// ═══════════════════════════════════════
+.faq {
+  padding: 5rem 0;
+
+  &__list {
+    max-width: 760px;
+    margin: $spacing-8 auto 0;
   }
 }
 

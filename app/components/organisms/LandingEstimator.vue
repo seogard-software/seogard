@@ -2,10 +2,10 @@
   <section id="estimator" :class="['estimator', { 'estimator--headless': headless }]">
     <div class="estimator__container">
       <template v-if="!headless">
-        <span class="section-label">Estimateur</span>
-        <h2 class="section-title">Combien coûte l'audit &amp; le monitoring de votre site ?</h2>
+        <span class="section-label">{{ $t('landing.estimator.label') }}</span>
+        <h2 class="section-title">{{ $t('landing.estimator.title') }}</h2>
         <p class="section-desc">
-          Entrez l'URL de votre site et votre email. On analyse votre sitemap et vous envoie une estimation personnalisée.
+          {{ $t('landing.estimator.desc') }}
         </p>
       </template>
 
@@ -23,7 +23,7 @@
               >
             </div>
             <button type="submit" class="estimator__btn" :disabled="!url.trim()">
-              Continuer
+              {{ $t('landing.estimator.continue') }}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </button>
           </form>
@@ -37,8 +37,7 @@
               {{ url }}
             </button>
             <p class="estimator__email-explain">
-              L'analyse de votre sitemap peut prendre quelques minutes selon la taille du site.
-              Renseignez votre email pour recevoir votre estimation dès qu'elle est prête.
+              {{ $t('landing.estimator.emailExplain') }}
             </p>
           </div>
           <form class="estimator__form" @submit.prevent="submit">
@@ -48,17 +47,17 @@
                 v-model="email"
                 type="email"
                 class="estimator__input"
-                placeholder="votre@email.com"
+                :placeholder="$t('landing.estimator.emailPlaceholder')"
                 required
               >
             </div>
             <button type="submit" class="estimator__btn" :disabled="submitting || !email.trim()">
               <template v-if="submitting">
                 <span class="estimator__spinner" />
-                Envoi...
+                {{ $t('landing.estimator.sending') }}
               </template>
               <template v-else>
-                Recevoir mon estimation
+                {{ $t('landing.estimator.submit') }}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
               </template>
             </button>
@@ -70,17 +69,18 @@
           <div class="estimator__done-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <h3 class="estimator__done-title">Estimation en cours</h3>
-          <p class="estimator__done-text">
-            On analyse le sitemap de <strong>{{ url }}</strong>. Vous recevrez votre estimation personnalisée à <strong>{{ email }}</strong> dès que l'analyse sera terminée.
-          </p>
+          <h3 class="estimator__done-title">{{ $t('landing.estimator.doneTitle') }}</h3>
+          <i18n-t keypath="landing.estimator.doneText" tag="p" class="estimator__done-text" scope="global">
+            <template #url><strong>{{ url }}</strong></template>
+            <template #email><strong>{{ email }}</strong></template>
+          </i18n-t>
           <div class="estimator__done-actions">
             <NuxtLink to="/register" class="estimator__cta estimator__cta--primary">
-              Créer un compte en attendant
+              {{ $t('landing.estimator.ctaRegister') }}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </NuxtLink>
             <a href="https://github.com/seogard-software/seogard" target="_blank" rel="noopener" class="estimator__cta estimator__cta--ghost">
-              Ou self-hosted (gratuit)
+              {{ $t('landing.estimator.ctaSelfHosted') }}
             </a>
           </div>
         </div>
@@ -99,6 +99,9 @@
 // headless : masque l'en-tête interne (label/titre/desc) quand la page fournit déjà son propre
 // en-tête — évite le doublon visuel sur /tarifs.
 const { headless = false } = defineProps<{ headless?: boolean }>()
+
+const { t, locale } = useI18n()
+const apiError = useApiError()
 
 type Step = 'url' | 'email' | 'done'
 
@@ -123,20 +126,20 @@ async function submit() {
   try {
     await $fetch('/api/public/sitemap-estimate-email', {
       method: 'POST',
-      body: { url: url.value.trim(), email: email.value.trim() },
+      body: { url: url.value.trim(), email: email.value.trim(), locale: locale.value },
     })
     step.value = 'done'
   }
   catch (err: unknown) {
-    const fetchError = err as { statusCode?: number, data?: { message?: string } }
+    const fetchError = err as { statusCode?: number }
     if (fetchError.statusCode === 429) {
-      error.value = fetchError.data?.message || 'Trop de requêtes. Réessayez dans quelques minutes.'
+      error.value = apiError(err, t('landing.estimator.errorRateLimit'))
     }
     else if (fetchError.statusCode === 400) {
-      error.value = fetchError.data?.message || 'Vérifiez l\'URL et l\'email.'
+      error.value = apiError(err, t('landing.estimator.errorInvalid'))
     }
     else {
-      error.value = 'Une erreur est survenue. Réessayez.'
+      error.value = t('landing.estimator.errorGeneric')
     }
   }
   finally {

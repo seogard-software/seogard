@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.email || typeof body.email !== 'string') {
-    throw createError({ statusCode: 400, message: 'Email requis' })
+    throw createError({ statusCode: 400, message: 'Email required', data: { errorCode: 'EMAIL_REQUIRED' } })
   }
 
   const email = body.email.trim().toLowerCase()
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const resetUrl = `${appUrl}/reset-password?token=${token}`
 
-  await sendResetPasswordEmail(email, resetUrl)
+  await sendResetPasswordEmail(email, resetUrl, user.locale)
 
   return { sent: true }
 })

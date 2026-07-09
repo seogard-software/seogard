@@ -2,40 +2,40 @@
   <div class="page-reset">
     <!-- Success state -->
     <template v-if="success">
-      <h1 class="page-reset__title">Mot de passe modifié</h1>
-      <p class="page-reset__text">Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.</p>
+      <h1 class="page-reset__title">{{ $t('auth.reset.successTitle') }}</h1>
+      <p class="page-reset__text">{{ $t('auth.reset.successText') }}</p>
       <NuxtLink to="/login" class="page-reset__link">
-        <AppButton size="lg">Se connecter</AppButton>
+        <AppButton size="lg">{{ $t('auth.common.signIn') }}</AppButton>
       </NuxtLink>
     </template>
 
     <!-- Invalid/expired token -->
     <template v-else-if="invalidToken">
-      <h1 class="page-reset__title">Lien expiré</h1>
-      <p class="page-reset__text">Ce lien de réinitialisation a expiré ou est invalide. Demandez un nouveau lien.</p>
+      <h1 class="page-reset__title">{{ $t('auth.reset.expiredTitle') }}</h1>
+      <p class="page-reset__text">{{ $t('auth.reset.expiredText') }}</p>
       <NuxtLink to="/login" class="page-reset__link">
-        <AppButton variant="secondary" size="lg">Retour à la connexion</AppButton>
+        <AppButton variant="secondary" size="lg">{{ $t('auth.common.backToLogin') }}</AppButton>
       </NuxtLink>
     </template>
 
     <!-- Form -->
     <template v-else>
-      <h1 class="page-reset__title">Nouveau mot de passe</h1>
-      <p class="page-reset__text">Choisissez un nouveau mot de passe pour votre compte.</p>
+      <h1 class="page-reset__title">{{ $t('auth.reset.title') }}</h1>
+      <p class="page-reset__text">{{ $t('auth.reset.text') }}</p>
 
       <form class="page-reset__form" @submit.prevent="handleReset">
         <AppInput
           v-model="password"
-          label="Nouveau mot de passe"
+          :label="$t('auth.reset.passwordLabel')"
           type="password"
-          placeholder="8 caractères minimum"
+          :placeholder="$t('auth.reset.passwordPlaceholder')"
           :error="errors.password"
         />
         <AppInput
           v-model="confirmPassword"
-          label="Confirmer le mot de passe"
+          :label="$t('auth.reset.confirmLabel')"
           type="password"
-          placeholder="Retapez votre mot de passe"
+          :placeholder="$t('auth.reset.confirmPlaceholder')"
           :error="errors.confirm"
         />
 
@@ -44,7 +44,7 @@
         </AppAlert>
 
         <AppButton type="submit" :loading="loading" size="lg">
-          Réinitialiser le mot de passe
+          {{ $t('auth.reset.submit') }}
         </AppButton>
       </form>
     </template>
@@ -52,9 +52,13 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth', auth: false })
 
-useHead({ title: 'Réinitialiser le mot de passe' })
+const { t } = useI18n()
+const apiError = useApiError()
+
+useHead({ title: t('seo.reset.title') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const route = useRoute()
@@ -71,11 +75,11 @@ async function handleReset() {
   errors.value = {}
 
   if (!password.value || password.value.length < 8) {
-    errors.value.password = '8 caractères minimum'
+    errors.value.password = t('validation.passwordTooShort')
     return
   }
   if (password.value !== confirmPassword.value) {
-    errors.value.confirm = 'Les mots de passe ne correspondent pas'
+    errors.value.confirm = t('validation.passwordMismatch')
     return
   }
 
@@ -88,12 +92,12 @@ async function handleReset() {
     success.value = true
   }
   catch (err: any) {
-    const message = err?.data?.message || 'Une erreur est survenue'
-    if (message.includes('expiré') || message.includes('invalide')) {
+    const code = getApiErrorCode(err)
+    if (code === 'RESET_TOKEN_EXPIRED' || code === 'RESET_TOKEN_INVALID' || code === 'TOKEN_REQUIRED') {
       invalidToken.value = true
     }
     else {
-      errors.value.general = message
+      errors.value.general = apiError(err, t('auth.reset.errorGeneric'))
     }
   }
   finally {

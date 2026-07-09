@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { gotoHydrated } from '../../helpers/hydration'
 import { getTestIds } from '../../helpers/constants'
 import fs from 'node:fs'
 
@@ -12,7 +13,7 @@ function cookies(authFile: string): string {
 
 // Tout le parcours scan est testé avec la session OWNER (a une orga active + un site example.com).
 test.describe('Scan onboarding — barre Analyser', () => {
-  test.beforeEach((_, testInfo) => {
+  test.beforeEach(({ page: _page }, testInfo) => {
     test.skip(testInfo.project.name !== 'owner', 'Parcours testé avec la session owner')
   })
 
@@ -55,7 +56,7 @@ test.describe('Scan onboarding — barre Analyser', () => {
   // ─────────────── UI barre Analyser (connecté) ───────────────
 
   test('UI : scanner un site déjà présent redirige vers son overview', async ({ page }) => {
-    await page.goto('/')
+    await gotoHydrated(page, '/')
     await page.getByPlaceholder('Saisissez votre site Web').fill('example.com')
     await page.getByRole('button', { name: 'Analyser' }).click()
     // Valide TOUTE la chaîne de navigation (runScan → /api/scan → [id]/index → zone pages).
@@ -64,7 +65,7 @@ test.describe('Scan onboarding — barre Analyser', () => {
   })
 
   test('UI : URL invalide → erreur inline, aucune navigation', async ({ page }) => {
-    await page.goto('/')
+    await gotoHydrated(page, '/')
     await page.getByPlaceholder('Saisissez votre site Web').fill('pas une url !!')
     await page.getByRole('button', { name: 'Analyser' }).click()
     await expect(page.getByText(/adresse valide/i)).toBeVisible()
@@ -80,7 +81,7 @@ test.describe('Scan onboarding — barre Analyser', () => {
       localStorage.setItem('seogard:pendingScan', 'https://e2e-oauth-resume.example')
     })
 
-    await page.goto('/dashboard/sites')
+    await gotoHydrated(page, '/dashboard/sites')
 
     // Doit partir sur le site scanné (un NOUVEAU site), donc PAS example.com (ids.siteId).
     await page.waitForURL('**/dashboard/sites/*/zones/**', { timeout: 20_000 })

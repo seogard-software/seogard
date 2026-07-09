@@ -1,18 +1,22 @@
 <template>
-  <AppModal v-model="model" :title="isEdit ? 'Modifier la zone' : 'Nouvelle zone'" :close-on-backdrop="!loading" @update:model-value="onModalChange">
+  <AppModal v-model="model" :title="isEdit ? $t('dashboard.c.addZoneModal.titleEdit') : $t('dashboard.c.addZoneModal.titleNew')" :close-on-backdrop="!loading" @update:model-value="onModalChange">
     <form class="add-zone-modal" @submit.prevent="handleSubmit">
       <AppAlert v-if="error" variant="danger">{{ error }}</AppAlert>
 
       <AppInput
         v-model="name"
-        label="Nom"
-        placeholder="Ex : Blog, Colis, Produits..."
+        :label="$t('dashboard.c.addZoneModal.nameLabel')"
+        :placeholder="$t('dashboard.c.addZoneModal.namePlaceholder')"
         :error="nameError"
       />
 
       <div class="add-zone-modal__patterns">
-        <label class="add-zone-modal__label">Paths</label>
-        <span class="add-zone-modal__hint">Commencez par <code>/</code> — ex : <code>/blog/**</code>, <code>/produits/*</code></span>
+        <label class="add-zone-modal__label">{{ $t('dashboard.c.addZoneModal.pathsLabel') }}</label>
+        <i18n-t keypath="dashboard.c.addZoneModal.pathsHint" tag="span" class="add-zone-modal__hint">
+          <template #slash><code>/</code></template>
+          <template #ex1><code>/blog/**</code></template>
+          <template #ex2><code>/produits/*</code></template>
+        </i18n-t>
         <div
           v-for="(_, index) in patterns"
           :key="index"
@@ -20,7 +24,7 @@
         >
           <AppInput
             v-model="patterns[index]"
-            :placeholder="index === 0 ? '/blog/**' : '/autre-path/**'"
+            :placeholder="index === 0 ? '/blog/**' : $t('dashboard.c.addZoneModal.patternPlaceholder')"
             class="add-zone-modal__pattern-input"
             @update:model-value="debouncedPreview"
           />
@@ -34,7 +38,7 @@
           </button>
         </div>
         <button type="button" class="add-zone-modal__add-pattern" @click="addPattern">
-          + Ajouter un path
+          {{ $t('dashboard.c.addZoneModal.addPath') }}
         </button>
       </div>
 
@@ -42,23 +46,23 @@
       <div v-if="previewLoading || previewCount !== null" class="add-zone-modal__preview">
         <div v-if="previewLoading" class="add-zone-modal__preview-loading">
           <AppSpinner size="sm" />
-          <span>Calcul...</span>
+          <span>{{ $t('dashboard.c.addZoneModal.computing') }}</span>
         </div>
         <div v-else class="add-zone-modal__preview-result">
-          {{ previewCount?.toLocaleString('fr-FR') ?? 0 }} pages matchées
+          {{ $t('dashboard.c.addZoneModal.matched', { count: previewCount?.toLocaleString(numberLocale) ?? 0 }) }}
         </div>
       </div>
 
       <div class="add-zone-modal__actions">
         <AppButton v-if="isEdit" variant="danger" :disabled="loading" :loading="deleting" @click="handleDelete">
-          Supprimer
+          {{ $t('dashboard.c.addZoneModal.delete') }}
         </AppButton>
         <div class="add-zone-modal__actions-right">
           <AppButton variant="ghost" :disabled="loading" @click="model = false">
-            Annuler
+            {{ $t('dashboard.c.addZoneModal.cancel') }}
           </AppButton>
           <AppButton variant="accent" type="submit" :loading="loading">
-            {{ isEdit ? 'Enregistrer' : 'Créer' }}
+            {{ isEdit ? $t('dashboard.c.addZoneModal.save') : $t('dashboard.c.addZoneModal.create') }}
           </AppButton>
         </div>
       </div>
@@ -94,6 +98,11 @@ const previewCount = ref<number | null>(null)
 const orgStore = useOrganizationStore()
 const toast = useToast()
 const deleting = ref(false)
+
+const { t, locale } = useI18n()
+const apiError = useApiError()
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
+const confirm = useConfirm()
 
 let debounceTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -162,19 +171,19 @@ function validate(): boolean {
   error.value = undefined
 
   if (!name.value.trim()) {
-    nameError.value = 'Le nom est requis'
+    nameError.value = t('dashboard.c.addZoneModal.nameRequired')
     return false
   }
 
   const validPatterns = patterns.value.filter(p => p.trim())
   if (validPatterns.length === 0) {
-    error.value = 'Au moins un path est requis'
+    error.value = t('dashboard.c.addZoneModal.pathRequired')
     return false
   }
 
   for (const p of validPatterns) {
     if (!p.startsWith('/') && p !== '**') {
-      error.value = `Pattern invalide : "${p}". Doit commencer par /`
+      error.value = t('dashboard.c.addZoneModal.patternInvalid', { pattern: p })
       return false
     }
   }
@@ -183,18 +192,18 @@ function validate(): boolean {
 }
 
 async function handleDelete() {
-  if (!props.zone || !confirm('Supprimer cette zone ? Cette action est irréversible.')) return
+  if (!props.zone || !confirm(t('dashboard.c.addZoneModal.confirmDelete'))) return
   deleting.value = true
   try {
     await $fetch(`/api/sites/${props.siteId}/zones/${props.zone._id}` as string, {
       method: 'DELETE',
       headers: { 'x-org-id': orgStore.activeOrgId! },
     })
-    toast.success('Zone supprimée')
+    toast.success(t('dashboard.c.addZoneModal.deleted'))
     model.value = false
     emit('deleted')
   } catch (err: unknown) {
-    error.value = (err as any)?.data?.message ?? 'Erreur lors de la suppression'
+    error.value = apiError(err, t('dashboard.c.addZoneModal.deleteError'))
   } finally {
     deleting.value = false
   }
@@ -219,7 +228,7 @@ async function handleSubmit() {
         headers: { 'x-org-id': orgStore.activeOrgId! },
         body,
       })
-      toast.success('Zone modifiée')
+      toast.success(t('dashboard.c.addZoneModal.updated'))
     }
     else {
       zone = await $fetch<Zone>(`/api/sites/${props.siteId}/zones`, {
@@ -227,19 +236,19 @@ async function handleSubmit() {
         headers: { 'x-org-id': orgStore.activeOrgId! },
         body,
       })
-      toast.success('Zone créée')
+      toast.success(t('dashboard.c.addZoneModal.created'))
     }
 
     model.value = false
     emit('success', zone)
   }
   catch (err: unknown) {
-    const fetchError = err as { statusCode?: number; data?: { message?: string } }
+    const fetchError = err as { statusCode?: number }
     if (fetchError.statusCode === 409) {
-      error.value = 'Une zone avec ce nom existe déjà'
+      error.value = t('dashboard.c.addZoneModal.nameExists')
     }
     else {
-      error.value = fetchError.data?.message ?? 'Une erreur est survenue'
+      error.value = apiError(err, t('dashboard.c.addZoneModal.genericError'))
     }
   }
   finally {

@@ -6,7 +6,7 @@ import {
   AUTH_COOKIE_NAME,
   REFRESH_COOKIE_NAME,
 } from './auth'
-import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/constants'
+import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/cookies'
 
 const mockSetCookie = vi.fn()
 const mockDeleteCookie = vi.fn()

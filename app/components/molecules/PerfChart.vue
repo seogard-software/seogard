@@ -1,42 +1,42 @@
 <template>
   <div class="perf-chart">
-    <div v-if="loading" class="perf-chart__state">Chargement…</div>
+    <div v-if="loading" class="perf-chart__state">{{ $t('dashboard.c.perfChart.loading') }}</div>
     <div v-else-if="error" class="perf-chart__state">{{ error }}</div>
-    <div v-else-if="!current" class="perf-chart__state">Pas encore de mesure de performance pour cette page.</div>
+    <div v-else-if="!current" class="perf-chart__state">{{ $t('dashboard.c.perfChart.empty') }}</div>
 
     <template v-else>
       <div class="perf-chart__badges">
         <PerfBadge
           v-if="lastLcp != null"
-          label="Affichage du contenu"
+          :label="$t('dashboard.c.perfChart.lcpLabel')"
           abbr="LCP"
           synthetic
-          hint="Temps avant l'affichage du contenu principal. Bon en dessous de 2,5 s. Facteur de classement Google."
+          :hint="$t('dashboard.c.perfChart.lcpHint')"
           :value="seconds(lastLcp)"
           :rating="rateLcp(lastLcp)"
         />
         <PerfBadge
           v-if="lastCls != null"
-          label="Stabilité visuelle"
+          :label="$t('dashboard.c.perfChart.clsLabel')"
           abbr="CLS"
           synthetic
-          hint="Mesure si la page bouge pendant le chargement (le contenu qui saute). Bon en dessous de 0,1. Facteur de classement Google."
+          :hint="$t('dashboard.c.perfChart.clsHint')"
           :value="decimal(lastCls)"
           :rating="rateCls(lastCls)"
         />
         <PerfBadge
           v-if="lastTtfb != null"
-          label="Réponse serveur"
+          :label="$t('dashboard.c.perfChart.ttfbLabel')"
           abbr="TTFB"
           synthetic
-          hint="Temps que met votre serveur à répondre. Bon en dessous de 800 ms ; un serveur lent ralentit toute la page."
+          :hint="$t('dashboard.c.perfChart.ttfbHint')"
           :value="`${lastTtfb} ms`"
           :rating="rateTtfb(lastTtfb)"
         />
         <PerfBadge
           v-if="current.weightTotalKb != null"
-          label="Poids de la page"
-          hint="Poids total téléchargé : HTML, JavaScript, CSS, images et polices. Bon en dessous de 1,6 MB, excessif au-delà de 5 MB (seuils Lighthouse). Une page lourde charge lentement, surtout sur mobile."
+          :label="$t('dashboard.c.perfChart.weightLabel')"
+          :hint="$t('dashboard.c.perfChart.weightHint')"
           :value="weight(current.weightTotalKb)"
           :rating="ratePageWeight(current.weightTotalKb)"
         />
@@ -51,10 +51,10 @@
             :class="{ 'perf-chart__trend-tab--active': metric === m.key }"
             @click="metric = m.key"
           >
-            {{ m.label }}
+            {{ $t(m.labelKey) }}
           </button>
         </div>
-        <SparklineChart :data="trend" :point-titles="trendTitles" :label="`${activeMetricLabel} — 30 derniers jours`" />
+        <SparklineChart :data="trend" :point-titles="trendTitles" :label="$t('dashboard.c.perfChart.trendLabel', { label: activeMetricLabel })" />
       </div>
     </template>
   </div>
@@ -73,11 +73,13 @@ const props = defineProps<Props>()
 interface HistoryPoint { date: string; perf: PerfMetrics }
 type MetricKey = 'lcpMs' | 'ttfbMs' | 'weightTotalKb'
 
-const METRICS: { key: MetricKey; label: string }[] = [
-  { key: 'lcpMs', label: 'Affichage' },
-  { key: 'ttfbMs', label: 'Réponse serveur' },
-  { key: 'weightTotalKb', label: 'Poids' },
+const METRICS: { key: MetricKey; labelKey: string }[] = [
+  { key: 'lcpMs', labelKey: 'dashboard.c.perfChart.metricLcp' },
+  { key: 'ttfbMs', labelKey: 'dashboard.c.perfChart.metricTtfb' },
+  { key: 'weightTotalKb', labelKey: 'dashboard.c.perfChart.metricWeight' },
 ]
+
+const { t, locale } = useI18n()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -85,18 +87,24 @@ const current = ref<PerfMetrics | null>(null)
 const history = ref<HistoryPoint[]>([])
 const metric = ref<MetricKey>('lcpMs')
 
-const activeMetricLabel = computed(() => METRICS.find(m => m.key === metric.value)?.label ?? '')
+const activeMetricLabel = computed(() => {
+  const labelKey = METRICS.find(m => m.key === metric.value)?.labelKey
+  return labelKey ? t(labelKey) : ''
+})
 const trend = computed(() => history.value.map(p => p.perf[metric.value] ?? 0))
 
+// Séparateur décimal selon la locale (2,1 s en FR, 2.1 s en EN).
+const decimalSep = computed(() => (locale.value === 'en' ? '.' : ','))
+
 function seconds(ms: number): string {
-  return `${(ms / 1000).toFixed(1).replace('.', ',')} s`
+  return `${(ms / 1000).toFixed(1).replace('.', decimalSep.value)} s`
 }
 function weight(kb: number): string {
-  if (kb >= 1024) return `${(kb / 1024).toFixed(1).replace('.', ',')} MB`
+  if (kb >= 1024) return `${(kb / 1024).toFixed(1).replace('.', decimalSep.value)} MB`
   return `${kb} KB`
 }
 function decimal(n: number): string {
-  return String(n).replace('.', ',')
+  return String(n).replace('.', decimalSep.value)
 }
 
 // Dernière mesure (crawl le plus récent). Affichée telle quelle : le synthétique one-shot
@@ -116,7 +124,7 @@ function formatMetric(key: MetricKey, val: number): string {
 // Infobulle de chaque point : la date réelle du crawl + la valeur (les crawls sont
 // irréguliers, la date est la seule info pertinente, pas un jour de semaine).
 const trendTitles = computed(() => history.value.map((p) => {
-  const date = new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  const date = new Date(p.date).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR', { day: 'numeric', month: 'short' })
   const val = p.perf[metric.value]
   return `${date} : ${val != null ? formatMetric(metric.value, val) : '—'}`
 }))
@@ -132,7 +140,7 @@ async function loadHistory() {
     history.value = data.history
   }
   catch {
-    error.value = 'Impossible de charger les performances.'
+    error.value = t('dashboard.c.perfChart.loadError')
   }
   finally {
     loading.value = false

@@ -1,0 +1,687 @@
+{
+  "labels": {
+    "noindex_added": "Noindex added",
+    "status_code_changed": "HTTP status code changed",
+    "canonical_missing": "Canonical missing",
+    "canonical_changed": "Canonical changed",
+    "meta_title_missing": "Meta title removed",
+    "soft_404": "Soft 404 detected",
+    "redirect_to_homepage": "Redirect to homepage",
+    "page_redirected": "Page redirected",
+    "js_redirect_detected": "JavaScript redirect",
+    "redirect_broken": "Broken redirect",
+    "rec_redirect_temporary": "Temporary redirect on removed page",
+    "rec_unclean_removal": "Removal without 410 or 301",
+    "rec_sitemap_noindex_conflict": "Noindex page declared in sitemap",
+    "ssr_rendering_failed": "Broken SSR",
+    "ssr_content_mismatch": "SSR/CSR gap",
+    "h1_missing": "H1 removed",
+    "h1_multiple": "Multiple H1 tags",
+    "h1_changed": "H1 changed",
+    "viewport_missing": "Viewport removed",
+    "thin_content": "Thin content",
+    "content_removed": "Content removed",
+    "hreflang_removed": "Hreflang removed",
+    "hreflang_changed": "Hreflang changed",
+    "https_mixed_content": "HTTP resources on HTTPS page",
+    "meta_description_missing": "Meta description removed",
+    "structured_data_removed": "Structured data removed",
+    "structured_data_error": "Invalid JSON-LD",
+    "og_image_removed": "OG image removed",
+    "og_title_removed": "OG title removed",
+    "meta_refresh_detected": "Meta refresh detected",
+    "robots_txt_changed": "robots.txt changed",
+    "heading_hierarchy_broken": "Broken heading hierarchy",
+    "lang_attribute_missing": "Lang attribute removed",
+    "lang_attribute_changed": "Lang attribute changed",
+    "word_count_changed": "Content length changed",
+    "charset_missing": "Charset removed",
+    "ssr_title_mismatch": "SSR/CSR title mismatch",
+    "ssr_meta_description_mismatch": "SSR/CSR description mismatch",
+    "meta_title_changed": "Meta title changed",
+    "meta_description_changed": "Meta description changed",
+    "ssr_blocked": "Crawler blocked (anti-bot)",
+    "llms_txt_removed": "llms.txt removed",
+    "ai_crawlers_blocked_changed": "New AI citation crawler blocking",
+    "robots_blocks_googlebot": "robots.txt blocks Googlebot",
+    "faq_schema_removed": "FAQ schema removed",
+    "structured_data_author_removed": "Author removed (JSON-LD)",
+    "rec_img_alt_audit": "Images without alt",
+    "rec_title_length_audit": "Title length",
+    "rec_description_length_audit": "Description length",
+    "rec_h1_missing_audit": "Missing H1",
+    "rec_h1_missing_in_ssr": "H1 missing from raw HTML (JS-only)",
+    "rec_content_missing_in_ssr": "Content visible only after JavaScript",
+    "rec_title_missing_in_ssr": "Title missing from raw HTML (JS-only)",
+    "rec_description_missing_in_ssr": "Description missing from raw HTML (JS-only)",
+    "rec_internal_links_missing_in_ssr": "Internal links missing from raw HTML (JS-only)",
+    "rec_structured_data_missing_in_ssr": "JSON-LD missing from raw HTML (JS-only)",
+    "rec_img_alt_missing_in_ssr": "JS-injected images without alt",
+    "rec_semantic_structure_missing_in_ssr": "Semantic tags missing from raw HTML",
+    "rec_favicon_missing_audit": "Missing favicon",
+    "rec_semantic_structure_audit": "Semantic structure",
+    "rec_structured_data_missing_audit": "Missing structured data",
+    "rec_og_missing_audit": "Missing Open Graph",
+    "rec_internal_links_audit": "Too few internal links",
+    "rec_llms_txt_missing": "Missing llms.txt",
+    "rec_ai_crawlers_blocked": "AI citation crawlers blocked (robots.txt)",
+    "rec_structured_data_incomplete": "Incomplete structured data",
+    "rec_faq_schema_missing": "Missing FAQ schema",
+    "rec_citation_signals_missing": "Weak citation signals",
+    "rec_content_structure_audit": "Content structure (GEO)",
+    "perf_page_weight_explosion": "Page weight increase",
+    "rec_perf_page_heavy": "Heavy page"
+  },
+  "descriptions": {
+    "noindex_added": "A noindex directive was added (robots/googlebot meta tag or X-Robots-Tag HTTP header). The page will disappear from Google results within days.",
+    "status_code_changed": "The HTTP status code changed (e.g. 200 to 404 or 301). Critical for server errors (4xx/5xx), warning for redirects (3xx).",
+    "canonical_missing": "The canonical tag is gone. Duplicate content risk — Google no longer knows which URL to index.",
+    "canonical_changed": "The canonical tag points to a different URL. May be intentional (migration) or accidental.",
+    "meta_title_missing": "The meta title is gone. Google will display an auto-generated title in search results.",
+    "soft_404": "The page returns a 200 status but displays a \"page not found\" message. Google treats it as deleted.",
+    "redirect_to_homepage": "The page redirects to the homepage. All content and rankings for this URL are lost.",
+    "page_redirected": "A page still declared in your sitemap has started redirecting to another URL: the sitemap presents an address that bounces as canonical. Intentional removal — take it out of the sitemap; otherwise, often a broken route. A page that is redirected AND removed from the sitemap is a clean removal: no alert.",
+    "js_redirect_detected": "The page responds 200 but its JavaScript redirects the browser elsewhere. Google only follows it after rendering (delayed, or never if rendering fails) and AI systems read the original HTML, not the destination: machines and humans see two different pages.",
+    "redirect_broken": "A cleanly removed page (redirect + removed from the sitemap) now returns a 4xx error: its redirect broke. Link equity from backlinks pointing to the old URL is no longer passed — typically a refactor that deleted the redirect rule or its target.",
+    "rec_redirect_temporary": "A page removed from the sitemap redirects with a 302/307 (temporary). Google keeps the old URL indexed and is slower to consolidate signals toward the target. If the removal is permanent, a 301 (permanent) redirect passes link equity cleanly.",
+    "rec_unclean_removal": "A page removed from the sitemap returns a bare 404. It works, but the signal is ambiguous: Google keeps re-crawling it for weeks. Permanent deletion — return 410 (faster deindexing); moved content — 301 (preserves backlink equity).",
+    "rec_sitemap_noindex_conflict": "This page is declared in your sitemap but carries a noindex directive (meta tag or X-Robots-Tag header): you are asking Google to index it and ignore it at the same time. Wasted crawl budget and polluted GSC indexing reports. Remove it from the sitemap, or remove the noindex.",
+    "ssr_rendering_failed": "The HTML returned by the server (SSR) is almost empty even though the page works in the browser. Google indexes an empty page.",
+    "ssr_content_mismatch": "The SSR content represents less than 10% of the content displayed by the browser. Google sees a heavily stripped-down version of the page.",
+    "h1_missing": "The H1 is gone. It is the main title of the page — a strong SEO signal for Google.",
+    "h1_multiple": "Multiple H1 tags detected. This dilutes the SEO signal — a page should have only one main title.",
+    "h1_changed": "The H1 text changed. May be intentional (editorial update) or accidental (template bug).",
+    "viewport_missing": "The viewport tag is gone. The page is no longer mobile-friendly — Google penalizes this under mobile-first indexing.",
+    "thin_content": "The content dropped below 200 words. Pages with little content are less likely to rank.",
+    "content_removed": "More than 50% of the content is gone. Massive deletion — probably a deploy or template bug.",
+    "hreflang_removed": "All hreflang tags were removed. International targeting is broken — Google may serve the wrong language.",
+    "hreflang_changed": "The languages declared in the hreflang tags changed. May be intentional (language added/removed) or accidental.",
+    "https_mixed_content": "Images, scripts or styles are loaded over HTTP on an HTTPS page. The security padlock disappears and browsers may block these resources.",
+    "meta_description_missing": "The meta description is gone. Google generates an automatic snippet instead: possible impact on click-through rate, but no deindexing and no ranking loss.",
+    "structured_data_removed": "The structured data (JSON-LD) was removed. Loss of rich results (stars, prices, FAQ) in Google results.",
+    "structured_data_error": "The JSON-LD is invalid (syntax error). Google ignores malformed structured data.",
+    "og_image_removed": "The Open Graph image was removed. Social media shares will no longer display a visual.",
+    "og_title_removed": "The Open Graph title was removed. Social platforms will fall back to the meta title.",
+    "meta_refresh_detected": "A meta refresh tag redirects the page. Bad practice — use an HTTP 301 redirect instead.",
+    "robots_txt_changed": "The robots directives changed (other than noindex). Check that the right crawlers still have access to the right pages.",
+    "heading_hierarchy_broken": "Skipped heading level (e.g. H1 to H3 without an H2). Micro-impact on accessibility; near-zero effect on ranking.",
+    "lang_attribute_missing": "The HTML lang attribute is gone. Google may misidentify the page language.",
+    "lang_attribute_changed": "The lang attribute changed (e.g. fr to en). Can break language targeting if accidental.",
+    "word_count_changed": "The word count changed by 30 to 50%. Notable change but not catastrophic — worth checking.",
+    "charset_missing": "The charset declaration is gone. Risk of garbled characters (accents, emojis) in some browsers.",
+    "ssr_title_mismatch": "The title in the raw HTML (sent by the server) differs from the title displayed after JavaScript loads. Google indexes the raw HTML version.",
+    "ssr_meta_description_mismatch": "The meta description in the raw HTML differs from the one rendered after JavaScript loads. Google uses the raw HTML version.",
+    "meta_title_changed": "The meta title was modified. May be intentional (A/B test, rebrand) or accidental (template bug).",
+    "meta_description_changed": "The meta description was modified. Rarely a problem — usually an editorial update.",
+    "ssr_blocked": "The crawler received an anti-bot challenge page (Cloudflare, Akamai, etc.) instead of the real content. Data for this page is not reliable.",
+    "llms_txt_removed": "The /llms.txt file was deleted. Optional file: no major LLM confirms consuming it to date (a proposal that has not been adopted) — mainly useful for documentation and agents, not a citation factor.",
+    "ai_crawlers_blocked_changed": "The robots.txt now blocks additional AI citation crawlers (live search/browse from OpenAI, Perplexity, Anthropic) — reduces your visibility in ChatGPT search, Perplexity and Claude. Training crawlers (GPTBot, Google-Extended...) are not monitored: blocking them does not affect citation.",
+    "robots_blocks_googlebot": "The robots.txt has started blocking Googlebot (Disallow under User-agent: Googlebot or *) on a previously allowed path. Risk of an entire section being deindexed.",
+    "faq_schema_removed": "The FAQPage schema was removed. Google no longer shows FAQ rich results in the SERP: direct impact is low, but the removal may signal a component deleted by mistake. The visible Q&A content remains readable by Google and LLMs.",
+    "structured_data_author_removed": "The author disappeared from the structured data. AI systems cite anonymous content less — a credibility loss.",
+    "rec_img_alt_audit": "Some images have no alt attribute. Important for accessibility and image SEO. Warning if 10+ images are affected.",
+    "rec_title_length_audit": "The meta title is too short (< 15 characters) or too long (> 60 characters). Google may truncate or rewrite it.",
+    "rec_description_length_audit": "The meta description is too short (< 50 characters) or too long (> 160 characters). Ideally between 120 and 155 characters.",
+    "rec_h1_missing_audit": "No H1 on the page (checked on the rendered DOM after JavaScript hydration). The main title is a strong SEO signal — every page should have one.",
+    "rec_h1_missing_in_ssr": "The H1 is missing or empty in the raw HTML sent by your server but filled in after JavaScript loads. Google may see it with a delay (24 hours to several weeks). LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML.",
+    "rec_content_missing_in_ssr": "Most of the body text only exists after JavaScript runs (absent from the raw HTML). AI crawlers (ChatGPT, Perplexity, Claude) read the raw HTML and will probably never see this content.",
+    "rec_title_missing_in_ssr": "The <title> is missing from the raw HTML sent by your server but filled in after JavaScript loads. Google may see it with a delay and LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML. Fix: render the title server-side (SSR).",
+    "rec_description_missing_in_ssr": "The meta description is missing from the raw HTML but present after JavaScript loads. Google and LLMs mostly read the raw HTML — your search snippet and AI visibility may suffer. Fix: render the meta description server-side (SSR).",
+    "rec_internal_links_missing_in_ssr": "Your internal links are not in the raw HTML sent by your server — they only appear after JavaScript loads. Google discovers your pages more slowly. Fix: render menu, footer and navigation links server-side (SSR).",
+    "rec_structured_data_missing_in_ssr": "Structured data (JSON-LD) injected by JavaScript only. AI systems (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML. For better AI visibility (GEO), render the JSON-LD server-side.",
+    "rec_img_alt_missing_in_ssr": "Images added by JavaScript have no alt attribute. Google Image Search will probably not index them (it reads the raw HTML), and visually impaired users cannot understand them. Fix: add an alt attribute and render the images server-side if possible.",
+    "rec_semantic_structure_missing_in_ssr": "Semantic tags (main, header, footer) missing from the raw HTML sent by your server — they only appear after JavaScript loads. Google and screen readers (accessibility) understand your page structure better when these tags are present from the first render. Fix: structure your layout with these tags server-side.",
+    "rec_favicon_missing_audit": "No favicon detected. Minor impact, but visible in browser tabs and Google results.",
+    "rec_semantic_structure_audit": "Missing semantic tags (main, header, footer). Improves accessibility and helps search engines understand the structure.",
+    "rec_structured_data_missing_audit": "No structured data (JSON-LD) detected. You are missing out on rich results in Google.",
+    "rec_og_missing_audit": "Missing Open Graph tags (og:title, og:description or og:image). Social shares will be less attractive.",
+    "rec_internal_links_audit": "Fewer than 3 internal links on the page. Warning if no links at all — the page is orphaned and poorly linked.",
+    "rec_llms_txt_missing": "No /llms.txt file detected. Speculative convention: its use by major LLMs is not confirmed to date (a proposal not adopted by Google/OpenAI). Mainly useful for documentation and agents.",
+    "rec_ai_crawlers_blocked": "The robots.txt blocks AI citation crawlers (OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User) — reduces your visibility in ChatGPT search, Perplexity and Claude answers. Training crawlers (GPTBot, ClaudeBot, Google-Extended...) are not monitored: blocking them does not affect citation.",
+    "rec_structured_data_incomplete": "Structured data exists but is incomplete (missing author, date or publisher). AI systems use these fields to cite your content.",
+    "rec_faq_schema_missing": "Content page (more than 300 words) without a FAQPage schema. If the content addresses recurring questions, structuring it as clear Q&A helps AI answer engines pick it up. The FAQPage schema no longer triggers rich results in the SERP: the editorial structure is what matters.",
+    "rec_citation_signals_missing": "Several citation signals are missing (author, date, sources). AI systems favor attributable, dated content.",
+    "rec_content_structure_audit": "The content has neither subheadings (H2) nor lists. AI systems extract information better when content is well structured.",
+    "perf_page_weight_explosion": "The page weight increased sharply. A heavy page loads slowly, especially on mobile and 4G.",
+    "rec_perf_page_heavy": "The page exceeds 1.6 MB (Lighthouse threshold), excessive beyond 5 MB. Compressing images and trimming JavaScript would speed up loading."
+  },
+  "knowledge": {
+    "noindex_added": {
+      "constat": "A noindex directive appeared on this page (robots meta tag or X-Robots-Tag header).",
+      "pourquoi": "Google removes the page from its index within days: all its organic traffic disappears. If the directive is accidental (staging config deployed, plugin), the loss goes unnoticed until traffic drops.",
+      "action": "Check whether the noindex is intentional; if not, remove it and redeploy immediately.",
+      "gain": "The page stays in the Google index and keeps its existing traffic."
+    },
+    "status_code_changed": {
+      "constat": "The page's HTTP status code changed (e.g. 200 to 404, 500 or a redirect).",
+      "pourquoi": "A repeated 4xx/5xx error gets the page dropped from the index and cuts its traffic. LLMs that re-visit the page to cite it get an error and exclude it from their answers.",
+      "action": "Identify the cause of the new status code (deploy, deleted route, server) and restore the 200 — or set up a 301 redirect to the equivalent page.",
+      "gain": "Google and AI systems keep accessing the content; the URL's accumulated authority is preserved."
+    },
+    "canonical_missing": {
+      "constat": "The canonical tag on this page is gone.",
+      "pourquoi": "Without a canonical, Google picks the URL to index on its own among the variants (parameters, www, trailing slash). On a site with tracking or facets, the signal gets diluted across duplicates and rankings become unstable.",
+      "action": "Restore the self-referencing canonical tag in the affected template.",
+      "gain": "Google concentrates all the signal on a single URL — stable, predictable rankings."
+    },
+    "canonical_changed": {
+      "constat": "The canonical points to a different URL than the one observed on the previous crawl.",
+      "pourquoi": "If the change is intentional (migration, consolidation), all is well. If accidental, you are telling Google to index ANOTHER page instead of this one: the current page can be deindexed in favor of the target.",
+      "action": "Confirm that the new canonical target is intentional; otherwise restore the self-reference.",
+      "gain": "No silent deindexing: every indexable page keeps its signal."
+    },
+    "meta_title_missing": {
+      "constat": "The page's meta title is gone.",
+      "pourquoi": "The title is the most direct relevance signal for Google and the clickable text in search results. Without it, Google generates an approximate title — often less relevant — and CTR drops. LLMs also rely on the title to understand and cite the page.",
+      "action": "Restore the <title> tag in the template (check the framework's SEO/head component).",
+      "gain": "You regain control of the title displayed in Google and read by AI systems."
+    },
+    "soft_404": {
+      "constat": "The page returns a 200 status but displays a \"page not found\" message.",
+      "pourquoi": "Google detects these \"soft 404s\" and treats them as deleted pages: deindexing, while your HTTP monitoring tools see nothing (the status is 200). It is the classic blind spot of SPAs.",
+      "action": "Return a real 404/410 status for content that no longer exists, or restore the content if the page should exist.",
+      "gain": "The Google index reflects your actual site; crawl budget is no longer wasted on dead pages."
+    },
+    "redirect_to_homepage": {
+      "constat": "The page redirects to the homepage.",
+      "pourquoi": "Google treats a blanket redirect to the homepage as a soft 404: the original URL's content, rankings and backlinks are lost. It is a frequent symptom of a broken route after a redesign.",
+      "action": "Restore the page, or 301-redirect to the closest equivalent page (never the homepage).",
+      "gain": "The URL's authority is passed to relevant content instead of being lost."
+    },
+    "page_redirected": {
+      "constat": "A page still declared in your sitemap has started redirecting to another URL.",
+      "pourquoi": "Your sitemap tells Google \"this URL is canonical, crawl it\" while it bounces elsewhere: contradictory signals, crawl budget wasted on an address that no longer really exists. Two possible readings: either the redirect is intentional (migration, content merge) and the sitemap is lagging behind; or it is not, and it is often a broken route, a page deleted by mistake or a redesign that moved the URL without anyone noticing. A page that is 301-redirected AND removed from the sitemap, however, is a clean removal: Seogard does not flag it.",
+      "action": "If the redirect is intentional: remove the URL from the sitemap (and check that the redirect is a 301 to the equivalent page). Otherwise: restore the original page.",
+      "gain": "The sitemap and the server tell the same story: Google focuses its crawl on real pages, and an accidental redirect no longer goes unnoticed."
+    },
+    "js_redirect_detected": {
+      "constat": "The page responds 200 with content, but its JavaScript redirects the browser to another URL.",
+      "pourquoi": "The server signals no redirect (no 3xx): to the HTTP fetch and to AI systems, this page is normal content — which they read and may index or cite — while humans get sent elsewhere. Google can follow a JavaScript redirect, but only after rendering the page, in a delayed second wave: it may index the wrong page in the meantime, and never sees the redirect if rendering fails. AI systems, which read the raw HTML, do not follow it at all. A JavaScript redirect is therefore an ambiguous, fragile signal, often inherited from an SPA router or a forgotten `window.location`.",
+      "action": "Replace the JavaScript redirect with a real 301/302 server-side redirect, or render the final content directly on the requested URL.",
+      "gain": "Machines and humans see the same page: no more indexing of the wrong URL, no more AI systems reading content that does not match the destination."
+    },
+    "redirect_broken": {
+      "constat": "A page you had removed cleanly (redirect + removed from the sitemap) now returns a 4xx error: its redirect broke.",
+      "pourquoi": "As long as the redirect worked, the backlinks accumulated by the old URL passed their signals to the target — a 301 should stay in place for at least a year, and forever if external links still point to it. Once broken, the old address becomes a dead end: Google finds an error where it used to follow a path, and link equity stops flowing. The typical cause is silent: a routing refactor that deleted the redirect rule, or the deletion of the target page. Nobody visits these old URLs, so nobody notices — which is exactly why we monitor them.",
+      "action": "Restore the 301 redirect to the equivalent page still online (or to its new address if the target moved). The alert keeps the original target — no need to dig through your configuration to find it.",
+      "gain": "Signals from historical backlinks flow back into the right page instead of being lost on an error."
+    },
+    "rec_redirect_temporary": {
+      "constat": "A page removed from your sitemap redirects with a 302 or 307 — a redirect declared as temporary.",
+      "pourquoi": "A 302 tells Google \"the content will come back here\": it keeps the old URL indexed and is slower and more reluctant to consolidate signals toward the target. If the removal is actually permanent, this temporary status maintains an ambiguous state: the old address keeps occupying the index while the target does not fully receive the benefit of existing links. Google eventually treats a long-lived 302 as a 301, but that delay is neither documented nor guaranteed — better to send the right signal from the start.",
+      "action": "If the removal is permanent, switch the redirect to a 301 (permanent). Keep the 302 only if the original page is genuinely coming back.",
+      "gain": "The signal you send matches your actual intent: the old URL gets deindexed and links consolidate toward the target, with no period of ambiguity."
+    },
+    "rec_unclean_removal": {
+      "constat": "A page removed from your sitemap returns a bare 404 — no redirect, no signal of permanent deletion.",
+      "pourquoi": "The 404 works, but it is ambiguous: it says \"not found\", not \"deleted on purpose\". Google therefore keeps re-crawling the URL for weeks in case it comes back. And if backlinks pointed to this page, their value is lost on a dead end when a redirect would have passed it on. Two signals do better: 410 (\"Gone\") declares a deliberate deletion and speeds up deindexing; 301 preserves link equity when equivalent content exists. That said, an isolated 404 on a page with no history and no links has no real consequence — this recommendation matters mostly for pages that had value.",
+      "action": "Permanent deletion — return 410. Content moved or an equivalent exists — 301-redirect to that page.",
+      "gain": "Google stops crawling the dead URL sooner, and the value of existing links is preserved instead of being lost on a dead end."
+    },
+    "rec_sitemap_noindex_conflict": {
+      "constat": "This page is declared in your sitemap.xml but carries a noindex directive (robots meta tag, googlebot meta tag or X-Robots-Tag HTTP header).",
+      "pourquoi": "The sitemap tells Google \"this URL matters, index it\" while the noindex says \"ignore it\". Google always sides with the noindex — the page will not be indexed — but it keeps re-crawling it since the sitemap presents it as important: crawl budget wasted on a page you exclude yourself. It is also one of the causes behind the Search Console \"Excluded by noindex tag\" report, which pollutes your indexing data with perfectly intentional exclusions. AI systems that read the sitemap as the site's inventory receive the same contradictory signal.",
+      "action": "Pick a single intent: remove the page from the sitemap if it should stay unindexed (the noindex is then the only, consistent signal), or remove the noindex if it should rank.",
+      "gain": "The sitemap becomes a reliable statement of intent again: Google focuses its crawl on the pages you actually want indexed, and Search Console reports stop mixing intentional exclusions with accidents."
+    },
+    "ssr_rendering_failed": {
+      "constat": "The HTML returned by your server is nearly empty, even though the page works in the browser.",
+      "pourquoi": "Google indexes the raw HTML first: it sees an empty page until the second rendering pass (24 hours to several weeks later). AI systems (ChatGPT, Perplexity, Claude) execute little or none of your JavaScript: to them, this page is nearly empty. This is the typical SSR failure that goes unnoticed because the site \"works\" visually.",
+      "action": "Fix the server-side rendering (SSR error, hydration, timeout) so the raw HTML contains the content.",
+      "gain": "Google indexes the real content on the first pass and AI systems can finally read and cite the page."
+    },
+    "ssr_content_mismatch": {
+      "constat": "The raw HTML contains less than 10% of the content visible in the browser.",
+      "pourquoi": "Almost all the content is injected by JavaScript. Google sees a heavily stripped-down version on the first crawl, and LLMs — which read almost exclusively the raw HTML — capture close to nothing. Your content exists for humans but not for the machines that decide your visibility.",
+      "action": "Render the main content server-side (SSR/SSG) instead of injecting it client-side.",
+      "gain": "The full content becomes indexable on the first crawl and citable by AI systems."
+    },
+    "h1_missing": {
+      "constat": "The page's H1 is gone.",
+      "pourquoi": "The H1 is a page's main topical signal for Google, and the anchor point LLMs use to understand what it is about. Its disappearance is almost always a template bug, not a choice.",
+      "action": "Restore the H1 in the affected template.",
+      "gain": "Google and AI systems can identify the page's main topic again."
+    },
+    "h1_multiple": {
+      "constat": "The page contains multiple H1 tags.",
+      "pourquoi": "The topical signal gets diluted across several main titles. It is not a penalty, but Google and AI systems have to guess the real topic — and sometimes guess wrong. Often a component (logo, banner) wrongly marked up as an H1.",
+      "action": "Keep a single H1 (the editorial title) and demote the others to H2/H3 or non-heading tags.",
+      "gain": "One clear, unique topic per page — correct interpretation guaranteed."
+    },
+    "h1_changed": {
+      "constat": "The H1 text changed since the previous crawl.",
+      "pourquoi": "If it is an editorial update, great. If it is a template bug (empty variable, wrong data), the rankings earned on the old wording can erode. Seogard flags the change so you can acknowledge it knowingly.",
+      "action": "Check that the new H1 is intentional; otherwise fix the template.",
+      "gain": "No topical change of direction goes unnoticed."
+    },
+    "viewport_missing": {
+      "constat": "The viewport tag is gone.",
+      "pourquoi": "Without a viewport, the page is no longer mobile-friendly. Google indexes mobile-first: a page unreadable on mobile is a poorly ranked page. It is almost always a layout/template that lost its tag during a deploy.",
+      "action": "Restore the viewport tag in the layout's head.",
+      "gain": "The page remains eligible for good mobile-first rankings."
+    },
+    "thin_content": {
+      "constat": "The page's content dropped below 200 words.",
+      "pourquoi": "Very short content gives Google little material to rank the page, and nothing usable for LLMs to cite. If the page used to have more content, a content component has probably stopped rendering.",
+      "action": "Check whether the thinness is normal (utility page) or restore the missing content.",
+      "gain": "The page becomes a real candidate for ranking and citation again."
+    },
+    "content_removed": {
+      "constat": "More than 50% of the page's content is gone.",
+      "pourquoi": "A massive content drop is almost always an accident (broken component, wrong CMS data, deploy). Google recalculates the page's relevance on what remains — usually downward, and lastingly if nothing is fixed.",
+      "action": "Compare with the previous version and restore the missing content.",
+      "gain": "The page keeps the depth that justified its rankings."
+    },
+    "hreflang_removed": {
+      "constat": "All hreflang tags are gone.",
+      "pourquoi": "International targeting is broken: Google may serve the French version to a Spanish visitor, or let your language versions compete against each other. On a multilingual site, this is a major, silent regression.",
+      "action": "Restore the hreflang block (generator or template) and check that the annotations are reciprocal.",
+      "gain": "Each market gets the right language version in its search results."
+    },
+    "hreflang_changed": {
+      "constat": "The languages declared in the hreflang tags changed.",
+      "pourquoi": "Normal if you are adding/removing a language. If accidental, it can derail the targeting of an entire market. The change needs to be seen and validated.",
+      "action": "Confirm that the new language list matches your strategy.",
+      "gain": "International targeting stays under explicit control."
+    },
+    "https_mixed_content": {
+      "constat": "Resources (images, scripts, styles) are loaded over HTTP on an HTTPS page.",
+      "pourquoi": "Browsers block or flag these resources: broken padlock, missing elements, eroded user trust. Google prefers fully secure pages. Often an absolute URL forgotten in content or a template.",
+      "action": "Switch the affected URLs to HTTPS (or to relative URLs).",
+      "gain": "The padlock comes back, and no resources are blocked by the browser."
+    },
+    "meta_description_missing": {
+      "constat": "The meta description is gone.",
+      "pourquoi": "Google then generates a snippet from the content — often less compelling than your own copy. Impact is on CTR more than rankings: not critical, but clicks left on the table.",
+      "action": "Restore the meta description in the template.",
+      "gain": "You give Google your own copy for the snippet, which it shows when it deems it relevant (it frequently rewrites snippets based on the query)."
+    },
+    "structured_data_removed": {
+      "constat": "The page's structured data (JSON-LD) is gone.",
+      "pourquoi": "You lose eligibility for rich results (stars, FAQ, products) in Google — a hard-earned CTR advantage that evaporates. AI systems also use this data to attribute and cite content: its disappearance makes you less readable to both engines.",
+      "action": "Restore the deleted JSON-LD block (often a component removed by mistake).",
+      "gain": "Rich results return and content becomes attributable by AI systems again."
+    },
+    "structured_data_error": {
+      "constat": "The page's JSON-LD is present but invalid (syntax error).",
+      "pourquoi": "Invalid JSON is simply ignored by Google and AI systems: all the benefits of structured data disappear while the code appears to be in place. The error often comes from an unescaped value injected dynamically.",
+      "action": "Fix the syntax (test with the Schema.org validator) and escape dynamic values.",
+      "gain": "Your structured data is actually consumed again, not just present."
+    },
+    "og_image_removed": {
+      "constat": "The Open Graph image (og:image) is gone.",
+      "pourquoi": "No impact on Google rankings. But every share on LinkedIn, Slack, X or WhatsApp now displays without a visual — the click-through rate of shares drops. For a site that lives off social, this is far from cosmetic.",
+      "action": "Restore the og:image tag (and check that the image URL actually responds).",
+      "gain": "Your shared links become visual and clickable again."
+    },
+    "og_title_removed": {
+      "constat": "The Open Graph title (og:title) is gone.",
+      "pourquoi": "Without og:title, social platforms use the title tag or improvise. Impact limited to how shares render — not SEO — but it is a degraded storefront with a zero-cost fix.",
+      "action": "Restore the og:title tag.",
+      "gain": "Clean, controlled shares on every platform."
+    },
+    "meta_refresh_detected": {
+      "constat": "A meta refresh redirect was detected.",
+      "pourquoi": "It is the worst way to redirect: slower than a 301, passed less reliably by Google, and invisible to many tools. It often signals an old mechanism or a template hack.",
+      "action": "Replace the meta refresh with a real server-side HTTP 301 redirect.",
+      "gain": "The redirect passes the SEO signal cleanly and executes instantly."
+    },
+    "robots_txt_changed": {
+      "constat": "The site's robots.txt file changed.",
+      "pourquoi": "One line of robots.txt can cut off crawling for entire sections. Most SEO deploy disasters (a staging \"Disallow: /\" pushed to production) trace back to this file. Every change deserves an immediate review.",
+      "action": "Review the robots.txt diff and confirm every modified rule.",
+      "gain": "No accidental crawl blocking survives more than one crawl."
+    },
+    "heading_hierarchy_broken": {
+      "constat": "The heading hierarchy skips levels (e.g. H1 to H3 without an H2).",
+      "pourquoi": "Honestly: the direct SEO impact is low. But a clean heading structure helps Google split the page into sections, LLMs extract answers, and screen readers navigate. It is hygiene at near-zero cost.",
+      "action": "Restore the logical order of heading levels in the template.",
+      "gain": "Clean extraction by machines and better accessibility, for a few minutes of work."
+    },
+    "lang_attribute_missing": {
+      "constat": "The lang attribute on the html tag is gone.",
+      "pourquoi": "Moderate impact: Google detects the language from the content, but the attribute helps screen readers (pronunciation) and some parsers. It is a hygiene regression more than a ranking one.",
+      "action": "Restore the lang attribute on the layout's html tag.",
+      "gain": "Clean accessibility and an explicit language signal for every tool."
+    },
+    "lang_attribute_changed": {
+      "constat": "The lang attribute changed value.",
+      "pourquoi": "A lang switching from fr to en on a French site is almost always a default template deployed by mistake. Low direct impact, but a symptom of a layout modified without review.",
+      "action": "Check whether it is intentional; restore the correct language otherwise.",
+      "gain": "Language consistency preserved across the whole site."
+    },
+    "word_count_changed": {
+      "constat": "The page's word count changed noticeably since the last crawl.",
+      "pourquoi": "A notable variation is often intentional (editorial update) — but it can signal a block that no longer renders. Low impact in itself: it is a monitoring signal, not a serious alert.",
+      "action": "Skim the page to confirm the variation is intentional.",
+      "gain": "You catch a template losing content blocks early."
+    },
+    "charset_missing": {
+      "constat": "The encoding declaration (charset) is gone.",
+      "pourquoi": "Concrete risk: accents and special characters displayed incorrectly depending on the browser, and content potentially misparsed. Low direct SEO impact, but the display bug is immediate for visitors.",
+      "action": "Restore the meta charset tag (UTF-8) at the very top of the head.",
+      "gain": "Reliable text rendering across all browsers and parsers."
+    },
+    "ssr_title_mismatch": {
+      "constat": "The title in the raw HTML differs from the one displayed after JavaScript executes.",
+      "pourquoi": "Google may index the raw version's title (often a generic one like \"App\"), not the one you think you have. LLMs see almost only the raw title. You are optimizing around a title the machines never read.",
+      "action": "Set the title server-side (SSR head), not via a client-side script.",
+      "gain": "The title that gets indexed and cited finally matches the one you wrote."
+    },
+    "ssr_meta_description_mismatch": {
+      "constat": "The meta description in the raw HTML differs from the one rendered by JavaScript.",
+      "pourquoi": "Google often bases the results snippet on the raw version; AI systems read only that one. The description you optimized is probably never seen by the machines.",
+      "action": "Render the meta description server-side.",
+      "gain": "The description read by Google and AI systems is the one you actually wrote, not a phantom text (Google remains free to rewrite the displayed snippet based on the query)."
+    },
+    "meta_title_changed": {
+      "constat": "The meta title changed since the previous crawl.",
+      "pourquoi": "Intentional? Fine. Accidental (empty variable, generic fallback)? The CTR and rankings earned on the old title can erode silently. The change deserves to be seen and acknowledged, not discovered three weeks later.",
+      "action": "Confirm that the new title is intentional; otherwise fix it.",
+      "gain": "No unintended rewrite of your titles reaches production without validation."
+    },
+    "meta_description_changed": {
+      "constat": "The meta description changed since the previous crawl.",
+      "pourquoi": "Like the title: healthy if editorial, suspicious if nobody changed anything. Moderate impact (CTR), but a generic fallback deployed by mistake across an entire template deserves to be caught fast.",
+      "action": "Check whether the change is intentional.",
+      "gain": "Snippet regressions are detected on the next crawl, not in the monthly report."
+    },
+    "ssr_blocked": {
+      "constat": "Your firewall (WAF/anti-bot) blocked Seogard's HTTP request and returned a challenge page.",
+      "pourquoi": "If one legitimate crawler is blocked, others may be too: AI citation crawlers, SEO tools, sometimes even some Google fetches. At minimum, your monitoring is blind on these pages.",
+      "action": "Allow legitimate crawlers (including Seogard) in your WAF/CDN configuration.",
+      "gain": "Monitoring resumes, and you avoid silently blocking bots that help your visibility."
+    },
+    "llms_txt_removed": {
+      "constat": "The /llms.txt file was deleted from the site.",
+      "pourquoi": "Honestly: low impact to date — llms.txt is a convention that major LLMs do not confirm consuming. We flag the deletion because you had set it up deliberately: if it is accidental, it is a symptom of a deploy that may have wiped other static files too.",
+      "action": "Check that the deletion is intentional; otherwise restore the file and audit the deploy.",
+      "gain": "Consistency with your original intent, and confirmation that the deploy did not wipe anything else."
+    },
+    "ai_crawlers_blocked_changed": {
+      "constat": "The robots.txt now blocks AI citation crawlers that were previously allowed.",
+      "pourquoi": "Citation crawlers (OAI-SearchBot and ChatGPT-User for OpenAI, PerplexityBot and Perplexity-User for Perplexity, Claude-SearchBot and Claude-User for Anthropic) are the ones that let ChatGPT search, Perplexity or Claude consult and CITE your pages. Blocking them removes you from AI answers. Not to be confused with training crawlers (GPTBot, ClaudeBot, Google-Extended), whose blocking does not affect citation.",
+      "action": "Remove the citation crawlers from the robots.txt Disallow rules (keep blocking training bots if that is your policy).",
+      "gain": "Your content becomes consultable and citable by AI answer engines again."
+    },
+    "robots_blocks_googlebot": {
+      "constat": "The robots.txt blocks Googlebot on part of the site.",
+      "pourquoi": "This is the most radical incident possible: the blocked sections will no longer be crawled, so no longer updated in the index, then degraded. The staging \"Disallow\" pushed to production is a classic cause of massive traffic losses.",
+      "action": "Immediately remove the rule blocking Googlebot (unless the blocking is deliberate and documented).",
+      "gain": "Google keeps access to everything that should be indexed."
+    },
+    "faq_schema_removed": {
+      "constat": "The page's FAQPage schema is gone.",
+      "pourquoi": "Google no longer shows FAQ rich results in the SERP: the FAQPage schema therefore no longer brings any enhanced display in search results, and its removal has no ranking impact. The visible question/answer content, however, remains readable by Google and LLMs — which read the page's text, not the markup. We flag the removal because it is often a symptom of a component deleted by mistake.",
+      "action": "Check that the removal is intentional; restore the component if it is not.",
+      "gain": "Confirmation that the removal is deliberate, not a side effect of a deploy — the schema alone carried no traffic."
+    },
+    "structured_data_author_removed": {
+      "constat": "The author field disappeared from the structured data.",
+      "pourquoi": "Attribution (who wrote this) is a trust signal in Google's E-E-A-T logic and a reference point for AI systems when they decide what to cite. Nothing guarantees that an author field alone triggers a citation, but attributed content starts with one more signal than anonymous content. Moderate impact on citability, low on classic rankings.",
+      "action": "Restore the author field in the JSON-LD.",
+      "gain": "Your content remains attributable — a criterion generative engines value."
+    },
+    "rec_img_alt_audit": {
+      "constat": "Some images on the page have no alt attribute.",
+      "pourquoi": "Google Images cannot understand these images, and neither can screen readers. Modest impact on overall SEO, real impact on image traffic and accessibility.",
+      "action": "Add a descriptive alt to content images (decorative images can keep an empty alt).",
+      "gain": "Google Images traffic becomes possible and the page is accessible."
+    },
+    "rec_title_length_audit": {
+      "constat": "The title is too short or too long to display fully in Google.",
+      "pourquoi": "A truncated title loses its click appeal; a title that is too short underuses the space. This is CTR optimization, not ranking — useful, never urgent.",
+      "action": "Aim for a 30-60 character title that carries the main intent.",
+      "gain": "A fully visible, more clickable title in search results."
+    },
+    "rec_description_length_audit": {
+      "constat": "The meta description is too short or too long.",
+      "pourquoi": "Too long, it gets truncated; too short, Google often replaces it with an excerpt of its own choosing. A pure CTR concern.",
+      "action": "Aim for 70 to 155 characters with a clear promise.",
+      "gain": "A description sized to display fully when Google chooses to use it — knowing it frequently rewrites snippets based on the query."
+    },
+    "rec_h1_missing_audit": {
+      "constat": "No H1 detected on the page (even after JavaScript rendering).",
+      "pourquoi": "Without a main title, Google and AI systems have to infer the page's topic from other signals — less reliable. Different from a regression: here the page never had an H1.",
+      "action": "Add an editorial H1 describing the page's topic.",
+      "gain": "An explicit topic for every engine, humans included."
+    },
+    "rec_h1_missing_in_ssr": {
+      "constat": "The H1 is missing from the raw HTML sent by your server, but present after JavaScript loads.",
+      "pourquoi": "Google indexes the raw HTML first: your main title is only seen on the second rendering pass, with a delay of 24 hours to several weeks. Generative engines (ChatGPT, Perplexity, Claude) read almost exclusively the raw HTML — to them, this page has no title.",
+      "action": "Render the H1 server-side (SSR), not via a client-hydrated component.",
+      "gain": "Google captures your title signal on the first crawl, and LLMs have a title to understand and cite the page."
+    },
+    "rec_content_missing_in_ssr": {
+      "constat": "A significant share of the page's text exists only in the JavaScript render.",
+      "pourquoi": "Google eventually sees it (second pass, with a delay); LLMs never do. The larger the JS-injected share, the more invisible your content is to AI answer engines — the fastest-growing channel.",
+      "action": "Render the main content server-side; reserve JS for interactive elements.",
+      "gain": "Content fully indexable without delay and citable by AI systems."
+    },
+    "rec_title_missing_in_ssr": {
+      "constat": "The title tag is missing from the raw HTML but filled in after JavaScript executes.",
+      "pourquoi": "On the first pass, Google sees a page without a title; AI systems will never see yours. Yet the title is the cheapest signal to serve via SSR.",
+      "action": "Set the title in the head server-side.",
+      "gain": "A title visible to every machine from the very first request."
+    },
+    "rec_description_missing_in_ssr": {
+      "constat": "The meta description exists only in the JavaScript render, not in the raw HTML.",
+      "pourquoi": "The Google snippet and AI reading are mostly based on the raw HTML: your optimized description is invisible there. CTR impact more than ranking.",
+      "action": "Render the meta description server-side.",
+      "gain": "Your description is present in the raw HTML, so actually read by Google and AI systems."
+    },
+    "rec_internal_links_missing_in_ssr": {
+      "constat": "The page's internal links are injected by JavaScript, absent from the raw HTML.",
+      "pourquoi": "Internal linking guides Google's crawl: links invisible on the first pass slow down page discovery. AI systems that follow links in the raw HTML will not navigate your site.",
+      "action": "Render navigation and contextual links via SSR (real a href tags in the raw HTML).",
+      "gain": "Smooth crawling and full site discovery by every machine."
+    },
+    "rec_structured_data_missing_in_ssr": {
+      "constat": "The JSON-LD is injected by JavaScript, absent from the raw HTML.",
+      "pourquoi": "Google usually reads it on the second pass, but AI systems and many parsers only see the raw HTML: your structured data is invisible to them. The attribution/citation benefit is lost exactly where it matters most.",
+      "action": "Include the JSON-LD in the server-rendered HTML.",
+      "gain": "Structured data readable by 100% of machines, not just Google."
+    },
+    "rec_img_alt_missing_in_ssr": {
+      "constat": "Images added by JavaScript have no alt attribute.",
+      "pourquoi": "Two weaknesses combined: images invisible in the raw HTML AND without a description. Google Images will probably ignore them; the accessibility impact is the same.",
+      "action": "Add the alt attributes and, if possible, render these images server-side.",
+      "gain": "Indexable, accessible images."
+    },
+    "rec_semantic_structure_missing_in_ssr": {
+      "constat": "The semantic tags (main, header, footer) only appear after JavaScript executes.",
+      "pourquoi": "The raw HTML — the version AI systems and Google's first pass read — has no structure at all. Light impact, but symptomatic of a fully client-side layout.",
+      "action": "Render the layout structure server-side.",
+      "gain": "A page structured for every machine from the first byte."
+    },
+    "rec_favicon_missing_audit": {
+      "constat": "No favicon detected.",
+      "pourquoi": "Minor impact: the favicon appears in browser tabs and next to your name in Google's mobile results. Its absence makes the site look unfinished, nothing more.",
+      "action": "Add a favicon in the standard formats.",
+      "gain": "A clean visual presence in tabs and mobile SERPs."
+    },
+    "rec_semantic_structure_audit": {
+      "constat": "Semantic tags (main, header, footer) missing from the page.",
+      "pourquoi": "These tags help engines and screen readers separate the main content from the chrome. Light impact, structural hygiene.",
+      "action": "Structure the layout with main, header and footer.",
+      "gain": "Machines isolate your main content from the rest more easily."
+    },
+    "rec_structured_data_missing_audit": {
+      "constat": "No structured data (JSON-LD) on the page.",
+      "pourquoi": "Without schema, no rich results are possible and AI systems have fewer hooks (attribution, content type). You are conceding a SERP advantage to competitors who have it.",
+      "action": "Add the JSON-LD matching the page type (Article, Product, FAQ...).",
+      "gain": "Rich result eligibility and better machine readability."
+    },
+    "rec_og_missing_audit": {
+      "constat": "Missing Open Graph tags (og:title, og:description or og:image).",
+      "pourquoi": "Every social share looks degraded (no preview image or no controlled title). Zero ranking impact, real impact on social clicks.",
+      "action": "Complete the og:title / og:description / og:image trio.",
+      "gain": "Attractive shares on every platform."
+    },
+    "rec_internal_links_audit": {
+      "constat": "The page contains very few outgoing internal links (or none at all).",
+      "pourquoi": "A page that points to nothing is a dead end: it passes no link equity to other pages and does not help Google continue its crawl. This rule covers the page's OUTGOING links (the ones it sends to the rest of the site).",
+      "action": "Add contextual links to topically related pages.",
+      "gain": "The page passes internal link equity and smooths the site's crawl."
+    },
+    "rec_llms_txt_missing": {
+      "constat": "No /llms.txt file on the site.",
+      "pourquoi": "Honestly: a speculative convention, not confirmed by major LLMs (neither Google nor OpenAI has adopted it). Its current value is documentary — guiding agents and tools to your key content. Treat it as a bonus, not a priority.",
+      "action": "If the cost is zero for you: publish an llms.txt listing your reference pages. Otherwise, skip it without regret.",
+      "gain": "A clean entry point for AI agents — at worst useless, never harmful."
+    },
+    "rec_ai_crawlers_blocked": {
+      "constat": "The robots.txt blocks AI citation crawlers (OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User).",
+      "pourquoi": "These crawlers let answer engines (ChatGPT search, Perplexity, Claude) consult and cite your pages: blocking them removes you from their answers. Important nuance: blocking TRAINING crawlers (GPTBot, Google-Extended) does not affect citation — many tools conflate the two, Seogard does not.",
+      "action": "Allow the citation crawlers in the robots.txt (your policy on training bots can stay unchanged).",
+      "gain": "Possible presence in AI engine answers — a growing traffic channel."
+    },
+    "rec_structured_data_incomplete": {
+      "constat": "Structured data exists but is incomplete (missing author, date or publisher).",
+      "pourquoi": "AI systems rely on these fields to judge reliability and attribute a citation (who wrote it, when, for whom). A skeletal schema yields little.",
+      "action": "Fill in author, datePublished and publisher in the JSON-LD.",
+      "gain": "Dated, attributed content — the profile generative engines prefer to cite."
+    },
+    "rec_faq_schema_missing": {
+      "constat": "A substantial content page (more than 300 words) without a FAQPage schema.",
+      "pourquoi": "When content addresses recurring questions, organizing it as explicit questions and answers makes it easier for AI answer engines to extract, as they look for passages that answer an intent. It is the visible editorial STRUCTURE (question as a heading, answer below) that carries this benefit, not the FAQPage markup — Google no longer shows FAQ rich results in the SERP. On a page that does not address questions, this recommendation does not apply.",
+      "action": "If your content answers recurring questions, structure them as clear sections (question as an H2/H3, concise answer below). The FAQPage schema remains optional and harmless, but no longer triggers any enhanced display.",
+      "gain": "Passages that answer engines can isolate and pick up — and content that is easier for your visitors to scan."
+    },
+    "rec_citation_signals_missing": {
+      "constat": "Several citation signals are missing (author, date, external sources).",
+      "pourquoi": "To cite content, a generative engine looks for who is speaking, when, and on what basis. Anonymous, undated content with no references starts at a disadvantage against an attributed competitor.",
+      "action": "Display the author and date, and back key claims with links to sources.",
+      "gain": "Verifiable content (who is speaking, when, on what basis) — the elements a generative engine can use to evaluate a source. Not a citation guarantee, but one less disadvantage."
+    },
+    "rec_content_structure_audit": {
+      "constat": "The content has neither subheadings (H2) nor lists.",
+      "pourquoi": "AI systems extract passages: an unstructured wall of text is hard to break up, so cited less. Humans also scan structured content better — a double win.",
+      "action": "Break the content into H2 sections and convert enumerations into lists.",
+      "gain": "Content extractable by AI systems and more readable for your visitors."
+    },
+    "perf_page_weight_explosion": {
+      "constat": "The page's total weight increased sharply since the previous crawl.",
+      "pourquoi": "A suddenly heavier page loads more slowly, especially on mobile — degraded experience and Core Web Vitals under pressure. The typical cause: an uncompressed image or a JS dependency added unchecked.",
+      "action": "Identify the responsible resource (image, script) in the weight breakdown and compress or remove it.",
+      "gain": "Load time under control — page weight is one of the direct levers on LCP, especially on mobile."
+    },
+    "rec_perf_page_heavy": {
+      "constat": "The page exceeds 1.6 MB (Lighthouse threshold), excessive beyond 5 MB.",
+      "pourquoi": "Weight hits your mobile visitors and bounce rate first; the SEO effect works through experience (Core Web Vitals), not a direct penalty. Treat it as ongoing groundwork, not an emergency.",
+      "action": "Compress images (modern formats) and trim the embedded JavaScript.",
+      "gain": "Faster pages for real visitors — the metric that comes before all the others."
+    }
+  },
+  "slugs": {
+    "noindex_added": "noindex-added",
+    "status_code_changed": "http-status-code-changed",
+    "canonical_missing": "missing-canonical-tag",
+    "canonical_changed": "canonical-tag-changed",
+    "meta_title_missing": "missing-meta-title",
+    "soft_404": "soft-404",
+    "redirect_to_homepage": "redirect-to-homepage",
+    "page_redirected": "page-redirected",
+    "js_redirect_detected": "javascript-redirect",
+    "redirect_broken": "broken-redirect",
+    "rec_redirect_temporary": "temporary-302-redirect",
+    "rec_unclean_removal": "page-removed-without-410-or-301",
+    "rec_sitemap_noindex_conflict": "noindex-page-in-sitemap",
+    "ssr_rendering_failed": "broken-ssr",
+    "ssr_content_mismatch": "ssr-csr-content-mismatch",
+    "h1_missing": "h1-removed",
+    "h1_multiple": "multiple-h1-tags",
+    "h1_changed": "h1-changed",
+    "viewport_missing": "viewport-meta-removed",
+    "thin_content": "thin-content",
+    "content_removed": "content-removed",
+    "hreflang_removed": "hreflang-removed",
+    "hreflang_changed": "hreflang-changed",
+    "https_mixed_content": "mixed-content-https",
+    "meta_description_missing": "missing-meta-description",
+    "structured_data_removed": "structured-data-removed",
+    "structured_data_error": "invalid-json-ld",
+    "og_image_removed": "og-image-removed",
+    "og_title_removed": "og-title-removed",
+    "meta_refresh_detected": "meta-refresh-redirect",
+    "robots_txt_changed": "robots-txt-changed",
+    "heading_hierarchy_broken": "broken-heading-hierarchy",
+    "lang_attribute_missing": "lang-attribute-removed",
+    "lang_attribute_changed": "lang-attribute-changed",
+    "word_count_changed": "content-length-changed",
+    "charset_missing": "charset-removed",
+    "ssr_title_mismatch": "ssr-csr-title-mismatch",
+    "ssr_meta_description_mismatch": "ssr-csr-description-mismatch",
+    "meta_title_changed": "meta-title-changed",
+    "meta_description_changed": "meta-description-changed",
+    "ssr_blocked": "crawler-blocked-by-waf",
+    "llms_txt_removed": "llms-txt-removed",
+    "ai_crawlers_blocked_changed": "new-ai-crawler-blocking",
+    "robots_blocks_googlebot": "robots-txt-blocks-googlebot",
+    "faq_schema_removed": "faq-schema-removed",
+    "structured_data_author_removed": "author-removed-from-json-ld",
+    "rec_img_alt_audit": "images-missing-alt-text",
+    "rec_title_length_audit": "title-length",
+    "rec_description_length_audit": "meta-description-length",
+    "rec_h1_missing_audit": "missing-h1",
+    "rec_h1_missing_in_ssr": "h1-missing-from-raw-html",
+    "rec_content_missing_in_ssr": "content-missing-from-raw-html",
+    "rec_title_missing_in_ssr": "title-missing-from-raw-html",
+    "rec_description_missing_in_ssr": "description-missing-from-raw-html",
+    "rec_internal_links_missing_in_ssr": "internal-links-missing-from-raw-html",
+    "rec_structured_data_missing_in_ssr": "json-ld-missing-from-raw-html",
+    "rec_img_alt_missing_in_ssr": "image-alt-missing-from-raw-html",
+    "rec_semantic_structure_missing_in_ssr": "semantic-tags-missing-from-raw-html",
+    "rec_favicon_missing_audit": "missing-favicon",
+    "rec_semantic_structure_audit": "semantic-html-structure",
+    "rec_structured_data_missing_audit": "missing-structured-data",
+    "rec_og_missing_audit": "missing-open-graph-tags",
+    "rec_internal_links_audit": "too-few-internal-links",
+    "rec_llms_txt_missing": "missing-llms-txt",
+    "rec_ai_crawlers_blocked": "ai-crawlers-blocked-robots-txt",
+    "rec_structured_data_incomplete": "incomplete-structured-data",
+    "rec_faq_schema_missing": "missing-faq-schema",
+    "rec_citation_signals_missing": "weak-citation-signals",
+    "rec_content_structure_audit": "geo-content-structure",
+    "perf_page_weight_explosion": "page-weight-increase",
+    "rec_perf_page_heavy": "heavy-page"
+  },
+  "priorities": {
+    "P0": {
+      "label": "P0 — Deindexing",
+      "description": "Pages disappear from Google"
+    },
+    "P1": {
+      "label": "P1 — Direct ranking",
+      "description": "Confirmed direct impact on rankings"
+    },
+    "P2": {
+      "label": "P2 — CTR / SERP",
+      "description": "Appearance in search results"
+    },
+    "P3": {
+      "label": "P3 — Quality",
+      "description": "Best practices, indirect impact"
+    },
+    "GEO": {
+      "label": "GEO — AI visibility",
+      "description": "LLM/AI signal monitoring"
+    },
+    "REC": {
+      "label": "Recommendations",
+      "description": "Audit — checked on every crawl"
+    },
+    "GEO-REC": {
+      "label": "GEO recommendations",
+      "description": "Audit — AI visibility signals"
+    },
+    "PERF": {
+      "label": "Performance",
+      "description": "Speed and weight regressions (Core Web Vitals)"
+    },
+    "PERF-REC": {
+      "label": "Performance recommendations",
+      "description": "Audit — absolute speed and weight"
+    }
+  }
+}

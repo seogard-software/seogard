@@ -10,14 +10,14 @@
         <div class="tree-side-panel__header-info">
           <div class="tree-side-panel__path-row">
             <h3 class="tree-side-panel__path" :title="node.path">{{ node.path }}</h3>
-            <button class="tree-side-panel__copy" :title="copied ? 'Copié !' : 'Copier l\'URL'" @click.stop="copyPath">
+            <button class="tree-side-panel__copy" :title="copied ? $t('dashboard.c.treeSidePanel.copied') : $t('dashboard.c.treeSidePanel.copyUrl')" @click.stop="copyPath">
               <AppIcon :name="copied ? 'check' : 'copy'" size="sm" />
             </button>
           </div>
           <div class="tree-side-panel__header-stats">
             <span :class="['tree-side-panel__health', `tree-side-panel__health--${healthLevel}`]">{{ node.healthScore }}%</span>
             <span class="tree-side-panel__header-sep" />
-            <span class="tree-side-panel__header-meta">{{ node.totalPageCount }} page{{ node.totalPageCount > 1 ? 's' : '' }}</span>
+            <span class="tree-side-panel__header-meta">{{ $t('dashboard.c.treeSidePanel.pageCount', node.totalPageCount) }}</span>
           </div>
         </div>
       </div>
@@ -34,14 +34,14 @@
           :class="['tree-side-panel__tab', activeTab === 'regressions' && 'tree-side-panel__tab--active']"
           @click="activeTab = 'regressions'"
         >
-          Régressions
+          {{ $t('dashboard.c.treeSidePanel.tabRegressions') }}
           <span v-if="node.regressionCount > 0" class="tree-side-panel__tab-count tree-side-panel__tab-count--danger">{{ node.regressionCount }}</span>
         </button>
         <button
           :class="['tree-side-panel__tab', activeTab === 'recommendations' && 'tree-side-panel__tab--active']"
           @click="activeTab = 'recommendations'"
         >
-          Recommandations
+          {{ $t('dashboard.c.treeSidePanel.tabRecommendations') }}
           <span v-if="node.recommendationCount > 0" class="tree-side-panel__tab-count">{{ node.recommendationCount }}</span>
         </button>
       </div>
@@ -56,7 +56,7 @@
           </div>
           <div v-else-if="groups.length === 0" class="tree-side-panel__empty">
             <AppIcon name="shield-check" size="sm" />
-            <span>{{ activeTab === 'regressions' ? 'Aucune régression' : 'Aucune recommandation' }}</span>
+            <span>{{ activeTab === 'regressions' ? $t('dashboard.c.treeSidePanel.noRegression') : $t('dashboard.c.treeSidePanel.noRecommendation') }}</span>
           </div>
           <AlertGroupCard
             v-for="group in groups"
@@ -100,6 +100,8 @@ defineEmits<{
 
 const props = defineProps<Props>()
 
+const { locale } = useI18n()
+
 // Onglet par défaut : une régression prime (on la montre direct) ; sinon, si la page
 // a des métriques de perf, on ouvre Performance ; sinon Régressions (vide).
 // Le panneau est remonté à chaque changement de page (key sur le parent), donc ce
@@ -142,7 +144,7 @@ const groups = computed(() => {
     .map(g => ({
       ruleId: g.ruleId as AlertType,
       severity: g.severity,
-      label: ALERT_TYPE_LABELS[g.ruleId] ?? g.ruleId,
+      label: getAlertTypeLabels(locale.value)[g.ruleId] ?? g.ruleId,
       count: g.count,
       sampleMessage: g.sampleMessage,
       alerts: alertsByRule.value.get(g.ruleId) ?? [],

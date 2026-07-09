@@ -7,12 +7,14 @@ import { createLogger } from './logger'
 import { initBrowser, closeBrowser, getBrowser } from './renderer'
 import { initCrawl, processPages, finalizeCrawl } from './worker'
 import { isCrawlStalled } from './crawl-completion'
-import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification, sendEstimateEmail  } from './notifications'
+import { sendSitemapBlockedNotification, sendSitemapInvalidHostnameNotification, sendEstimateEmail, toLocale  } from './notifications'
 import { getRedis, disconnectRedis, getActiveCrawls, addActiveCrawl, removeActiveCrawl, claimDistributionLock, clearDistributionLock, pushPages, getRemainingPages, getProgress } from './redis'
 import { discoverPages, setBrowser } from './sitemap'
 import { computeSitemapDiff } from './sitemap-diff'
 import { discoverSitemapHttp } from '../shared/utils/sitemap'
 import { calculateCloudPrice } from '../shared/utils/pricing'
+import type { Locale } from '../shared/utils/i18n'
+import { INTL_LOCALE } from '../shared/utils/format'
 
 const log = createLogger('main')
 
@@ -169,7 +171,7 @@ async function main() {
 
       if (estimateLead) {
         log.info({ url: estimateLead.url, email: estimateLead.email }, 'picked estimate job')
-        await runEstimate(estimateLead._id.toString(), estimateLead.url, estimateLead.email!, estimateLead.ip ?? 'unknown')
+        await runEstimate(estimateLead._id.toString(), estimateLead.url, estimateLead.email!, estimateLead.ip ?? 'unknown', toLocale(estimateLead.locale))
         continue
       }
 
@@ -244,9 +246,9 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
     try {
       if (site.notifyEmail) {
         const org = await Organization.findById(site.orgId).select('ownerId').lean()
-        const user = org ? await User.findById(org.ownerId).select('email') : null
+        const user = org ? await User.findById(org.ownerId).select('email locale') : null
         if (user) {
-          await sendSitemapBlockedNotification(user.email, site.name, site.url)
+          await sendSitemapBlockedNotification(user.email, site.name, site.url, toLocale(user.locale))
         }
       }
     }
@@ -265,9 +267,9 @@ async function distributeCrawl(crawlId: string, siteId: string): Promise<void> {
       try {
         if (site.notifyEmail) {
           const org = await Organization.findById(site.orgId).select('ownerId').lean()
-          const user = org ? await User.findById(org.ownerId).select('email') : null
+          const user = org ? await User.findById(org.ownerId).select('email locale') : null
           if (user) {
-            await sendSitemapInvalidHostnameNotification(user.email, site.name, site.url, foreignHostnames, foreignUrlCount)
+            await sendSitemapInvalidHostnameNotification(user.email, site.name, site.url, foreignHostnames, foreignUrlCount, toLocale(user.locale))
           }
         }
       }
@@ -408,7 +410,7 @@ async function runDiscovery(siteId: string, siteUrl: string): Promise<void> {
  * Estimate: discover sitemap pages, calculate price, send email, update Lead.
  * Runs on worker for reliability (no timeout, survives Nuxt restarts).
  */
-async function runEstimate(leadId: string, url: string, email: string, ip: string): Promise<void> {
+async function runEstimate(leadId: string, url: string, email: string, ip: string, locale: Locale): Promise<void> {
   try {
     const result = await discoverSitemapHttp(url)
 
@@ -420,7 +422,8 @@ async function runEstimate(leadId: string, url: string, email: string, ip: strin
 
     const pageCount = result.urls.length
     const price = calculateCloudPrice(pageCount)
-    const formattedPrice = `${price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`
+    const rounded = price.toLocaleString(INTL_LOCALE[locale], { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    const formattedPrice = locale === 'en' ? `$${rounded}` : `${rounded} €`
 
     await Lead.findByIdAndUpdate(leadId, {
       pageCount,
@@ -434,7 +437,7 @@ async function runEstimate(leadId: string, url: string, email: string, ip: strin
       pageCount,
       price: formattedPrice,
       sitemapUrl: result.sitemapUrl,
-    })
+    }, locale)
 
     log.info({ url, email, pageCount }, 'estimate email sent')
   }

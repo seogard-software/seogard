@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const user = await User.findById(userId).select('-passwordHash -totpSecret -backupCodes').lean()
 
   if (!user) {
-    throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
+    throw createError({ statusCode: 404, message: 'User not found', data: { errorCode: 'USER_NOT_FOUND' } })
   }
 
   // Fetch all organizations the user belongs to

@@ -5,19 +5,19 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.token || typeof body.token !== 'string') {
-    throw createError({ statusCode: 400, message: 'Token requis' })
+    throw createError({ statusCode: 400, message: 'Token required', data: { errorCode: 'TOKEN_REQUIRED' } })
   }
   if (!body?.password || typeof body.password !== 'string' || body.password.length < 8) {
-    throw createError({ statusCode: 400, message: 'Mot de passe requis (8 caractères minimum)' })
+    throw createError({ statusCode: 400, message: 'Password required (min 8 characters)', data: { errorCode: 'PASSWORD_TOO_SHORT' } })
   }
 
-  const user = await User.findOne({
-    passwordResetToken: body.token,
-    passwordResetExpiresAt: { $gt: new Date() },
-  })
+  const user = await User.findOne({ passwordResetToken: body.token })
 
   if (!user) {
-    throw createError({ statusCode: 400, message: 'Lien expiré ou invalide. Demandez un nouveau lien.' })
+    throw createError({ statusCode: 400, message: 'Reset link invalid. Request a new one.', data: { errorCode: 'RESET_TOKEN_INVALID' } })
+  }
+  if (!user.passwordResetExpiresAt || user.passwordResetExpiresAt <= new Date()) {
+    throw createError({ statusCode: 400, message: 'Reset link expired. Request a new one.', data: { errorCode: 'RESET_TOKEN_EXPIRED' } })
   }
 
   // Update password and clear reset token

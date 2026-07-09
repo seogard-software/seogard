@@ -1,18 +1,18 @@
 <template>
   <div class="page-org-settings">
-    <DashboardHeader title="Paramètres de l'organisation" />
+    <DashboardHeader :title="$t('dashboard.orgSettings.title')" />
 
     <!-- Organisation -->
     <section class="page-org-settings__section">
       <div class="page-org-settings__section-header">
         <AppIcon name="building" size="sm" />
-        <h2 class="page-org-settings__section-title">Organisation</h2>
+        <h2 class="page-org-settings__section-title">{{ $t('dashboard.orgSettings.orgSection') }}</h2>
       </div>
       <div class="page-org-settings__section-body">
         <form class="page-org-settings__form" @submit.prevent="handleSave">
-          <AppInput v-model="name" label="Nom" :error="errors.name" />
+          <AppInput v-model="name" :label="$t('dashboard.orgSettings.nameLabel')" :error="errors.name" />
           <div class="page-org-settings__field">
-            <label class="page-org-settings__label">Domaines autorisés (auto-provisioning)</label>
+            <label class="page-org-settings__label">{{ $t('dashboard.orgSettings.domainsLabel') }}</label>
             <div class="page-org-settings__tags">
               <span v-for="(domain, i) in domains" :key="i" class="page-org-settings__tag">
                 {{ domain }}
@@ -27,9 +27,9 @@
             </div>
           </div>
           <AppAlert v-if="errors.general" variant="danger">{{ errors.general }}</AppAlert>
-          <AppAlert v-if="saved" variant="success">Sauvegardé</AppAlert>
+          <AppAlert v-if="saved" variant="success">{{ $t('dashboard.orgSettings.saved') }}</AppAlert>
           <AppButton type="submit" :loading="loading" size="sm">
-            Enregistrer
+            {{ $t('dashboard.orgSettings.save') }}
             <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
           </AppButton>
         </form>
@@ -42,16 +42,16 @@
     <section v-if="isOwner && isCloud" class="page-org-settings__section">
       <div class="page-org-settings__section-header">
         <AppIcon name="chart-bar" size="sm" />
-        <h2 class="page-org-settings__section-title">Facturation</h2>
+        <h2 class="page-org-settings__section-title">{{ $t('dashboard.orgSettings.billingSection') }}</h2>
         <AppBadge :variant="subscriptionBadgeVariant">{{ subscriptionLabel }}</AppBadge>
-        <span v-if="needsBillingAction" class="page-org-settings__flag page-org-settings__flag--warning">Action requise</span>
+        <span v-if="needsBillingAction" class="page-org-settings__flag page-org-settings__flag--warning">{{ $t('dashboard.orgSettings.actionRequired') }}</span>
       </div>
       <div class="page-org-settings__section-body">
         <!-- Trial bar -->
         <div v-if="isTrialing && trialDaysLeft > 0" class="page-org-settings__trial-bar">
           <div class="page-org-settings__trial-info">
-            <span class="page-org-settings__trial-label">Essai gratuit</span>
-            <span class="page-org-settings__trial-days">{{ trialDaysLeft }} jour{{ trialDaysLeft > 1 ? 's' : '' }} restant{{ trialDaysLeft > 1 ? 's' : '' }}</span>
+            <span class="page-org-settings__trial-label">{{ $t('dashboard.orgSettings.trialLabel') }}</span>
+            <span class="page-org-settings__trial-days">{{ $t('dashboard.orgSettings.trialDaysLeft', trialDaysLeft) }}</span>
           </div>
           <div class="page-org-settings__trial-progress">
             <div class="page-org-settings__trial-progress-bar" :style="{ width: `${trialProgress}%` }" />
@@ -60,15 +60,15 @@
 
         <div v-else-if="isTrialing && trialDaysLeft === 0" class="page-org-settings__trial-expired">
           <AppIcon name="alert-triangle" size="sm" />
-          <span>Votre essai de 14 jours est terminé. Activez la facturation pour continuer vos crawls.</span>
+          <span>{{ $t('dashboard.orgSettings.trialExpired') }}</span>
         </div>
 
         <p v-else-if="subscriptionStatus === 'active'" class="page-org-settings__billing-active">
-          Facturation active — {{ pagesUsed.toLocaleString('fr-FR') }} pages monitorées ce mois-ci.
+          {{ $t('dashboard.orgSettings.billingActive', { pages: pagesUsed.toLocaleString(numberLocale) }) }}
         </p>
 
         <NuxtLink :to="`/dashboard/organizations/${orgId}/billing`" :class="['page-org-settings__nav-link', needsBillingAction && 'page-org-settings__nav-link--accent']">
-          <span>{{ needsBillingAction ? 'Activer la facturation' : 'Gérer la facturation' }}</span>
+          <span>{{ needsBillingAction ? $t('dashboard.orgSettings.activateBilling') : $t('dashboard.orgSettings.manageBilling') }}</span>
           <AppIcon name="chevron-right" size="sm" />
         </NuxtLink>
       </div>
@@ -81,32 +81,32 @@
       <div class="page-org-settings__section-header">
         <AppIcon name="shield-check" size="sm" />
         <h2 class="page-org-settings__section-title">SSO SAML</h2>
-        <AppBadge v-if="samlConfigured" variant="success">Configuré</AppBadge>
-        <span v-else class="page-org-settings__flag page-org-settings__flag--neutral">Non configuré</span>
+        <AppBadge v-if="samlConfigured" variant="success">{{ $t('dashboard.orgSettings.configured') }}</AppBadge>
+        <span v-else class="page-org-settings__flag page-org-settings__flag--neutral">{{ $t('dashboard.orgSettings.notConfigured') }}</span>
       </div>
       <div class="page-org-settings__section-body">
         <form class="page-org-settings__form" @submit.prevent="handleSamlSave">
           <AppInput v-model="samlEntryPoint" label="Entry Point URL (IdP SSO URL)" />
           <div class="page-org-settings__field">
-            <label class="page-org-settings__label">Certificat X.509</label>
-            <textarea v-model="samlCertificate" rows="4" class="page-org-settings__textarea" placeholder="Collez le certificat ici..." />
+            <label class="page-org-settings__label">{{ $t('dashboard.orgSettings.certLabel') }}</label>
+            <textarea v-model="samlCertificate" rows="4" class="page-org-settings__textarea" :placeholder="$t('dashboard.orgSettings.certPlaceholder')" />
           </div>
           <AppInput v-model="samlIssuer" label="Issuer / Entity ID" />
           <div class="page-org-settings__toggle">
             <label>
               <input v-model="enforceSSO" type="checkbox">
-              Forcer le SSO pour tous les membres
+              {{ $t('dashboard.orgSettings.enforceSso') }}
             </label>
           </div>
           <div class="page-org-settings__urls">
-            <p class="page-org-settings__url-label">URLs à donner à votre admin IT :</p>
+            <p class="page-org-settings__url-label">{{ $t('dashboard.orgSettings.urlsLabel') }}</p>
             <code>Metadata : {{ appUrl }}/api/auth/saml/{{ orgSlug }}/metadata</code>
             <code>ACS : {{ appUrl }}/api/auth/saml/{{ orgSlug }}/callback</code>
           </div>
           <AppAlert v-if="samlError" variant="danger">{{ samlError }}</AppAlert>
-          <AppAlert v-if="samlSaved" variant="success">Configuration SAML sauvegardée</AppAlert>
+          <AppAlert v-if="samlSaved" variant="success">{{ $t('dashboard.orgSettings.samlSaved') }}</AppAlert>
           <AppButton type="submit" :loading="samlLoading" size="sm">
-            Enregistrer
+            {{ $t('dashboard.orgSettings.save') }}
             <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
           </AppButton>
         </form>
@@ -119,23 +119,23 @@
     <section v-if="isOwner" class="page-org-settings__section page-org-settings__section--danger">
       <div class="page-org-settings__section-header">
         <AppIcon name="alert-triangle" size="sm" />
-        <h2 class="page-org-settings__section-title page-org-settings__section-title--danger">Zone de danger</h2>
+        <h2 class="page-org-settings__section-title page-org-settings__section-title--danger">{{ $t('dashboard.orgSettings.dangerTitle') }}</h2>
       </div>
       <div class="page-org-settings__section-body">
         <div class="page-org-settings__danger-row">
           <div class="page-org-settings__danger-info">
-            <span class="page-org-settings__danger-label">Transférer la propriété</span>
-            <span class="page-org-settings__danger-desc">Promouvoir un membre au rôle owner.</span>
+            <span class="page-org-settings__danger-label">{{ $t('dashboard.orgSettings.transferLabel') }}</span>
+            <span class="page-org-settings__danger-desc">{{ $t('dashboard.orgSettings.transferDesc') }}</span>
           </div>
           <div class="page-org-settings__danger-action">
             <select v-model="promoteTarget" class="page-org-settings__select">
-              <option value="">Membre...</option>
+              <option value="">{{ $t('dashboard.orgSettings.memberPlaceholder') }}</option>
               <option v-for="m in promotableMembers" :key="m._id" :value="m._id">
                 {{ m.user?.name || m.user?.email || m._id }}
               </option>
             </select>
             <AppButton size="sm" :disabled="!promoteTarget" :loading="promoteLoading" @click="handlePromote">
-              Transférer
+              {{ $t('dashboard.orgSettings.transfer') }}
               <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
             </AppButton>
           </div>
@@ -143,22 +143,22 @@
 
         <div class="page-org-settings__danger-row">
           <div class="page-org-settings__danger-info">
-            <span class="page-org-settings__danger-label">Quitter l'organisation</span>
-            <span class="page-org-settings__danger-desc">Possible uniquement s'il y a un autre owner.</span>
+            <span class="page-org-settings__danger-label">{{ $t('dashboard.orgSettings.leaveLabel') }}</span>
+            <span class="page-org-settings__danger-desc">{{ $t('dashboard.orgSettings.leaveDesc') }}</span>
           </div>
           <AppButton size="sm" variant="danger" :loading="leaveLoading" @click="handleLeave">
-            Quitter
+            {{ $t('dashboard.orgSettings.leave') }}
             <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
           </AppButton>
         </div>
 
         <div class="page-org-settings__danger-row page-org-settings__danger-row--last">
           <div class="page-org-settings__danger-info">
-            <span class="page-org-settings__danger-label">Supprimer l'organisation</span>
-            <span class="page-org-settings__danger-desc">Irréversible. Tous les sites et données seront supprimés.</span>
+            <span class="page-org-settings__danger-label">{{ $t('dashboard.orgSettings.deleteLabel') }}</span>
+            <span class="page-org-settings__danger-desc">{{ $t('dashboard.orgSettings.deleteDesc') }}</span>
           </div>
           <AppButton size="sm" variant="danger" :loading="deleteLoading" @click="confirmDeleteOrg = true">
-            Supprimer
+            {{ $t('dashboard.orgSettings.delete') }}
             <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
           </AppButton>
         </div>
@@ -171,13 +171,13 @@
     <Teleport to="body">
       <div v-if="confirmDeleteOrg" class="page-org-settings__modal-overlay" @click.self="confirmDeleteOrg = false">
         <div class="page-org-settings__modal">
-          <h2 class="page-org-settings__modal-title">Supprimer l'organisation</h2>
+          <h2 class="page-org-settings__modal-title">{{ $t('dashboard.orgSettings.deleteModalTitle') }}</h2>
           <p class="page-org-settings__modal-desc">
-            Tapez <strong>{{ orgStore.activeOrg?.name }}</strong> pour confirmer la suppression.
+            {{ $t('dashboard.orgSettings.deleteModalPrefix') }} <strong>{{ orgStore.activeOrg?.name }}</strong> {{ $t('dashboard.orgSettings.deleteModalSuffix') }}
           </p>
-          <AppInput v-model="deleteConfirmText" label="" placeholder="Nom de l'organisation" />
+          <AppInput v-model="deleteConfirmText" label="" :placeholder="$t('dashboard.orgSettings.deletePlaceholder')" />
           <div class="page-org-settings__modal-actions">
-            <AppButton size="sm" variant="ghost" @click="confirmDeleteOrg = false">Annuler</AppButton>
+            <AppButton size="sm" variant="ghost" @click="confirmDeleteOrg = false">{{ $t('dashboard.orgSettings.cancel') }}</AppButton>
             <AppButton
               size="sm"
               variant="danger"
@@ -185,7 +185,7 @@
               :loading="deleteLoading"
               @click="handleDeleteOrg"
             >
-              Supprimer définitivement
+              {{ $t('dashboard.orgSettings.deleteConfirm') }}
             </AppButton>
           </div>
         </div>
@@ -196,9 +196,15 @@
 
 <script setup lang="ts">
 import { getTrialDaysLeft } from '~~/shared/utils/pricing'
+defineI18nRoute(false)
 
 definePageMeta({ layout: 'default' })
-useHead({ title: 'Paramètres organisation' })
+
+const { t, locale } = useI18n()
+const apiError = useApiError()
+useHead({ title: t('dashboard.orgSettings.tabTitle') })
+
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -213,14 +219,7 @@ const appUrl = computed(() => config.public.appUrl || 'http://localhost:3000')
 
 // ── Billing ──
 
-const STATUS_LABELS: Record<string, string> = {
-  trialing: 'Essai gratuit',
-  active: 'Actif',
-  past_due: 'Impayé',
-  canceled: 'Annulé',
-  unpaid: 'Impayé',
-  incomplete: 'Incomplet',
-}
+const KNOWN_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'unpaid', 'incomplete']
 
 const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
   trialing: 'info',
@@ -249,9 +248,9 @@ const isTrialExpired = computed(() => isTrialing.value && trialDaysLeft.value ==
 
 const subscriptionLabel = computed(() => {
   const sub = authStore.subscription
-  if (!sub) return 'Essai gratuit'
-  if (isTrialExpired.value) return 'Essai terminé'
-  return STATUS_LABELS[sub.stripeStatus] ?? sub.stripeStatus
+  if (!sub) return t('dashboard.orgSettings.status.trialing')
+  if (isTrialExpired.value) return t('dashboard.orgSettings.status.trialExpired')
+  return KNOWN_STATUSES.includes(sub.stripeStatus) ? t(`dashboard.orgSettings.status.${sub.stripeStatus}`) : sub.stripeStatus
 })
 
 const subscriptionBadgeVariant = computed(() => {
@@ -306,7 +305,7 @@ function addDomain() {
 async function handleSave() {
   errors.value = {}
   saved.value = false
-  if (!name.value.trim()) { errors.value.name = 'Requis'; return }
+  if (!name.value.trim()) { errors.value.name = t('dashboard.orgSettings.errorRequired'); return }
 
   loading.value = true
   try {
@@ -319,7 +318,7 @@ async function handleSave() {
     await authStore.fetchMe()
   } catch (error: unknown) {
     const fetchError = error as { data?: { message?: string } }
-    errors.value.general = fetchError?.data?.message || 'Erreur'
+    errors.value.general = apiError(fetchError, t('dashboard.orgSettings.errorGeneric'))
   } finally {
     loading.value = false
   }
@@ -347,7 +346,7 @@ async function handleSamlSave() {
     samlSaved.value = true
   } catch (error: unknown) {
     const fetchError = error as { data?: { message?: string } }
-    samlError.value = fetchError?.data?.message || 'Erreur lors de la sauvegarde SAML'
+    samlError.value = apiError(fetchError, t('dashboard.orgSettings.samlSaveError'))
   } finally {
     samlLoading.value = false
   }
@@ -363,11 +362,11 @@ async function handlePromote() {
       body: { memberId: promoteTarget.value },
       headers: { 'x-org-id': orgId.value },
     })
-    toast.success('Membre promu owner')
+    toast.success(t('dashboard.orgSettings.promoted'))
     promoteTarget.value = ''
     await fetchOrgMembers()
   } catch (error: unknown) {
-    mgmtError.value = (error as any)?.data?.message || 'Erreur'
+    mgmtError.value = apiError(error, t('dashboard.orgSettings.errorGeneric'))
   } finally {
     promoteLoading.value = false
   }
@@ -381,7 +380,7 @@ async function handleLeave() {
       method: 'POST',
       headers: { 'x-org-id': orgId.value },
     })
-    toast.success('Vous avez quitté l\'organisation')
+    toast.success(t('dashboard.orgSettings.leftOrg'))
     const sitesStore = useSitesStore()
     const { resetZones } = useZones()
     await authStore.fetchMe()
@@ -390,7 +389,7 @@ async function handleLeave() {
     await sitesStore.fetchSites()
     navigateTo('/dashboard/sites')
   } catch (error: unknown) {
-    mgmtError.value = (error as any)?.data?.message || 'Erreur'
+    mgmtError.value = apiError(error, t('dashboard.orgSettings.errorGeneric'))
   } finally {
     leaveLoading.value = false
   }
@@ -405,7 +404,7 @@ async function handleDeleteOrg() {
       headers: { 'x-org-id': orgId.value },
     })
     confirmDeleteOrg.value = false
-    toast.success('Organisation supprimée')
+    toast.success(t('dashboard.orgSettings.orgDeleted'))
     const sitesStore = useSitesStore()
     const { resetZones } = useZones()
     await authStore.fetchMe()
@@ -414,7 +413,7 @@ async function handleDeleteOrg() {
     await sitesStore.fetchSites()
     navigateTo('/dashboard/sites')
   } catch (error: unknown) {
-    mgmtError.value = (error as any)?.data?.message || 'Erreur'
+    mgmtError.value = apiError(error, t('dashboard.orgSettings.errorGeneric'))
   } finally {
     deleteLoading.value = false
   }

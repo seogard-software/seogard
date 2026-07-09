@@ -4,30 +4,30 @@
     <template v-if="!authStore.currentUser?.totpEnabled">
       <template v-if="step === 'idle'">
         <p class="two-factor-setup__desc">
-          Protégez votre compte avec l'authentification à deux facteurs (2FA).
+          {{ $t('dashboard.c.twoFactorSetup.desc') }}
         </p>
         <AppButton variant="accent" size="sm" @click="startSetup">
-          Activer
+          {{ $t('dashboard.c.twoFactorSetup.enable') }}
           <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
         </AppButton>
       </template>
 
       <template v-if="step === 'qr'">
         <p class="two-factor-setup__desc">
-          Scannez ce QR code avec votre application d'authentification (Google Authenticator, Authy, etc.)
+          {{ $t('dashboard.c.twoFactorSetup.scanQr') }}
         </p>
         <div class="two-factor-setup__qr">
-          <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code 2FA" width="200" height="200">
+          <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" :alt="$t('dashboard.c.twoFactorSetup.qrAlt')" width="200" height="200">
         </div>
         <form class="two-factor-setup__form" @submit.prevent="enableTotp">
           <AppInput
             v-model="verifyCode"
-            label="Code de vérification"
+            :label="$t('dashboard.c.twoFactorSetup.codeLabel')"
             placeholder="123456"
             :error="error"
           />
           <AppButton variant="accent" size="sm" type="submit" :loading="loading">
-            Valider
+            {{ $t('dashboard.c.twoFactorSetup.validate') }}
             <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
           </AppButton>
         </form>
@@ -35,13 +35,13 @@
 
       <template v-if="step === 'backup'">
         <AppAlert variant="warning">
-          Sauvegardez ces codes de secours dans un endroit sûr. Chaque code ne peut être utilisé qu'une seule fois.
+          {{ $t('dashboard.c.twoFactorSetup.backupWarning') }}
         </AppAlert>
         <div class="two-factor-setup__codes">
           <code v-for="code in backupCodes" :key="code">{{ code }}</code>
         </div>
         <AppButton variant="accent" size="sm" @click="step = 'idle'">
-          Continuer
+          {{ $t('dashboard.c.twoFactorSetup.continue') }}
           <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
         </AppButton>
       </template>
@@ -49,16 +49,16 @@
 
     <!-- 2FA enabled — disable flow -->
     <template v-else>
-      <AppBadge variant="success">2FA activée</AppBadge>
+      <AppBadge variant="success">{{ $t('dashboard.c.twoFactorSetup.enabled') }}</AppBadge>
       <form class="two-factor-setup__form" @submit.prevent="disableTotp">
         <AppInput
           v-model="disableCode"
-          label="Code pour désactiver"
+          :label="$t('dashboard.c.twoFactorSetup.disableCodeLabel')"
           placeholder="123456"
           :error="error"
         />
         <AppButton variant="danger" size="sm" type="submit" :loading="loading">
-          Désactiver
+          {{ $t('dashboard.c.twoFactorSetup.disable') }}
           <template #icon-right><AppIcon name="chevron-right" size="sm" /></template>
         </AppButton>
       </form>
@@ -68,6 +68,7 @@
 
 <script setup lang="ts">
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const step = ref<'idle' | 'qr' | 'backup'>('idle')
 const qrCodeDataUrl = ref('')
@@ -88,7 +89,7 @@ async function startSetup() {
     step.value = 'qr'
   }
   catch {
-    error.value = 'Erreur lors du setup'
+    error.value = t('dashboard.c.twoFactorSetup.setupError')
   }
   finally {
     loading.value = false
@@ -97,7 +98,7 @@ async function startSetup() {
 
 async function enableTotp() {
   if (!verifyCode.value) {
-    error.value = 'Code requis'
+    error.value = t('dashboard.c.twoFactorSetup.codeRequired')
     return
   }
   loading.value = true
@@ -113,7 +114,7 @@ async function enableTotp() {
     await authStore.fetchMe()
   }
   catch {
-    error.value = 'Code invalide'
+    error.value = t('dashboard.c.twoFactorSetup.codeInvalid')
   }
   finally {
     loading.value = false
@@ -122,7 +123,7 @@ async function enableTotp() {
 
 async function disableTotp() {
   if (!disableCode.value) {
-    error.value = 'Code requis'
+    error.value = t('dashboard.c.twoFactorSetup.codeRequired')
     return
   }
   loading.value = true
@@ -136,7 +137,7 @@ async function disableTotp() {
     await authStore.fetchMe()
   }
   catch {
-    error.value = 'Code invalide'
+    error.value = t('dashboard.c.twoFactorSetup.codeInvalid')
   }
   finally {
     loading.value = false

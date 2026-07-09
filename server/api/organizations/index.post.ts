@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.name) {
-    throw createError({ statusCode: 400, message: 'Nom requis' })
+    throw createError({ statusCode: 400, message: 'Name required', data: { errorCode: 'NAME_REQUIRED' } })
   }
 
   // Cr\u00e9ation canonique (orga + membership owner + subscription trial + client Stripe).

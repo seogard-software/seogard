@@ -4,15 +4,14 @@
       <div v-if="visible" class="cookie-consent">
         <div class="cookie-consent__panel">
           <p class="cookie-consent__text">
-            Ce site utilise des cookies de session pour améliorer votre expérience et faciliter le diagnostic en cas de problème.
-            Aucune donnée n'est partagée avec des tiers.
+            {{ $t('dashboard.c.cookieConsent.text') }}
           </p>
           <div class="cookie-consent__actions">
             <AppButton variant="ghost" size="sm" @click="refuse">
-              Refuser
+              {{ $t('dashboard.c.cookieConsent.refuse') }}
             </AppButton>
             <AppButton variant="accent" size="sm" @click="accept">
-              Accepter
+              {{ $t('dashboard.c.cookieConsent.accept') }}
             </AppButton>
           </div>
         </div>

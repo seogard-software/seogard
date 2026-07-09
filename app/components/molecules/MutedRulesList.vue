@@ -1,21 +1,21 @@
 <template>
   <div class="muted-rules">
-    <h4 class="muted-rules__title">Règles désactivées</h4>
-    <p class="muted-rules__desc">Ces règles ne génèrent plus d'alertes sur ce site. Réactivez-les pour surveiller à nouveau ces problèmes.</p>
+    <h4 class="muted-rules__title">{{ $t('dashboard.c.mutedRules.title') }}</h4>
+    <p class="muted-rules__desc">{{ $t('dashboard.c.mutedRules.desc') }}</p>
 
     <div v-if="loading" class="muted-rules__loading">
       <AppSpinner size="sm" />
     </div>
 
     <div v-else-if="rules.length === 0" class="muted-rules__empty">
-      Aucune règle désactivée
+      {{ $t('dashboard.c.mutedRules.empty') }}
     </div>
 
     <div v-else class="muted-rules__list">
       <div v-for="rule in rules" :key="rule.ruleId" class="muted-rules__item">
         <div class="muted-rules__info">
           <span class="muted-rules__label">{{ getLabel(rule.ruleId) }}</span>
-          <span class="muted-rules__date">Ignorée le {{ formatDate(rule.createdAt) }}</span>
+          <span class="muted-rules__date">{{ $t('dashboard.c.mutedRules.mutedOn', { date: formatDate(rule.createdAt) }) }}</span>
         </div>
         <AppButton
           variant="secondary"
@@ -23,7 +23,7 @@
           :loading="unmuting === rule.ruleId"
           @click="unmute(rule.ruleId)"
         >
-          Réactiver
+          {{ $t('dashboard.c.mutedRules.reactivate') }}
         </AppButton>
       </div>
     </div>
@@ -42,16 +42,18 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { locale } = useI18n()
+
 const loading = ref(true)
 const rules = ref<MutedRule[]>([])
 const unmuting = ref<string | null>(null)
 
 function getLabel(ruleId: string): string {
-  return ALERT_TYPE_LABELS[ruleId] ?? ruleId
+  return getAlertTypeLabels(locale.value)[ruleId] ?? ruleId
 }
 
 function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(date).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 async function fetchRules() {

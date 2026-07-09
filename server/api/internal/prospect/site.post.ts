@@ -10,12 +10,12 @@ import { triggerSiteCrawl } from '~~/server/utils/crawl-trigger'
 export default defineEventHandler(async (event) => {
   const orgId = process.env.INTERNAL_PROSPECT_ORG_ID
   if (!orgId) {
-    throw createError({ statusCode: 503, message: 'INTERNAL_PROSPECT_ORG_ID non configuré' })
+    throw createError({ statusCode: 503, message: 'INTERNAL_PROSPECT_ORG_ID not configured', data: { errorCode: 'PROSPECT_ORG_NOT_CONFIGURED' } })
   }
 
   const body = await readBody(event)
   if (!body?.url || !isValidUrl(body.url)) {
-    throw createError({ statusCode: 400, message: 'URL valide requise' })
+    throw createError({ statusCode: 400, message: 'Valid URL required', data: { errorCode: 'INVALID_URL' } })
   }
 
   const url = normalizeUrl(body.url)
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   // prospect n'a que celle-là.
   const defaultZone = await Zone.findOne({ siteId, isDefault: true }).select('_id').lean()
   if (!defaultZone) {
-    throw createError({ statusCode: 500, message: 'Zone par défaut introuvable' })
+    throw createError({ statusCode: 500, message: 'Default zone not found', data: { errorCode: 'DEFAULT_ZONE_NOT_FOUND' } })
   }
   const crawl = await triggerSiteCrawl(siteId, defaultZone._id)
 

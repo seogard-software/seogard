@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const siteId = requireValidId(event)
   const zoneId = getRouterParam(event, 'zoneId')
   if (!zoneId) {
-    throw createError({ statusCode: 400, message: 'zoneId requis' })
+    throw createError({ statusCode: 400, message: 'zoneId required', data: { errorCode: 'ZONE_ID_REQUIRED' } })
   }
 
   const { role: callerRole } = await requireZoneAccess(event, siteId, zoneId, 'admin')
@@ -14,27 +14,27 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.memberId || typeof body.memberId !== 'string') {
-    throw createError({ statusCode: 400, message: 'memberId requis' })
+    throw createError({ statusCode: 400, message: 'memberId required', data: { errorCode: 'MEMBER_ID_REQUIRED' } })
   }
 
   if (!body.role || !VALID_ZONE_ROLES.includes(body.role)) {
-    throw createError({ statusCode: 400, message: 'Rôle invalide. Doit être admin, member ou viewer' })
+    throw createError({ statusCode: 400, message: 'Invalid role: must be admin, member or viewer', data: { errorCode: 'ROLE_INVALID' } })
   }
 
   const member = await OrgMember.findById(body.memberId)
   if (!member) {
-    throw createError({ statusCode: 404, message: 'Membre introuvable' })
+    throw createError({ statusCode: 404, message: 'Member not found', data: { errorCode: 'MEMBER_NOT_FOUND' } })
   }
 
   if (member.role === 'owner') {
-    throw createError({ statusCode: 403, message: 'Impossible de modifier le rôle zone d\'un owner' })
+    throw createError({ statusCode: 403, message: 'Cannot change the zone role of an owner', data: { errorCode: 'CANNOT_CHANGE_OWNER_ROLE' } })
   }
 
   // An admin can only modify roles below their own level
   if (callerRole !== 'owner') {
     const targetZoneRole = member.zoneRoles.find((zr: any) => zr.zoneId.toString() === zoneId)?.role
     if (targetZoneRole === 'admin') {
-      throw createError({ statusCode: 403, message: 'Seul un owner peut modifier le rôle d\'un admin' })
+      throw createError({ statusCode: 403, message: 'Only an owner can change the role of an admin', data: { errorCode: 'OWNER_REQUIRED_FOR_ADMIN' } })
     }
   }
 

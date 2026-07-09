@@ -12,15 +12,15 @@ export function computeCiVerdict(strictness: CiStrictness, counts: CiAlertCounts
   switch (strictness) {
     case 'strict': {
       const pass = critical === 0 && warning === 0
-      return { pass, message: pass ? 'Aucune alerte détectée' : `${critical} critique(s), ${warning} warning(s)` }
+      return { pass, message: pass ? 'No alerts detected' : `${critical} critical, ${warning} warning(s)` }
     }
     case 'relaxed': {
       const pass = critical < 5
-      return { pass, message: pass ? `${critical} alerte(s) critique(s) (seuil : 5)` : `${critical} alerte(s) critique(s) — seuil de 5 dépassé` }
+      return { pass, message: pass ? `${critical} critical alert(s) (threshold: 5)` : `${critical} critical alert(s) — threshold of 5 exceeded` }
     }
     default: { // standard
       const pass = critical === 0
-      return { pass, message: pass ? 'Aucune régression critique détectée' : `${critical} alerte(s) critique(s) détectée(s)` }
+      return { pass, message: pass ? 'No critical regression detected' : `${critical} critical alert(s) detected` }
     }
   }
 }

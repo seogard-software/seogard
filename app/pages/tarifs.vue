@@ -6,18 +6,16 @@
       <div class="page-tarifs__intro">
         <span class="page-tarifs__badge">
           <AppIcon name="check" size="sm" />
-          Estimation gratuite · sans carte bancaire
+          {{ $t('landing.tarifs.badge') }}
         </span>
       </div>
       <LandingPricing />
     </section>
 
     <section class="page-tarifs__head">
-      <h1 class="page-tarifs__title">Combien coûte l'audit &amp; le monitoring SEO de votre site ?</h1>
+      <h1 class="page-tarifs__title">{{ $t('landing.tarifs.title') }}</h1>
       <p class="page-tarifs__subtitle">
-        Entrez l'URL de votre site : on analyse votre sitemap et on vous envoie une estimation au volume.
-        Self-hosted gratuit pour toujours, ou Cloud dès {{ cloudPriceDisplay }} €/mois/page.
-        Sans engagement, essai 14 jours sans carte bancaire.
+        {{ $t('landing.tarifs.subtitle', { price: cloudPriceDisplay }) }}
       </p>
     </section>
 
@@ -32,18 +30,27 @@
 import { formatCloudPrice } from '~~/shared/utils/pricing'
 
 definePageMeta({ layout: 'landing', auth: false })
+// Slug EN traduit (cf. LOCALIZED_PATHS, shared/utils/i18n.ts) — garder synchro.
+defineI18nRoute({ paths: { fr: '/tarifs', en: '/pricing' } })
 
-const cloudPriceDisplay = formatCloudPrice()
+const { t, locale } = useI18n()
+
+const cloudPriceDisplay = formatCloudPrice(locale.value)
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
 
 // L'estimateur alimente estimatedPages ; LandingPricing l'affiche (même wiring que la home).
 const estimatedPages = ref<number | null>(null)
 provide('estimatedPages', estimatedPages)
 
-useHead({ title: 'Tarifs' })
+useHead({ title: t('seo.tarifs.title') })
 useSeoMeta({
-  description: `Tarifs Seogard : audit & monitoring SEO/GEO en continu. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Estimez votre tarif selon le nombre de pages monitorées. Sans engagement, essai 14 jours sans carte bancaire.`,
-  ogTitle: 'Tarifs — Seogard',
-  ogDescription: `Audit & monitoring SEO/GEO en continu. Self-hosted gratuit ou Cloud dès ${cloudPriceDisplay} €/mois/page. Estimez votre tarif au volume.`,
+  description: t('seo.tarifs.description', { price: cloudPriceDisplay }),
+  ogTitle: t('seo.tarifs.ogTitle'),
+  ogDescription: t('seo.tarifs.ogDescription', { price: cloudPriceDisplay }),
+  ogImage: ogImage.value,
+  twitterCard: 'summary_large_image',
+  twitterImage: ogImage.value,
 })
 </script>
 

@@ -26,14 +26,14 @@ export default defineEventHandler(async (event) => {
   const id = requireValidId(event)
   const zoneId = getRouterParam(event, 'zoneId')
   if (!zoneId) {
-    throw createError({ statusCode: 400, message: 'zoneId requis' })
+    throw createError({ statusCode: 400, message: 'zoneId required', data: { errorCode: 'ZONE_ID_REQUIRED' } })
   }
 
   const { site } = await requireZoneAccess(event, id, zoneId, 'viewer')
 
   const zone = await Zone.findOne({ _id: zoneId, siteId: id }).lean()
   if (!zone) {
-    throw createError({ statusCode: 404, message: 'Zone introuvable' })
+    throw createError({ statusCode: 404, message: 'Zone not found', data: { errorCode: 'ZONE_NOT_FOUND' } })
   }
 
   const query = getQuery(event)

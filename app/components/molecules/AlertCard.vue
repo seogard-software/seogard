@@ -17,13 +17,13 @@
 
       <!-- Fiche règle : pourquoi / action / gain (à la demande) -->
       <details v-if="knowledge" class="alert-card__knowledge">
-        <summary>Comprendre &amp; corriger</summary>
+        <summary>{{ $t('dashboard.c.alertCard.understand') }}</summary>
         <RuleKnowledgeCard :knowledge="knowledge" class="alert-card__knowledge-card" />
       </details>
 
       <!-- Footer: URL + meta -->
       <div class="alert-card__footer">
-        <button class="alert-card__url-btn" :title="urlCopied ? 'Copié !' : alert.pageUrl" @click="copyUrl">
+        <button class="alert-card__url-btn" :title="urlCopied ? $t('dashboard.c.alertCard.copied') : alert.pageUrl" @click="copyUrl">
           <span class="alert-card__url">{{ displayUrl }}</span>
           <AppIcon :name="urlCopied ? 'check' : 'copy'" size="sm" class="alert-card__url-icon" />
         </button>
@@ -38,10 +38,10 @@
     <div v-if="alert.status === 'open' && canResolve" class="alert-card__actions">
       <button v-if="canResolve" class="alert-card__btn alert-card__btn--primary" @click="$emit('resolve', alert._id)">
         <AppIcon name="check" size="sm" />
-        C'est fixé
+        {{ $t('dashboard.c.alertCard.fixed') }}
       </button>
       <button v-if="canResolve" class="alert-card__btn alert-card__btn--secondary" @click="$emit('resolve', alert._id)">
-        C'est normal
+        {{ $t('dashboard.c.alertCard.normal') }}
       </button>
     </div>
   </div>
@@ -59,6 +59,8 @@ defineEmits<{
 
 const props = defineProps<Props>()
 
+const { locale } = useI18n()
+
 const displayUrl = computed(() => {
   try {
     return new URL(props.alert.pageUrl).pathname
@@ -67,7 +69,7 @@ const displayUrl = computed(() => {
 })
 
 const formattedDate = computed(() => {
-  return new Date(props.alert.lastDetectedAt).toLocaleDateString('fr-FR', {
+  return new Date(props.alert.lastDetectedAt).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR', {
     day: 'numeric', month: 'short',
   })
 })

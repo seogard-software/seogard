@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const site = await Site.findOneAndDelete({ _id: id }).lean()
 
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   // Cascade unique (registre + tripwire) : server/database/cascade.ts

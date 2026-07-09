@@ -58,9 +58,9 @@ registerRule({
     return [{
       type: 'https_mixed_content',
       severity: 'warning',
-      message: 'Des images, scripts ou styles sont chargés en HTTP sur une page HTTPS. Le cadenas de sécurité disparaît et les navigateurs peuvent bloquer ces ressources.',
+      message: 'Images, scripts or styles are loaded over HTTP on an HTTPS page. The security padlock disappears and browsers may block these resources.',
       previousValue: null,
-      currentValue: 'Ressources HTTP détectées sur page HTTPS',
+      currentValue: 'HTTP resources detected on HTTPS page',
     }]
   },
 })

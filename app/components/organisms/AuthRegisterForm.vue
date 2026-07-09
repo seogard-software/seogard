@@ -9,44 +9,41 @@
           class="auth-register-form__oauth-btn"
         >
           <OAuthIcon :provider="p" />
-          Continuer avec {{ oauthLabels[p] }}
+          {{ $t('auth.common.continueWith', { provider: oauthLabels[p] }) }}
         </a>
       </div>
-      <p class="auth-register-form__oauth-terms">
-        En continuant avec un fournisseur, vous acceptez les
-        <NuxtLink to="/legal/cgu" target="_blank">CGU</NuxtLink> et les
-        <NuxtLink to="/legal/cgv" target="_blank">CGV</NuxtLink>.
-      </p>
+      <i18n-t keypath="auth.register.oauthTerms" tag="p" class="auth-register-form__oauth-terms" scope="global">
+        <template #cgu><NuxtLink :to="localePath({ name: 'legal-cgu' })" target="_blank">{{ $t('auth.common.cgu') }}</NuxtLink></template>
+        <template #cgv><NuxtLink :to="localePath({ name: 'legal-cgv' })" target="_blank">{{ $t('auth.common.cgv') }}</NuxtLink></template>
+      </i18n-t>
 
       <div class="auth-register-form__divider">
-        <span>ou avec votre email</span>
+        <span>{{ $t('auth.common.orWithEmail') }}</span>
       </div>
     </template>
 
     <AppInput
       v-model="email"
-      label="Email"
+      :label="$t('auth.common.emailLabel')"
       type="email"
-      placeholder="votre@email.com"
+      :placeholder="$t('auth.common.emailPlaceholder')"
       :error="errors.email"
     />
     <AppInput
       v-model="password"
-      label="Mot de passe"
+      :label="$t('auth.common.passwordLabel')"
       type="password"
-      placeholder="Minimum 8 caractères"
+      :placeholder="$t('auth.common.passwordMinPlaceholder')"
       :error="errors.password"
     />
 
     <label class="auth-register-form__terms">
       <input v-model="acceptedTerms" type="checkbox" class="auth-register-form__checkbox">
-      <span>
-        Je déclare agir à titre professionnel et j'accepte les
-        <NuxtLink to="/legal/cgu" target="_blank">CGU</NuxtLink> et les
-        <NuxtLink to="/legal/cgv" target="_blank">CGV</NuxtLink>.
-        Consultez notre
-        <NuxtLink to="/legal/privacy" target="_blank">politique de confidentialité</NuxtLink>.
-      </span>
+      <i18n-t keypath="auth.register.terms" tag="span" scope="global">
+        <template #cgu><NuxtLink :to="localePath({ name: 'legal-cgu' })" target="_blank">{{ $t('auth.common.cgu') }}</NuxtLink></template>
+        <template #cgv><NuxtLink :to="localePath({ name: 'legal-cgv' })" target="_blank">{{ $t('auth.common.cgv') }}</NuxtLink></template>
+        <template #privacy><NuxtLink :to="localePath({ name: 'legal-privacy' })" target="_blank">{{ $t('auth.common.privacyPolicy') }}</NuxtLink></template>
+      </i18n-t>
     </label>
     <p v-if="errors.terms" class="auth-register-form__terms-error">{{ errors.terms }}</p>
 
@@ -55,7 +52,7 @@
     </AppAlert>
 
     <AppButton type="submit" :loading="loading" :disabled="!acceptedTerms" size="lg">
-      Créer un compte
+      {{ $t('auth.common.createAccount') }}
     </AppButton>
   </form>
 </template>
@@ -65,6 +62,10 @@
 // Émet `success` après inscription + fetchMe ; le parent décide de la suite (dashboard ou
 // reprise du scan). Ne gère PAS la connexion (state machine SAML/TOTP → page /login dédiée).
 const emit = defineEmits<{ success: [] }>()
+
+const { t } = useI18n()
+const apiError = useApiError()
+const localePath = useLocalePath()
 
 const authStore = useAuthStore()
 
@@ -87,15 +88,15 @@ async function handleRegister() {
   errors.value = {}
 
   if (!email.value) {
-    errors.value.email = 'Email requis'
+    errors.value.email = t('validation.emailRequired')
     return
   }
   if (password.value.length < 8) {
-    errors.value.password = 'Minimum 8 caractères'
+    errors.value.password = t('validation.passwordMinChars')
     return
   }
   if (!acceptedTerms.value) {
-    errors.value.terms = 'Vous devez accepter les CGU et CGV'
+    errors.value.terms = t('validation.termsRequired')
     return
   }
 
@@ -110,7 +111,7 @@ async function handleRegister() {
   }
   catch (error: unknown) {
     const fetchError = error as { data?: { message?: string } }
-    errors.value.general = fetchError?.data?.message || 'Erreur lors de la création du compte'
+    errors.value.general = apiError(fetchError, t('auth.register.errorGeneric'))
   }
   finally {
     loading.value = false

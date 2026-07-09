@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const org = await Organization.findById(orgId).lean() as any
   if (!org) {
-    throw createError({ statusCode: 404, message: 'Organisation non trouvée' })
+    throw createError({ statusCode: 404, message: 'Organization not found', data: { errorCode: 'ORG_NOT_FOUND' } })
   }
 
   // Strip sensitive SAML fields for non-owners

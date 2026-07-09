@@ -1,0 +1,131 @@
+{
+  "docs": {
+    "selfHosted": {
+      "title": "Guide Self-Hosted",
+      "subtitle": "Tout ce qu'il faut savoir pour héberger Seogard sur votre serveur.",
+      "gettingStarted": {
+        "heading": "Getting Started",
+        "prereq": "Prérequis : <strong>Docker</strong> et <strong>Docker Compose</strong> installés sur votre serveur.",
+        "stepClone": "Cloner le repo",
+        "stepEnv": "Copier et configurer le fichier d'environnement",
+        "editEnv": "Éditez <code>.env</code> et changez <strong>obligatoirement</strong> :",
+        "thVariable": "Variable",
+        "thDescription": "Description",
+        "mongoPasswordDesc": "Mot de passe MongoDB — choisissez un mot de passe fort",
+        "jwtSecretDesc": "Clé de signature JWT — 64+ caractères aléatoires",
+        "appUrlDesc": "URL publique de votre instance (ex: <code>https://seo.monsite.com</code>)",
+        "stepRun": "Lancer",
+        "stepOpen": "Ouvrir <code>http://localhost:3000</code> et créer votre compte administrateur",
+        "firstAccount": "Le premier compte créé sera l'<strong>administrateur</strong> (owner). L'inscription se ferme ensuite automatiquement — les membres suivants sont ajoutés par invitation.",
+        "singleEnv": "Un seul fichier <code>.env</code> pour tout (web + crawler). Les connexions MongoDB et Redis sont gérées automatiquement par Docker."
+      },
+      "architecture": {
+        "heading": "Architecture",
+        "serverLabel": "Votre serveur",
+        "webDesc": "Dashboard + API",
+        "workersDesc": "Crawler Playwright",
+        "mongoDesc": "Base de données",
+        "redisDesc": "Queue de crawl",
+        "text": "Le <strong>Web</strong> sert le dashboard et l'API. Les <strong>Workers</strong> crawlent les pages avec Playwright (navigateur headless). <strong>Redis</strong> distribue les pages aux workers. <strong>MongoDB</strong> stocke les données."
+      },
+      "sizing": {
+        "heading": "Dimensionnement",
+        "intro": "Chaque worker crawler utilise <strong>~1 GB de RAM</strong>. MongoDB a besoin d'un cache RAM pour être performant. Le reste (~2 GB) est partagé entre Redis, le serveur web et l'OS.",
+        "formula": "Formule : <strong>Cache MongoDB = RAM serveur - (Workers × 1 GB) - 2 GB</strong>",
+        "thRam": "RAM serveur",
+        "thWorkers": "Workers",
+        "thCache": "Cache MongoDB",
+        "thPages": "Pages monitorables",
+        "cacheDefault": "Le cache MongoDB est fixé à <strong>2 GB par défaut</strong> dans le docker-compose. Ajustez selon votre serveur en éditant <code>docker-compose.self-hosted.yml</code> → <code>--wiredTigerCacheSizeGB X</code>."
+      },
+      "workers": {
+        "heading": "Ajuster les workers",
+        "text": "Modifiez le nombre de workers selon les ressources de votre serveur :",
+        "orEdit": "Ou éditez directement <code>docker-compose.self-hosted.yml</code> → <code>replicas: 5</code>"
+      },
+      "email": {
+        "heading": "Notifications email",
+        "optional": "Optionnel — sans configuration email, Seogard fonctionne mais n'envoie pas d'alertes ni de reset de mot de passe.",
+        "step1Before": "Créez un compte gratuit sur",
+        "step1After": "(100 emails/jour)",
+        "step2": "Vérifiez votre domaine dans le dashboard Resend",
+        "step3": "Ajoutez dans votre <code>.env</code> :",
+        "step4": "Redémarrez :"
+      },
+      "oauth": {
+        "heading": "Connexion OAuth",
+        "optional": "Optionnel — sans OAuth, les utilisateurs se connectent par email + mot de passe.",
+        "intro": "Ajoutez les clés dans votre <code>.env</code> pour activer chaque provider :",
+        "googleStep1": "Créez un OAuth Client sur",
+        "microsoftStep1": "Créez une app sur",
+        "githubStep1": "Créez une OAuth App sur",
+        "and": "et"
+      },
+      "whitelisting": {
+        "heading": "Whitelisting du crawler",
+        "text": "Si vos sites sont protégés par un WAF (Cloudflare, Akamai, etc.), vous devez whitelister l'IP de votre serveur.",
+        "link": "Voir le guide de whitelisting"
+      },
+      "update": {
+        "heading": "Mise à jour",
+        "text": "Les données MongoDB sont persistées dans un volume Docker. Aucune perte de données lors d'une mise à jour."
+      },
+      "license": {
+        "heading": "Licence",
+        "text1": "Seogard est distribué sous <strong>Business Source License 1.1 (BSL)</strong>. Vous pouvez l'utiliser gratuitement pour un usage interne (monitoring de vos propres sites). L'utilisation comme service commercial concurrent est interdite.",
+        "text2": "Chaque version passe automatiquement en <strong>Apache 2.0</strong> après 3 ans.",
+        "link": "Lire la licence complète"
+      },
+      "backup": {
+        "heading": "Sauvegarde"
+      }
+    },
+    "rules": {
+      "title": "Règles SEO",
+      "subtitle": "{count} règles vérifiées à chaque crawl.",
+      "monitoringTitle": "Monitoring (détection de régressions)",
+      "monitoringDesc": "Comparent l'état actuel avec le crawl précédent. Détectent ce qui a cassé, changé ou disparu. Déclenchent des alertes.",
+      "auditTitle": "Audit (recommandations)",
+      "auditDesc": "Vérifient l'état absolu de chaque page à chaque crawl. Ne comparent pas avec le passé — signalent les bonnes pratiques non respectées.",
+      "rulesCount": "{count} règles",
+      "thLabel": "Label",
+      "thSeverity": "Severity",
+      "thDetails": "Détails",
+      "detailBtn": "En savoir plus",
+      "loading": "Chargement..."
+    },
+    "layout": {
+      "menuAria": "Menu",
+      "rulesHeading": "Règles SEO",
+      "allRules": "Toutes les règles",
+      "selfHostedHeading": "Self-Hosted",
+      "emailsHeading": "Emails",
+      "allTemplates": "Tous les templates",
+      "sections": {
+        "gettingStarted": "Getting Started",
+        "architecture": "Architecture",
+        "sizing": "Dimensionnement",
+        "workers": "Workers",
+        "email": "Notifications email",
+        "oauth": "Connexion OAuth",
+        "whitelisting": "Whitelisting crawler",
+        "update": "Mise à jour",
+        "backup": "Sauvegarde",
+        "licence": "Licence (BSL 1.1)"
+      },
+      "emailTemplates": {
+        "welcome": "Bienvenue",
+        "crawlReport": "Rapport de crawl",
+        "logDigest": "Digest logs workers",
+        "sitemapBlocked": "Sitemap bloqué",
+        "sitemapInvalidHostname": "Sitemap mauvais hostname",
+        "crawlerBlocked": "Crawler bloqué",
+        "resetPassword": "Reset mot de passe",
+        "sitemapEstimate": "Estimation sitemap",
+        "sitemapEstimateLarge": "Estimation (gros site)",
+        "paymentFailed": "Échec paiement",
+        "invite": "Invitation organisation"
+      }
+    }
+  }
+}

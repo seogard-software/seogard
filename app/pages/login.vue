@@ -6,20 +6,20 @@
         <div class="page-login__oauth">
           <a v-for="p in oauthProviders" :key="p" :href="`/api/auth/oauth/${p}/authorize`" class="page-login__oauth-btn">
             <OAuthIcon :provider="p" />
-            Continuer avec {{ oauthLabels[p] }}
+            {{ $t('auth.common.continueWith', { provider: oauthLabels[p] }) }}
           </a>
         </div>
 
         <div class="page-login__divider">
-          <span>ou avec votre email</span>
+          <span>{{ $t('auth.common.orWithEmail') }}</span>
         </div>
       </template>
 
       <AppInput
         v-model="email"
-        label="Email"
+        :label="$t('auth.common.emailLabel')"
         type="email"
-        placeholder="votre@email.com"
+        :placeholder="$t('auth.common.emailPlaceholder')"
         :error="errors.email"
       />
 
@@ -28,12 +28,12 @@
       </AppAlert>
 
       <AppButton type="submit" :loading="loading" size="lg">
-        Continuer
+        {{ $t('auth.common.continue') }}
       </AppButton>
 
       <p class="page-login__link">
-        Pas de compte ?
-        <NuxtLink to="/register">Créer un compte</NuxtLink>
+        {{ $t('auth.login.noAccount') }}
+        <NuxtLink to="/register">{{ $t('auth.common.createAccount') }}</NuxtLink>
       </p>
     </form>
 
@@ -42,19 +42,19 @@
       <div class="page-login__email-reminder">
         <span>{{ email }}</span>
         <button type="button" class="page-login__change-email" @click="goBackToEmail">
-          Modifier
+          {{ $t('auth.login.changeEmail') }}
         </button>
       </div>
 
-      <p class="page-login__sso-info">
-        Votre organisation <strong>{{ activeSamlOrg.name }}</strong> utilise le SSO.
-      </p>
+      <i18n-t keypath="auth.login.ssoInfo" tag="p" class="page-login__sso-info" scope="global">
+        <template #org><strong>{{ activeSamlOrg.name }}</strong></template>
+      </i18n-t>
 
       <a
         :href="`/api/auth/saml/${activeSamlOrg.slug}/login`"
         class="page-login__sso-btn"
       >
-        Se connecter via SSO
+        {{ $t('auth.login.ssoButton') }}
       </a>
 
       <button
@@ -63,7 +63,7 @@
         class="page-login__back"
         @click="step = 'password'"
       >
-        ou utiliser un mot de passe
+        {{ $t('auth.login.usePassword') }}
       </button>
     </div>
 
@@ -72,15 +72,15 @@
       <div class="page-login__email-reminder">
         <span>{{ email }}</span>
         <button type="button" class="page-login__change-email" @click="goBackToEmail">
-          Modifier
+          {{ $t('auth.login.changeEmail') }}
         </button>
       </div>
 
       <AppInput
         v-model="password"
-        label="Mot de passe"
+        :label="$t('auth.common.passwordLabel')"
         type="password"
-        placeholder="Votre mot de passe"
+        :placeholder="$t('auth.login.passwordPlaceholder')"
         :error="errors.password"
       />
 
@@ -89,24 +89,24 @@
       </AppAlert>
 
       <AppButton type="submit" :loading="loading" size="lg">
-        Se connecter
+        {{ $t('auth.common.signIn') }}
       </AppButton>
 
       <NuxtLink to="/forgot-password" class="page-login__forgot">
-        Mot de passe oublié ?
+        {{ $t('auth.login.forgotPassword') }}
       </NuxtLink>
     </form>
 
     <!-- Step 3: 2FA -->
     <form v-else-if="step === 'totp'" class="page-login__form" @submit.prevent="handleTotpVerify">
       <p class="page-login__totp-info">
-        Entrez le code à 6 chiffres de votre application d'authentification, ou un code de secours.
+        {{ $t('auth.login.totpInfo') }}
       </p>
 
       <AppInput
         v-model="totpCode"
-        label="Code 2FA"
-        placeholder="123456"
+        :label="$t('auth.login.totpLabel')"
+        :placeholder="$t('auth.login.totpPlaceholder')"
         :error="errors.totp"
       />
 
@@ -115,20 +115,24 @@
       </AppAlert>
 
       <AppButton type="submit" :loading="loading" size="lg">
-        Vérifier
+        {{ $t('auth.login.totpSubmit') }}
       </AppButton>
 
       <button type="button" class="page-login__back" @click="step = 'password'">
-        Retour
+        {{ $t('auth.login.back') }}
       </button>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'auth', auth: false, redirectIfAuth: true })
 
-useHead({ title: 'Connexion' })
+const { t } = useI18n()
+const apiError = useApiError()
+
+useHead({ title: t('seo.login.title') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const authStore = useAuthStore()
@@ -165,7 +169,7 @@ async function handleCheckEmail() {
   errors.value = {}
 
   if (!email.value) {
-    errors.value.email = 'Email requis'
+    errors.value.email = t('validation.emailRequired')
     return
   }
 
@@ -185,7 +189,7 @@ async function handleCheckEmail() {
     }
   }
   catch {
-    errors.value.general = 'Impossible de vérifier l\'email'
+    errors.value.general = t('auth.login.errorCheckEmail')
   }
   finally {
     loading.value = false
@@ -196,7 +200,7 @@ async function handleLogin() {
   errors.value = {}
 
   if (!password.value) {
-    errors.value.password = 'Mot de passe requis'
+    errors.value.password = t('validation.passwordRequired')
     return
   }
 
@@ -213,12 +217,11 @@ async function handleLogin() {
     navigateTo('/dashboard/sites')
   }
   catch (err: any) {
-    const message = err?.data?.message || err?.statusMessage
     if (err?.statusCode === 403 && err?.data?.data?.samlUrl) {
       navigateTo(err.data.data.samlUrl, { external: true })
       return
     }
-    errors.value.general = message || 'Email ou mot de passe incorrect'
+    errors.value.general = apiError(err, t('auth.login.errorInvalidCredentials'))
   }
   finally {
     loading.value = false
@@ -229,7 +232,7 @@ async function handleTotpVerify() {
   errors.value = {}
 
   if (!totpCode.value) {
-    errors.value.totp = 'Code requis'
+    errors.value.totp = t('validation.codeRequired')
     return
   }
 
@@ -240,7 +243,7 @@ async function handleTotpVerify() {
     navigateTo('/dashboard/sites')
   }
   catch {
-    errors.value.general = 'Code invalide'
+    errors.value.general = t('auth.login.errorInvalidCode')
   }
   finally {
     loading.value = false

@@ -1,10 +1,10 @@
 <template>
   <div class="activity-timeline">
-    <h2 class="activity-timeline__title">Activité récente</h2>
+    <h2 class="activity-timeline__title">{{ $t('dashboard.c.activityTimeline.title') }}</h2>
 
     <div v-if="events.length === 0" class="activity-timeline__empty">
       <AppIcon name="activity" size="lg" />
-      <p>Aucune activité récente</p>
+      <p>{{ $t('dashboard.c.activityTimeline.empty') }}</p>
     </div>
 
     <div v-else class="activity-timeline__list">

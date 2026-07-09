@@ -4,14 +4,14 @@
     <div class="app-sidebar__org-switcher">
       <button class="app-sidebar__org-btn" @click="orgDropdownOpen = !orgDropdownOpen">
         <span class="app-sidebar__org-initial">{{ activeOrgInitial }}</span>
-        <span class="app-sidebar__org-name">{{ orgStore.activeOrg?.name ?? 'Organisation' }}</span>
+        <span class="app-sidebar__org-name">{{ orgStore.activeOrg?.name ?? $t('dashboard.c.appSidebar.orgFallback') }}</span>
         <AppIcon name="chevron-down" size="sm" class="app-sidebar__switcher-chevron" />
       </button>
 
       <Transition name="dropdown">
         <div v-if="orgDropdownOpen" class="app-sidebar__dropdown app-sidebar__org-dropdown">
           <div class="app-sidebar__dropdown-section">
-            <span class="app-sidebar__dropdown-label">Organisations</span>
+            <span class="app-sidebar__dropdown-label">{{ $t('dashboard.c.appSidebar.orgsLabel') }}</span>
             <button
               v-for="org in orgStore.organizations"
               :key="org._id"
@@ -27,7 +27,7 @@
           <div class="app-sidebar__dropdown-section">
             <NuxtLink to="/dashboard/organizations/new" class="app-sidebar__dropdown-item" @click="orgDropdownOpen = false">
               <AppIcon name="plus" size="sm" />
-              Créer une organisation
+              {{ $t('dashboard.c.appSidebar.createOrg') }}
             </NuxtLink>
           </div>
         </div>
@@ -50,7 +50,7 @@
       <Transition name="dropdown">
         <div v-if="dropdownOpen" class="app-sidebar__dropdown">
           <div class="app-sidebar__dropdown-section">
-            <span class="app-sidebar__dropdown-label">Sites</span>
+            <span class="app-sidebar__dropdown-label">{{ $t('dashboard.c.appSidebar.sitesLabel') }}</span>
             <button
               v-for="site in sites"
               :key="site._id"
@@ -67,14 +67,14 @@
               {{ site.name }}
             </button>
             <div v-if="sites.length === 0" class="app-sidebar__dropdown-empty">
-              Aucun site
+              {{ $t('dashboard.c.appSidebar.noSite') }}
             </div>
           </div>
           <div class="app-sidebar__dropdown-divider" />
           <div class="app-sidebar__dropdown-section">
             <button class="app-sidebar__dropdown-item" @click="handleAddSite">
               <AppIcon name="plus" size="sm" />
-              Ajouter un site
+              {{ $t('dashboard.c.appSidebar.addSite') }}
             </button>
           </div>
         </div>
@@ -83,7 +83,7 @@
 
     <!-- Navigation -->
     <nav v-if="activeSiteId" class="app-sidebar__nav">
-      <span class="app-sidebar__zone-label">Zones</span>
+      <span class="app-sidebar__zone-label">{{ $t('dashboard.c.appSidebar.zonesLabel') }}</span>
 
       <!-- Default zone (Toutes les pages) — same accordion as custom zones -->
       <div v-if="defaultZoneId" class="app-sidebar__zone">
@@ -93,7 +93,7 @@
           @click="toggleZone(defaultZoneId!)"
         >
           <AppIcon name="folder" size="sm" />
-          <span class="app-sidebar__zone-name">Toutes les pages</span>
+          <span class="app-sidebar__zone-name">{{ $t('dashboard.c.appSidebar.defaultZone') }}</span>
           <AppIcon
             name="chevron-down"
             size="sm"
@@ -116,7 +116,7 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="file" size="sm" />
-            Rapport
+            {{ $t('dashboard.c.appSidebar.report') }}
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(defaultZoneId!, 'admin')"
@@ -125,7 +125,7 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="clock" size="sm" />
-            Planification
+            {{ $t('dashboard.c.appSidebar.schedule') }}
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(defaultZoneId!, 'admin')"
@@ -143,7 +143,7 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="users" size="sm" />
-            Membres
+            {{ $t('dashboard.c.appSidebar.members') }}
           </NuxtLink>
         </div>
       </div>
@@ -182,7 +182,7 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="file" size="sm" />
-            Rapport
+            {{ $t('dashboard.c.appSidebar.report') }}
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(zone._id, 'admin')"
@@ -191,7 +191,7 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="clock" size="sm" />
-            Planification
+            {{ $t('dashboard.c.appSidebar.schedule') }}
           </NuxtLink>
           <NuxtLink
             v-if="hasMinZoneRole(zone._id, 'admin')"
@@ -209,30 +209,30 @@
             active-class="app-sidebar__link--active"
           >
             <AppIcon name="users" size="sm" />
-            Membres
+            {{ $t('dashboard.c.appSidebar.members') }}
           </NuxtLink>
         </div>
       </div>
 
       <button v-if="canCreateZone" class="app-sidebar__zone-add" @click="showZoneModal = true">
         <AppIcon name="plus" size="sm" />
-        Nouvelle zone
+        {{ $t('dashboard.c.appSidebar.newZone') }}
       </button>
     </nav>
     <div v-else class="app-sidebar__empty">
-      <span class="app-sidebar__empty-text">Sélectionnez un site</span>
+      <span class="app-sidebar__empty-text">{{ $t('dashboard.c.appSidebar.selectSite') }}</span>
     </div>
 
     <!-- Org navigation -->
     <nav v-if="orgStore.activeOrgId && isOwner" class="app-sidebar__org-nav">
-      <span class="app-sidebar__org-nav-label">Organisation</span>
+      <span class="app-sidebar__org-nav-label">{{ $t('dashboard.c.appSidebar.orgNavLabel') }}</span>
       <NuxtLink
         :to="`/dashboard/organizations/${orgStore.activeOrgId}/settings`"
         class="app-sidebar__link"
         active-class="app-sidebar__link--active"
       >
         <AppIcon name="settings" size="sm" />
-        Paramètres
+        {{ $t('dashboard.c.appSidebar.settings') }}
       </NuxtLink>
     </nav>
 
@@ -249,7 +249,7 @@
       </div>
       <button class="app-sidebar__link app-sidebar__logout" @click="handleLogout">
         <AppIcon name="logout" size="sm" />
-        Déconnexion
+        {{ $t('dashboard.c.appSidebar.logout') }}
       </button>
     </div>
 
@@ -260,6 +260,7 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const sitesStore = useSitesStore()
 const orgStore = useOrganizationStore()
@@ -341,7 +342,7 @@ const activeSite = computed(() =>
 )
 
 const currentSiteLabel = computed(() =>
-  activeSite.value?.name ?? 'Tous les sites',
+  activeSite.value?.name ?? t('dashboard.c.appSidebar.allSites'),
 )
 
 function getFaviconUrl(siteUrl: string): string | null {

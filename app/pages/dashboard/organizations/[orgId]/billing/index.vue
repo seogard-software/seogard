@@ -1,10 +1,10 @@
 <template>
   <div class="page-billing">
-    <DashboardHeader title="Facturation">
+    <DashboardHeader :title="$t('dashboard.billing.title')">
       <template #back>
         <NuxtLink :to="`/dashboard/organizations/${orgId}/settings`" class="page-billing__back">
           <AppIcon name="arrow-left" size="sm" />
-          Paramètres
+          {{ $t('dashboard.billing.back') }}
         </NuxtLink>
       </template>
     </DashboardHeader>
@@ -14,7 +14,7 @@
       <div class="page-billing__hero-main">
         <AppBadge :variant="subscriptionBadgeVariant">{{ subscriptionLabel }}</AppBadge>
         <h2 class="page-billing__hero-title">
-          {{ subscriptionMessage ?? 'Monitoring SEO en continu, facturé à la page.' }}
+          {{ subscriptionMessage ?? $t('dashboard.billing.heroDefault') }}
         </h2>
 
         <div v-if="showPaymentWarning" class="page-billing__warning">
@@ -30,7 +30,7 @@
             :loading="subscribeLoading"
             @click="activateBilling"
           >
-            Activer la facturation
+            {{ $t('dashboard.billing.activate') }}
             <AppIcon name="chevron-right" size="sm" />
           </AppButton>
           <AppButton
@@ -40,52 +40,54 @@
             :loading="portalLoading"
             @click="goToPortal"
           >
-            Gérer le paiement
+            {{ $t('dashboard.billing.managePayment') }}
           </AppButton>
         </div>
 
         <ul class="page-billing__reassure">
-          <li><AppIcon name="check" size="sm" /> Sans engagement</li>
-          <li><AppIcon name="check" size="sm" /> Annulable en 1 clic</li>
-          <li><AppIcon name="check" size="sm" /> Vous ne payez que ce qui est crawlé</li>
+          <li><AppIcon name="check" size="sm" /> {{ $t('dashboard.billing.reassure1') }}</li>
+          <li><AppIcon name="check" size="sm" /> {{ $t('dashboard.billing.reassure2') }}</li>
+          <li><AppIcon name="check" size="sm" /> {{ $t('dashboard.billing.reassure3') }}</li>
         </ul>
       </div>
 
       <!-- Prix, façon pricing card -->
       <div class="page-billing__price">
         <span class="page-billing__price-amount">{{ formattedPricePerPage }} €</span>
-        <span class="page-billing__price-unit">HT / mois / page monitorée</span>
+        <span class="page-billing__price-unit">{{ $t('dashboard.billing.priceUnit') }}</span>
         <div v-if="pagesUsed > 0" class="page-billing__usage">
           <div class="page-billing__usage-row">
-            <span class="page-billing__usage-count">{{ pagesUsed.toLocaleString('fr-FR') }}</span>
-            <span class="page-billing__usage-label">pages ce mois</span>
+            <span class="page-billing__usage-count">{{ pagesUsed.toLocaleString(numberLocale) }}</span>
+            <span class="page-billing__usage-label">{{ $t('dashboard.billing.pagesThisMonth') }}</span>
           </div>
-          <span class="page-billing__usage-price">≈ {{ estimatedMonthlyPrice }} € HT</span>
+          <span class="page-billing__usage-price">{{ $t('dashboard.billing.usageEstimate', { price: estimatedMonthlyPrice }) }}</span>
         </div>
-        <p v-else class="page-billing__usage-empty">Aucune page facturée ce mois-ci.</p>
+        <p v-else class="page-billing__usage-empty">{{ $t('dashboard.billing.usageEmpty') }}</p>
       </div>
     </section>
 
     <!-- Comment ça marche : 3 tuiles -->
     <section class="page-billing__how">
-      <h4 class="page-billing__how-title">Comment ça marche</h4>
+      <h4 class="page-billing__how-title">{{ $t('dashboard.billing.howTitle') }}</h4>
       <div class="page-billing__how-grid">
         <div class="page-billing__how-item">
           <div class="page-billing__how-icon"><AppIcon name="pages" size="sm" /></div>
-          <p>Seules les pages <strong>réellement crawlées</strong> dans le mois sont facturées</p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="$t('dashboard.billing.how1')" />
         </div>
         <div class="page-billing__how-item">
           <div class="page-billing__how-icon"><AppIcon name="refresh-cw" size="sm" /></div>
-          <p>Relancer un crawl sur la même zone <strong>ne coûte rien de plus</strong></p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="$t('dashboard.billing.how2')" />
         </div>
         <div class="page-billing__how-item">
           <div class="page-billing__how-icon"><AppIcon name="zap" size="sm" /></div>
-          <p>Les pages non crawlées ce mois-ci <strong>ne sont pas comptées</strong></p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="$t('dashboard.billing.how3')" />
         </div>
       </div>
-      <p class="page-billing__how-example">
-        Exemple : un site de 300k pages avec 3 zones de 10k → vous payez 30k pages, soit <strong>{{ examplePrice30k }} € HT/mois</strong>. Le mois suivant vous ne crawlez que 10k → <strong>{{ examplePrice10k }} € HT/mois</strong>.
-      </p>
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <p class="page-billing__how-example" v-html="$t('dashboard.billing.howExample', { price30k: examplePrice30k, price10k: examplePrice10k })" />
     </section>
 
     <!-- Factures -->
@@ -93,12 +95,12 @@
       <span class="page-billing__invoices-left">
         <span class="page-billing__invoices-icon"><AppIcon name="file" size="sm" /></span>
         <span class="page-billing__invoices-text">
-          Mes factures
-          <span class="page-billing__invoices-sub">Historique et reçus PDF de vos paiements</span>
+          {{ $t('dashboard.billing.invoices') }}
+          <span class="page-billing__invoices-sub">{{ $t('dashboard.billing.invoicesSub') }}</span>
         </span>
       </span>
       <span class="page-billing__invoices-cta">
-        Consulter
+        {{ $t('dashboard.billing.invoicesCta') }}
         <AppIcon name="chevron-right" size="sm" />
       </span>
     </NuxtLink>
@@ -108,14 +110,18 @@
 
 <script setup lang="ts">
 import { getCloudPricePerPage, formatCloudPrice, getTrialDaysLeft } from '~~/shared/utils/pricing'
+defineI18nRoute(false)
 
 definePageMeta({ layout: 'default' })
 
 const { isSelfHosted } = useDeployment()
 if (isSelfHosted.value) navigateTo('/dashboard/sites', { replace: true })
 
-useHead({ title: 'Facturation' })
+const { t, locale } = useI18n()
+useHead({ title: t('dashboard.billing.tabTitle') })
 useSeoMeta({ robots: 'noindex, nofollow' })
+
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
 
 const route = useRoute()
 const router = useRouter()
@@ -128,34 +134,27 @@ onMounted(async () => {
   const checkout = route.query.checkout as string | undefined
   if (checkout === 'success') {
     await authStore.fetchMe()
-    toast.success('Facturation activée avec succès.')
+    toast.success(t('dashboard.billing.checkoutSuccess'))
     router.replace({ query: {} })
   } else if (checkout === 'cancel') {
-    toast.warning('Activation annulée. Vous pouvez réessayer à tout moment.')
+    toast.warning(t('dashboard.billing.checkoutCancel'))
     router.replace({ query: {} })
   }
 })
 
-const formattedPricePerPage = formatCloudPrice()
+const formattedPricePerPage = formatCloudPrice(locale.value)
 
 const pagesUsed = computed(() => authStore.subscription?.totalPagesUsed ?? 0)
 
 const estimatedMonthlyPrice = computed(() => {
-  return (pagesUsed.value * getCloudPricePerPage()).toLocaleString('fr-FR', { minimumFractionDigits: 0 })
+  return (pagesUsed.value * getCloudPricePerPage()).toLocaleString(numberLocale.value, { minimumFractionDigits: 0 })
 })
 
 // Exemples chiffrés en € (dynamiques : suivent le prix par page) — « 30k pages » seul se lit comme un montant.
-const examplePrice30k = (30_000 * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
-const examplePrice10k = (10_000 * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+const examplePrice30k = computed(() => (30_000 * getCloudPricePerPage()).toLocaleString(numberLocale.value, { maximumFractionDigits: 0 }))
+const examplePrice10k = computed(() => (10_000 * getCloudPricePerPage()).toLocaleString(numberLocale.value, { maximumFractionDigits: 0 }))
 
-const STATUS_LABELS: Record<string, string> = {
-  trialing: 'Essai gratuit',
-  active: 'Actif',
-  past_due: 'Impayé',
-  canceled: 'Annulé',
-  unpaid: 'Impayé',
-  incomplete: 'Incomplet',
-}
+const KNOWN_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'unpaid', 'incomplete']
 
 const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
   trialing: 'info',
@@ -174,9 +173,9 @@ const isTrialExpired = computed(() => authStore.subscription?.stripeStatus === '
 
 const subscriptionLabel = computed(() => {
   const sub = authStore.subscription
-  if (!sub) return 'Essai gratuit'
-  if (isTrialExpired.value) return 'Essai terminé'
-  return STATUS_LABELS[sub.stripeStatus] ?? sub.stripeStatus
+  if (!sub) return t('dashboard.billing.status.trialing')
+  if (isTrialExpired.value) return t('dashboard.billing.status.trialExpired')
+  return KNOWN_STATUSES.includes(sub.stripeStatus) ? t(`dashboard.billing.status.${sub.stripeStatus}`) : sub.stripeStatus
 })
 
 const subscriptionBadgeVariant = computed(() => {
@@ -190,16 +189,16 @@ const subscriptionMessage = computed(() => {
   if (!sub) return null
 
   if (sub.stripeStatus === 'trialing' && trialDaysLeft.value > 0) {
-    return `Essai gratuit — ${trialDaysLeft.value} jour${trialDaysLeft.value > 1 ? 's' : ''} restant${trialDaysLeft.value > 1 ? 's' : ''}.`
+    return t('dashboard.billing.trialDaysLeft', trialDaysLeft.value)
   }
   if (sub.stripeStatus === 'trialing' && trialDaysLeft.value === 0) {
-    return 'Votre essai de 14 jours est terminé. Activez la facturation pour continuer.'
+    return t('dashboard.billing.trialEnded')
   }
   if (sub.stripeStatus === 'active') {
-    return `Facturation active — ${pagesUsed.value.toLocaleString('fr-FR')} pages monitorées ce mois-ci.`
+    return t('dashboard.billing.billingActive', { pages: pagesUsed.value.toLocaleString(numberLocale.value) })
   }
   if (sub.stripeStatus === 'canceled') {
-    return 'Votre abonnement est annulé. Réactivez la facturation pour relancer vos crawls.'
+    return t('dashboard.billing.subscriptionCanceled')
   }
   return null
 })
@@ -222,9 +221,9 @@ const showPaymentWarning = computed(() => {
 
 const paymentWarningMessage = computed(() => {
   if (authStore.subscription?.stripeStatus === 'past_due') {
-    return 'Votre dernier paiement a échoué. Mettez à jour votre moyen de paiement pour éviter la suspension de vos crawls.'
+    return t('dashboard.billing.paymentFailed')
   }
-  return 'Votre abonnement est suspendu. Les crawls sont arrêtés.'
+  return t('dashboard.billing.subscriptionSuspended')
 })
 
 const subscribeLoading = ref(false)

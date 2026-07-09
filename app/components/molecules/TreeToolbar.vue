@@ -6,7 +6,7 @@
         :value="searchQuery"
         type="text"
         class="tree-toolbar__search-input"
-        placeholder="Rechercher..."
+        :placeholder="$t('dashboard.c.treeToolbar.searchPlaceholder')"
         @input="$emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
       >
     </div>
@@ -22,7 +22,7 @@
     </div>
 
     <span v-if="childrenCount > 0" class="tree-toolbar__count">
-      {{ childrenCount }}<template v-if="totalCount > childrenCount"> / {{ totalCount }}</template> élément{{ (totalCount > 1 || childrenCount > 1) ? 's' : '' }}
+      {{ childrenCount }}<template v-if="totalCount > childrenCount"> / {{ totalCount }}</template> {{ $t('dashboard.c.treeToolbar.items', Math.max(totalCount, childrenCount)) }}
     </span>
   </div>
 </template>
@@ -47,15 +47,17 @@ const emit = defineEmits<{
   'loadMore': []
 }>()
 
-const SORT_LABELS: Record<SortKey, string> = {
-  issues: 'Problèmes',
-  pages: 'Pages',
-  name: 'Nom',
+const { t } = useI18n()
+
+const SORT_LABEL_KEYS: Record<SortKey, string> = {
+  issues: 'dashboard.c.treeToolbar.sortIssues',
+  pages: 'dashboard.c.treeToolbar.sortPages',
+  name: 'dashboard.c.treeToolbar.sortName',
 }
 
 const SORT_KEYS: SortKey[] = ['issues', 'pages', 'name']
 
-const sortLabel = computed(() => SORT_LABELS[props.sortKey])
+const sortLabel = computed(() => t(SORT_LABEL_KEYS[props.sortKey]))
 
 const DEFAULT_DIR: Record<SortKey, 'asc' | 'desc'> = {
   issues: 'desc',

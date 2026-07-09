@@ -5,13 +5,13 @@
       <div v-if="showTrialBanner" class="trial-banner">
         <div class="trial-banner__inner">
           <div class="trial-banner__text">
-            <span class="trial-banner__days">{{ trialDaysLeft }} jour{{ trialDaysLeft > 1 ? 's' : '' }}</span>
-            restant{{ trialDaysLeft > 1 ? 's' : '' }} sur votre essai gratuit
+            <span class="trial-banner__days">{{ $t('dashboard.trialBanner.days', trialDaysLeft) }}</span>
+            {{ $t('dashboard.trialBanner.remaining', trialDaysLeft) }}
             <span class="trial-banner__sep">·</span>
-            Souscrivez maintenant, vos jours d'essai restants sont conservés
+            {{ $t('dashboard.trialBanner.subscribe') }}
           </div>
           <NuxtLink :to="billingUrl" class="trial-banner__cta">
-            Activer la facturation
+            {{ $t('dashboard.trialBanner.cta') }}
           </NuxtLink>
         </div>
       </div>

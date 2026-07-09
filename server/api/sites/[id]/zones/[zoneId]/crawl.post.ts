@@ -14,14 +14,14 @@ export default defineEventHandler(async (event) => {
 
   const zone = await Zone.findOne({ _id: zoneId, siteId }).lean()
   if (!zone) {
-    throw createError({ statusCode: 404, message: 'Zone introuvable' })
+    throw createError({ statusCode: 404, message: 'Zone not found', data: { errorCode: 'ZONE_NOT_FOUND' } })
   }
 
   // Entitlement = l'ORGA, jamais l'utilisateur qui clique : trial du OWNER de l'orga pour
   // tous les chemins (session ET clé API). Sinon un owner expiré pourrait inviter un compte
   // neuf (trial frais) et relancer des crawls à l'infini sur la même orga. (canOrgUseCrawls)
   if (!(await canOrgUseCrawls((site as { orgId: { toString(): string } }).orgId.toString()))) {
-    throw createError({ statusCode: 403, message: 'Votre essai de 14 jours est terminé. Activez la facturation dans les paramètres pour continuer.' })
+    throw createError({ statusCode: 403, message: 'Your 14-day trial has ended. Enable billing in settings to continue.', data: { errorCode: 'TRIAL_EXPIRED' } })
   }
 
   // CI : un nouveau deploy supersède le crawl en cours de CETTE zone (cancel-and-restart).

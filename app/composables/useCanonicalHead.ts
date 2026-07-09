@@ -1,0 +1,46 @@
+// Canonical + hreflang des pages publiques (appelé par les layouts landing/docs). Les pages
+// FR-only (formations, legal) n'émettent PAS de hreflang `en` : leur route /en/ redirige vers le FR.
+import { PUBLISHED_LOCALES } from '~~/shared/utils/i18n'
+
+const FR_ONLY_ROUTES = new Set([
+  'formations',
+  'legal-cgu',
+  'legal-cgv',
+  'legal-privacy',
+  'legal-cookies',
+  'legal-mentions',
+])
+
+export function useCanonicalHead() {
+  const route = useRoute()
+  const switchLocalePath = useSwitchLocalePath()
+  const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+
+  const links = computed(() => {
+    // Les routes localisées portent un nom suffixé ___locale (@nuxtjs/i18n). Les pages non
+    // localisées qui partagent ces layouts (previews internes) ne reçoivent rien.
+    const name = String(route.name ?? '')
+    if (!name.includes('___')) return []
+
+    const self = `${appUrl}${route.path.replace(/\/+$/, '')}`
+    const result: { rel: string, href: string, hreflang?: string }[] = [{ rel: 'canonical', href: self }]
+
+    const baseName = name.split('___')[0]!
+    const frHref = `${appUrl}${(switchLocalePath('fr') || route.path).replace(/\/+$/, '')}`
+
+    if (FR_ONLY_ROUTES.has(baseName) || PUBLISHED_LOCALES.length < 2) {
+      result.push({ rel: 'alternate', hreflang: 'fr', href: self })
+      result.push({ rel: 'alternate', hreflang: 'x-default', href: self })
+      return result
+    }
+
+    for (const locale of PUBLISHED_LOCALES) {
+      const path = switchLocalePath(locale)
+      if (path) result.push({ rel: 'alternate', hreflang: locale, href: `${appUrl}${path.replace(/\/+$/, '')}` })
+    }
+    result.push({ rel: 'alternate', hreflang: 'x-default', href: frHref })
+    return result
+  })
+
+  useHead({ link: () => links.value })
+}

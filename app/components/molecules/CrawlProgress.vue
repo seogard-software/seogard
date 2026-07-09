@@ -5,7 +5,7 @@
         <AppSpinner size="sm" />
         <span>{{ statusLabel }}</span>
       </div>
-      <AppBadge variant="info" size="sm">En cours</AppBadge>
+      <AppBadge variant="info" size="sm">{{ $t('dashboard.c.crawlProgress.inProgress') }}</AppBadge>
     </div>
 
     <div class="crawl-progress__bar-container">
@@ -16,29 +16,29 @@
     <div class="crawl-progress__stats">
       <span>{{ pagesLabel }}</span>
       <span class="crawl-progress__separator">&bull;</span>
-      <span>{{ crawl.alertsGenerated }} alertes</span>
+      <span>{{ $t('dashboard.c.crawlProgress.alerts', { count: crawl.alertsGenerated }) }}</span>
       <span class="crawl-progress__separator">&bull;</span>
       <span>{{ timeAgo }}</span>
     </div>
 
     <div v-if="crawl.sitemapBlocked" class="crawl-progress__blocked crawl-progress__blocked--critical">
       <AppIcon name="shield-check" size="sm" class="crawl-progress__blocked-icon" />
-      <span>Pare-feu (WAF) détecté — impossible d'accéder au sitemap. Seule la homepage a été analysée.</span>
-      <NuxtLink to="/bot" class="crawl-progress__blocked-link">Whitelister notre crawler</NuxtLink>
+      <span>{{ $t('dashboard.c.crawlProgress.sitemapBlocked') }}</span>
+      <NuxtLink to="/bot" class="crawl-progress__blocked-link">{{ $t('dashboard.c.crawlProgress.whitelist') }}</NuxtLink>
     </div>
 
     <div v-else-if="crawl.pagesBlocked > 0" class="crawl-progress__blocked">
       <AppIcon name="shield-check" size="sm" class="crawl-progress__blocked-icon" />
-      {{ crawl.pagesBlocked.toLocaleString('fr-FR') }} pages bloquées par un pare-feu (WAF)
-      <NuxtLink to="/bot" class="crawl-progress__blocked-cta">Débloquer l'accès</NuxtLink>
+      {{ $t('dashboard.c.crawlProgress.pagesBlocked', { count: crawl.pagesBlocked.toLocaleString(numberLocale) }) }}
+      <NuxtLink to="/bot" class="crawl-progress__blocked-cta">{{ $t('dashboard.c.crawlProgress.unblock') }}</NuxtLink>
     </div>
 
     <div v-if="crawl.pagesSkipped > 0 && isCloud" class="crawl-progress__skipped">
       <span class="crawl-progress__skipped-text">
-        {{ crawl.pagesSkipped.toLocaleString('fr-FR') }} pages ignorées — activez la facturation pour les inclure
+        {{ $t('dashboard.c.crawlProgress.pagesSkipped', { count: crawl.pagesSkipped.toLocaleString(numberLocale) }) }}
       </span>
       <NuxtLink :to="billingUrl" class="crawl-progress__skipped-link">
-        Activer
+        {{ $t('dashboard.c.crawlProgress.activate') }}
       </NuxtLink>
     </div>
   </div>
@@ -53,6 +53,9 @@ interface Props {
 const props = defineProps<Props>()
 const { isCloud } = useDeployment()
 
+const { t, locale } = useI18n()
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
+
 const { $dayjs } = useNuxtApp()
 const orgStore = useOrganizationStore()
 
@@ -62,16 +65,16 @@ const billingUrl = computed(() => {
 })
 
 const statusLabel = computed(() => {
-  if (props.crawl.status === 'pending') return 'Crawl en attente — découverte des pages...'
-  return 'Crawl en cours'
+  if (props.crawl.status === 'pending') return t('dashboard.c.crawlProgress.pending')
+  return t('dashboard.c.crawlProgress.running')
 })
 
 const pagesLabel = computed(() => {
-  const scanned = props.crawl.pagesScanned.toLocaleString('fr-FR')
+  const scanned = props.crawl.pagesScanned.toLocaleString(numberLocale.value)
   const total = props.crawl.pagesTotal
-    ? props.crawl.pagesTotal.toLocaleString('fr-FR')
+    ? props.crawl.pagesTotal.toLocaleString(numberLocale.value)
     : '?'
-  return `${scanned} / ${total} pages`
+  return t('dashboard.c.crawlProgress.pages', { scanned, total })
 })
 
 const timeAgo = computed(() => {

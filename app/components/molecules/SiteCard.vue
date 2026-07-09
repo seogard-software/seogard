@@ -13,14 +13,14 @@
     <div class="site-card__meta">
       <span v-if="site.discovering !== 'idle'" class="site-card__discovering">
         <span class="site-card__discovering-dot" />
-        Découverte du sitemap...
+        {{ $t('dashboard.c.siteCard.discovering') }}
       </span>
       <template v-else>
-        <span>{{ site.pagesCount }} pages</span>
+        <span>{{ $t('dashboard.c.siteCard.pages', { count: site.pagesCount }) }}</span>
         <span class="site-card__separator">&middot;</span>
-        <span v-if="site.crawlStatus === 'running'">Crawl en cours...</span>
+        <span v-if="site.crawlStatus === 'running'">{{ $t('dashboard.c.siteCard.crawling') }}</span>
         <span v-else-if="site.lastCrawlAt">{{ formattedLastCrawl }}</span>
-        <span v-else>Jamais crawlé</span>
+        <span v-else>{{ $t('dashboard.c.siteCard.neverCrawled') }}</span>
       </template>
     </div>
     <AppIcon name="chevron-right" size="sm" class="site-card__chevron" />
@@ -34,6 +34,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { locale } = useI18n()
+
 const faviconUrl = computed(() => {
   try {
     const domain = new URL(props.site.url).hostname
@@ -46,7 +48,7 @@ const faviconUrl = computed(() => {
 
 const formattedLastCrawl = computed(() => {
   if (!props.site.lastCrawlAt) return null
-  return new Date(props.site.lastCrawlAt).toLocaleString('fr-FR')
+  return new Date(props.site.lastCrawlAt).toLocaleString(locale.value === 'en' ? 'en-US' : 'fr-FR')
 })
 </script>
 

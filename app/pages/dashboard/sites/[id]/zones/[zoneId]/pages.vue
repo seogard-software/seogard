@@ -8,20 +8,20 @@
         <template #icon-left>
           <AppIcon name="settings" size="sm" />
         </template>
-        Modifier
+        {{ $t('dashboard.zonePages.edit') }}
       </AppButton>
       <AppButton v-if="!neverCrawled" variant="secondary" size="sm" @click="goToReport">
         <template #icon-left>
           <AppIcon name="file" size="sm" />
         </template>
-        Voir le rapport complet
+        {{ $t('dashboard.zonePages.viewReport') }}
       </AppButton>
       <span v-if="canCrawl && !showFirstCrawlCta" :title="crawlDisabledReason ?? undefined">
         <AppButton data-testid="crawl-button" variant="accent" :loading="crawlLoading" :disabled="!!activeCrawl || !!crawlDisabledReason" @click="launchCrawl">
           <template #icon-left>
             <AppIcon name="radar" size="sm" />
           </template>
-          Lancer un crawl
+          {{ $t('dashboard.zonePages.launchCrawl') }}
         </AppButton>
       </span>
     </DashboardHeader>
@@ -29,7 +29,7 @@
     <!-- Billing activation banner (default zone only) -->
     <div v-if="billingRequired" class="zone-pages__limit-banner">
       <AppIcon name="alert-triangle" size="sm" />
-      <span>Votre essai de 14 jours est terminé. <NuxtLink :to="billingUrl">Activez la facturation</NuxtLink> pour continuer.</span>
+      <span>{{ $t('dashboard.zonePages.billingBannerPrefix') }} <NuxtLink :to="billingUrl">{{ $t('dashboard.zonePages.billingBannerLink') }}</NuxtLink> {{ $t('dashboard.zonePages.billingBannerSuffix') }}</span>
     </div>
 
     <!-- Sitemap discovery banner -->
@@ -43,12 +43,12 @@
             <span class="zone-pages__discovering-core" />
           </span>
           <div class="zone-pages__discovering-text">
-            <span class="zone-pages__discovering-title">Analyse du sitemap</span>
-            <span class="zone-pages__discovering-sub">Les pages apparaîtront automatiquement</span>
+            <span class="zone-pages__discovering-title">{{ $t('dashboard.zonePages.discoveringTitle') }}</span>
+            <span class="zone-pages__discovering-sub">{{ $t('dashboard.zonePages.discoveringSub') }}</span>
           </div>
         </div>
         <span v-if="centerNode" class="zone-pages__discovering-count">
-          {{ centerNode.totalPageCount.toLocaleString('fr-FR') }} pages
+          {{ $t('dashboard.zonePages.pagesCount', { count: centerNode.totalPageCount.toLocaleString(numberLocale) }) }}
         </span>
       </div>
     </div>
@@ -57,11 +57,11 @@
     <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapBlocked" class="zone-pages__waf-banner">
       <span class="zone-pages__waf-icon"><AppIcon name="shield-check" size="sm" /></span>
       <div class="zone-pages__waf-text">
-        <span class="zone-pages__waf-title">Sitemap bloqué par un pare-feu (WAF)</span>
-        <span class="zone-pages__waf-sub">Notre crawler n'a pas pu accéder au sitemap. Seule la homepage a été analysée.</span>
+        <span class="zone-pages__waf-title">{{ $t('dashboard.zonePages.wafTitle') }}</span>
+        <span class="zone-pages__waf-sub">{{ $t('dashboard.zonePages.wafSub') }}</span>
       </div>
-      <NuxtLink to="/bot" class="zone-pages__waf-link">
-        Whitelister le crawler
+      <NuxtLink :to="localePath({ name: 'bot' })" class="zone-pages__waf-link">
+        {{ $t('dashboard.zonePages.whitelistCrawler') }}
         <AppIcon name="chevron-right" size="sm" />
       </NuxtLink>
     </div>
@@ -70,8 +70,8 @@
     <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapInvalidHostname" class="zone-pages__waf-banner">
       <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
       <div class="zone-pages__waf-text">
-        <span class="zone-pages__waf-title">Sitemap pointe vers le mauvais hostname</span>
-        <span class="zone-pages__waf-sub">Certaines URLs du sitemap ont un hostname différent du site monitoré et sont ignorées par le crawl.</span>
+        <span class="zone-pages__waf-title">{{ $t('dashboard.zonePages.invalidHostnameTitle') }}</span>
+        <span class="zone-pages__waf-sub">{{ $t('dashboard.zonePages.invalidHostnameSub') }}</span>
       </div>
     </div>
 
@@ -79,8 +79,8 @@
     <div v-if="!isDiscovering && sitesStore.currentSite?.sitemapMissing" class="zone-pages__waf-banner">
       <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
       <div class="zone-pages__waf-text">
-        <span class="zone-pages__waf-title">Aucun sitemap trouvé sur ce site</span>
-        <span class="zone-pages__waf-sub">Sans sitemap, les pages orphelines (sans lien interne) et les nouvelles pages peuvent passer inaperçues — y compris pour les moteurs. Leurs dates de mise à jour (lastmod) ne sont pas non plus signalées. Publier un sitemap fiabilise leur découverte.</span>
+        <span class="zone-pages__waf-title">{{ $t('dashboard.zonePages.noSitemapTitle') }}</span>
+        <span class="zone-pages__waf-sub">{{ $t('dashboard.zonePages.noSitemapSub') }}</span>
       </div>
     </div>
 
@@ -88,11 +88,11 @@
     <div v-if="!isDiscovering && (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 0" class="zone-pages__waf-banner zone-pages__waf-banner--danger">
       <span class="zone-pages__waf-icon"><AppIcon name="alert-triangle" size="sm" /></span>
       <div class="zone-pages__waf-text">
-        <span class="zone-pages__waf-title">{{ sitesStore.currentSite?.lastCrawlPagesFailed }} page{{ (sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) > 1 ? 's' : '' }} n'ont pas pu être analysées au dernier crawl</span>
-        <span class="zone-pages__waf-sub">Le serveur a refusé la connexion de notre crawler (rejet ou timeout). Le plus souvent, un pare-feu (Cloudflare, BitNinja…) filtre notre IP — autorisez-la. Sinon, vérifiez l'accès HTTPS de ces URLs.</span>
+        <span class="zone-pages__waf-title">{{ $t('dashboard.zonePages.failedPagesTitle', sitesStore.currentSite?.lastCrawlPagesFailed ?? 0) }}</span>
+        <span class="zone-pages__waf-sub">{{ $t('dashboard.zonePages.failedPagesSub') }}</span>
       </div>
-      <NuxtLink to="/bot" class="zone-pages__waf-link">
-        Autoriser notre crawler
+      <NuxtLink :to="localePath({ name: 'bot' })" class="zone-pages__waf-link">
+        {{ $t('dashboard.zonePages.allowCrawler') }}
         <AppIcon name="chevron-right" size="sm" />
       </NuxtLink>
     </div>
@@ -100,8 +100,8 @@
     <!-- Muted rules info banner (viewers only) -->
     <div v-if="mutedRulesCount > 0" class="zone-pages__muted-banner">
       <AppIcon name="bell" size="sm" />
-      <span>{{ mutedRulesCount }} règle{{ mutedRulesCount > 1 ? 's' : '' }} désactivée{{ mutedRulesCount > 1 ? 's' : '' }} sur ce site.</span>
-      <button v-if="canAdmin" class="zone-pages__muted-link" @click="openSiteSettings">Gérer</button>
+      <span>{{ $t('dashboard.zonePages.mutedRules', mutedRulesCount) }}</span>
+      <button v-if="canAdmin" class="zone-pages__muted-link" @click="openSiteSettings">{{ $t('dashboard.zonePages.manage') }}</button>
     </div>
 
     <!-- First-crawl CTA : pages découvertes mais jamais crawlées → on pousse à lancer
@@ -111,17 +111,16 @@
         <AppIcon name="radar" size="md" />
       </div>
       <div class="zone-pages__first-crawl-text">
-        <span class="zone-pages__first-crawl-title">Lancez votre premier crawl</span>
+        <span class="zone-pages__first-crawl-title">{{ $t('dashboard.zonePages.firstCrawlTitle') }}</span>
         <span class="zone-pages__first-crawl-sub">
-          {{ centerNode!.totalPageCount.toLocaleString('fr-FR') }} pages découvertes via le sitemap.
-          Lancez un crawl pour détecter les régressions SEO, la performance et les recommandations.
+          {{ $t('dashboard.zonePages.firstCrawlSub', { count: centerNode!.totalPageCount.toLocaleString(numberLocale) }) }}
         </span>
       </div>
       <AppButton variant="accent" :loading="crawlLoading" :disabled="!!crawlDisabledReason" @click="launchCrawl">
         <template #icon-left>
           <AppIcon name="radar" size="sm" />
         </template>
-        Lancer le premier crawl
+        {{ $t('dashboard.zonePages.firstCrawlBtn') }}
       </AppButton>
     </div>
 
@@ -146,12 +145,12 @@
     <!-- Tree directory view -->
     <div class="zone-pages__tree">
       <div v-if="treeLoading && !centerNode" class="zone-pages__tree-loading">
-        <AppSpinner label="Chargement..." />
+        <AppSpinner :label="$t('dashboard.zonePages.loading')" />
       </div>
       <div v-else-if="treeError" class="zone-pages__tree-error">
         <AppIcon name="alert-triangle" size="sm" />
         <span>{{ treeError }}</span>
-        <AppButton variant="secondary" size="sm" @click="fetchTree()">Réessayer</AppButton>
+        <AppButton variant="secondary" size="sm" @click="fetchTree()">{{ $t('dashboard.zonePages.retry') }}</AppButton>
       </div>
       <template v-else-if="centerNode">
         <TreeDirectoryHeader :node="centerNode" :loading="treeLoading && !loadingMore" :never-crawled="neverCrawled" @select="selectNode" />
@@ -169,8 +168,8 @@
 
         <div v-if="sortedChildren.length === 0 && !treeLoading && !isDiscovering" class="zone-pages__tree-empty">
           <AppIcon name="folder" size="sm" />
-          <span v-if="searchQuery">Aucun résultat pour "{{ searchQuery }}"</span>
-          <span v-else>Aucune page dans cette zone. Lancez un crawl pour commencer.</span>
+          <span v-if="searchQuery">{{ $t('dashboard.zonePages.noResults', { query: searchQuery }) }}</span>
+          <span v-else>{{ $t('dashboard.zonePages.emptyZone') }}</span>
         </div>
 
         <div v-else class="zone-pages__grid-wrapper">
@@ -201,7 +200,7 @@
               @click="loadMore"
             >
               <AppSpinner v-if="loadingMore" size="sm" />
-              <template v-else>Charger plus ({{ sortedChildren.length }} / {{ totalChildren }})</template>
+              <template v-else>{{ $t('dashboard.zonePages.loadMore', { shown: sortedChildren.length, total: totalChildren }) }}</template>
             </button>
           </div>
         </div>
@@ -220,16 +219,16 @@
     <AddZoneModal ref="zoneModalRef" v-model="showEditModal" :site-id="siteId" :zone="zone" @success="handleZoneUpdated" @deleted="handleZoneDeleted" />
 
     <!-- Site settings modal (default zone only) -->
-    <AppModal v-model="showSiteSettings" title="Paramètres du site">
+    <AppModal v-model="showSiteSettings" :title="$t('dashboard.zonePages.siteSettingsTitle')">
       <form class="zone-pages__settings-form" @submit.prevent="handleSaveSite">
         <AppInput
           v-model="siteName"
-          label="Nom du site"
-          placeholder="Mon site"
+          :label="$t('dashboard.zonePages.siteNameLabel')"
+          :placeholder="$t('dashboard.zonePages.siteNamePlaceholder')"
         />
         <AppInput
           v-model="siteUrl"
-          label="URL du site"
+          :label="$t('dashboard.zonePages.siteUrlLabel')"
           placeholder="https://example.com"
           disabled
         />
@@ -237,21 +236,20 @@
       <MutedRulesList :site-id="siteId" />
       <template #footer>
         <AppButton v-if="isOrgOwner" variant="danger" size="sm" @click="showSiteSettings = false; deleteConfirmation = ''; showDeleteModal = true">
-          Supprimer le site
+          {{ $t('dashboard.zonePages.deleteSite') }}
         </AppButton>
         <AppButton :loading="savingSite" @click="handleSaveSite">
-          Enregistrer
+          {{ $t('dashboard.zonePages.save') }}
         </AppButton>
       </template>
     </AppModal>
 
     <!-- Delete site confirmation modal -->
-    <AppModal v-model="showDeleteModal" title="Supprimer le site" :close-on-backdrop="!deletingSite">
+    <AppModal v-model="showDeleteModal" :title="$t('dashboard.zonePages.deleteSite')" :close-on-backdrop="!deletingSite">
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <p class="zone-pages__modal-text" v-html="$t('dashboard.zonePages.deleteModalWarning')" />
       <p class="zone-pages__modal-text">
-        Cette action est <strong>irréversible</strong>. Toutes les données associées seront supprimées.
-      </p>
-      <p class="zone-pages__modal-text">
-        Tapez <strong>{{ currentSite?.name }}</strong> pour confirmer :
+        {{ $t('dashboard.zonePages.deleteModalPrefix') }} <strong>{{ currentSite?.name }}</strong> {{ $t('dashboard.zonePages.deleteModalSuffix') }}
       </p>
       <AppInput
         v-model="deleteConfirmation"
@@ -260,7 +258,7 @@
       />
       <template #footer>
         <AppButton variant="secondary" :disabled="deletingSite" @click="showDeleteModal = false">
-          Annuler
+          {{ $t('dashboard.zonePages.cancel') }}
         </AppButton>
         <AppButton
           variant="danger"
@@ -268,7 +266,7 @@
           :loading="deletingSite"
           @click="handleDeleteSite"
         >
-          Supprimer définitivement
+          {{ $t('dashboard.zonePages.deleteConfirm') }}
         </AppButton>
       </template>
     </AppModal>
@@ -278,11 +276,16 @@
 <script setup lang="ts">
 import type { Zone } from '~~/shared/types/zone'
 import { zoneReportPath } from '~~/shared/utils/report-links'
+defineI18nRoute(false)
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const route = useRoute()
+const { t, locale } = useI18n()
+const apiError = useApiError()
+const localePath = useLocalePath()
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
 
@@ -311,7 +314,7 @@ const siteHost = computed(() => {
 })
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
-const zoneName = computed(() => isDefaultZone.value ? 'Toutes les pages' : (zone.value?.name ?? 'Zone'))
+const zoneName = computed(() => isDefaultZone.value ? t('dashboard.zonePages.defaultZoneName') : (zone.value?.name ?? t('dashboard.zonePages.zoneFallback')))
 const patternsLabel = computed(() => zone.value?.patterns.join(', ') ?? '')
 
 useHead({ title: computed(() => zoneName.value) })
@@ -337,8 +340,8 @@ const billingUrl = computed(() => {
 })
 
 const crawlDisabledReason = computed(() => {
-  if (isDiscovering.value) return 'Découverte du sitemap en cours...'
-  if (billingRequired.value) return 'Activez la facturation pour continuer'
+  if (isDiscovering.value) return t('dashboard.zonePages.discoveringReason')
+  if (billingRequired.value) return t('dashboard.zonePages.billingReason')
   return null
 })
 
@@ -391,19 +394,16 @@ async function launchCrawl() {
   try {
     await triggerCrawl(siteId.value, zoneId.value)
     userTriggeredCrawl.value = true
-    toast.info('Crawl lancé...')
+    toast.info(t('dashboard.zonePages.crawlStarted'))
   }
   catch (err: unknown) {
-    const fetchErr = err as { statusCode?: number; data?: { statusCode?: number; message?: string } }
-    const status = fetchErr?.statusCode ?? fetchErr?.data?.statusCode
-    const message = fetchErr?.data?.message ?? ''
-
-    if (status === 403 && message.includes('Permissions')) {
-      toast.error('Vous n\'avez pas la permission de lancer un crawl.')
-    } else if (status === 403) {
-      toast.error('Abonnement requis pour lancer un crawl.')
+    const code = getApiErrorCode(err)
+    if (code === 'INSUFFICIENT_PERMISSIONS' || code === 'ZONE_ACCESS_DENIED') {
+      toast.error(t('dashboard.zonePages.crawlNoPermission'))
+    } else if (code === 'TRIAL_EXPIRED') {
+      toast.error(t('dashboard.zonePages.crawlSubscriptionRequired'))
     } else {
-      toast.error('Erreur lors du lancement du crawl.')
+      toast.error(apiError(err, t('dashboard.zonePages.crawlError')))
     }
   }
 }
@@ -418,7 +418,7 @@ setOnCrawlCompleted(async () => {
     sitesStore.fetchSite(siteId.value).catch(() => {}),
   ])
   if (userTriggeredCrawl.value) {
-    toast.success('Crawl terminé !')
+    toast.success(t('dashboard.zonePages.crawlDone'))
     userTriggeredCrawl.value = false
   }
 })
@@ -471,7 +471,7 @@ async function handleSaveSite() {
       body: { name: siteName.value },
     })
     showSiteSettings.value = false
-    toast.success('Site mis à jour')
+    toast.success(t('dashboard.zonePages.siteUpdated'))
     // Refresh site data in store
     await sitesStore.fetchSites()
   }

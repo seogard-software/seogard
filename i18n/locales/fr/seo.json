@@ -1,0 +1,113 @@
+{
+  "seo": {
+    "login": {
+      "title": "Connexion"
+    },
+    "register": {
+      "title": "Inscription"
+    },
+    "forgot": {
+      "title": "Mot de passe oublié"
+    },
+    "reset": {
+      "title": "Réinitialiser le mot de passe"
+    },
+    "onboarding": {
+      "title": "Créer une organisation"
+    },
+    "invite": {
+      "title": "Invitation"
+    },
+    "index": {
+      "title": "Seogard — Audit & monitoring SEO/GEO continu {'|'} Détection de régressions",
+      "description": "Audit SEO/GEO technique et monitoring continu : {count} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Détectez les régressions avant Google et les IA. Self-hosted gratuit ou Cloud dès {price} €/mois/page.",
+      "ogTitle": "Seogard — Audit & monitoring SEO/GEO continu {'|'} Détection de régressions",
+      "ogDescription": "Audit & monitoring SEO/GEO continu : {count} règles vérifiées à chaque crawl + comparaison HTML brut vs rendu JS. Self-hosted gratuit ou Cloud à {price} €/mois/page.",
+      "twitterTitle": "Seogard — Audit & monitoring SEO/GEO continu {'|'} Détection de régressions",
+      "twitterDescription": "Audit & monitoring SEO/GEO continu. {count} règles à chaque crawl. Détection des régressions avant Google. Self-hosted gratuit ou Cloud dès {price} €/mois/page.",
+      "jsonld": {
+        "appDescription": "Audit SEO/GEO technique en continu : compare le HTML brut et le rendu JavaScript pour détecter les régressions invisibles. Self-hosted gratuit ou Cloud dès {price} €/mois/page.",
+        "offerSelfHostedDesc": "Version self-hosted gratuite, code source complet",
+        "offerCloudDesc": "{price} € par page monitorée par mois, infrastructure gérée",
+        "feature1": "Comparaison HTML brut vs rendu JavaScript",
+        "feature2": "Monitoring meta et canonicals",
+        "feature3": "Détection noindex accidentels",
+        "feature4": "Alertes instantanées par email",
+        "feature5": "Crawl quotidien automatique",
+        "feature6": "Dashboard temps réel",
+        "feature7": "{count} règles de détection SEO et GEO",
+        "feature8": "Optimisation GEO et visibilité IA",
+        "feature9": "Version self-hosted gratuite",
+        "feature10": "CI/CD webhook intégré",
+        "nav1": "Formations SEO & GEO",
+        "nav2": "Monitoring SEO continu",
+        "nav3": "Audit SEO & GEO",
+        "nav4": "Scanner SEO gratuit",
+        "nav5": "Tarifs",
+        "nav6": "Documentation",
+        "nav7": "Règles SEO",
+        "nav8": "Self-Hosted"
+      }
+    },
+    "outilsMonitoring": {
+      "title": "Monitoring SEO continu — détectez les régressions avant Google",
+      "description": "Surveillance SEO continue : Seogard compare le HTML brut (vu par Google et l'IA) et le rendu JavaScript, détecte les régressions (metas, canonical, noindex, status code) et vous alerte avant Google. Gate CI/CD, multi-zone, GEO.",
+      "ogTitle": "Monitoring SEO continu — détectez les régressions avant Google",
+      "ogDescription": "Surveillance continue SSR vs CSR, alertes instantanées, gate CI/CD. Détectez les régressions SEO avant Google.",
+      "twitterTitle": "Monitoring SEO continu — détectez les régressions avant Google",
+      "twitterDescription": "Surveillance continue SSR vs CSR, alertes, gate CI/CD. Avant Google.",
+      "jsonld": {
+        "name": "Monitoring SEO continu — Seogard",
+        "serviceType": "Monitoring de régression SEO et GEO",
+        "description": "Surveillance continue qui compare le HTML brut et le rendu JavaScript pour détecter les régressions SEO avant Google."
+      }
+    },
+    "outilsAudit": {
+      "title": "Audit SEO & GEO — rapport État de santé de votre site",
+      "description": "Audit SEO et GEO : Seogard scanne votre site contre {count} règles (SEO technique, GEO, performance), compare HTML brut et rendu JavaScript, et produit un rapport État de santé SEO (Markdown + PDF) corrigeable sans coder via l'export IA.",
+      "ogTitle": "Audit SEO & GEO — l'état de santé complet de votre site",
+      "ogDescription": "Scan contre {count} règles SEO/GEO, rapport État de santé (Markdown + PDF), export IA pour corriger sans coder.",
+      "twitterTitle": "Audit SEO & GEO — l'état de santé complet de votre site",
+      "twitterDescription": "Scan {count} règles SEO/GEO, rapport État de santé (md + PDF), export IA.",
+      "jsonld": {
+        "name": "Audit SEO & GEO — Seogard",
+        "serviceType": "Audit SEO technique et GEO",
+        "description": "Scan d'un site contre {count} règles SEO, GEO et performance, avec rapport État de santé SEO (Markdown + PDF) et export IA."
+      }
+    },
+    "docsSelfHosted": {
+      "title": "Self-Hosted",
+      "description": "Installez Seogard en self-hosted (Docker Compose) : monitoring SEO/GEO gratuit sur votre propre infrastructure, code source disponible (BSL 1.1). Guide pas à pas.",
+      "ogTitle": "Self-Hosted — Seogard"
+    },
+    "docsRules": {
+      "title": "Règles SEO",
+      "description": "{count} règles SEO vérifiées à chaque crawl : metas, SSR/CSR, status codes, structured data, i18n, GEO."
+    },
+    "scanner": {
+      "title": "Scanner SEO gratuit de votre site",
+      "description": "Scannez gratuitement le SEO de votre site : Seogard compare le HTML brut (vu par Google et les IA) et le rendu JavaScript, et détecte les régressions invisibles. Résultat immédiat, sans carte bancaire.",
+      "ogTitle": "Scanner SEO gratuit — voyez votre site comme Google",
+      "ogDescription": "Comparez HTML brut et rendu JavaScript, détectez les régressions SEO/GEO avant Google. Scan gratuit, sans carte bancaire.",
+      "twitterTitle": "Scanner SEO gratuit — voyez votre site comme Google",
+      "twitterDescription": "Comparez HTML brut et rendu JS, détectez les régressions avant Google. Gratuit, sans CB.",
+      "jsonld": {
+        "breadcrumbHome": "Accueil",
+        "breadcrumbScanner": "Scanner SEO gratuit"
+      }
+    },
+    "tarifs": {
+      "title": "Tarifs",
+      "description": "Tarifs Seogard : audit & monitoring SEO/GEO en continu. Self-hosted gratuit ou Cloud dès {price} €/mois/page. Estimez votre tarif selon le nombre de pages monitorées. Sans engagement, essai 14 jours sans carte bancaire.",
+      "ogTitle": "Tarifs — Seogard",
+      "ogDescription": "Audit & monitoring SEO/GEO en continu. Self-hosted gratuit ou Cloud dès {price} €/mois/page. Estimez votre tarif au volume."
+    },
+    "bot": {
+      "title": "Seogard-Bot — Robot d'analyse SEO",
+      "description": "Informations sur Seogard-Bot, notre robot d'analyse SEO technique. Guide de whitelisting pour Cloudflare, Akamai, AWS WAF et autres pare-feu."
+    },
+    "default": {
+      "description": "Monitoring SEO technique. Détectez les régressions avant Google."
+    }
+  }
+}

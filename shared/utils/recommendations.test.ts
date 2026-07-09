@@ -23,7 +23,7 @@ describe('rankRecommendations', () => {
     const { topRecos } = rankRecommendations(recos)
     expect(topRecos[0]!.ruleId).toBe('rec_llms_txt_missing')
     expect(topRecos[0]!.siteLevel).toBe(true)
-    expect(topRecos[0]!.hint).toContain('IA')
+    expect(topRecos[0]!.hint).toBeNull() // hint résolu PAR LOCALE au rendu email (emails.recoHints)
     expect(topRecos[1]!.ruleId).toBe('rec_title_length_audit')
     expect(topRecos[1]!.pagesAffected).toBe(340)
   })

@@ -1,53 +1,54 @@
 <template>
-  <AppModal v-model="model" title="Rôles & permissions">
+  <AppModal v-model="model" :title="$t('dashboard.c.permissionsModal.title')">
     <div class="permissions-modal">
-      <p class="permissions-modal__intro">
-        Les permissions sont gérées à deux niveaux : <strong>organisation</strong> et <strong>zone</strong>.
-      </p>
+      <i18n-t keypath="dashboard.c.permissionsModal.intro" tag="p" class="permissions-modal__intro">
+        <template #org><strong>{{ $t('dashboard.c.permissionsModal.introOrg') }}</strong></template>
+        <template #zone><strong>{{ $t('dashboard.c.permissionsModal.introZone') }}</strong></template>
+      </i18n-t>
 
       <!-- Org roles -->
       <div class="permissions-modal__section">
-        <h3 class="permissions-modal__section-title">Organisation</h3>
+        <h3 class="permissions-modal__section-title">{{ $t('dashboard.c.permissionsModal.orgSection') }}</h3>
         <div class="permissions-modal__role">
-          <span class="permissions-modal__badge permissions-modal__badge--owner">owner</span>
-          <span class="permissions-modal__desc">Accès total. Gère l'organisation, la facturation, les sites et toutes les zones.</span>
+          <span class="permissions-modal__badge permissions-modal__badge--owner">{{ $t('dashboard.roles.owner') }}</span>
+          <span class="permissions-modal__desc">{{ $t('dashboard.c.permissionsModal.ownerDesc') }}</span>
         </div>
       </div>
 
       <!-- Zone roles -->
       <div class="permissions-modal__section">
-        <h3 class="permissions-modal__section-title">Site & Zone</h3>
+        <h3 class="permissions-modal__section-title">{{ $t('dashboard.c.permissionsModal.zoneSection') }}</h3>
         <div class="permissions-modal__role">
-          <span class="permissions-modal__badge permissions-modal__badge--admin">admin</span>
-          <span class="permissions-modal__desc">Gère la zone : modifier, supprimer, inviter des membres, configurer le webhook, lancer des crawls, désactiver des règles d'alertes.</span>
+          <span class="permissions-modal__badge permissions-modal__badge--admin">{{ $t('dashboard.roles.admin') }}</span>
+          <span class="permissions-modal__desc">{{ $t('dashboard.c.permissionsModal.adminDesc') }}</span>
         </div>
         <div class="permissions-modal__role">
-          <span class="permissions-modal__badge permissions-modal__badge--member">member</span>
-          <span class="permissions-modal__desc">Peut lancer des crawls, consulter et résoudre les alertes.</span>
+          <span class="permissions-modal__badge permissions-modal__badge--member">{{ $t('dashboard.roles.member') }}</span>
+          <span class="permissions-modal__desc">{{ $t('dashboard.c.permissionsModal.memberDesc') }}</span>
         </div>
         <div class="permissions-modal__role">
-          <span class="permissions-modal__badge permissions-modal__badge--viewer">viewer</span>
-          <span class="permissions-modal__desc">Lecture seule. Voit les pages et alertes sans pouvoir agir.</span>
+          <span class="permissions-modal__badge permissions-modal__badge--viewer">{{ $t('dashboard.roles.viewer') }}</span>
+          <span class="permissions-modal__desc">{{ $t('dashboard.c.permissionsModal.viewerDesc') }}</span>
         </div>
       </div>
 
       <!-- Permissions table -->
       <div class="permissions-modal__section">
-        <h3 class="permissions-modal__section-title">Matrice</h3>
+        <h3 class="permissions-modal__section-title">{{ $t('dashboard.c.permissionsModal.matrixSection') }}</h3>
         <div class="permissions-modal__table-wrap">
           <table class="permissions-modal__table">
             <thead>
               <tr>
-                <th>Action</th>
-                <th>Owner</th>
-                <th>Admin</th>
-                <th>Member</th>
-                <th>Viewer</th>
+                <th>{{ $t('dashboard.c.permissionsModal.colAction') }}</th>
+                <th>{{ $t('dashboard.roles.owner') }}</th>
+                <th>{{ $t('dashboard.roles.admin') }}</th>
+                <th>{{ $t('dashboard.roles.member') }}</th>
+                <th>{{ $t('dashboard.roles.viewer') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in matrixRows" :key="row.action">
-                <td class="permissions-modal__action">{{ row.action }}</td>
+              <tr v-for="row in matrixRows" :key="row.actionKey">
+                <td class="permissions-modal__action">{{ $t(row.actionKey) }}</td>
                 <td v-for="(val, idx) in row.roles" :key="idx" class="permissions-modal__cell">
                   <span v-if="val" class="permissions-modal__check">
                     <AppIcon name="check" size="sm" />
@@ -61,7 +62,7 @@
       </div>
 
       <p class="permissions-modal__note">
-        Un owner d'organisation a automatiquement tous les droits sur toutes les zones.
+        {{ $t('dashboard.c.permissionsModal.note') }}
       </p>
     </div>
   </AppModal>
@@ -71,19 +72,19 @@
 const model = defineModel<boolean>({ required: true })
 
 const matrixRows = [
-  { action: 'Voir pages / alertes', roles: [true, true, true, true] },
-  { action: 'Voir / télécharger le rapport', roles: [true, true, true, true] },
-  { action: 'Lancer un crawl', roles: [true, true, true, false] },
-  { action: 'Résoudre des alertes', roles: [true, true, true, false] },
-  { action: 'Désactiver / réactiver une règle', roles: [true, true, false, false] },
-  { action: 'Configurer webhook / clé API', roles: [true, true, false, false] },
-  { action: 'Inviter un membre', roles: [true, true, false, false] },
-  { action: 'Gérer les rôles', roles: [true, true, false, false] },
-  { action: 'Modifier la zone', roles: [true, true, false, false] },
-  { action: 'Supprimer la zone', roles: [true, true, false, false] },
-  { action: 'Créer une zone', roles: [true, true, false, false] },
-  { action: 'Créer / supprimer un site', roles: [true, false, false, false] },
-  { action: 'Paramètres organisation', roles: [true, false, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.viewPagesAlerts', roles: [true, true, true, true] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.viewReport', roles: [true, true, true, true] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.runCrawl', roles: [true, true, true, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.resolveAlerts', roles: [true, true, true, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.toggleRule', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.configureWebhook', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.inviteMember', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.manageRoles', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.editZone', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.deleteZone', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.createZone', roles: [true, true, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.createDeleteSite', roles: [true, false, false, false] },
+  { actionKey: 'dashboard.c.permissionsModal.rows.orgSettings', roles: [true, false, false, false] },
 ]
 </script>
 

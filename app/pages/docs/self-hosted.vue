@@ -1,92 +1,88 @@
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="docs-sh">
-    <h1 class="docs-sh__title">Guide Self-Hosted</h1>
-    <p class="docs-sh__subtitle">Tout ce qu'il faut savoir pour héberger Seogard sur votre serveur.</p>
+    <h1 class="docs-sh__title">{{ $t('docs.selfHosted.title') }}</h1>
+    <p class="docs-sh__subtitle">{{ $t('docs.selfHosted.subtitle') }}</p>
 
     <!-- Getting Started -->
     <section id="getting-started" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Getting Started</h2>
-      <p class="docs-sh__text">Prérequis : <strong>Docker</strong> et <strong>Docker Compose</strong> installés sur votre serveur.</p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.gettingStarted.heading') }}</h2>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.gettingStarted.prereq')" />
       <ol class="docs-sh__steps">
-        <li>Cloner le repo
+        <li>{{ $t('docs.selfHosted.gettingStarted.stepClone') }}
           <div class="docs-sh__code"><code>git clone https://github.com/seogard-software/seogard.git && cd seogard</code></div>
         </li>
-        <li>Copier et configurer le fichier d'environnement
+        <li>{{ $t('docs.selfHosted.gettingStarted.stepEnv') }}
           <div class="docs-sh__code">
             <code>cp .env.example .env</code>
           </div>
-          <p class="docs-sh__text">Éditez <code>.env</code> et changez <strong>obligatoirement</strong> :</p>
+          <p class="docs-sh__text" v-html="$t('docs.selfHosted.gettingStarted.editEnv')" />
           <div class="docs-sh__table-wrap">
             <table class="docs-sh__table">
               <thead>
-                <tr><th>Variable</th><th>Description</th></tr>
+                <tr><th>{{ $t('docs.selfHosted.gettingStarted.thVariable') }}</th><th>{{ $t('docs.selfHosted.gettingStarted.thDescription') }}</th></tr>
               </thead>
               <tbody>
-                <tr><td><code>MONGO_PASSWORD</code></td><td>Mot de passe MongoDB — choisissez un mot de passe fort</td></tr>
-                <tr><td><code>NUXT_JWT_SECRET</code></td><td>Clé de signature JWT — 64+ caractères aléatoires</td></tr>
-                <tr><td><code>NUXT_PUBLIC_APP_URL</code></td><td>URL publique de votre instance (ex: <code>https://seo.monsite.com</code>)</td></tr>
+                <tr><td><code>MONGO_PASSWORD</code></td><td>{{ $t('docs.selfHosted.gettingStarted.mongoPasswordDesc') }}</td></tr>
+                <tr><td><code>NUXT_JWT_SECRET</code></td><td>{{ $t('docs.selfHosted.gettingStarted.jwtSecretDesc') }}</td></tr>
+                <tr><td><code>NUXT_PUBLIC_APP_URL</code></td><td v-html="$t('docs.selfHosted.gettingStarted.appUrlDesc')" /></tr>
               </tbody>
             </table>
           </div>
         </li>
-        <li>Lancer
+        <li>{{ $t('docs.selfHosted.gettingStarted.stepRun') }}
           <div class="docs-sh__code"><code>docker compose -f docker-compose.self-hosted.yml up -d</code></div>
         </li>
-        <li>Ouvrir <code>http://localhost:3000</code> et créer votre compte administrateur</li>
+        <li v-html="$t('docs.selfHosted.gettingStarted.stepOpen')" />
       </ol>
-      <p class="docs-sh__text">
-        Le premier compte créé sera l'<strong>administrateur</strong> (owner). L'inscription se ferme ensuite automatiquement — les membres suivants sont ajoutés par invitation.
-      </p>
-      <p class="docs-sh__text">Un seul fichier <code>.env</code> pour tout (web + crawler). Les connexions MongoDB et Redis sont gérées automatiquement par Docker.</p>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.gettingStarted.firstAccount')" />
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.gettingStarted.singleEnv')" />
     </section>
 
     <!-- Architecture -->
     <section id="architecture" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Architecture</h2>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.architecture.heading') }}</h2>
       <div class="docs-sh__arch">
         <div class="docs-sh__arch-box">
-          <span class="docs-sh__arch-label">Votre serveur</span>
+          <span class="docs-sh__arch-label">{{ $t('docs.selfHosted.architecture.serverLabel') }}</span>
           <div class="docs-sh__arch-grid">
             <div class="docs-sh__arch-item docs-sh__arch-item--web">
               <strong>Web</strong>
-              <span>Dashboard + API</span>
+              <span>{{ $t('docs.selfHosted.architecture.webDesc') }}</span>
               <code>port 3000</code>
             </div>
             <div class="docs-sh__arch-item docs-sh__arch-item--worker">
               <strong>Workers</strong>
-              <span>Crawler Playwright</span>
+              <span>{{ $t('docs.selfHosted.architecture.workersDesc') }}</span>
               <code>x{{ workerReplicas }}</code>
             </div>
             <div class="docs-sh__arch-item docs-sh__arch-item--db">
               <strong>MongoDB</strong>
-              <span>Base de données</span>
+              <span>{{ $t('docs.selfHosted.architecture.mongoDesc') }}</span>
             </div>
             <div class="docs-sh__arch-item docs-sh__arch-item--redis">
               <strong>Redis</strong>
-              <span>Queue de crawl</span>
+              <span>{{ $t('docs.selfHosted.architecture.redisDesc') }}</span>
             </div>
           </div>
         </div>
       </div>
-      <p class="docs-sh__text">
-        Le <strong>Web</strong> sert le dashboard et l'API. Les <strong>Workers</strong> crawlent les pages avec Playwright (navigateur headless).
-        <strong>Redis</strong> distribue les pages aux workers. <strong>MongoDB</strong> stocke les données.
-      </p>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.architecture.text')" />
     </section>
 
     <!-- Dimensionnement -->
     <section id="dimensionnement" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Dimensionnement</h2>
-      <p class="docs-sh__text">Chaque worker crawler utilise <strong>~1 GB de RAM</strong>. MongoDB a besoin d'un cache RAM pour être performant. Le reste (~2 GB) est partagé entre Redis, le serveur web et l'OS.</p>
-      <p class="docs-sh__text">Formule : <strong>Cache MongoDB = RAM serveur - (Workers × 1 GB) - 2 GB</strong></p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.sizing.heading') }}</h2>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.sizing.intro')" />
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.sizing.formula')" />
       <div class="docs-sh__table-wrap">
         <table class="docs-sh__table">
           <thead>
             <tr>
-              <th>RAM serveur</th>
-              <th>Workers</th>
-              <th>Cache MongoDB</th>
-              <th>Pages monitorables</th>
+              <th>{{ $t('docs.selfHosted.sizing.thRam') }}</th>
+              <th>{{ $t('docs.selfHosted.sizing.thWorkers') }}</th>
+              <th>{{ $t('docs.selfHosted.sizing.thCache') }}</th>
+              <th>{{ $t('docs.selfHosted.sizing.thPages') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -97,7 +93,7 @@
           </tbody>
         </table>
       </div>
-      <p class="docs-sh__text">Le cache MongoDB est fixé à <strong>2 GB par défaut</strong> dans le docker-compose. Ajustez selon votre serveur en éditant <code>docker-compose.self-hosted.yml</code> → <code>--wiredTigerCacheSizeGB X</code>.</p>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.sizing.cacheDefault')" />
       <div class="docs-sh__code">
         <code># Lancer avec 3 workers</code><br>
         <code>WORKER_REPLICAS=3 docker compose -f docker-compose.self-hosted.yml up -d</code>
@@ -106,104 +102,99 @@
 
     <!-- Workers -->
     <section id="workers" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Ajuster les workers</h2>
-      <p class="docs-sh__text">Modifiez le nombre de workers selon les ressources de votre serveur :</p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.workers.heading') }}</h2>
+      <p class="docs-sh__text">{{ $t('docs.selfHosted.workers.text') }}</p>
       <div class="docs-sh__code">
         <code>WORKER_REPLICAS=5 docker compose -f docker-compose.self-hosted.yml up -d</code>
       </div>
-      <p class="docs-sh__text">Ou éditez directement <code>docker-compose.self-hosted.yml</code> → <code>replicas: 5</code></p>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.workers.orEdit')" />
     </section>
 
     <!-- Email -->
     <section id="email" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Notifications email</h2>
-      <p class="docs-sh__text--muted">Optionnel — sans configuration email, Seogard fonctionne mais n'envoie pas d'alertes ni de reset de mot de passe.</p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.email.heading') }}</h2>
+      <p class="docs-sh__text--muted">{{ $t('docs.selfHosted.email.optional') }}</p>
       <ol class="docs-sh__steps">
-        <li>Créez un compte gratuit sur <a href="https://resend.com" target="_blank" rel="noopener">resend.com</a> (100 emails/jour)</li>
-        <li>Vérifiez votre domaine dans le dashboard Resend</li>
-        <li>Ajoutez dans votre <code>.env</code> :
+        <li>{{ $t('docs.selfHosted.email.step1Before') }} <a href="https://resend.com" target="_blank" rel="noopener">resend.com</a> {{ $t('docs.selfHosted.email.step1After') }}</li>
+        <li>{{ $t('docs.selfHosted.email.step2') }}</li>
+        <li>
+          <span v-html="$t('docs.selfHosted.email.step3')" />
           <div class="docs-sh__code">
             <code>RESEND_API_KEY=re_votre_cle_ici</code><br>
             <code>FROM_EMAIL=alerts@votre-domaine.com</code>
           </div>
         </li>
-        <li>Redémarrez : <code>docker compose -f docker-compose.self-hosted.yml restart web worker</code></li>
+        <li>{{ $t('docs.selfHosted.email.step4') }} <code>docker compose -f docker-compose.self-hosted.yml restart web worker</code></li>
       </ol>
     </section>
 
     <!-- OAuth -->
     <section id="oauth" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Connexion OAuth</h2>
-      <p class="docs-sh__text--muted">Optionnel — sans OAuth, les utilisateurs se connectent par email + mot de passe.</p>
-      <p class="docs-sh__text">Ajoutez les clés dans votre <code>.env</code> pour activer chaque provider :</p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.oauth.heading') }}</h2>
+      <p class="docs-sh__text--muted">{{ $t('docs.selfHosted.oauth.optional') }}</p>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.oauth.intro')" />
 
       <details class="docs-sh__detail">
         <summary>Google</summary>
         <ol class="docs-sh__steps">
-          <li>Créez un OAuth Client sur <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a></li>
+          <li>{{ $t('docs.selfHosted.oauth.googleStep1') }} <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a></li>
           <li>Redirect URI : <code>{{ appUrl }}/api/auth/oauth/google/callback</code></li>
-          <li><code>GOOGLE_CLIENT_ID=...</code> et <code>GOOGLE_CLIENT_SECRET=...</code></li>
+          <li><code>GOOGLE_CLIENT_ID=...</code> {{ $t('docs.selfHosted.oauth.and') }} <code>GOOGLE_CLIENT_SECRET=...</code></li>
         </ol>
       </details>
 
       <details class="docs-sh__detail">
         <summary>Microsoft</summary>
         <ol class="docs-sh__steps">
-          <li>Créez une app sur <a href="https://portal.azure.com" target="_blank" rel="noopener">Azure Portal</a> → App registrations</li>
+          <li>{{ $t('docs.selfHosted.oauth.microsoftStep1') }} <a href="https://portal.azure.com" target="_blank" rel="noopener">Azure Portal</a> → App registrations</li>
           <li>Redirect URI : <code>{{ appUrl }}/api/auth/oauth/microsoft/callback</code></li>
-          <li><code>MICROSOFT_CLIENT_ID=...</code> et <code>MICROSOFT_CLIENT_SECRET=...</code></li>
+          <li><code>MICROSOFT_CLIENT_ID=...</code> {{ $t('docs.selfHosted.oauth.and') }} <code>MICROSOFT_CLIENT_SECRET=...</code></li>
         </ol>
       </details>
 
       <details class="docs-sh__detail">
         <summary>GitHub</summary>
         <ol class="docs-sh__steps">
-          <li>Créez une OAuth App sur <a href="https://github.com/settings/developers" target="_blank" rel="noopener">GitHub Developer Settings</a></li>
+          <li>{{ $t('docs.selfHosted.oauth.githubStep1') }} <a href="https://github.com/settings/developers" target="_blank" rel="noopener">GitHub Developer Settings</a></li>
           <li>Callback URL : <code>{{ appUrl }}/api/auth/oauth/github/callback</code></li>
-          <li><code>GITHUB_CLIENT_ID=...</code> et <code>GITHUB_CLIENT_SECRET=...</code></li>
+          <li><code>GITHUB_CLIENT_ID=...</code> {{ $t('docs.selfHosted.oauth.and') }} <code>GITHUB_CLIENT_SECRET=...</code></li>
         </ol>
       </details>
     </section>
 
     <!-- Whitelisting -->
     <section id="whitelisting" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Whitelisting du crawler</h2>
-      <p class="docs-sh__text">Si vos sites sont protégés par un WAF (Cloudflare, Akamai, etc.), vous devez whitelister l'IP de votre serveur.</p>
-      <NuxtLink to="/bot#self-hosted" class="docs-sh__link">
-        Voir le guide de whitelisting
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.whitelisting.heading') }}</h2>
+      <p class="docs-sh__text">{{ $t('docs.selfHosted.whitelisting.text') }}</p>
+      <NuxtLink :to="localePath({ name: 'bot', hash: '#self-hosted' })" class="docs-sh__link">
+        {{ $t('docs.selfHosted.whitelisting.link') }}
       </NuxtLink>
     </section>
 
     <!-- Mise à jour -->
     <section id="mise-a-jour" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Mise à jour</h2>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.update.heading') }}</h2>
       <div class="docs-sh__code">
         <code>cd seogard</code><br>
         <code>git pull</code><br>
         <code>docker compose -f docker-compose.self-hosted.yml up --build -d</code>
       </div>
-      <p class="docs-sh__text">Les données MongoDB sont persistées dans un volume Docker. Aucune perte de données lors d'une mise à jour.</p>
+      <p class="docs-sh__text">{{ $t('docs.selfHosted.update.text') }}</p>
     </section>
 
     <!-- Licence -->
     <section id="licence" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Licence</h2>
-      <p class="docs-sh__text">
-        Seogard est distribué sous <strong>Business Source License 1.1 (BSL)</strong>.
-        Vous pouvez l'utiliser gratuitement pour un usage interne (monitoring de vos propres sites).
-        L'utilisation comme service commercial concurrent est interdite.
-      </p>
-      <p class="docs-sh__text">
-        Chaque version passe automatiquement en <strong>Apache 2.0</strong> après 3 ans.
-      </p>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.license.heading') }}</h2>
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.license.text1')" />
+      <p class="docs-sh__text" v-html="$t('docs.selfHosted.license.text2')" />
       <a href="https://github.com/seogard-software/seogard/blob/main/LICENCE" target="_blank" rel="noopener" class="docs-sh__link">
-        Lire la licence complète
+        {{ $t('docs.selfHosted.license.link') }}
       </a>
     </section>
 
     <!-- Sauvegarde -->
     <section id="sauvegarde" class="docs-sh__section">
-      <h2 class="docs-sh__heading">Sauvegarde</h2>
+      <h2 class="docs-sh__heading">{{ $t('docs.selfHosted.backup.heading') }}</h2>
       <div class="docs-sh__code">
         <code># Sauvegarder</code><br>
         <code>docker exec seogard-mongo-1 mongodump --archive > backup-$(date +%Y%m%d).archive</code><br><br>
@@ -217,10 +208,13 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'docs', auth: false })
 
-useHead({ title: 'Self-Hosted' })
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+useHead({ title: t('seo.docsSelfHosted.title') })
 useSeoMeta({
-  description: 'Installez Seogard en self-hosted (Docker Compose) : monitoring SEO/GEO gratuit sur votre propre infrastructure, code source disponible (BSL 1.1). Guide pas à pas.',
-  ogTitle: 'Self-Hosted — Seogard',
+  description: t('seo.docsSelfHosted.description'),
+  ogTitle: t('seo.docsSelfHosted.ogTitle'),
   robots: 'index, follow',
 })
 

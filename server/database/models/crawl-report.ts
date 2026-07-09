@@ -13,6 +13,8 @@ const crawlReportSchema = new Schema({
   regressions: { type: Number, default: 0 },
   fixed: { type: Number, default: 0 },
   verdict: { type: String, enum: ['critical', 'warning', 'info', 'stable'], default: 'stable' },
+  // Langue du rapport figé (.md/.pdf) — celle du owner de l'org au moment de la génération.
+  locale: { type: String, enum: ['fr', 'en'], default: 'fr' },
   // Clés des fichiers dans le stockage objet (R2/S3) — .md exhaustif, .pdf court.
   mdKey: { type: String, required: true },
   pdfKey: { type: String, required: true },

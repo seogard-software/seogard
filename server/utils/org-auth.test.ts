@@ -85,13 +85,13 @@ describe('org-auth — requireOrgRole', () => {
   it('rejects viewer when member required', async () => {
     mockOrgMemberFindOne.mockResolvedValue({ role: 'viewer' })
 
-    await expect(requireOrgRole(fakeEvent, 'org1', 'member')).rejects.toThrow('Permissions insuffisantes')
+    await expect(requireOrgRole(fakeEvent, 'org1', 'member')).rejects.toThrow('Insufficient permissions')
   })
 
   it('rejects non-member', async () => {
     mockOrgMemberFindOne.mockResolvedValue(null)
 
-    await expect(requireOrgRole(fakeEvent, 'org1', 'viewer')).rejects.toThrow('pas membre')
+    await expect(requireOrgRole(fakeEvent, 'org1', 'viewer')).rejects.toThrow('Not a member')
   })
 })
 
@@ -120,19 +120,19 @@ describe('org-auth — requireSiteAccess', () => {
     mockSiteFindById.mockResolvedValue({ _id: 'site1', orgId: 'org1' })
     mockOrgMemberFindOne.mockResolvedValue({ role: 'viewer' })
 
-    await expect(requireSiteAccess(fakeEvent, 'site1', 'admin')).rejects.toThrow('Permissions insuffisantes')
+    await expect(requireSiteAccess(fakeEvent, 'site1', 'admin')).rejects.toThrow('Insufficient permissions')
   })
 
   it('rejects when site not found', async () => {
     mockSiteFindById.mockResolvedValue(null)
 
-    await expect(requireSiteAccess(fakeEvent, 'nonexistent', 'viewer')).rejects.toThrow('non trouvé')
+    await expect(requireSiteAccess(fakeEvent, 'nonexistent', 'viewer')).rejects.toThrow('not found')
   })
 
   it('rejects when user is not org member', async () => {
     mockSiteFindById.mockResolvedValue({ _id: 'site1', orgId: 'org1' })
     mockOrgMemberFindOne.mockResolvedValue(null)
 
-    await expect(requireSiteAccess(fakeEvent, 'site1', 'viewer')).rejects.toThrow('non trouvé')
+    await expect(requireSiteAccess(fakeEvent, 'site1', 'viewer')).rejects.toThrow('not found')
   })
 })

@@ -10,7 +10,7 @@
         <div class="alert-group-card__meta">
           <span class="alert-group-card__count">
             <span :class="['alert-group-card__dot', `alert-group-card__dot--${group.severity}`]" />
-            {{ group.count }} {{ group.count > 1 ? 'pages' : 'page' }}
+            {{ $t('dashboard.c.alertGroupCard.pageCount', group.count) }}
           </span>
           <AppBadge :variant="severityVariant" size="xs">{{ severityLabel }}</AppBadge>
         </div>
@@ -22,10 +22,10 @@
     <div v-if="expanded && hasOpenAlerts && (canResolve || canIgnore)" class="alert-group-card__actions">
       <button v-if="canResolve" class="alert-group-card__action alert-group-card__action--primary" @click="$emit('resolve-all', group.ruleId)">
         <AppIcon name="check" size="sm" />
-        Tout marquer fixé
+        {{ $t('dashboard.c.alertGroupCard.resolveAll') }}
       </button>
       <button v-if="canIgnore" class="alert-group-card__action alert-group-card__action--danger" @click="confirmIgnoreAll">
-        Désactiver cette règle
+        {{ $t('dashboard.c.alertGroupCard.muteRule') }}
       </button>
     </div>
 
@@ -42,7 +42,7 @@
         @resolve="$emit('resolve', $event)"
       />
       <span v-if="group.count > group.alerts.length" class="alert-group-card__more">
-        ... et {{ group.count - group.alerts.length }} autres
+        {{ $t('dashboard.c.alertGroupCard.andMore', { count: group.count - group.alerts.length }) }}
       </span>
     </div>
   </div>
@@ -65,6 +65,9 @@ const emit = defineEmits<{
 
 const props = defineProps<Props>()
 
+const { t, te } = useI18n()
+const confirm = useConfirm()
+
 const expanded = ref(false)
 
 function toggleExpand() {
@@ -77,7 +80,7 @@ function toggleExpand() {
 const hasOpenAlerts = computed(() => props.group.alerts.some(a => a.status === 'open'))
 
 function confirmIgnoreAll() {
-  if (window.confirm('Cette règle ne générera plus d\'alertes sur ce site.\nVous pourrez la réactiver dans les paramètres du site.')) {
+  if (confirm(t('dashboard.c.alertGroupCard.confirmMute'))) {
     emit('ignore-all', props.group.ruleId)
   }
 }
@@ -87,7 +90,7 @@ const severityVariant = computed(() => {
   return map[props.group.severity]
 })
 
-const severityLabel = computed(() => ALERT_SEVERITY_LABELS[props.group.severity] ?? props.group.severity)
+const severityLabel = computed(() => te('common.severity.' + props.group.severity) ? t('common.severity.' + props.group.severity) : props.group.severity)
 </script>
 
 <style scoped lang="scss">

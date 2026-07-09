@@ -14,13 +14,16 @@ export default defineEventHandler((event) => {
 
   return `User-agent: *
 Allow: /
-Allow: /formations/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 Sitemap: ${appUrl}/sitemap.xml
 
@@ -37,6 +40,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: Claude-Web
 Allow: /
@@ -44,6 +51,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: ClaudeBot
 Allow: /
@@ -51,6 +62,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: anthropic-ai
 Allow: /
@@ -58,6 +73,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: CCBot
 Allow: /
@@ -65,6 +84,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: PerplexityBot
 Allow: /
@@ -72,6 +95,10 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 
 User-agent: Google-Extended
 Allow: /
@@ -79,5 +106,9 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
 `
 })

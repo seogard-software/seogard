@@ -67,26 +67,26 @@ describe('zones.post — security & validation', () => {
   it('rejects missing name', async () => {
     vi.mocked(globalThis.readBody).mockResolvedValue({ patterns: ['/blog/**'] })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('nom est requis')
+    await expect(handler(fakeEvent)).rejects.toThrow('Name is required')
   })
 
   it('rejects empty patterns', async () => {
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: 'Blog', patterns: [] })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Au moins un path est requis')
+    await expect(handler(fakeEvent)).rejects.toThrow('At least one path is required')
   })
 
   it('rejects invalid pattern (no leading slash)', async () => {
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: 'Blog', patterns: ['blog/**'] })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Pattern invalide')
+    await expect(handler(fakeEvent)).rejects.toThrow('Invalid pattern')
   })
 
   it('rejects duplicate zone name within site', async () => {
     vi.mocked(globalThis.readBody).mockResolvedValue({ name: 'Existing', patterns: ['/test/**'] })
     mockZoneFindOne.mockResolvedValue({ _id: 'existing-zone', name: 'Existing' })
 
-    await expect(handler(fakeEvent)).rejects.toThrow('zone avec ce nom existe déjà')
+    await expect(handler(fakeEvent)).rejects.toThrow('zone with this name already exists')
   })
 
   it('passes patterns through normalizePattern', async () => {

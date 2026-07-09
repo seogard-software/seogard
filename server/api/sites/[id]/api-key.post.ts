@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   )
 
   if (!site) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   return { apiKey: site.apiKey }

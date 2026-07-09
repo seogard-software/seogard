@@ -21,12 +21,12 @@ export default defineEventHandler(async (event) => {
   const provider = getRouterParam(event, 'provider') as OAuthProvider
 
   if (!provider || !isValidOAuthProvider(provider)) {
-    throw createError({ statusCode: 400, message: 'Provider OAuth invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid OAuth provider', data: { errorCode: 'OAUTH_PROVIDER_INVALID' } })
   }
 
   const client = getOAuthClient(provider)
   if (!client) {
-    throw createError({ statusCode: 500, message: `Provider ${provider} non configuré` })
+    throw createError({ statusCode: 500, message: `Provider ${provider} not configured`, data: { errorCode: 'OAUTH_PROVIDER_NOT_CONFIGURED', provider } })
   }
 
   const query = getQuery(event)
@@ -34,18 +34,18 @@ export default defineEventHandler(async (event) => {
   const state = query.state as string
 
   if (!code || !state) {
-    throw createError({ statusCode: 400, message: 'Paramètres OAuth manquants' })
+    throw createError({ statusCode: 400, message: 'Missing OAuth parameters', data: { errorCode: 'OAUTH_PARAMS_MISSING' } })
   }
 
   // Verify state from cookie
   const cookieRaw = getCookie(event, `oauth-${provider}`)
   if (!cookieRaw) {
-    throw createError({ statusCode: 400, message: 'Session OAuth expirée' })
+    throw createError({ statusCode: 400, message: 'OAuth session expired', data: { errorCode: 'OAUTH_SESSION_EXPIRED' } })
   }
 
   const { state: savedState, codeVerifier } = JSON.parse(cookieRaw)
   if (state !== savedState) {
-    throw createError({ statusCode: 400, message: 'State OAuth invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid OAuth state', data: { errorCode: 'OAUTH_STATE_INVALID' } })
   }
 
   // Clear the OAuth cookie
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
   const profile = await fetchProfile(provider, tokens)
 
   if (!profile.email) {
-    throw createError({ statusCode: 400, message: 'Impossible de récupérer votre email depuis le provider' })
+    throw createError({ statusCode: 400, message: 'Could not retrieve email from the provider', data: { errorCode: 'OAUTH_EMAIL_MISSING' } })
   }
 
   // Find or create user

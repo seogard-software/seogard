@@ -34,6 +34,8 @@ export const useAuthStore = defineStore('auth', {
 
       if (data.user) {
         this.user = data.user
+        // La langue du dashboard suit User.locale (plugin i18n-user-locale)
+        await useNuxtApp().$applyUserLocale()
       }
 
       return data

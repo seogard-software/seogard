@@ -1,5 +1,6 @@
 import { Types } from 'mongoose'
-import { Site, Zone, Crawl, Alert, CrawlReport } from '../server/database/models'
+import { Site, Zone, Crawl, Alert, CrawlReport, Organization, User } from '../server/database/models'
+import { DEFAULT_LOCALE, isLocale, type Locale } from '../shared/utils/i18n'
 import { alertZoneScopeStages } from '../server/utils/zone-alert-scope'
 import { buildZoneReport, MD_REPORT_CAPS, REPORT_RETENTION_DAYS, type ReportAlertInput } from '../server/utils/report-builder'
 import { renderReportMarkdown } from '../server/utils/report-markdown'
@@ -41,8 +42,17 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
   if (!crawl?.zoneId) return null
   const zone = await Zone.findById(crawl.zoneId).lean()
   if (!zone) return null
-  const site = await Site.findById(siteId).select('name url').lean()
+  const site = await Site.findById(siteId).select('name url orgId').lean()
   if (!site) return null
+
+  // Langue du rapport = User.locale du owner de l'org du site (introuvable → fr).
+  // Figée dans CrawlReport.locale : un rapport immuable garde la langue de sa génération.
+  let locale: Locale = DEFAULT_LOCALE
+  const org = await Organization.findById(site.orgId).select('ownerId').lean()
+  if (org?.ownerId) {
+    const owner = await User.findById(org.ownerId).select('locale').lean()
+    if (owner && isLocale(owner.locale)) locale = owner.locale
+  }
 
   const sid = new Types.ObjectId(siteId)
   const zid = crawl.zoneId
@@ -95,6 +105,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
     openAlerts,
     repairedAlerts,
     generatedAt: new Date().toISOString(),
+    locale,
   }, MD_REPORT_CAPS)
 
   const md = renderReportMarkdown(report)
@@ -120,6 +131,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
         regressions: total,
         fixed,
         verdict: activityVerdict(critical, warning, total),
+        locale,
         mdKey,
         pdfKey,
       },

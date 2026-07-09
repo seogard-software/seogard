@@ -13,12 +13,12 @@ export default defineEventHandler(async (event) => {
 
   const zone = await Zone.findOne({ _id: zoneId, siteId }).lean()
   if (!zone) {
-    throw createError({ statusCode: 404, message: 'Zone introuvable' })
+    throw createError({ statusCode: 404, message: 'Zone not found', data: { errorCode: 'ZONE_NOT_FOUND' } })
   }
 
   const crawlId = getQuery(event).crawlId as string | undefined
   if (crawlId && !mongoose.Types.ObjectId.isValid(crawlId)) {
-    throw createError({ statusCode: 400, message: 'crawlId invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid crawlId', data: { errorCode: 'CRAWL_ID_INVALID' } })
   }
 
   // Sans crawlId → dernier crawl en cours de la zone (progression dashboard).
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     .select('status pagesScanned pagesTotal error')
     .lean()
   if (!crawl) {
-    throw createError({ statusCode: 404, message: 'Crawl non trouvé' })
+    throw createError({ statusCode: 404, message: 'Crawl not found', data: { errorCode: 'CRAWL_NOT_FOUND' } })
   }
 
   if (crawl.status === 'pending' || crawl.status === 'running') {

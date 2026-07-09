@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.email || !body?.password) {
-    throw createError({ statusCode: 400, message: 'Email et mot de passe requis' })
+    throw createError({ statusCode: 400, message: 'Email and password required', data: { errorCode: 'CREDENTIALS_REQUIRED' } })
   }
 
   const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
@@ -17,19 +17,19 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     recordFailedLogin(ip, body.email)
     log.warn({ email: body.email, errorCode: 'INVALID_CREDENTIALS' }, 'failed login attempt')
-    throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
+    throw createError({ statusCode: 401, message: 'Invalid email or password', data: { errorCode: 'INVALID_CREDENTIALS' } })
   }
 
   // OAuth-only users cannot login with password
   if (!user.passwordHash) {
-    throw createError({ statusCode: 401, message: `Ce compte utilise ${user.authProvider}. Connectez-vous via ce fournisseur.` })
+    throw createError({ statusCode: 401, message: `This account uses ${user.authProvider}. Sign in with that provider.`, data: { errorCode: 'OAUTH_ONLY_ACCOUNT', provider: user.authProvider } })
   }
 
   const valid = await verifyPassword(body.password, user.passwordHash)
   if (!valid) {
     recordFailedLogin(ip, body.email)
     log.warn({ email: body.email, errorCode: 'INVALID_CREDENTIALS' }, 'failed login attempt')
-    throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
+    throw createError({ statusCode: 401, message: 'Invalid email or password', data: { errorCode: 'INVALID_CREDENTIALS' } })
   }
 
   resetLoginAttempts(ip, body.email)
@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
     const orgData = enforcedOrg as any
     throw createError({
       statusCode: 403,
-      message: `Votre organisation "${orgData.orgId.name}" exige une connexion SSO`,
-      data: { samlUrl: `/api/auth/saml/${orgData.orgId.slug}/login` },
+      message: `Organization "${orgData.orgId.name}" enforces SSO login`,
+      data: { errorCode: 'SSO_REQUIRED', orgName: orgData.orgId.name, samlUrl: `/api/auth/saml/${orgData.orgId.slug}/login` },
     })
   }
 

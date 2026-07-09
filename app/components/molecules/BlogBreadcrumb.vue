@@ -1,5 +1,5 @@
 <template>
-  <nav class="blog-breadcrumb" aria-label="Fil d'Ariane">
+  <nav class="blog-breadcrumb" :aria-label="$t('dashboard.c.blogBreadcrumb.ariaLabel')">
     <template v-for="(item, index) in items" :key="index">
       <NuxtLink
         v-if="item.to"

@@ -1,7 +1,10 @@
+import type { Locale } from './i18n'
+import { DEFAULT_LOCALE } from './i18n'
+import { INTL_LOCALE } from './format'
+
 // Source de verite unique — prix par page crawlée
 // La valeur par défaut (0.01) est overridée par NUXT_PUBLIC_PRICE_PER_PAGE en prod
 // via runtimeConfig.public.pricePerPage (défini dans nuxt.config.ts)
-import { RULES_COUNT } from './rules-catalog'
 export const CLOUD_PRICE_PER_PAGE_DEFAULT = 0.01
 
 export function getCloudPricePerPage(): number {
@@ -20,29 +23,31 @@ export function calculateCloudPrice(pages: number): number {
   return pages * getCloudPricePerPage()
 }
 
-export function formatCloudPrice(): string {
-  // Pas d'arrondi — affiche la valeur brute (ex: "0,01")
-  return String(getCloudPricePerPage()).replace('.', ',')
+// Nombre issu de pricing.ts ; seul le séparateur décimal dépend de la langue (0,01 fr / 0.01 en).
+// La devise ($ / €) reste dans les chaînes de traduction, pas ici.
+export function formatCloudPrice(locale: 'fr' | 'en' = 'fr'): string {
+  const raw = String(getCloudPricePerPage())
+  return locale === 'en' ? raw : raw.replace('.', ',')
 }
 
-export const PRICE_EXAMPLES = [
-  { pages: 1_000, label: '1 000' },
-  { pages: 5_000, label: '5 000' },
-  { pages: 10_000, label: '10 000' },
-  { pages: 50_000, label: '50 000' },
-] as const
+export const PRICE_EXAMPLES = [1_000, 5_000, 10_000, 50_000] as const
 
-export function getPriceExamples() {
-  return PRICE_EXAMPLES.map(ex => ({
-    ...ex,
-    price: calculateCloudPrice(ex.pages).toLocaleString('fr-FR', { minimumFractionDigits: 0 }),
+// label (nb de pages) ET price formatés dans la locale demandée (llms-full = EN, CGV = FR).
+export function getPriceExamples(locale: Locale = DEFAULT_LOCALE) {
+  const intl = INTL_LOCALE[locale]
+  return PRICE_EXAMPLES.map(pages => ({
+    pages,
+    label: pages.toLocaleString(intl),
+    price: calculateCloudPrice(pages).toLocaleString(intl, { minimumFractionDigits: 0 }),
   }))
 }
 
 // ── Landing pricing table ──
 
+// `key` = clé i18n stable : le libellé FR vit dans les locales sous
+// `landing.pricing.features.<key>` (rulesCount attend un paramètre {count} = RULES_COUNT).
 export interface PricingRow {
-  label: string
+  key: string
   selfHosted: boolean
   cloud: boolean
   enterprise: boolean
@@ -50,36 +55,36 @@ export interface PricingRow {
 
 export const PRICING_ROWS: PricingRow[] = [
   // Shared features (all plans)
-  { label: 'Comparaison HTML brut vs rendu JS', selfHosted: true, cloud: true, enterprise: true },
-  { label: `${RULES_COUNT} règles SEO et GEO (visibilité IA)`, selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Alertes instantanées et intelligentes (Email, Slack, Teams, Jira)', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Diff exact avant/après sur chaque régression', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Détection meta disparues, canonicals cassés, noindex', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Détection erreurs 5xx, soft 404, changements de status', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Sévérité intelligente (critique, warning, info)', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Monitoring continu illimité', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Dashboard temps réel avec suivi de crawl en direct', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Historique complet de chaque page sur 12 mois', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Découverte automatique des pages via sitemap', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Webhook CI/CD intégré', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Accès API REST complet', selfHosted: true, cloud: true, enterprise: true },
-  { label: 'Sites et utilisateurs illimités', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'ssrDiff', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'rulesCount', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'alerts', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'diff', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'metaDetection', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'statusDetection', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'severity', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'monitoring', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'dashboard', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'history', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'sitemapDiscovery', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'cicd', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'api', selfHosted: true, cloud: true, enterprise: true },
+  { key: 'unlimited', selfHosted: true, cloud: true, enterprise: true },
   // Cloud + Enterprise
-  { label: 'Infrastructure gérée, zéro maintenance', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Mises à jour automatiques', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Backups quotidiens', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Support prioritaire', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'SLA 99.9%', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Dashboard multi-organisations', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Onboarding assisté', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'managedInfra', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'autoUpdates', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'backups', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'prioritySupport', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'sla', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'multiOrg', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'onboarding', selfHosted: false, cloud: true, enterprise: true },
   // Enterprise-only
-  { label: 'SSO / SAML', selfHosted: false, cloud: true, enterprise: true },
-  { label: 'Setup et configuration sur mesure', selfHosted: false, cloud: false, enterprise: true },
-  { label: 'Développements spécifiques à la demande', selfHosted: false, cloud: false, enterprise: true },
-  { label: 'Account manager dédié', selfHosted: false, cloud: false, enterprise: true },
-  { label: 'Formation équipe incluse', selfHosted: false, cloud: false, enterprise: true },
-  { label: 'Déploiement dans votre infrastructure', selfHosted: false, cloud: false, enterprise: true },
-  { label: 'Facturation personnalisée', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'sso', selfHosted: false, cloud: true, enterprise: true },
+  { key: 'customSetup', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'customDev', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'accountManager', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'training', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'customDeploy', selfHosted: false, cloud: false, enterprise: true },
+  { key: 'customBilling', selfHosted: false, cloud: false, enterprise: true },
 ]
 
 export const PRICING_SHARED_COUNT = PRICING_ROWS.filter(r => r.selfHosted && r.cloud && r.enterprise).length

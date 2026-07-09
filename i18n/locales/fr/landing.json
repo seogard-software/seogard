@@ -1,0 +1,452 @@
+{
+  "landing": {
+    "pricing": {
+      "label": "Tarifs",
+      "title1": "Self-hosted",
+      "titleHighlight": "gratuit",
+      "title2": ". Cloud à l'usage.",
+      "desc": "Même moteur d'audit et de monitoring continu partout. Choisissez le niveau de support, de sécurité et d'accompagnement qui vous convient.",
+      "popular": "Populaire",
+      "trialBadge": "14 jours gratuit",
+      "plans": {
+        "selfHosted": {
+          "name": "Self-hosted",
+          "price": "Gratuit",
+          "subtitle": "Pour toujours"
+        },
+        "cloud": {
+          "name": "Cloud",
+          "price": "{price} €",
+          "subtitle": "par page monitorée / mois"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Sur devis",
+          "subtitle": "Contactez-nous"
+        }
+      },
+      "ctaDownload": "Télécharger gratuitement",
+      "ctaTrial": "Essai gratuit 14 jours",
+      "ctaDemo": "ou réserver une démo",
+      "ctaContact": "Contactez-nous",
+      "estimateValue": "{price} €/mois",
+      "estimateLabel": "estimation Cloud pour {pages} pages",
+      "features": {
+        "ssrDiff": "Comparaison HTML brut vs rendu JS",
+        "rulesCount": "{count} règles SEO et GEO (visibilité IA)",
+        "alerts": "Alertes instantanées et intelligentes (Email, Slack, Teams, Jira)",
+        "diff": "Diff exact avant/après sur chaque régression",
+        "metaDetection": "Détection meta disparues, canonicals cassés, noindex",
+        "statusDetection": "Détection erreurs 5xx, soft 404, changements de status",
+        "severity": "Sévérité intelligente (critique, warning, info)",
+        "monitoring": "Monitoring continu illimité",
+        "dashboard": "Dashboard temps réel avec suivi de crawl en direct",
+        "history": "Historique complet de chaque page sur 12 mois",
+        "sitemapDiscovery": "Découverte automatique des pages via sitemap",
+        "cicd": "Webhook CI/CD intégré",
+        "api": "Accès API REST complet",
+        "unlimited": "Sites et utilisateurs illimités",
+        "managedInfra": "Infrastructure gérée, zéro maintenance",
+        "autoUpdates": "Mises à jour automatiques",
+        "backups": "Backups quotidiens",
+        "prioritySupport": "Support prioritaire",
+        "sla": "SLA 99.9%",
+        "multiOrg": "Dashboard multi-organisations",
+        "onboarding": "Onboarding assisté",
+        "sso": "SSO / SAML",
+        "customSetup": "Setup et configuration sur mesure",
+        "customDev": "Développements spécifiques à la demande",
+        "accountManager": "Account manager dédié",
+        "training": "Formation équipe incluse",
+        "customDeploy": "Déploiement dans votre infrastructure",
+        "customBilling": "Facturation personnalisée"
+      }
+    },
+    "estimator": {
+      "label": "Estimateur",
+      "title": "Combien coûte l'audit & le monitoring de votre site ?",
+      "desc": "Entrez l'URL de votre site et votre email. On analyse votre sitemap et vous envoie une estimation personnalisée.",
+      "continue": "Continuer",
+      "emailExplain": "L'analyse de votre sitemap peut prendre quelques minutes selon la taille du site. Renseignez votre email pour recevoir votre estimation dès qu'elle est prête.",
+      "emailPlaceholder": "votre{'@'}email.com",
+      "sending": "Envoi...",
+      "submit": "Recevoir mon estimation",
+      "doneTitle": "Estimation en cours",
+      "doneText": "On analyse le sitemap de {url}. Vous recevrez votre estimation personnalisée à {email} dès que l'analyse sera terminée.",
+      "ctaRegister": "Créer un compte en attendant",
+      "ctaSelfHosted": "Ou self-hosted (gratuit)",
+      "errorRateLimit": "Trop de requêtes. Réessayez dans quelques minutes.",
+      "errorInvalid": "Vérifiez l'URL et l'email.",
+      "errorGeneric": "Une erreur est survenue. Réessayez."
+    },
+    "index": {
+      "hero": {
+        "badge": "Audit & monitoring SEO/GEO en continu",
+        "title": "Détectez les régressions SEO",
+        "titleAccent": "avant Google.",
+        "subtitle": "À chaque crawl, on compare le HTML brut — ce que lisent Google et les IA — au rendu JavaScript. Une régression cassée en prod ? Alerte email avant l'indexation.",
+        "ctaDemo": "Réserver une démo",
+        "ctaDownload": "Télécharger gratuitement",
+        "ctaPricing": "Voir les tarifs",
+        "noCc": "Self-hosted gratuit, code source disponible (BSL 1.1). Cloud dès {price} €/mois/page. Essai gratuit 14 jours — sans carte bancaire."
+      },
+      "problem": {
+        "label": "Le problème",
+        "title1": "Vous déployez vendredi.",
+        "title2": "Lundi, Google voit une page vide.",
+        "story1": "Vendredi 17h, l'équipe pousse une refonte du header. Dans le navigateur, tout fonctionne. Mais côté serveur, le SSR a cassé sur 200 pages produit — les metas ont disparu. Google indexe du vide. Personne ne s'en aperçoit.",
+        "story2": "3 semaines plus tard, le trafic organique a chuté de 40%.",
+        "card1Value": "200K",
+        "card1Label": "clics perdus — incident réel chez un grand compte français",
+        "card2Value": "160K€",
+        "card2Label": "de revenus SEO perdus en une seule régression",
+        "card3Value": "21 jours",
+        "card3Label": "délai moyen de détection sans monitoring automatisé",
+        "footer": "Avec Seogard, l'alerte serait arrivée vendredi à 17h30."
+      },
+      "features": {
+        "label": "Fonctionnalités",
+        "title": "Ce que Seogard audite et monitore en continu",
+        "desc": "{count} règles d'audit SEO/GEO vérifiées à chaque crawl sur chaque page. Alertes instantanées dès qu'une régression apparaît.",
+        "heroBadge": "Exclusif",
+        "heroTitle": "Comparaison HTML brut vs rendu JavaScript",
+        "heroDesc1": "Google indexe le HTML brut envoyé par votre serveur — pas le rendu JavaScript que vous voyez dans Chrome. Si votre SSR casse, Google voit une page vide alors que tout semble normal dans votre navigateur.",
+        "heroDesc2": "Seogard compare automatiquement les deux versions de chaque page, en continu, à chaque crawl. Détecte les régressions avant que Google ne re-rende vos pages.",
+        "panelSsrLabel": "HTML brut — ce que Google voit",
+        "panelSsrVerdict": "SSR cassé",
+        "panelCsrLabel": "Rendu JS — ce que vous voyez",
+        "panelCsrCode": "<title>Mon Produit</title>\n<meta name=\"description\"\n  content=\"Découvrez notre...\">\n<h1>Mon Produit Premium</h1>\n<div id=\"app\">\n  <section>...</section>\n</div>",
+        "panelCsrVerdict": "Rendu OK",
+        "item1Title": "Alertes instantanées",
+        "item1Desc": "Email, diff exact avant/après avec sévérité",
+        "item2Title": "Monitoring continu",
+        "item2Desc": "À chaque déploiement + planifié — SSR + CSR complet",
+        "item3Title": "Metas, canonicals, noindex",
+        "item3Desc": "Title, description, canonical, hreflang, Open Graph",
+        "item4Title": "Status codes & soft 404",
+        "item4Desc": "404, 500, redirections — alerte avant la désindexation",
+        "item5Title": "Performance Web",
+        "item5Desc": "LCP, CLS, TTFB et poids affichés sur chaque page — alerte sur l'explosion du poids",
+        "item6Title": "CI/CD webhook",
+        "item6Desc": "Bloquez la mise en prod si une régression SEO est détectée",
+        "item7Title": "Dashboard temps réel",
+        "item7Desc": "Tous vos sites, alertes et crawls en un coup d'oeil",
+        "item8Title": "Visibilité IA (GEO)",
+        "item8Desc": "llms.txt, crawlers IA de citation (OAI-SearchBot, PerplexityBot…), FAQ & données structurées"
+      },
+      "comparison": {
+        "label": "Pourquoi Seogard",
+        "title": "Ce que les autres ne font pas",
+        "desc": "L'un des rares outils avec comparaison HTML brut vs rendu JS native, intégration CI/CD et version self-hosted gratuite à code source disponible.",
+        "feature1": "Comparaison HTML brut vs rendu JS",
+        "feature2": "Rendu JavaScript (navigateur)",
+        "feature3": "Monitoring 24/7",
+        "feature4": "Performance Web (Core Web Vitals + poids)",
+        "feature5": "Optimisation GEO & visibilité IA",
+        "feature6": "Crawl on deploy (CI/CD)",
+        "feature7": "Code source disponible (BSL 1.1)",
+        "feature8": "Self-hosted gratuit",
+        "feature9": "Prix",
+        "valueAuto": "Auto",
+        "valuePartial": "Partiel",
+        "valueFree": "Gratuit",
+        "valueQuote": "Sur devis",
+        "valueLumarPrice": "Dès 250 {'$'}/mois",
+        "valueBotifyPrice": "Dès 500 {'$'}/mois"
+      },
+      "pricing": {
+        "cta": "Estimez votre tarif"
+      },
+      "finalCta": {
+        "title1": "Ne découvrez pas vos régressions SEO",
+        "title2": "3 semaines trop tard.",
+        "desc": "Monitoring continu. Alertes temps réel. Self-hosted gratuit, Cloud sans engagement.",
+        "ctaRegister": "Créer un compte Cloud",
+        "trust1": "Code source disponible (BSL 1.1)",
+        "trust2": "Données exportables",
+        "trust3": "Sans engagement"
+      },
+      "faq": {
+        "q1": "Que monitore et audite Seogard exactement ?",
+        "a1": "Seogard surveille en continu {count} règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité. Au-delà du monitoring de régressions, Seogard exécute un audit technique à chaque crawl (longueur des titres, alt des images, maillage interne, données structurées, llms.txt, FAQ schema…) consolidé dans un rapport État de santé SEO.",
+        "q2": "Seogard est-il gratuit ?",
+        "a2": "La version self-hosted est gratuite, sous licence BSL 1.1 (code source disponible) et sans limite de pages. Vous l'installez sur votre serveur avec Docker. La version Cloud est facturée à l'usage pour ceux qui préfèrent ne pas gérer l'infrastructure.",
+        "q3": "En quoi Seogard est différent d'un crawler classique ?",
+        "a3": "Les crawlers classiques (Screaming Frog, Sitebulb) analysent le HTML brut ou le rendu JavaScript, mais pas les deux simultanément. Seogard compare automatiquement les deux versions de chaque page pour détecter les régressions invisibles, comme un SSR cassé que le navigateur masque.",
+        "q4": "Comment fonctionnent les alertes ?",
+        "a4": "Seogard crawle selon trois déclencheurs : à chaque déploiement (via le webhook CI/CD), de façon planifiée (de quotidienne à mensuelle, configurable par zone) et à la demande. Dès qu'une régression est détectée, une alerte avec le diff exact avant/après est envoyée par email, avec la page concernée, la règle déclenchée et le niveau de sévérité.",
+        "q5": "Comment intégrer Seogard dans un pipeline CI/CD ?",
+        "a5": "Seogard fournit un gate de déploiement SEO natif. Un webhook POST déclenche un crawl de la zone à chaque déploiement, et un endpoint GET renvoie un verdict pass/fail. Trois niveaux de strictness (strict, standard, relaxed) permettent de BLOQUER une mise en production qui introduit une régression SEO/SSR. Contrairement aux checks synthétiques génériques (type Checkly) où vous écrivez et maintenez vos propres scripts, Seogard applique nativement {count} règles SEO/GEO sans aucun script à coder.",
+        "q6": "Seogard peut-il bloquer un déploiement qui casse le SEO ?",
+        "a6": "Oui. Via le webhook CI/CD, Seogard crawle la zone à chaque déploiement et renvoie un verdict pass/fail. En mode strict, toute régression critique bloque la mise en production ; les modes standard et relaxed ajustent le seuil. C'est un gate de déploiement SEO-natif : aucun script à écrire, contrairement aux outils de monitoring synthétique génériques.",
+        "q7": "À quelle fréquence Seogard crawle-t-il mon site ?",
+        "a7": "Trois déclencheurs combinables : à chaque déploiement (webhook CI/CD), de façon planifiée (quotidienne, hebdomadaire, bimensuelle ou mensuelle, configurable par zone) et à la demande depuis le dashboard. Vous n'attendez pas un crawl planifié pour détecter une régression post-déploiement : le webhook la détecte au moment du deploy.",
+        "q8": "Peut-on appliquer des règles et une fréquence différentes par section du site ?",
+        "a8": "Oui, grâce aux zones. Une zone regroupe des pages par motif d'URL (ex. /blog, /produits, /checkout) et possède sa propre configuration : règles SEO/GEO activées ou non, fréquence de crawl planifié, niveau de strictness du gate CI/CD, notifications et accès équipe. Le webhook de déploiement peut ne crawler qu'une zone ciblée, pour un retour CI plus rapide. Vous surveillez ainsi vos pages critiques (checkout, catégories) plus strictement que le reste du site.",
+        "q9": "Combien de pages puis-je surveiller ?",
+        "a9": "En self-hosted, aucune limite : cela dépend uniquement des ressources de votre serveur. En Cloud, seules les pages réellement crawlées dans le mois sont facturées — relancer un crawl sur les mêmes pages ne coûte rien de plus. Sans engagement ni minimum.",
+        "q10": "Le crawler respecte-t-il le robots.txt ?",
+        "a10": "Oui. Seogard-Bot respecte les directives robots.txt et ne surcharge pas vos serveurs. Il s'identifie avec le User-Agent « Seogard-Bot/1.0 » et utilise une adresse IP fixe unique pour faciliter le whitelisting.",
+        "q11": "Quelles intégrations sont disponibles ?",
+        "a11": "Email, avec le diff avant/après pour chaque alerte. Le webhook CI/CD permet aussi de connecter Seogard à n'importe quel pipeline de déploiement.",
+        "label": "FAQ",
+        "title": "Questions fréquentes"
+      }
+    },
+    "outilsMonitoring": {
+      "hero": {
+        "badge": "Monitoring SEO continu",
+        "title": "Détectez les régressions SEO <em>avant</em> Google",
+        "subtitle": "Seogard surveille votre site en continu et compare le HTML brut (ce que Google et les IA indexent) au rendu JavaScript (ce que vous voyez). Dès qu'une meta, un canonical, un <code>noindex</code> ou un status code régresse, vous êtes alerté — avant que ça ne coûte du trafic.",
+        "ctaPrimary": "Tester gratuitement",
+        "ctaSecondary": "Scanner mon site"
+      },
+      "features": {
+        "sectionTitle": "Ce que le monitoring surveille en continu",
+        "feature1Title": "HTML brut vs rendu JavaScript",
+        "feature1Desc": "La comparaison continue SSR/CSR qui détecte les régressions invisibles quand le SSR casse mais que le navigateur affiche tout normalement.",
+        "feature2Title": "Metas, canonicals, noindex, status codes",
+        "feature2Desc": "Les éléments critiques d'indexation surveillés à chaque crawl. Une meta qui disparaît ou un noindex ajouté par erreur ? Alerte immédiate.",
+        "feature3Title": "Alerte instantanée",
+        "feature3Desc": "Email dès qu'une régression apparaît ou se répare. Canal événementiel : on vous écrit uniquement quand quelque chose change.",
+        "feature4Title": "Gate CI/CD",
+        "feature4Desc": "Bloquez un déploiement régressif avant la mise en prod, avec trois niveaux de strictness par zone.",
+        "feature5Title": "Visibilité IA (GEO)",
+        "feature5Desc": "llms.txt, crawlers ChatGPT/Perplexity, FAQ et données structurées : on surveille aussi ce que les moteurs génératifs voient de votre site.",
+        "feature6Title": "Multi-zone",
+        "feature6Desc": "Des règles différentes par section de site : surveillez vos pages critiques (checkout, catégories) plus strictement que le reste."
+      },
+      "steps": {
+        "sectionTitle": "Comment ça marche",
+        "step1": "Vous ajoutez votre site : Seogard découvre vos pages et établit une référence (baseline).",
+        "step2": "À chaque crawl, il compare HTML brut et rendu JavaScript et confronte chaque page à sa référence.",
+        "step3": "Une régression apparaît ? Vous recevez une alerte et un rapport — avant que Google ne réindexe."
+      },
+      "final": {
+        "title": "Surveillez votre SEO en continu",
+        "desc": "Self-hosted gratuit pour toujours, ou Cloud dès {price} €/mois/page monitorée. Essai 14 jours, sans carte bancaire.",
+        "cta": "Démarrer gratuitement"
+      }
+    },
+    "outilsAudit": {
+      "hero": {
+        "badge": "Audit SEO & GEO",
+        "title": "L'état de santé <em>complet</em> de votre SEO",
+        "subtitle": "Seogard scanne votre site contre {count} règles SEO, GEO et performance, et produit un rapport « État de santé SEO » clair (Markdown et PDF). Vous voyez exactement ce que Google et les IA voient — et vous corrigez sans coder grâce à l'export IA, collable dans ChatGPT ou l'assistant de votre CMS.",
+        "ctaPrimary": "Lancer un scan gratuit",
+        "ctaSecondary": "Créer un compte"
+      },
+      "features": {
+        "sectionTitle": "Ce que l'audit analyse",
+        "feature1Title": "{count} règles SEO, GEO & performance",
+        "feature1Desc": "Metas, canonicals, indexation, headings, données structurées, hreflang, poids de page… et les règles GEO (llms.txt, crawlers IA, FAQ, signaux de citation).",
+        "feature2Title": "Comparaison HTML brut vs rendu JS",
+        "feature2Desc": "L'audit révèle ce qui n'existe que dans le rendu JavaScript et reste invisible pour Google au premier passage et pour les IA.",
+        "feature3Title": "Rapport « État de santé SEO »",
+        "feature3Desc": "Un Markdown exhaustif (toutes les règles + URLs) et un PDF de synthèse métier, figés à chaque crawl et téléchargeables.",
+        "feature4Title": "Export IA pour corriger sans coder",
+        "feature4Desc": "Le rapport lisible par IA se colle dans ChatGPT, Claude ou l'assistant de votre CMS, qui applique le correctif — même sans être développeur.",
+        "feature5Title": "Fiche « Comprendre & corriger »",
+        "feature5Desc": "Chaque alerte est documentée : le constat, pourquoi ça compte pour Google et les LLM, et l'action à mener.",
+        "feature6Title": "Priorisation par sévérité",
+        "feature6Desc": "Les causes racines masquent le bruit : une page en erreur ne génère pas dix alertes « manquant ». Vous voyez l'essentiel d'abord."
+      },
+      "steps": {
+        "sectionTitle": "De l'audit à la correction",
+        "step1": "Vous lancez un scan : Seogard crawle vos pages et les confronte aux {count} règles.",
+        "step2": "Vous recevez le rapport « État de santé SEO » (Markdown + PDF), trié par sévérité.",
+        "step3": "Vous collez l'export IA dans votre assistant pour corriger, puis activez le monitoring continu."
+      },
+      "final": {
+        "title": "Auditez votre site maintenant",
+        "desc": "Self-hosted gratuit pour toujours, ou Cloud dès {price} €/mois/page monitorée. Essai 14 jours, sans carte bancaire.",
+        "cta": "Scanner mon site gratuitement"
+      }
+    },
+    "scanner": {
+      "hero": {
+        "badge": "Scan gratuit · sans carte bancaire",
+        "title": "Le scanner SEO qui voit",
+        "titleAccent": "ce que Google voit vraiment.",
+        "subtitle": "Entrez votre URL. Seogard compare le <strong>HTML brut</strong> — ce que Google et les IA indexent — au <strong>rendu JavaScript</strong> que voit votre navigateur, et remonte les régressions invisibles. Résultat immédiat sur votre dashboard.",
+        "trust": "Self-hosted gratuit · Cloud dès {price} €/mois/page · essai 14 jours sans engagement"
+      },
+      "compare": {
+        "eyebrow": "Le point aveugle des autres outils",
+        "title": "Votre page est belle dans le navigateur.<br>Mais que lit Google ?",
+        "rawTag": "HTML brut · ce que Google indexe",
+        "rawLine1": "<title>Chaussures running</title>",
+        "rawLine2": "<!-- meta description : vide -->",
+        "rawLine3": "<!-- h1 : injecté par JS -->",
+        "rawLine4": "<!-- canonical : absent -->",
+        "rawVerdict": "Google indexe une page à moitié vide.",
+        "renderedTag": "Rendu JS · ce que vous voyez",
+        "renderedLine1": "<title>Chaussures running</title>",
+        "renderedLine2": "<meta name=\"description\" …>",
+        "renderedLine3": "<h1>Chaussures running homme</h1>",
+        "renderedLine4": "<link rel=\"canonical\" …>",
+        "renderedVerdict": "Tout est là — dans le navigateur seulement.",
+        "note": "C'est exactement la fenêtre où un SSR cassé indexe du vide. Oncrawl, Lumar, ContentKing crawlent sans comparer en continu les deux. <strong>Seogard, si.</strong>"
+      },
+      "steps": {
+        "eyebrow": "En 30 secondes",
+        "title": "Comment ça marche",
+        "step1Title": "Entrez votre URL",
+        "step1Text": "Aucune installation, aucune configuration. Juste l'adresse de votre site.",
+        "step2Title": "On crawle en double vision",
+        "step2Text": "Seogard lit votre sitemap, récupère le HTML brut et le rendu JavaScript de chaque page, puis les compare.",
+        "step3Title": "Vos régressions, classées",
+        "step3Text": "Les écarts et erreurs SEO/GEO arrivent sur votre dashboard, triés par sévérité, avec la marche à suivre pour corriger."
+      },
+      "checks": {
+        "eyebrow": "{count} règles, vérifiées à chaque crawl",
+        "title": "Ce que le scan détecte",
+        "check1Title": "Régressions SSR / CSR",
+        "check1Text": "Metas, H1, canonical ou contenu présents dans le navigateur mais absents du HTML brut indexé.",
+        "check2Title": "Metas & titles",
+        "check2Text": "Title, meta description, Open Graph manquants, vides ou modifiés sans que vous le sachiez.",
+        "check3Title": "Indexabilité",
+        "check3Text": "noindex accidentels, canonicals cassés, robots.txt bloquant Googlebot.",
+        "check4Title": "Status codes",
+        "check4Text": "404, 500, soft 404, redirections vers la home, chaînes de redirection.",
+        "check5Title": "Données structurées",
+        "check5Text": "JSON-LD absent, invalide ou injecté uniquement par JavaScript.",
+        "check6Title": "Visibilité IA (GEO)",
+        "check6Text": "llms.txt, blocage des crawlers IA de citation, signaux exploités par ChatGPT et Perplexity."
+      },
+      "faq": {
+        "title": "Questions fréquentes",
+        "q1": "Le scan est-il vraiment gratuit ?",
+        "a1": "Oui. Le scan démarre un essai de 14 jours sans carte bancaire. Vous pouvez aussi installer Seogard en self-hosted, gratuit pour toujours (code source disponible, BSL 1.1).",
+        "q2": "En quoi c'est différent de Screaming Frog, Oncrawl ou Lumar ?",
+        "a2": "Ces outils crawlent une version de la page. Seogard compare en continu le HTML brut (ce que Google et les IA lisent) et le rendu JavaScript (ce que vous voyez) — la seule façon de détecter un SSR cassé avant qu'il n'indexe du vide.",
+        "q3": "Combien de temps pour avoir les résultats ?",
+        "a3": "Le crawl démarre dès l'inscription. Les premières pages et alertes apparaissent en quelques secondes, le scan complet suit selon la taille du site.",
+        "q4": "Dois-je être propriétaire du site ?",
+        "a4": "Vous devez être propriétaire du site ou disposer d'une autorisation pour le crawler. Le scan respecte votre robots.txt.",
+        "q5": "Mon site est protégé par un pare-feu / anti-bot ?",
+        "a5": "Certaines protections (Cloudflare strict, BitNinja…) peuvent bloquer notre crawler. Dans ce cas, il suffit d'autoriser notre IP — la marche à suivre est indiquée sur votre dashboard."
+      },
+      "cta": {
+        "title": "Lancez votre scan maintenant",
+        "subtitle": "Gratuit, sans carte bancaire. Vous voyez les régressions avant Google."
+      }
+    },
+    "tarifs": {
+      "badge": "Estimation gratuite · sans carte bancaire",
+      "title": "Combien coûte l'audit & le monitoring SEO de votre site ?",
+      "subtitle": "Entrez l'URL de votre site : on analyse votre sitemap et on vous envoie une estimation au volume. Self-hosted gratuit pour toujours, ou Cloud dès {price} €/mois/page. Sans engagement, essai 14 jours sans carte bancaire."
+    },
+    "bot": {
+      "header": {
+        "subtitle": "Notre robot d'analyse SEO technique"
+      },
+      "identification": {
+        "heading": "Identification",
+        "userAgentLabel": "User-Agent",
+        "ipLabel": "Adresse IP",
+        "text": "Seogard-Bot analyse vos pages pour détecter les régressions SEO (meta disparues, SSR cassé, redirections incorrectes). Il respecte les directives <code>robots.txt</code> et ne surcharge pas vos serveurs."
+      },
+      "whitelisting": {
+        "heading": "Guides de whitelisting",
+        "intro": "Si votre pare-feu (WAF) bloque notre crawler, autorisez notre User-Agent ou notre IP. Choisissez votre WAF ci-dessous :"
+      },
+      "cloudflare": {
+        "step1Title": "Étape 1 — Créer une règle WAF Custom (obligatoire)",
+        "li1": "Connectez-vous à votre <strong>dashboard Cloudflare</strong>",
+        "li2": "Sélectionnez votre domaine",
+        "li3": "Allez dans <strong>Security > WAF > Custom Rules</strong>",
+        "li4": "Cliquez <strong>Create rule</strong>",
+        "li5": "Nom : <code>Allow Seogard Bot</code>",
+        "li6": "Cliquez <strong>Edit expression</strong> et collez :",
+        "li7": "Action : <strong>Skip</strong>",
+        "li8": "Cochez <strong>tous les composants</strong> :",
+        "li9": "Place at : <strong>First</strong>",
+        "li10": "Cliquez <strong>Deploy</strong>",
+        "step1Alt": "<strong>Important</strong> : utilisez <code>or</code> (pas <code>and</code>) entre l'IP et le User-Agent pour que la règle matche si l'un OU l'autre est présent.",
+        "step2Title": "Étape 2 — Bot Fight Mode (plan Free uniquement)",
+        "step2Intro": "Sur le <strong>plan Free</strong> de Cloudflare, la règle Skip ne peut pas bypasser le Bot Fight Mode. Si le crawl est toujours bloqué après l'étape 1 :",
+        "step2Li1": "Allez dans <strong>Security > Bots</strong>",
+        "step2Li2": "Désactivez <strong>Bot Fight Mode</strong>",
+        "step2Alt": "<strong>Plans Pro, Business et Enterprise</strong> : pas besoin de désactiver le Bot Fight Mode. La règle Skip de l'étape 1 le bypass automatiquement."
+      },
+      "akamai": {
+        "li1": "Connectez-vous à <strong>Akamai Control Center</strong>",
+        "li2": "Allez dans <strong>Security > IP/Geo Firewall</strong>",
+        "li3": "Ajoutez <code>142.132.133.166</code> dans la <strong>Allow list</strong>",
+        "li4": "Sauvegardez et déployez la configuration",
+        "alt": "<strong>Alternative</strong> : dans <strong>Bot Manager</strong>, ajoutez <code>Seogard-Bot</code> à la liste des bots autorisés."
+      },
+      "aws": {
+        "li1": "Ouvrez la console <strong>AWS WAF</strong>",
+        "li2": "Créez un <strong>IP Set</strong> contenant <code>142.132.133.166/32</code>",
+        "li3": "Ajoutez une règle <strong>Allow</strong> dans votre Web ACL référençant cet IP Set",
+        "li4": "Placez cette règle <strong>avant</strong> vos règles de blocage"
+      },
+      "sucuri": {
+        "li1": "Connectez-vous au <strong>dashboard Sucuri</strong>",
+        "li2": "Allez dans <strong>Firewall > Access Control</strong>",
+        "li3": "Dans <strong>Whitelist IP</strong>, ajoutez <code>142.132.133.166</code>",
+        "li4": "Sauvegardez"
+      },
+      "other": {
+        "title": "Autre pare-feu",
+        "intro": "Deux méthodes pour autoriser Seogard-Bot :",
+        "method1Title": "Méthode 1 — Par IP (recommandé)",
+        "method1Text": "Ajoutez <code>142.132.133.166</code> dans la liste blanche (allow list) de votre pare-feu.",
+        "method2Title": "Méthode 2 — Par User-Agent",
+        "method2Text": "Créez une règle qui autorise les requêtes dont le header <code>User-Agent</code> contient <code>Seogard-Bot</code>."
+      },
+      "selfHosted": {
+        "heading": "Self-hosted",
+        "text": "Si vous hébergez Seogard vous-même, le crawler tourne sur <strong>votre serveur</strong>. L'adresse IP à whitelister est donc celle de votre machine, pas <code>142.132.133.166</code>.",
+        "step1Title": "Trouvez l'IP publique de votre serveur",
+        "step2Title": "Utilisez cette IP dans les guides ci-dessus",
+        "step2Text": "Remplacez <code>142.132.133.166</code> par l'IP retournée à l'étape 1 dans les règles WAF de votre choix.",
+        "step3Title": "Le User-Agent reste identique",
+        "step3Text": "<code>Seogard-Bot/1.0</code> est le même en Cloud et en self-hosted. Vous pouvez aussi whitelister par User-Agent seul."
+      },
+      "help": {
+        "heading": "Besoin d'aide ?",
+        "text1": "Si vous avez besoin d'assistance pour configurer votre pare-feu, contactez-nous à",
+        "text2": "Nous pouvons vous guider étape par étape."
+      }
+    },
+    "layout": {
+      "menuAria": "Menu",
+      "footer": {
+        "tagline1": "est un logiciel à code source disponible (licence BSL 1.1) édité par SAVEPNP SAS. Code distribué selon les termes de la BSL — tous autres droits réservés.",
+        "mission": "Notre mission est de protéger chaque page indexée contre les régressions SEO invisibles — avant que Google ne les découvre.",
+        "objective": "Objectif : 10 000 sites monitorés d'ici 2028.",
+        "needHelp": "Besoin d'aide ?",
+        "faqHeading": "Questions fréquentes",
+        "linksHeading": "Liens",
+        "legalHeading": "Légal",
+        "linkFeatures": "Fonctionnalités",
+        "linkFormations": "Formations",
+        "linkMonitoring": "Monitoring",
+        "linkAudit": "Audit",
+        "linkScanner": "Scanner gratuit",
+        "linkPricing": "Tarifs",
+        "linkDocs": "Docs",
+        "linkBot": "Bot / Crawler",
+        "linkCgu": "CGU",
+        "linkCgv": "CGV",
+        "linkPrivacy": "Confidentialité",
+        "linkCookies": "Cookies",
+        "linkMentions": "Mentions légales",
+        "linkLicence": "Licence (BSL 1.1)"
+      },
+      "faq": {
+        "q1": "Que monitore Seogard exactement ?",
+        "a1": "Seogard monitore en continu {count} règles SEO et GEO sur chaque page : meta title et description, canonical, noindex accidentel, status codes (404, 500, redirections), régressions SSR/CSR, hreflang, Open Graph, llms.txt, blocage des crawlers IA de citation (OAI-SearchBot, PerplexityBot, Claude-SearchBot) et bien plus. Chaque régression déclenche une alerte temps réel par email, classée par sévérité.",
+        "q2": "Seogard est-il gratuit ?",
+        "a2": "La version self-hosted est gratuite, à code source disponible (licence BSL 1.1) et sans limite de pages. La version Cloud est facturée à l'usage pour ceux qui préfèrent ne pas gérer l'infrastructure.",
+        "q3": "En quoi Seogard est différent d'un crawler classique ?",
+        "a3": "Seogard compare automatiquement et en continu le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez), sur chaque page. Un SSR cassé passe inaperçu dans le navigateur — Seogard le détecte avant que Google ne re-rende vos pages.",
+        "q4": "Comment fonctionnent les alertes ?",
+        "a4": "Chaque page est crawlée quotidiennement. Dès qu'un changement est détecté (meta modifiée, status code anormal, SSR cassé), une alerte avec le diff avant/après est envoyée par email."
+      }
+    }
+  }
+}

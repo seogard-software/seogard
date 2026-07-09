@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   // Find default zone to check zone-level admin access
   const defaultZone = await Zone.findOne({ siteId: id, isDefault: true }).lean()
   if (!defaultZone) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   await requireZoneAccess(event, id, defaultZone._id.toString(), 'admin')
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   ).lean()
 
   if (!updated) {
-    throw createError({ statusCode: 404, message: 'Site non trouvé' })
+    throw createError({ statusCode: 404, message: 'Site not found', data: { errorCode: 'SITE_NOT_FOUND' } })
   }
 
   return updated

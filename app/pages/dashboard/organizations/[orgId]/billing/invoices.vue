@@ -1,40 +1,40 @@
 <template>
   <div class="page-invoices">
-    <DashboardHeader title="Factures">
+    <DashboardHeader :title="$t('dashboard.invoices.title')">
       <template #back>
         <NuxtLink :to="`/dashboard/organizations/${orgId}/billing`" class="page-invoices__back">
           <AppIcon name="arrow-left" size="sm" />
-          Facturation
+          {{ $t('dashboard.invoices.back') }}
         </NuxtLink>
       </template>
     </DashboardHeader>
 
     <div v-if="loading" class="page-invoices__loading">
-      Chargement...
+      {{ $t('dashboard.invoices.loading') }}
     </div>
 
     <div v-else-if="invoices.length === 0" class="page-invoices__empty">
-      Aucune facture pour le moment.
+      {{ $t('dashboard.invoices.empty') }}
     </div>
 
     <table v-else class="page-invoices__table">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Pages</th>
-          <th>Montant</th>
-          <th>Statut</th>
-          <th>PDF</th>
+          <th>{{ $t('dashboard.invoices.thDate') }}</th>
+          <th>{{ $t('dashboard.invoices.thPages') }}</th>
+          <th>{{ $t('dashboard.invoices.thAmount') }}</th>
+          <th>{{ $t('dashboard.invoices.thStatus') }}</th>
+          <th>{{ $t('dashboard.invoices.thPdf') }}</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="inv in invoices" :key="inv._id">
           <td>{{ formatDate(inv.createdAt) }}</td>
-          <td>{{ inv.pagesCount != null ? inv.pagesCount.toLocaleString('fr-FR') : '—' }}</td>
+          <td>{{ inv.pagesCount != null ? inv.pagesCount.toLocaleString(numberLocale) : '—' }}</td>
           <td>{{ formatAmount(inv.amount, inv.currency) }}</td>
           <td>
             <AppBadge :variant="inv.status === 'succeeded' ? 'success' : 'danger'">
-              {{ inv.status === 'succeeded' ? 'Payé' : 'Échoué' }}
+              {{ inv.status === 'succeeded' ? $t('dashboard.invoices.statusPaid') : $t('dashboard.invoices.statusFailed') }}
             </AppBadge>
           </td>
           <td>
@@ -50,10 +50,14 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 
-useHead({ title: 'Factures' })
+const { t, locale } = useI18n()
+useHead({ title: t('dashboard.invoices.tabTitle') })
 useSeoMeta({ robots: 'noindex, nofollow' })
+
+const numberLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'fr-FR'))
 
 const route = useRoute()
 const orgStore = useOrganizationStore()
@@ -91,11 +95,11 @@ onMounted(async () => {
 })
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(numberLocale.value, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function formatAmount(cents: number, currency: string): string {
-  return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: currency.toUpperCase() })
+  return (cents / 100).toLocaleString(numberLocale.value, { style: 'currency', currency: currency.toUpperCase() })
 }
 </script>
 

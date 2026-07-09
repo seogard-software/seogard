@@ -124,6 +124,7 @@ async function sendDigest(groups: LogGroup[], totalWarn: number, totalError: num
 
   const domain = (() => { try { return new URL(process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io').hostname } catch { return 'seogard.io' } })()
   const fromEmail = process.env.FROM_EMAIL || `Seogard <alerts@${domain}>`
+  // Digest ops interne (LOG_DIGEST_RECIPIENTS, pas de User) — FR par défaut. TODO locale destinataire
   const { subject, html } = logDigestTemplate({
     groups: groups.slice(0, 30),
     totalWarn,

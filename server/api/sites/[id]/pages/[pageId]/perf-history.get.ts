@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   // Vérifie que la page appartient bien au site.
   const page = await MonitoredPage.findOne({ _id: pageId, siteId }).select('url lastPerf').lean()
   if (!page) {
-    throw createError({ statusCode: 404, message: 'Page introuvable' })
+    throw createError({ statusCode: 404, message: 'Page not found', data: { errorCode: 'PAGE_NOT_FOUND' } })
   }
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)

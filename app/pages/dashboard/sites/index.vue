@@ -1,7 +1,7 @@
 <template>
   <!-- Pendant la résolution (reprise scan éventuelle) : loader -->
   <div v-if="loading" class="page-sites__loading">
-    <AppSpinner label="Chargement..." />
+    <AppSpinner :label="$t('dashboard.sites.loading')" />
   </div>
 
   <!-- Aucun site : onboarding création -->
@@ -9,16 +9,16 @@
     <div class="page-sites__empty-icon">
       <AppIcon name="globe" size="lg" />
     </div>
-    <h3 class="page-sites__empty-title">Commencez à surveiller vos sites</h3>
+    <h3 class="page-sites__empty-title">{{ $t('dashboard.sites.emptyTitle') }}</h3>
     <p class="page-sites__empty-text">
-      <template v-if="isOwner">Ajoutez votre premier site et Seogard veillera sur son SEO technique 24h/24.</template>
-      <template v-else>Aucun site dans cette organisation. Demandez à un propriétaire d'en ajouter un.</template>
+      <template v-if="isOwner">{{ $t('dashboard.sites.emptyTextOwner') }}</template>
+      <template v-else>{{ $t('dashboard.sites.emptyTextMember') }}</template>
     </p>
     <AppButton v-if="isOwner" variant="accent" @click="showAddModal = true">
       <template #icon-left>
         <AppIcon name="plus" size="sm" />
       </template>
-      Ajouter votre premier site
+      {{ $t('dashboard.sites.addFirstSite') }}
     </AppButton>
   </div>
 
@@ -26,14 +26,14 @@
   <div v-else class="page-sites">
     <header class="page-sites__header">
       <div>
-        <h1 class="page-sites__heading">Vos sites</h1>
-        <p class="page-sites__subheading">{{ sites.length }} site{{ sites.length > 1 ? 's' : '' }} surveillé{{ sites.length > 1 ? 's' : '' }}</p>
+        <h1 class="page-sites__heading">{{ $t('dashboard.sites.heading') }}</h1>
+        <p class="page-sites__subheading">{{ $t('dashboard.sites.countMonitored', sites.length) }}</p>
       </div>
       <AppButton variant="accent" @click="showAddModal = true">
         <template #icon-left>
           <AppIcon name="plus" size="sm" />
         </template>
-        Créer un site
+        {{ $t('dashboard.sites.createSite') }}
       </AppButton>
     </header>
 
@@ -53,7 +53,7 @@
           <span
             class="site-card__status"
             :class="{ 'site-card__status--active': site.status === 'active' }"
-            :title="site.status === 'active' ? 'Actif' : 'En pause'"
+            :title="site.status === 'active' ? $t('dashboard.sites.statusActive') : $t('dashboard.sites.statusPaused')"
           />
         </div>
 
@@ -61,7 +61,7 @@
         <span class="site-card__host">{{ displayHost(site.url) }}</span>
 
         <span class="site-card__footer">
-          {{ site.lastCrawlAt ? `Dernier crawl le ${formatDate(site.lastCrawlAt)}` : 'Jamais crawlé' }}
+          {{ site.lastCrawlAt ? $t('dashboard.sites.lastCrawl', { date: formatDate(site.lastCrawlAt) }) : $t('dashboard.sites.neverCrawled') }}
         </span>
       </button>
     </div>
@@ -71,9 +71,11 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 
-useHead({ title: 'Sites' })
+const { t, locale } = useI18n()
+useHead({ title: t('dashboard.sites.tabTitle') })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const authStore = useAuthStore()
@@ -111,7 +113,7 @@ function displayHost(url: string): string {
 
 function formatDate(date: string | Date): string {
   try {
-    return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+    return new Date(date).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR', { day: 'numeric', month: 'long' })
   }
   catch {
     return ''

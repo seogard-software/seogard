@@ -10,11 +10,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body?.name || !body?.url) {
-    throw createError({ statusCode: 400, message: 'Nom et URL requis' })
+    throw createError({ statusCode: 400, message: 'Name and URL required', data: { errorCode: 'NAME_AND_URL_REQUIRED' } })
   }
 
   if (!isValidUrl(body.url)) {
-    throw createError({ statusCode: 400, message: 'URL invalide' })
+    throw createError({ statusCode: 400, message: 'Invalid URL', data: { errorCode: 'INVALID_URL' } })
   }
 
   const normalizedUrl = normalizeUrl(body.url)
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   const existing = await Site.findOne({ orgId, url: normalizedUrl }).lean()
 
   if (existing) {
-    throw createError({ statusCode: 409, message: 'Ce site est déjà configuré' })
+    throw createError({ statusCode: 409, message: 'Site already configured', data: { errorCode: 'SITE_ALREADY_EXISTS' } })
   }
 
   const site = await createSiteWithDefaultZone({ orgId, name: body.name, url: normalizedUrl })

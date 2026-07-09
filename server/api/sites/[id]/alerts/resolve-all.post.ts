@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event) || {}
   if (!body.ruleId || typeof body.ruleId !== 'string') {
-    throw createError({ statusCode: 400, message: 'ruleId requis' })
+    throw createError({ statusCode: 400, message: 'ruleId required', data: { errorCode: 'RULE_ID_REQUIRED' } })
   }
 
   const { modifiedCount } = await Alert.updateMany(

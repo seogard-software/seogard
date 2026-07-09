@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/constants'
+import { LOGGED_IN_COOKIE_NAME } from '~~/shared/utils/cookies'
 
 const mockFetchMe = vi.fn()
 const mockCookieRef = { value: null as string | null }
@@ -38,6 +38,14 @@ describe('auth middleware', () => {
     mockStore.isAuthenticated = false
     mockCookieRef.value = null
     mockFetchMe.mockResolvedValue(undefined)
+  })
+
+  describe('route non matchée (404)', () => {
+    it('laisse passer sans auth ni redirect (la page erreur répond 404)', async () => {
+      const result = await middleware(route({ matched: [], meta: {} }), fromRoute)
+      expect(result).toBeUndefined()
+      expect(mockFetchMe).not.toHaveBeenCalled()
+    })
   })
 
   describe('public routes (auth: false)', () => {

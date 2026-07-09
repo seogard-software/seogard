@@ -60,6 +60,11 @@ export function registerRule(rule: SEORule) {
   rules.push(rule)
 }
 
+/** Ids des règles réellement enregistrées dans le moteur (pour le test de complétude). */
+export function getRegisteredRuleIds(): string[] {
+  return rules.map(r => r.id)
+}
+
 export function filterByPriority(results: RuleResult[], ctx: RuleContext): RuleResult[] {
   const types = new Set(results.map(r => r.type))
 

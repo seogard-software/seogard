@@ -70,7 +70,7 @@ describe('schedule.put', () => {
   it('rejects when zone does not exist', async () => {
     readBodyMock.mockResolvedValue({ enabled: true, frequency: 'daily', hour: 3 })
     mockZoneFindOne.mockResolvedValue(null)
-    await expect(handler(fakeEvent)).rejects.toThrow(/zone introuvable/i)
+    await expect(handler(fakeEvent)).rejects.toThrow(/zone not found/i)
   })
 
   it('upserts a new schedule when none exists', async () => {

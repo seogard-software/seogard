@@ -3,50 +3,48 @@
     <div class="bot-page__container">
       <header class="bot-page__header">
         <h1 class="bot-page__title">Seogard-Bot</h1>
-        <p class="bot-page__subtitle">Notre robot d'analyse SEO technique</p>
+        <p class="bot-page__subtitle">{{ $t('landing.bot.header.subtitle') }}</p>
       </header>
 
       <section class="bot-page__section">
-        <h2 class="bot-page__heading">Identification</h2>
+        <h2 class="bot-page__heading">{{ $t('landing.bot.identification.heading') }}</h2>
         <div class="bot-page__info-grid">
           <div class="bot-page__info-card">
-            <span class="bot-page__info-label">User-Agent</span>
+            <span class="bot-page__info-label">{{ $t('landing.bot.identification.userAgentLabel') }}</span>
             <code class="bot-page__info-value">Seogard-Bot/1.0 (+https://seogard.io/bot)</code>
           </div>
           <div class="bot-page__info-card">
-            <span class="bot-page__info-label">Adresse IP</span>
+            <span class="bot-page__info-label">{{ $t('landing.bot.identification.ipLabel') }}</span>
             <code class="bot-page__info-value">142.132.133.166</code>
           </div>
         </div>
-        <p class="bot-page__text">
-          Seogard-Bot analyse vos pages pour détecter les régressions SEO (meta disparues, SSR cassé, redirections incorrectes).
-          Il respecte les directives <code>robots.txt</code> et ne surcharge pas vos serveurs.
-        </p>
+        <p class="bot-page__text" v-html="$t('landing.bot.identification.text')" />
       </section>
 
       <section class="bot-page__section">
-        <h2 class="bot-page__heading">Guides de whitelisting</h2>
+        <h2 class="bot-page__heading">{{ $t('landing.bot.whitelisting.heading') }}</h2>
         <p class="bot-page__text">
-          Si votre pare-feu (WAF) bloque notre crawler, autorisez notre User-Agent ou notre IP.
-          Choisissez votre WAF ci-dessous :
+          {{ $t('landing.bot.whitelisting.intro') }}
         </p>
 
         <div class="bot-page__guides">
           <details class="bot-page__guide">
             <summary class="bot-page__guide-title">Cloudflare</summary>
             <div class="bot-page__guide-content">
-              <h4 class="bot-page__guide-step-title">Étape 1 — Créer une règle WAF Custom (obligatoire)</h4>
+              <h4 class="bot-page__guide-step-title">{{ $t('landing.bot.cloudflare.step1Title') }}</h4>
               <ol class="bot-page__steps">
-                <li>Connectez-vous à votre <strong>dashboard Cloudflare</strong></li>
-                <li>Sélectionnez votre domaine</li>
-                <li>Allez dans <strong>Security &gt; WAF &gt; Custom Rules</strong></li>
-                <li>Cliquez <strong>Create rule</strong></li>
-                <li>Nom : <code>Allow Seogard Bot</code></li>
-                <li>Cliquez <strong>Edit expression</strong> et collez :
+                <li v-html="$t('landing.bot.cloudflare.li1')" />
+                <li>{{ $t('landing.bot.cloudflare.li2') }}</li>
+                <li v-html="$t('landing.bot.cloudflare.li3')" />
+                <li v-html="$t('landing.bot.cloudflare.li4')" />
+                <li v-html="$t('landing.bot.cloudflare.li5')" />
+                <li>
+                  <span v-html="$t('landing.bot.cloudflare.li6')" />
                   <code class="bot-page__code-block">(ip.src eq 142.132.133.166) or (http.user_agent contains "Seogard-Bot")</code>
                 </li>
-                <li>Action : <strong>Skip</strong></li>
-                <li>Cochez <strong>tous les composants</strong> :
+                <li v-html="$t('landing.bot.cloudflare.li7')" />
+                <li>
+                  <span v-html="$t('landing.bot.cloudflare.li8')" />
                   <ul>
                     <li>All remaining custom rules</li>
                     <li>All rate limiting rules</li>
@@ -54,22 +52,18 @@
                     <li>All Super Bot Fight Mode Rules</li>
                   </ul>
                 </li>
-                <li>Place at : <strong>First</strong></li>
-                <li>Cliquez <strong>Deploy</strong></li>
+                <li v-html="$t('landing.bot.cloudflare.li9')" />
+                <li v-html="$t('landing.bot.cloudflare.li10')" />
               </ol>
-              <p class="bot-page__guide-alt">
-                <strong>Important</strong> : utilisez <code>or</code> (pas <code>and</code>) entre l'IP et le User-Agent pour que la règle matche si l'un OU l'autre est présent.
-              </p>
+              <p class="bot-page__guide-alt" v-html="$t('landing.bot.cloudflare.step1Alt')" />
 
-              <h4 class="bot-page__guide-step-title">Étape 2 — Bot Fight Mode (plan Free uniquement)</h4>
-              <p>Sur le <strong>plan Free</strong> de Cloudflare, la règle Skip ne peut pas bypasser le Bot Fight Mode. Si le crawl est toujours bloqué après l'étape 1 :</p>
+              <h4 class="bot-page__guide-step-title">{{ $t('landing.bot.cloudflare.step2Title') }}</h4>
+              <p v-html="$t('landing.bot.cloudflare.step2Intro')" />
               <ol class="bot-page__steps">
-                <li>Allez dans <strong>Security &gt; Bots</strong></li>
-                <li>Désactivez <strong>Bot Fight Mode</strong></li>
+                <li v-html="$t('landing.bot.cloudflare.step2Li1')" />
+                <li v-html="$t('landing.bot.cloudflare.step2Li2')" />
               </ol>
-              <p class="bot-page__guide-alt">
-                <strong>Plans Pro, Business et Enterprise</strong> : pas besoin de désactiver le Bot Fight Mode. La règle Skip de l'étape 1 le bypass automatiquement.
-              </p>
+              <p class="bot-page__guide-alt" v-html="$t('landing.bot.cloudflare.step2Alt')" />
             </div>
           </details>
 
@@ -77,14 +71,12 @@
             <summary class="bot-page__guide-title">Akamai</summary>
             <div class="bot-page__guide-content">
               <ol class="bot-page__steps">
-                <li>Connectez-vous à <strong>Akamai Control Center</strong></li>
-                <li>Allez dans <strong>Security &gt; IP/Geo Firewall</strong></li>
-                <li>Ajoutez <code>142.132.133.166</code> dans la <strong>Allow list</strong></li>
-                <li>Sauvegardez et déployez la configuration</li>
+                <li v-html="$t('landing.bot.akamai.li1')" />
+                <li v-html="$t('landing.bot.akamai.li2')" />
+                <li v-html="$t('landing.bot.akamai.li3')" />
+                <li>{{ $t('landing.bot.akamai.li4') }}</li>
               </ol>
-              <p class="bot-page__guide-alt">
-                <strong>Alternative</strong> : dans <strong>Bot Manager</strong>, ajoutez <code>Seogard-Bot</code> à la liste des bots autorisés.
-              </p>
+              <p class="bot-page__guide-alt" v-html="$t('landing.bot.akamai.alt')" />
             </div>
           </details>
 
@@ -92,10 +84,10 @@
             <summary class="bot-page__guide-title">AWS WAF</summary>
             <div class="bot-page__guide-content">
               <ol class="bot-page__steps">
-                <li>Ouvrez la console <strong>AWS WAF</strong></li>
-                <li>Créez un <strong>IP Set</strong> contenant <code>142.132.133.166/32</code></li>
-                <li>Ajoutez une règle <strong>Allow</strong> dans votre Web ACL référençant cet IP Set</li>
-                <li>Placez cette règle <strong>avant</strong> vos règles de blocage</li>
+                <li v-html="$t('landing.bot.aws.li1')" />
+                <li v-html="$t('landing.bot.aws.li2')" />
+                <li v-html="$t('landing.bot.aws.li3')" />
+                <li v-html="$t('landing.bot.aws.li4')" />
               </ol>
             </div>
           </details>
@@ -104,25 +96,25 @@
             <summary class="bot-page__guide-title">Sucuri</summary>
             <div class="bot-page__guide-content">
               <ol class="bot-page__steps">
-                <li>Connectez-vous au <strong>dashboard Sucuri</strong></li>
-                <li>Allez dans <strong>Firewall &gt; Access Control</strong></li>
-                <li>Dans <strong>Whitelist IP</strong>, ajoutez <code>142.132.133.166</code></li>
-                <li>Sauvegardez</li>
+                <li v-html="$t('landing.bot.sucuri.li1')" />
+                <li v-html="$t('landing.bot.sucuri.li2')" />
+                <li v-html="$t('landing.bot.sucuri.li3')" />
+                <li>{{ $t('landing.bot.sucuri.li4') }}</li>
               </ol>
             </div>
           </details>
 
           <details class="bot-page__guide">
-            <summary class="bot-page__guide-title">Autre pare-feu</summary>
+            <summary class="bot-page__guide-title">{{ $t('landing.bot.other.title') }}</summary>
             <div class="bot-page__guide-content">
-              <p>Deux méthodes pour autoriser Seogard-Bot :</p>
+              <p>{{ $t('landing.bot.other.intro') }}</p>
               <div class="bot-page__method">
-                <h4>Méthode 1 — Par IP (recommandé)</h4>
-                <p>Ajoutez <code>142.132.133.166</code> dans la liste blanche (allow list) de votre pare-feu.</p>
+                <h4>{{ $t('landing.bot.other.method1Title') }}</h4>
+                <p v-html="$t('landing.bot.other.method1Text')" />
               </div>
               <div class="bot-page__method">
-                <h4>Méthode 2 — Par User-Agent</h4>
-                <p>Créez une règle qui autorise les requêtes dont le header <code>User-Agent</code> contient <code>Seogard-Bot</code>.</p>
+                <h4>{{ $t('landing.bot.other.method2Title') }}</h4>
+                <p v-html="$t('landing.bot.other.method2Text')" />
               </div>
             </div>
           </details>
@@ -130,42 +122,39 @@
       </section>
 
       <section id="self-hosted" class="bot-page__section">
-        <h2 class="bot-page__heading">Self-hosted</h2>
-        <p class="bot-page__text">
-          Si vous hébergez Seogard vous-même, le crawler tourne sur <strong>votre serveur</strong>.
-          L'adresse IP à whitelister est donc celle de votre machine, pas <code>142.132.133.166</code>.
-        </p>
+        <h2 class="bot-page__heading">{{ $t('landing.bot.selfHosted.heading') }}</h2>
+        <p class="bot-page__text" v-html="$t('landing.bot.selfHosted.text')" />
         <div class="bot-page__selfhosted-steps">
           <div class="bot-page__selfhosted-step">
             <span class="bot-page__selfhosted-number">1</span>
             <div>
-              <strong>Trouvez l'IP publique de votre serveur</strong>
+              <strong>{{ $t('landing.bot.selfHosted.step1Title') }}</strong>
               <code class="bot-page__code-block">curl -s ifconfig.me</code>
             </div>
           </div>
           <div class="bot-page__selfhosted-step">
             <span class="bot-page__selfhosted-number">2</span>
             <div>
-              <strong>Utilisez cette IP dans les guides ci-dessus</strong>
-              <p class="bot-page__selfhosted-detail">Remplacez <code>142.132.133.166</code> par l'IP retournée à l'étape 1 dans les règles WAF de votre choix.</p>
+              <strong>{{ $t('landing.bot.selfHosted.step2Title') }}</strong>
+              <p class="bot-page__selfhosted-detail" v-html="$t('landing.bot.selfHosted.step2Text')" />
             </div>
           </div>
           <div class="bot-page__selfhosted-step">
             <span class="bot-page__selfhosted-number">3</span>
             <div>
-              <strong>Le User-Agent reste identique</strong>
-              <p class="bot-page__selfhosted-detail"><code>Seogard-Bot/1.0</code> est le même en Cloud et en self-hosted. Vous pouvez aussi whitelister par User-Agent seul.</p>
+              <strong>{{ $t('landing.bot.selfHosted.step3Title') }}</strong>
+              <p class="bot-page__selfhosted-detail" v-html="$t('landing.bot.selfHosted.step3Text')" />
             </div>
           </div>
         </div>
       </section>
 
       <section class="bot-page__section">
-        <h2 class="bot-page__heading">Besoin d'aide ?</h2>
+        <h2 class="bot-page__heading">{{ $t('landing.bot.help.heading') }}</h2>
         <p class="bot-page__text">
-          Si vous avez besoin d'assistance pour configurer votre pare-feu, contactez-nous à
+          {{ $t('landing.bot.help.text1') }}
           <a href="mailto:support@seogard.io" class="bot-page__link">support@seogard.io</a>.
-          Nous pouvons vous guider étape par étape.
+          {{ $t('landing.bot.help.text2') }}
         </p>
       </section>
     </div>
@@ -175,10 +164,12 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'landing', auth: false })
 
+const { t } = useI18n()
+
 useHead({
-  title: 'Seogard-Bot — Robot d\'analyse SEO',
+  title: t('seo.bot.title'),
   meta: [
-    { name: 'description', content: 'Informations sur Seogard-Bot, notre robot d\'analyse SEO technique. Guide de whitelisting pour Cloudflare, Akamai, AWS WAF et autres pare-feu.' },
+    { name: 'description', content: t('seo.bot.description') },
   ],
 })
 </script>

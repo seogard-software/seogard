@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   ).lean()
 
   if (!alert) {
-    throw createError({ statusCode: 404, message: 'Alerte non trouvée ou déjà résolue' })
+    throw createError({ statusCode: 404, message: 'Alert not found or already resolved', data: { errorCode: 'ALERT_NOT_FOUND' } })
   }
 
   return alert

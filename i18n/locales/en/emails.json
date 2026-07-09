@@ -1,0 +1,158 @@
+{
+  "welcome": {
+    "subject": "You're in. Here's how to catch your first regression.",
+    "title": "Welcome to Seogard",
+    "intro": "Your free <strong>14-day</strong> trial is active — no credit card required.",
+    "stepsLead": "To get started:",
+    "step1Label": "STEP 1",
+    "step1Title": "Add your site",
+    "step1Desc": "The URL is enough — Seogard discovers your pages via the sitemap.",
+    "step2Label": "STEP 2",
+    "step2Title": "Launch a crawl",
+    "step2Desc": "Metas, canonicals, H1, SSR/CSR, noindex — analyzed on every page.",
+    "step3Label": "THEN, AUTOMATIC",
+    "step3Title": "We alert you",
+    "step3Desc": "As soon as a regression is detected, you get an email. Nothing to configure.",
+    "cta": "Add my first site →",
+    "footer": "Questions? Just reply to this email."
+  },
+  "crawlReport": {
+    "subjectDetected": {
+      "one": "[Seogard] {count} regression detected",
+      "many": "[Seogard] {count} regressions detected"
+    },
+    "subjectFixedSuffix": {
+      "one": " · {count} fixed",
+      "many": " · {count} fixed"
+    },
+    "subjectFixed": {
+      "one": "[Seogard] {count} regression fixed",
+      "many": "[Seogard] {count} regressions fixed"
+    },
+    "detectedHeading": {
+      "one": "🔴 <strong>{count} regression detected</strong> since the last crawl:",
+      "many": "🔴 <strong>{count} regressions detected</strong> since the last crawl:"
+    },
+    "detectedMore": "+{count} more regressions in the dashboard",
+    "fixedHeading": {
+      "one": "🟢 <strong>{count} regression fixed</strong> since the last crawl{goodJob}:",
+      "many": "🟢 <strong>{count} regressions fixed</strong> since the last crawl{goodJob}:"
+    },
+    "goodJob": " — nice work.",
+    "fixedMore": "+{count} more in the dashboard",
+    "recoPages": {
+      "one": " ({count} page)",
+      "many": " ({count} pages)"
+    },
+    "recoRest": {
+      "one": " · + {count} more recommendation",
+      "many": " · + {count} more recommendations"
+    },
+    "recoLabel": {
+      "one": "Audit recommendation (non-blocking):",
+      "many": "Audit recommendations (non-blocking):"
+    },
+    "recoDashboardLink": "see the dashboard →",
+    "ctaResolve": "View and resolve the regressions →",
+    "ctaDashboard": "View the dashboard →",
+    "attachmentNote": "📎 Summary PDF attached. For the full detail (all pages) and the history:",
+    "ctaFullReport": "View the full detail online →"
+  },
+  "dailyDigest": {
+    "subjectOk": "Your daily SEO health report — {siteName}",
+    "subjectRegressions": "Your daily SEO health report — {count} regression(s) on {siteName}",
+    "title": "Daily report",
+    "okTitle": "✓ No regressions detected",
+    "okBody": "{pages} pages analyzed on <strong>{siteName}</strong> — everything is in order.",
+    "okFooter": "Tomorrow's report will arrive at the same time. You can view the full history from your dashboard.",
+    "regressionsIntro": "<strong>{count} regression(s)</strong> detected on <strong>{siteName}</strong> since the last crawl:",
+    "cta": "View the dashboard"
+  },
+  "logDigest": {
+    "subject": "[WORKER LOGS] {count} alert(s) — {date}",
+    "title": "Worker logs — 24h",
+    "summaryTotal": "{count} total",
+    "summaryGroups": "in {count} group(s)",
+    "footer": "This digest is sent automatically every day at 8am."
+  },
+  "sitemapInvalidHostname": {
+    "subject": "[ACTION REQUIRED] Misconfigured sitemap — {siteName}",
+    "title": "Sitemap points to the wrong hostname",
+    "intro": "The sitemap of <strong>{siteName}</strong> lists <strong>{count} URLs</strong> with a hostname different from the monitored one ({siteUrl}).",
+    "foreignHosts": "Foreign hostnames detected: {hosts}.",
+    "consequence": "<strong>Consequence:</strong> these URLs are ignored by the crawl and only the homepage is analyzed — SEO regressions on your other pages can go unnoticed.",
+    "footer": "Once your sitemap is fixed, the next crawl will detect your pages automatically."
+  },
+  "sitemapBlocked": {
+    "subject": "[ACTION REQUIRED] Sitemap blocked — incomplete crawl on {siteName}",
+    "title": "Sitemap unreachable",
+    "intro": "Our crawler could not access the sitemap of <strong>{siteName}</strong> ({siteUrl}).",
+    "consequence": "<strong>Consequence:</strong> only the homepage was analyzed — not your other pages."
+  },
+  "crawlerBlocked": {
+    "subject": "[ACTION REQUIRED] {percent}% of pages blocked by WAF — {siteName}",
+    "title": "Crawler blocked by a firewall (WAF)",
+    "intro": "<strong>{blocked} pages</strong> out of <strong>{total}</strong> ({percent}%) were blocked on <strong>{siteName}</strong>.",
+    "consequence": "<strong>Consequence:</strong> these pages generate <strong>no SEO alerts</strong> — a regression can go unnoticed."
+  },
+  "whitelistHelp": {
+    "heading": "How to fix it",
+    "option1Label": "Option 1 — Whitelist the User-Agent",
+    "option1Desc": "Allow requests with {code} in the User-Agent",
+    "option2Label": "Option 2 — Whitelist the IP",
+    "option2Desc": "Allow the IP {code}",
+    "cta": "See the full guide →",
+    "footer": "Need help? Just reply to this email."
+  },
+  "resetPassword": {
+    "subject": "Reset your Seogard password",
+    "title": "Password reset",
+    "intro": "Click the button below to choose a new password:",
+    "cta": "Reset my password",
+    "footer": "This link expires in <strong>1 hour</strong>. If you did not request this, ignore this email — your password stays unchanged."
+  },
+  "sitemapEstimate": {
+    "subject": "Your estimate — {pageCount} pages on {url}",
+    "title": "Your estimate is ready",
+    "intro": "Sitemap of <strong>{url}</strong> analyzed.",
+    "statPages": "pages detected",
+    "statPrice": "if you crawl everything / month (excl. VAT)",
+    "zoningTitle": "Most of our customers crawl 10-20% of their pages.",
+    "zoningBody": "With <strong>zones</strong>, target your priority pages — product pages, recent articles, categories — and ignore the rest.",
+    "zoningExample": "Example: {count} pages → <strong>{zonedPrice} EUR/month excl. VAT</strong> instead of {fullPrice}.",
+    "onPremise": "For very large sites, our <strong>on-premise</strong> offer (hosted on your infrastructure, SLA, account manager) is also available. {contactLink} to discuss it.",
+    "onPremiseContactLabel": "Contact us",
+    "trialTitle": "14-day free trial — no credit card",
+    "trialBody": "Detect your first SEO regressions in under 10 minutes. Unlimited crawls during the trial.",
+    "cta": "Start for free →",
+    "selfHosted": "Prefer to host it yourself? {link}",
+    "selfHostedLinkLabel": "Free self-hosted version on GitHub →"
+  },
+  "paymentFailed": {
+    "subject": "Action needed: your Seogard payment didn't go through",
+    "title": "Payment failed",
+    "intro": "Your last payment failed. Without action on your part, <strong>your crawls will be suspended in 7 days</strong>.",
+    "impact": "<strong>Impact:</strong> without an active crawl, SEO regressions go unnoticed — exactly what Seogard is meant to prevent.",
+    "cta": "Update my payment →",
+    "footer": "Think this is a mistake? Just reply to this email or write to {supportLink}."
+  },
+  "invite": {
+    "subject": "Invitation to join {orgName} on Seogard",
+    "title": "You're invited",
+    "intro": "You have been invited to join <strong>{orgName}</strong> on Seogard.",
+    "roleLabel": "Role:",
+    "orgLabel": "Organization:",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "cta": "Accept the invitation",
+    "footer": "This link expires in <strong>7 days</strong>. If you did not request this invitation, ignore this email."
+  },
+  "recoHints": {
+    "rec_llms_txt_missing": "AI visibility (ChatGPT, Claude, Perplexity)",
+    "rec_ai_crawlers_blocked": "AI systems cannot index your site"
+  }
+}

@@ -1,7 +1,7 @@
 <template>
   <div class="health-score">
     <span class="health-score__value">{{ score ?? '—' }}</span>
-    <span class="health-score__label">{{ score != null ? 'Score santé' : 'Aucun crawl' }}</span>
+    <span class="health-score__label">{{ score != null ? $t('dashboard.c.healthScore.label') : $t('dashboard.c.healthScore.noCrawl') }}</span>
     <div class="health-score__bar">
       <div
         class="health-score__bar-fill"

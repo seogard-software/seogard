@@ -145,7 +145,7 @@ describe('/api/auth/me', () => {
   it('user not found = 404', async () => {
     mockUserFindById.mockResolvedValue(null)
 
-    await expect(handler(fakeEvent)).rejects.toThrow('Utilisateur non trouvé')
+    await expect(handler(fakeEvent)).rejects.toThrow('User not found')
   })
 
   it('subscription response does not contain legacy fields', async () => {

@@ -1,6 +1,11 @@
 import type { TopReco } from '../../shared/utils/recommendations'
+import { getAlertTypeLabels } from '../../shared/utils/constants'
+import type { Locale } from '../../shared/utils/i18n'
+import { DEFAULT_LOCALE } from '../../shared/utils/i18n'
 import { getCloudPricePerPage } from '../../shared/utils/pricing'
+import { INTL_LOCALE } from '../../shared/utils/format'
 import { zoneReportPath } from '../../shared/utils/report-links'
+import { t } from './i18n'
 
 const APP_URL = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
 
@@ -39,9 +44,15 @@ const C = {
   black: '#000000',
 }
 
-function layout(content: string): string {
+// Sélecteur de clé plurielle : les libellés FR/EN vivent en deux variantes one/many
+// dans i18n/locales/<locale>/emails.json (remplace l'ancien suffixe manuel « s »).
+function nKey(n: number): 'one' | 'many' {
+  return n > 1 ? 'many' : 'one'
+}
+
+function layout(content: string, locale: Locale): string {
   return `<!DOCTYPE html>
-<html lang="fr">
+<html lang="${locale}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -103,38 +114,44 @@ function infoBox(content: string, color = C.gray700, bg = C.gray100, border = C.
   </table>`
 }
 
+// Snippet <code> inline (interpolé dans les phrases traduites en param {code}).
+function inlineCode(text: string): string {
+  return `<code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">${text}</code>`
+}
+
 // --- Templates ---
 
-export function welcomeTemplate(): { subject: string; html: string } {
+export function welcomeTemplate(locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const tw = (key: string) => t(locale, `emails.welcome.${key}`)
   return {
-    subject: 'Votre essai Seogard est actif — commencez votre premier crawl',
+    subject: tw('subject'),
     html: layout(`
-      <h2 style="margin:0 0 12px;font-size:20px;font-weight:700;color:${C.gray900};line-height:1.3;">Bienvenue sur Seogard</h2>
-      <p style="margin:0 0 20px;color:${C.gray700};">Votre essai gratuit de <strong>14 jours</strong> est actif — sans carte bancaire.</p>
+      <h2 style="margin:0 0 12px;font-size:20px;font-weight:700;color:${C.gray900};line-height:1.3;">${tw('title')}</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">${tw('intro')}</p>
 
-      <p style="margin:0 0 8px;color:${C.gray900};">Pour commencer :</p>
+      <p style="margin:0 0 8px;color:${C.gray900};">${tw('stepsLead')}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;">
         <tr><td style="padding:12px 16px;border-bottom:1px solid ${C.gray100};">
-          <span style="font-size:13px;color:${C.gray500};font-weight:600;">ÉTAPE 1</span><br>
-          <span style="font-size:14px;color:${C.gray900};font-weight:500;">Ajoutez votre site</span><br>
-          <span style="font-size:13px;color:${C.gray700};">L'URL suffit — Seogard découvre vos pages via le sitemap.</span>
+          <span style="font-size:13px;color:${C.gray500};font-weight:600;">${tw('step1Label')}</span><br>
+          <span style="font-size:14px;color:${C.gray900};font-weight:500;">${tw('step1Title')}</span><br>
+          <span style="font-size:13px;color:${C.gray700};">${tw('step1Desc')}</span>
         </td></tr>
         <tr><td style="padding:12px 16px;border-bottom:1px solid ${C.gray100};">
-          <span style="font-size:13px;color:${C.gray500};font-weight:600;">ÉTAPE 2</span><br>
-          <span style="font-size:14px;color:${C.gray900};font-weight:500;">Lancez un crawl</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Metas, canonicals, H1, SSR/CSR, noindex — analysés sur chaque page.</span>
+          <span style="font-size:13px;color:${C.gray500};font-weight:600;">${tw('step2Label')}</span><br>
+          <span style="font-size:14px;color:${C.gray900};font-weight:500;">${tw('step2Title')}</span><br>
+          <span style="font-size:13px;color:${C.gray700};">${tw('step2Desc')}</span>
         </td></tr>
         <tr><td style="padding:12px 16px;">
-          <span style="font-size:13px;color:${C.gray500};font-weight:600;">ENSUITE, AUTOMATIQUE</span><br>
-          <span style="font-size:14px;color:${C.gray900};font-weight:500;">On vous alerte</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Dès qu'une régression est détectée, vous recevez un email. Rien à configurer.</span>
+          <span style="font-size:13px;color:${C.gray500};font-weight:600;">${tw('step3Label')}</span><br>
+          <span style="font-size:14px;color:${C.gray900};font-weight:500;">${tw('step3Title')}</span><br>
+          <span style="font-size:13px;color:${C.gray700};">${tw('step3Desc')}</span>
         </td></tr>
       </table>
 
-      ${button(`${APP_URL}/dashboard/sites`, 'Ajouter mon premier site →')}
+      ${button(`${APP_URL}/dashboard/sites`, tw('cta'))}
 
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Une question ? Répondez directement à cet email.</p>
-    `),
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${tw('footer')}</p>
+    `, locale),
   }
 }
 
@@ -147,10 +164,6 @@ export interface CrawlReportData {
   fixed: { pageUrl: string; message: string }[]
   topRecos: TopReco[]
   recoCount: number
-}
-
-function plural(n: number): string {
-  return n > 1 ? 's' : ''
 }
 
 // Une ligne d'alerte (pastille colorée + message + URL).
@@ -168,7 +181,8 @@ function reportRow(message: string, pageUrl: string, dotColor: string): string {
  * (🟢) dans le même mail. Les recommandations d'audit ne déclenchent jamais ce mail et tiennent
  * en une ligne discrète. Le mail n'est construit que si regressions>0 OU fixed>0.
  */
-export function crawlReportTemplate(data: CrawlReportData): { subject: string; html: string } {
+export function crawlReportTemplate(data: CrawlReportData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const tc = (key: string, params?: Record<string, string | number>) => t(locale, `emails.crawlReport.${key}`, params)
   const label = data.zoneName ? `${data.siteName} › ${data.zoneName}` : data.siteName
   const alertsUrl = data.zoneId
     ? `${APP_URL}/dashboard/sites/${data.siteId}/zones/${data.zoneId}/alerts`
@@ -182,8 +196,8 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
 
   // Le mail n'est envoyé que si regCount>0 OU fixCount>0 (cf. buildCrawlReport.shouldSend).
   const subject = regCount > 0
-    ? `🔴 ${regCount} régression${plural(regCount)} détectée${plural(regCount)}${fixCount > 0 ? ` · ${fixCount} réparée${plural(fixCount)}` : ''} — ${label}`
-    : `🟢 ${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)} — ${label}`
+    ? `${tc(`subjectDetected.${nKey(regCount)}`, { count: regCount })}${fixCount > 0 ? tc(`subjectFixedSuffix.${nKey(fixCount)}`, { count: fixCount }) : ''} — ${label}`
+    : `${tc(`subjectFixed.${nKey(fixCount)}`, { count: fixCount })} — ${label}`
 
   // Régressions : critiques d'abord, 8 listées max.
   const sortedReg = [...data.regressions].sort((a, b) =>
@@ -192,20 +206,20 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
     .map(r => reportRow(r.message, r.pageUrl, r.severity === 'critical' ? C.danger : C.warning))
     .join('')
   const regMore = regCount > 8
-    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">+${regCount - 8} autres régressions dans le dashboard</td></tr>`
+    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">${tc('detectedMore', { count: regCount - 8 })}</td></tr>`
     : ''
   const regBlock = regCount > 0
-    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">🔴 <strong>${regCount} régression${plural(regCount)} détectée${plural(regCount)}</strong> depuis le dernier crawl :</p>
+    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">${tc(`detectedHeading.${nKey(regCount)}`, { count: regCount })}</p>
        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">${regRows}${regMore}</table>`
     : ''
 
   // Réparées (vert) : 8 listées max.
   const fixRows = data.fixed.slice(0, 8).map(f => reportRow(f.message, f.pageUrl, C.success)).join('')
   const fixMore = fixCount > 8
-    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">+${fixCount - 8} autres dans le dashboard</td></tr>`
+    ? `<tr><td style="padding:10px 14px;font-size:13px;color:${C.gray500};text-align:center;">${tc('fixedMore', { count: fixCount - 8 })}</td></tr>`
     : ''
   const fixBlock = fixCount > 0
-    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">🟢 <strong>${fixCount} régression${plural(fixCount)} réparée${plural(fixCount)}</strong> depuis le dernier crawl${regCount === 0 ? ' — beau travail.' : ''} :</p>
+    ? `<p style="margin:0 0 12px;font-size:15px;color:${C.gray900};">${tc(`fixedHeading.${nKey(fixCount)}`, { count: fixCount, goodJob: regCount === 0 ? tc('goodJob') : '' })}</p>
        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.successBorder};border-radius:8px;overflow:hidden;margin:0 0 24px;background-color:${C.successBg};">${fixRows}${fixMore}</table>`
     : ''
 
@@ -213,13 +227,18 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
   const shownPages = data.topRecos.reduce((sum, r) => sum + r.pagesAffected, 0)
   const others = data.recoCount - shownPages
   const recoItems = data.topRecos.map((r) => {
-    const hint = r.hint ? ` — ${r.hint}` : ''
-    const pages = r.siteLevel ? '' : ` (${r.pagesAffected} page${plural(r.pagesAffected)})`
-    return `${r.label}${hint}${pages}`
+    // Label + hint résolus À LA LOCALE du destinataire (les valeurs figées dans TopReco sont
+    // la vue FR de rankRecommendations — jamais affichées telles quelles).
+    const label = getAlertTypeLabels(locale)[r.ruleId] ?? r.label
+    const hintKey = `emails.recoHints.${r.ruleId}`
+    const resolvedHint = t(locale, hintKey)
+    const hint = resolvedHint !== hintKey ? ` — ${resolvedHint}` : (r.hint ? ` — ${r.hint}` : '')
+    const pages = r.siteLevel ? '' : tc(`recoPages.${nKey(r.pagesAffected)}`, { count: r.pagesAffected })
+    return `${label}${hint}${pages}`
   }).join(' · ')
-  const recoRest = others > 0 ? ` · + ${others} autre${plural(others)} recommandation${plural(others)}` : ''
+  const recoRest = others > 0 ? tc(`recoRest.${nKey(others)}`, { count: others }) : ''
   const recoLine = data.recoCount > 0
-    ? `<p style="margin:8px 0 0;font-size:13px;color:${C.gray500};line-height:1.6;">💡 <strong style="color:${C.gray700};">Recommandation${plural(data.topRecos.length)} d'audit (non bloquante${plural(data.topRecos.length)}) :</strong> ${recoItems}${recoRest} — <a href="${alertsUrl}" style="color:${C.gray700};">voir le dashboard →</a></p>`
+    ? `<p style="margin:8px 0 0;font-size:13px;color:${C.gray500};line-height:1.6;">💡 <strong style="color:${C.gray700};">${tc(`recoLabel.${nKey(data.topRecos.length)}`)}</strong> ${recoItems}${recoRest} — <a href="${alertsUrl}" style="color:${C.gray700};">${tc('recoDashboardLink')}</a></p>`
     : ''
 
   return {
@@ -228,10 +247,10 @@ export function crawlReportTemplate(data: CrawlReportData): { subject: string; h
       <h2 style="margin:0 0 20px;font-size:19px;font-weight:700;color:${C.gray900};">${label}</h2>
       ${regBlock}
       ${fixBlock}
-      ${button(alertsUrl, regCount > 0 ? 'Voir et résoudre les régressions →' : 'Voir le dashboard →')}
-      ${reportUrl ? `<p style="margin:0 0 4px;font-size:13px;color:${C.gray500};">📎 PDF de synthèse en pièce jointe. Pour le détail complet (toutes les pages) et l'historique :</p>${ghostButton(reportUrl, 'Voir le détail complet en ligne →')}` : ''}
+      ${button(alertsUrl, regCount > 0 ? tc('ctaResolve') : tc('ctaDashboard'))}
+      ${reportUrl ? `<p style="margin:0 0 4px;font-size:13px;color:${C.gray500};">${tc('attachmentNote')}</p>${ghostButton(reportUrl, tc('ctaFullReport'))}` : ''}
       ${recoLine}
-    `),
+    `, locale),
   }
 }
 
@@ -243,13 +262,14 @@ export interface DailyDigestData {
   regressions: { type: string; message: string; pageUrl: string }[]
 }
 
-export function dailyDigestTemplate(data: DailyDigestData): { subject: string; html: string } {
+export function dailyDigestTemplate(data: DailyDigestData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const td = (key: string, params?: Record<string, string | number>) => t(locale, `emails.dailyDigest.${key}`, params)
   const isAllGood = data.regressionCount === 0
 
   const body = isAllGood
-    ? `${infoBox(`<strong style="color:${C.success};">✓ Aucune régression détectée</strong><br><span style="color:${C.gray700};">${data.totalPages.toLocaleString('fr-FR')} pages analysées sur <strong>${data.siteName}</strong> — tout est en ordre.</span>`, C.success, C.successBg, C.successBorder)}
-       <p style="margin:0;font-size:14px;color:${C.gray700};">Le rapport de demain arrivera au même moment. Vous pouvez consulter l'historique complet depuis votre dashboard.</p>`
-    : `<p style="margin:0 0 16px;font-size:15px;"><strong>${data.regressionCount} régression(s)</strong> détectée(s) sur <strong>${data.siteName}</strong> depuis le dernier crawl :</p>
+    ? `${infoBox(`<strong style="color:${C.success};">${td('okTitle')}</strong><br><span style="color:${C.gray700};">${td('okBody', { pages: data.totalPages.toLocaleString(INTL_LOCALE[locale]), siteName: data.siteName })}</span>`, C.success, C.successBg, C.successBorder)}
+       <p style="margin:0;font-size:14px;color:${C.gray700};">${td('okFooter')}</p>`
+    : `<p style="margin:0 0 16px;font-size:15px;">${td('regressionsIntro', { count: data.regressionCount, siteName: data.siteName })}</p>
        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">
          ${data.regressions.slice(0, 10).map(r =>
            `<tr><td style="padding:10px 14px;border-bottom:1px solid ${C.gray100};font-size:13px;">
@@ -261,13 +281,13 @@ export function dailyDigestTemplate(data: DailyDigestData): { subject: string; h
 
   return {
     subject: isAllGood
-      ? `✓ Aucune régression — ${data.siteName}`
-      : `[DIGEST] ${data.regressionCount} régression(s) — ${data.siteName}`,
+      ? td('subjectOk', { siteName: data.siteName })
+      : td('subjectRegressions', { count: data.regressionCount, siteName: data.siteName }),
     html: layout(`
-      <h2 style="margin:0 0 20px;font-size:19px;font-weight:700;color:${C.gray900};">Rapport quotidien</h2>
+      <h2 style="margin:0 0 20px;font-size:19px;font-weight:700;color:${C.gray900};">${td('title')}</h2>
       ${body}
-      ${button(`${APP_URL}/dashboard/sites/${data.siteId}`, 'Voir le dashboard')}
-    `),
+      ${button(`${APP_URL}/dashboard/sites/${data.siteId}`, td('cta'))}
+    `, locale),
   }
 }
 
@@ -278,7 +298,8 @@ export interface LogDigestData {
   totalFatal: number
 }
 
-export function logDigestTemplate(data: LogDigestData): { subject: string; html: string } {
+export function logDigestTemplate(data: LogDigestData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const tl = (key: string, params?: Record<string, string | number>) => t(locale, `emails.logDigest.${key}`, params)
   const total = data.totalWarn + data.totalError + data.totalFatal
   const levelColor: Record<string, string> = { fatal: '#7f1d1d', error: C.danger, warn: C.warning }
   const levelBg: Record<string, string> = { fatal: '#fecaca', error: '#fee2e2', warn: '#fef3c7' }
@@ -307,15 +328,15 @@ export function logDigestTemplate(data: LogDigestData): { subject: string; html:
   ].filter(Boolean).join(' &middot; ')
 
   return {
-    subject: `[LOGS WORKERS] ${total} alerte(s) — ${new Date().toLocaleDateString('fr-FR')}`,
+    subject: tl('subject', { count: total, date: new Date().toLocaleDateString(INTL_LOCALE[locale]) }),
     html: layout(`
-      <h2 style="margin:0 0 6px;font-size:19px;font-weight:700;color:${C.gray900};">Logs workers — 24h</h2>
-      <p style="margin:0 0 20px;font-size:14px;color:${C.gray500};">${summary} — <strong style="color:${C.gray900};">${total} total</strong> en ${data.groups.length} groupe(s)</p>
+      <h2 style="margin:0 0 6px;font-size:19px;font-weight:700;color:${C.gray900};">${tl('title')}</h2>
+      <p style="margin:0 0 20px;font-size:14px;color:${C.gray500};">${summary} — <strong style="color:${C.gray900};">${tl('summaryTotal', { count: total })}</strong> ${tl('summaryGroups', { count: data.groups.length })}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;">
         ${rows}
       </table>
-      <p style="margin:16px 0 0;color:${C.gray500};font-size:12px;">Ce digest est envoyé automatiquement chaque jour à 8h.</p>
-    `),
+      <p style="margin:16px 0 0;color:${C.gray500};font-size:12px;">${tl('footer')}</p>
+    `, locale),
   }
 }
 
@@ -337,88 +358,97 @@ export interface SitemapInvalidHostnameData {
   foreignUrlCount: number
 }
 
-export function sitemapInvalidHostnameTemplate(data: SitemapInvalidHostnameData): { subject: string; html: string } {
-  const sample = data.foreignHostnames.slice(0, 3).map(h => `<code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">${h}</code>`).join(', ')
-  return {
-    subject: `[ACTION REQUISE] Sitemap mal configuré — ${data.siteName}`,
-    html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Sitemap pointe vers le mauvais hostname</h2>
-      <p style="margin:0 0 20px;color:${C.gray700};">Le sitemap de <strong>${data.siteName}</strong> liste <strong>${data.foreignUrlCount} URLs</strong> avec un hostname différent de celui monitoré (<code style="background:${C.gray100};padding:2px 6px;border-radius:4px;font-size:13px;">${data.siteUrl}</code>).</p>
-
-      <p style="margin:0 0 20px;color:${C.gray700};">Hostnames étrangers détectés : ${sample}.</p>
-
-      ${infoBox(`<strong>Conséquence :</strong> ces URLs sont ignorées par le crawl et seule la homepage est analysée — vos régressions SEO sur les autres pages peuvent passer inaperçues.`, C.warning, C.warningBg)}
-
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Une fois votre sitemap corrigé, le prochain crawl détectera vos pages automatiquement.</p>
-    `),
-  }
-}
-
-export function sitemapBlockedTemplate(data: SitemapBlockedData): { subject: string; html: string } {
-  return {
-    subject: `[ACTION REQUISE] Sitemap bloqué — crawl incomplet sur ${data.siteName}`,
-    html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Sitemap inaccessible</h2>
-      <p style="margin:0 0 20px;color:${C.gray700};">Notre crawler n'a pas pu accéder au sitemap de <strong>${data.siteName}</strong> (<code style="background:${C.gray100};padding:2px 6px;border-radius:4px;font-size:13px;">${data.siteUrl}</code>).</p>
-
-      ${infoBox(`<strong>Conséquence :</strong> seule la homepage a été analysée — pas vos autres pages.`, C.warning, C.warningBg)}
-
-      <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:${C.gray900};">Comment résoudre</p>
+// Bloc « Comment résoudre » (whitelist UA / IP) — partagé par sitemapBlocked et crawlerBlocked.
+function whitelistHelpBlock(locale: Locale): string {
+  const th = (key: string, params?: Record<string, string | number>) => t(locale, `emails.whitelistHelp.${key}`, params)
+  return `<p style="margin:0 0 12px;font-size:14px;font-weight:600;color:${C.gray900};">${th('heading')}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">
         <tr><td style="padding:12px 16px;border-bottom:1px solid ${C.gray100};">
-          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">Option 1 — Whitelist User-Agent</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Autorisez les requêtes avec <code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">Seogard-Bot</code> dans le User-Agent</span>
+          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">${th('option1Label')}</span><br>
+          <span style="font-size:13px;color:${C.gray700};">${th('option1Desc', { code: inlineCode('Seogard-Bot') })}</span>
         </td></tr>
         <tr><td style="padding:12px 16px;">
-          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">Option 2 — Whitelist IP</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Autorisez l'IP <code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">142.132.133.166</code></span>
+          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">${th('option2Label')}</span><br>
+          <span style="font-size:13px;color:${C.gray700};">${th('option2Desc', { code: inlineCode('142.132.133.166') })}</span>
         </td></tr>
       </table>
 
-      ${button(`${APP_URL}/bot`, 'Voir le guide complet →')}
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Besoin d'aide ? Répondez directement à cet email.</p>
-    `),
+      ${button(`${APP_URL}/bot`, th('cta'))}
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${th('footer')}</p>`
+}
+
+export function sitemapInvalidHostnameTemplate(data: SitemapInvalidHostnameData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const ts = (key: string, params?: Record<string, string | number>) => t(locale, `emails.sitemapInvalidHostname.${key}`, params)
+  const sample = data.foreignHostnames.slice(0, 3).map(h => `<code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">${h}</code>`).join(', ')
+  return {
+    subject: ts('subject', { siteName: data.siteName }),
+    html: layout(`
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${ts('title')}</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">${ts('intro', {
+        siteName: data.siteName,
+        count: data.foreignUrlCount,
+        siteUrl: `<code style="background:${C.gray100};padding:2px 6px;border-radius:4px;font-size:13px;">${data.siteUrl}</code>`,
+      })}</p>
+
+      <p style="margin:0 0 20px;color:${C.gray700};">${ts('foreignHosts', { hosts: sample })}</p>
+
+      ${infoBox(ts('consequence'), C.warning, C.warningBg)}
+
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${ts('footer')}</p>
+    `, locale),
   }
 }
 
-export function crawlerBlockedTemplate(data: CrawlerBlockedData): { subject: string; html: string } {
+export function sitemapBlockedTemplate(data: SitemapBlockedData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const ts = (key: string, params?: Record<string, string | number>) => t(locale, `emails.sitemapBlocked.${key}`, params)
+  return {
+    subject: ts('subject', { siteName: data.siteName }),
+    html: layout(`
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${ts('title')}</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">${ts('intro', {
+        siteName: data.siteName,
+        siteUrl: `<code style="background:${C.gray100};padding:2px 6px;border-radius:4px;font-size:13px;">${data.siteUrl}</code>`,
+      })}</p>
+
+      ${infoBox(ts('consequence'), C.warning, C.warningBg)}
+
+      ${whitelistHelpBlock(locale)}
+    `, locale),
+  }
+}
+
+export function crawlerBlockedTemplate(data: CrawlerBlockedData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const ts = (key: string, params?: Record<string, string | number>) => t(locale, `emails.crawlerBlocked.${key}`, params)
   const percent = Math.round((data.pagesBlocked / data.pagesTotal) * 100)
 
   return {
-    subject: `[ACTION REQUISE] ${percent}% des pages bloquées par WAF — ${data.siteName}`,
+    subject: ts('subject', { percent, siteName: data.siteName }),
     html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Crawler bloqué par pare-feu (WAF)</h2>
-      <p style="margin:0 0 20px;color:${C.gray700};"><strong>${data.pagesBlocked.toLocaleString('fr-FR')} pages</strong> sur <strong>${data.pagesTotal.toLocaleString('fr-FR')}</strong> (${percent}%) ont été bloquées sur <strong>${data.siteName}</strong>.</p>
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${ts('title')}</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">${ts('intro', {
+        blocked: data.pagesBlocked.toLocaleString(INTL_LOCALE[locale]),
+        total: data.pagesTotal.toLocaleString(INTL_LOCALE[locale]),
+        percent,
+        siteName: data.siteName,
+      })}</p>
 
-      ${infoBox(`<strong>Conséquence :</strong> ces pages ne génèrent <strong>aucune alerte SEO</strong> — une régression peut passer inaperçue.`, C.warning, C.warningBg)}
+      ${infoBox(ts('consequence'), C.warning, C.warningBg)}
 
-      <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:${C.gray900};">Comment résoudre</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;margin:0 0 24px;">
-        <tr><td style="padding:12px 16px;border-bottom:1px solid ${C.gray100};">
-          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">Option 1 — Whitelist User-Agent</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Autorisez les requêtes avec <code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">Seogard-Bot</code> dans le User-Agent</span>
-        </td></tr>
-        <tr><td style="padding:12px 16px;">
-          <span style="font-size:12px;color:${C.gray500};font-weight:600;text-transform:uppercase;">Option 2 — Whitelist IP</span><br>
-          <span style="font-size:13px;color:${C.gray700};">Autorisez l'IP <code style="background:${C.gray100};padding:2px 6px;border-radius:3px;">142.132.133.166</code></span>
-        </td></tr>
-      </table>
-
-      ${button(`${APP_URL}/bot`, 'Voir le guide complet →')}
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Besoin d'aide ? Répondez directement à cet email.</p>
-    `),
+      ${whitelistHelpBlock(locale)}
+    `, locale),
   }
 }
 
-export function resetPasswordTemplate(resetUrl: string): { subject: string; html: string } {
+export function resetPasswordTemplate(resetUrl: string, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const tr = (key: string) => t(locale, `emails.resetPassword.${key}`)
   return {
-    subject: 'Réinitialiser votre mot de passe Seogard',
+    subject: tr('subject'),
     html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Réinitialisation du mot de passe</h2>
-      <p style="margin:0 0 24px;color:${C.gray700};">Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
-      ${button(resetUrl, 'Réinitialiser mon mot de passe')}
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Ce lien expire dans <strong>1 heure</strong>. Si vous n'êtes pas à l'origine de cette demande, ignorez cet email — votre mot de passe reste inchangé.</p>
-    `),
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${tr('title')}</h2>
+      <p style="margin:0 0 24px;color:${C.gray700};">${tr('intro')}</p>
+      ${button(resetUrl, tr('cta'))}
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${tr('footer')}</p>
+    `, locale),
   }
 }
 
@@ -429,90 +459,95 @@ export interface SitemapEstimateData {
   sitemapUrl: string | null
 }
 
-export function sitemapEstimateTemplate(data: SitemapEstimateData): { subject: string; html: string } {
+export function sitemapEstimateTemplate(data: SitemapEstimateData, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const te = (key: string, params?: Record<string, string | number>) => t(locale, `emails.sitemapEstimate.${key}`, params)
   const zoningEstimate = Math.round(data.pageCount * 0.2)
-  const zoningPrice = (zoningEstimate * getCloudPricePerPage()).toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+  const zoningPrice = (zoningEstimate * getCloudPricePerPage()).toLocaleString(INTL_LOCALE[locale], { maximumFractionDigits: 0 })
   const isLargeSite = data.pageCount > 50_000
 
+  const contactLink = `<a href="mailto:support@seogard.io" style="color:${C.accent};font-weight:500;">${te('onPremiseContactLabel')}</a>`
+  const selfHostedLink = `<a href="https://github.com/seogard-software/seogard" style="color:${C.accent};font-weight:500;">${te('selfHostedLinkLabel')}</a>`
+
   return {
-    subject: `Votre estimation — ${data.pageCount.toLocaleString('fr-FR')} pages sur ${data.url}`,
+    subject: te('subject', { pageCount: data.pageCount.toLocaleString(INTL_LOCALE[locale]), url: data.url }),
     html: layout(`
-      <h2 style="margin:0 0 6px;font-size:19px;font-weight:700;color:${C.gray900};">Votre estimation est prête</h2>
-      <p style="margin:0 0 24px;color:${C.gray700};">Sitemap de <strong>${data.url}</strong> analysé.</p>
+      <h2 style="margin:0 0 6px;font-size:19px;font-weight:700;color:${C.gray900};">${te('title')}</h2>
+      <p style="margin:0 0 24px;color:${C.gray700};">${te('intro', { url: data.url })}</p>
 
       <!-- Stats -->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 6px;border:1px solid ${C.gray200};border-radius:8px;overflow:hidden;">
         <tr>
           <td style="padding:20px;text-align:center;border-right:1px solid ${C.gray200};width:50%;">
-            <span style="display:block;font-size:30px;font-weight:700;color:${C.gray900};line-height:1;">${data.pageCount.toLocaleString('fr-FR')}</span>
-            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">pages détectées</span>
+            <span style="display:block;font-size:30px;font-weight:700;color:${C.gray900};line-height:1;">${data.pageCount.toLocaleString(INTL_LOCALE[locale])}</span>
+            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">${te('statPages')}</span>
           </td>
           <td style="padding:20px;text-align:center;width:50%;">
             <span style="display:block;font-size:30px;font-weight:700;color:${C.gray900};line-height:1;">${data.price}</span>
-            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">si vous crawlez tout / mois (HT)</span>
+            <span style="font-size:13px;color:${C.gray500};margin-top:4px;display:block;">${te('statPrice')}</span>
           </td>
         </tr>
       </table>
 
       <!-- Zoning tip -->
       ${infoBox(
-        `<strong style="font-size:14px;color:${C.gray900};">La plupart de nos clients crawlent 10–20% de leurs pages.</strong><br>
-        <span style="color:${C.gray700};">Avec les <strong>zones</strong>, ciblez vos pages prioritaires — fiches produits, articles récents, catégories — et ignorez le reste.<br>
-        Exemple : ${zoningEstimate.toLocaleString('fr-FR')} pages → <strong>${zoningPrice} €/mois HT</strong> au lieu de ${data.price}.</span>`,
+        `<strong style="font-size:14px;color:${C.gray900};">${te('zoningTitle')}</strong><br>
+        <span style="color:${C.gray700};">${te('zoningBody')}<br>
+        ${te('zoningExample', { count: zoningEstimate.toLocaleString(INTL_LOCALE[locale]), zonedPrice: zoningPrice, fullPrice: data.price })}</span>`,
         C.gray700, C.gray50, C.gray200,
       )}
 
-      ${isLargeSite ? `<p style="margin:0 0 20px;font-size:13px;color:${C.gray700};">Pour les très grands sites, notre offre <strong>on-premise</strong> (hébergement chez vous, SLA, account manager) est aussi disponible. <a href="mailto:support@seogard.io" style="color:${C.accent};font-weight:500;">Contactez-nous</a> pour en discuter.</p>` : ''}
+      ${isLargeSite ? `<p style="margin:0 0 20px;font-size:13px;color:${C.gray700};">${te('onPremise', { contactLink })}</p>` : ''}
 
       ${divider()}
 
-      <p style="margin:0 0 6px;font-size:15px;font-weight:600;color:${C.gray900};">14 jours d'essai gratuit — sans carte bancaire</p>
-      <p style="margin:0 0 20px;font-size:14px;color:${C.gray700};">Détectez vos premières régressions SEO en moins de 10 minutes. Crawls illimités pendant l'essai.</p>
+      <p style="margin:0 0 6px;font-size:15px;font-weight:600;color:${C.gray900};">${te('trialTitle')}</p>
+      <p style="margin:0 0 20px;font-size:14px;color:${C.gray700};">${te('trialBody')}</p>
 
-      ${button(`${APP_URL}/register`, 'Commencer gratuitement →')}
+      ${button(`${APP_URL}/register`, te('cta'))}
 
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Préférez héberger vous-même ? <a href="https://github.com/seogard-software/seogard" style="color:${C.accent};font-weight:500;">Version self-hosted gratuite sur GitHub →</a></p>
-    `),
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${te('selfHosted', { link: selfHostedLink })}</p>
+    `, locale),
   }
 }
 
-export function paymentFailedTemplate(orgId: string): { subject: string; html: string } {
+export function paymentFailedTemplate(orgId: string, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const tp = (key: string, params?: Record<string, string | number>) => t(locale, `emails.paymentFailed.${key}`, params)
+  const supportLink = `<a href="mailto:support@seogard.io" style="color:${C.accent};">support@seogard.io</a>`
   return {
-    subject: '[ACTION REQUISE] Échec de paiement — vos crawls seront suspendus',
+    subject: tp('subject'),
     html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Échec de paiement</h2>
-      <p style="margin:0 0 20px;color:${C.gray700};">Votre dernier paiement a échoué. Sans action de votre part, <strong>vos crawls seront suspendus dans 7 jours</strong>.</p>
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${tp('title')}</h2>
+      <p style="margin:0 0 20px;color:${C.gray700};">${tp('intro')}</p>
 
-      ${infoBox(`<strong>Impact :</strong> sans crawl actif, les régressions SEO passent inaperçues — exactement ce que Seogard est censé éviter.`, C.danger, C.dangerBg)}
+      ${infoBox(tp('impact'), C.danger, C.dangerBg)}
 
-      ${button(`${APP_URL}/dashboard/organizations/${orgId}/billing`, 'Mettre à jour mon paiement →')}
+      ${button(`${APP_URL}/dashboard/organizations/${orgId}/billing`, tp('cta'))}
 
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Vous pensez qu'il s'agit d'une erreur ? Répondez directement à cet email ou écrivez à <a href="mailto:support@seogard.io" style="color:${C.accent};">support@seogard.io</a>.</p>
-    `),
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${tp('footer', { supportLink })}</p>
+    `, locale),
   }
 }
 
-export function inviteTemplate(orgName: string, role: string, inviteUrl: string): { subject: string; html: string } {
-  const roleLabel: Record<string, string> = {
-    owner: 'Propriétaire',
-    admin: 'Administrateur',
-    member: 'Membre',
-    viewer: 'Lecteur',
-  }
+export function inviteTemplate(orgName: string, role: string, inviteUrl: string, locale: Locale = DEFAULT_LOCALE): { subject: string; html: string } {
+  const ti = (key: string, params?: Record<string, string | number>) => t(locale, `emails.invite.${key}`, params)
+  // Le libellé du rôle vient des locales ; rôle inconnu → clé brute évitée, on retombe sur la valeur.
+  const roleKey = `emails.invite.roles.${role}`
+  const translatedRole = t(locale, roleKey)
+  const roleLabel = translatedRole === roleKey ? role : translatedRole
   return {
-    subject: `Invitation à rejoindre ${orgName} sur Seogard`,
+    subject: ti('subject', { orgName }),
     html: layout(`
-      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">Vous êtes invité</h2>
-      <p style="margin:0 0 8px;color:${C.gray700};">Vous avez été invité à rejoindre <strong>${orgName}</strong> sur Seogard.</p>
+      <h2 style="margin:0 0 12px;font-size:19px;font-weight:700;color:${C.gray900};">${ti('title')}</h2>
+      <p style="margin:0 0 8px;color:${C.gray700};">${ti('intro', { orgName })}</p>
 
       ${infoBox(`
-        <strong>Rôle :</strong> ${roleLabel[role] || role}<br>
-        <strong>Organisation :</strong> ${orgName}
+        <strong>${ti('roleLabel')}</strong> ${roleLabel}<br>
+        <strong>${ti('orgLabel')}</strong> ${orgName}
       `)}
 
-      ${button(inviteUrl, 'Accepter l\'invitation')}
+      ${button(inviteUrl, ti('cta'))}
 
-      <p style="margin:0;color:${C.gray500};font-size:13px;">Ce lien expire dans <strong>7 jours</strong>. Si vous n'avez pas demandé cette invitation, ignorez cet email.</p>
-    `),
+      <p style="margin:0;color:${C.gray500};font-size:13px;">${ti('footer')}</p>
+    `, locale),
   }
 }

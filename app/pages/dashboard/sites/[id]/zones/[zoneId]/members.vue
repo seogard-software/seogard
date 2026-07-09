@@ -2,15 +2,15 @@
   <div class="zone-members">
     <div v-if="!canManage" class="zone-members__denied" data-testid="zone-denied">
       <AppIcon name="shield-check" size="sm" />
-      <span>Vous n'avez pas la permission d'accéder à cette page.</span>
+      <span>{{ $t('dashboard.members.denied') }}</span>
     </div>
 
     <template v-else>
-      <DashboardHeader :title="`Membres — ${zoneName}`" subtitle="Gérez les rôles spécifiques à cette zone">
+      <DashboardHeader :title="$t('dashboard.members.title', { zone: zoneName })" :subtitle="$t('dashboard.members.subtitle')">
         <button class="zone-members__help-btn" @click="showPermissionsModal = true">
           <AppIcon name="help-circle" size="sm" />
         </button>
-        <AppButton size="sm" @click="showInviteModal = true">Inviter</AppButton>
+        <AppButton size="sm" @click="showInviteModal = true">{{ $t('dashboard.members.invite') }}</AppButton>
       </DashboardHeader>
 
       <AppCard :bordered="false" class="zone-members__card">
@@ -28,7 +28,7 @@
               <span class="zone-members__email">{{ member.user?.email ?? '' }}</span>
             </div>
             <span class="zone-members__org-role" :class="`zone-members__org-role--${member.orgRole}`">
-              {{ member.orgRole }}
+              {{ $t(`dashboard.roles.${member.orgRole}`) }}
             </span>
             <template v-if="member.orgRole !== 'owner'">
               <select
@@ -37,28 +37,28 @@
                 :disabled="cannotEditMember(member)"
                 @change="handleRoleChange(member._id, ($event.target as HTMLSelectElement).value)"
               >
-                <option value="admin">Admin</option>
-                <option value="member">Member</option>
-                <option value="viewer">Viewer</option>
+                <option value="admin">{{ $t('dashboard.roles.admin') }}</option>
+                <option value="member">{{ $t('dashboard.roles.member') }}</option>
+                <option value="viewer">{{ $t('dashboard.roles.viewer') }}</option>
               </select>
             </template>
-            <span v-else class="zone-members__owner-label">Accès total</span>
+            <span v-else class="zone-members__owner-label">{{ $t('dashboard.members.ownerAccess') }}</span>
           </div>
 
           <!-- Pending invites -->
           <div v-if="invites.length > 0" class="zone-members__section">
-            <span class="zone-members__section-title">Invitations en attente</span>
+            <span class="zone-members__section-title">{{ $t('dashboard.members.pendingInvites') }}</span>
             <div v-for="invite in invites" :key="invite._id" class="zone-members__item zone-members__item--pending">
               <div class="zone-members__avatar zone-members__avatar--pending">?</div>
               <div class="zone-members__info">
                 <span class="zone-members__email">{{ invite.email }}</span>
               </div>
-              <span class="zone-members__org-role">{{ invite.role }}</span>
+              <span class="zone-members__org-role">{{ $t(`dashboard.roles.${invite.role}`) }}</span>
             </div>
           </div>
 
           <div v-if="members.length === 0 && invites.length === 0" class="zone-members__empty">
-            Aucun membre trouvé.
+            {{ $t('dashboard.members.empty') }}
           </div>
         </template>
       </AppCard>
@@ -67,43 +67,43 @@
       <Teleport to="body">
         <div v-if="showInviteModal" class="zone-members__modal-overlay" @click.self="showInviteModal = false">
           <div class="zone-members__modal">
-            <h2 class="zone-members__modal-title">Ajouter un membre</h2>
-            <p class="zone-members__modal-desc">Zone « {{ zoneName }} »</p>
+            <h2 class="zone-members__modal-title">{{ $t('dashboard.members.modalTitle') }}</h2>
+            <p class="zone-members__modal-desc">{{ $t('dashboard.members.modalZone', { zone: zoneName }) }}</p>
 
             <!-- Existing org members -->
             <div v-if="available.length > 0" class="zone-members__modal-section">
-              <span class="zone-members__modal-section-title">Membres de l'organisation</span>
+              <span class="zone-members__modal-section-title">{{ $t('dashboard.members.orgMembers') }}</span>
               <div v-for="a in available" :key="a._id" class="zone-members__modal-available">
                 <div class="zone-members__avatar zone-members__avatar--sm">
                   {{ (a.user?.name || a.user?.email || '?').charAt(0).toUpperCase() }}
                 </div>
                 <span class="zone-members__modal-available-email">{{ a.user?.name || a.user?.email }}</span>
                 <select v-model="addRoles[a._id]" class="zone-members__role-select">
-                  <option value="admin">Admin</option>
-                  <option value="member">Member</option>
-                  <option value="viewer">Viewer</option>
+                  <option value="admin">{{ $t('dashboard.roles.admin') }}</option>
+                  <option value="member">{{ $t('dashboard.roles.member') }}</option>
+                  <option value="viewer">{{ $t('dashboard.roles.viewer') }}</option>
                 </select>
                 <AppButton size="sm" :loading="addingMemberId === a._id" @click="handleAddExisting(a._id, a.userId)">
-                  Ajouter
+                  {{ $t('dashboard.members.add') }}
                 </AppButton>
               </div>
             </div>
 
             <!-- Invite by email -->
             <div class="zone-members__modal-section">
-              <span class="zone-members__modal-section-title">Inviter par email</span>
+              <span class="zone-members__modal-section-title">{{ $t('dashboard.members.inviteByEmail') }}</span>
               <form @submit.prevent="handleInvite">
-                <AppInput v-model="inviteEmail" label="" type="email" placeholder="collegue@email.com" />
+                <AppInput v-model="inviteEmail" label="" type="email" :placeholder="$t('dashboard.members.emailPlaceholder')" />
                 <div class="zone-members__modal-field">
-                  <label class="zone-members__modal-label">Rôle</label>
+                  <label class="zone-members__modal-label">{{ $t('dashboard.members.roleLabel') }}</label>
                   <select v-model="inviteRole" class="zone-members__role-select zone-members__role-select--full">
-                    <option value="admin">Admin</option>
-                    <option value="member">Member</option>
-                    <option value="viewer">Viewer</option>
+                    <option value="admin">{{ $t('dashboard.roles.admin') }}</option>
+                    <option value="member">{{ $t('dashboard.roles.member') }}</option>
+                    <option value="viewer">{{ $t('dashboard.roles.viewer') }}</option>
                   </select>
                 </div>
                 <AppAlert v-if="inviteError" variant="danger">{{ inviteError }}</AppAlert>
-                <AppButton type="submit" :loading="inviteLoading" size="md">Envoyer l'invitation</AppButton>
+                <AppButton type="submit" :loading="inviteLoading" size="md">{{ $t('dashboard.members.sendInvite') }}</AppButton>
               </form>
             </div>
           </div>
@@ -116,10 +116,13 @@
 </template>
 
 <script setup lang="ts">
+defineI18nRoute(false)
 definePageMeta({ layout: 'default' })
 useSeoMeta({ robots: 'noindex, nofollow' })
 
 const route = useRoute()
+const { t, locale } = useI18n()
+const apiError = useApiError()
 const siteId = computed(() => route.params.id as string)
 const zoneId = computed(() => route.params.zoneId as string)
 const toast = useToast()
@@ -132,9 +135,9 @@ const isOrgOwner = computed(() => orgStore.activeOrgRole === 'owner')
 const canManage = computed(() => hasMinZoneRole(zoneId.value, 'admin'))
 const zone = computed(() => zones.value.find(z => z._id === zoneId.value) ?? null)
 const isDefaultZone = computed(() => zone.value?.isDefault ?? false)
-const zoneName = computed(() => isDefaultZone.value ? 'Toutes les pages' : (zone.value?.name ?? 'Zone'))
+const zoneName = computed(() => isDefaultZone.value ? t('dashboard.members.defaultZoneName') : (zone.value?.name ?? t('dashboard.members.zoneFallback')))
 
-useHead({ title: computed(() => `Membres — ${zoneName.value}`) })
+useHead({ title: computed(() => t('dashboard.members.tabTitle', { zone: zoneName.value })) })
 
 interface ZoneMember {
   _id: string
@@ -225,9 +228,9 @@ async function handleRoleChange(memberId: string, role: string) {
     })
     const member = members.value.find(m => m._id === memberId)
     if (member) member.zoneRole = role
-    toast.success('Rôle mis à jour')
+    toast.success(t('dashboard.members.roleUpdated'))
   } catch {
-    toast.error('Erreur lors de la mise à jour du rôle')
+    toast.error(t('dashboard.members.roleUpdateError'))
   }
 }
 
@@ -239,10 +242,10 @@ async function handleAddExisting(memberId: string, _userId: string) {
       method: 'PUT',
       body: { memberId, role },
     })
-    toast.success('Membre ajouté à la zone')
+    toast.success(t('dashboard.members.memberAdded'))
     await fetchMembers()
   } catch {
-    toast.error('Erreur lors de l\'ajout')
+    toast.error(t('dashboard.members.addError'))
   } finally {
     addingMemberId.value = null
   }
@@ -255,16 +258,16 @@ async function handleInvite() {
   try {
     const result = await $fetch(`/api/sites/${siteId.value}/zones/${zoneId.value}/members/invite`, {
       method: 'POST',
-      body: { email: inviteEmail.value, role: inviteRole.value },
+      body: { email: inviteEmail.value, role: inviteRole.value, locale: locale.value },
     }) as any
     showInviteModal.value = false
     inviteEmail.value = ''
     inviteRole.value = 'member'
-    toast.success(result.directAdd ? 'Membre ajouté à la zone' : 'Invitation envoyée')
+    toast.success(result.directAdd ? t('dashboard.members.memberAdded') : t('dashboard.members.inviteSent'))
     await fetchMembers()
   } catch (error: unknown) {
     const fetchError = error as { data?: { message?: string } }
-    inviteError.value = fetchError?.data?.message || 'Erreur lors de l\'envoi'
+    inviteError.value = apiError(fetchError, t('dashboard.members.inviteError'))
   } finally {
     inviteLoading.value = false
   }

@@ -1,0 +1,47 @@
+{
+  "common": {
+    "scanBar": {
+      "placeholder": "Enter your website",
+      "placeholderCompact": "yoursite.com",
+      "ariaLabel": "Your website address",
+      "badge": "Free",
+      "submit": "Scan",
+      "consent": "By clicking Scan, I certify that I own this site or have permission to crawl it.",
+      "errorInvalid": "Enter a valid address (e.g. yoursite.com)",
+      "errorGeneric": "Something went wrong. Try again."
+    },
+    "aria": {
+      "close": "Close",
+      "githubSource": "Seogard source code on GitHub"
+    },
+    "nav": {
+      "formations": "Courses",
+      "tools": "Tools",
+      "toolMonitoring": "Monitoring",
+      "toolMonitoringDesc": "Continuous monitoring, alerts before Google",
+      "toolAudit": "Audit",
+      "toolAuditDesc": "Scan + full SEO/GEO report",
+      "dashboard": "Dashboard",
+      "login": "Log in",
+      "tryFree": "Try for free",
+      "bookDemo": "Book a demo"
+    },
+    "cookieBanner": {
+      "text": "This site only uses cookies essential to its operation (authentication). No advertising cookies or third-party trackers.",
+      "learnMore": "Learn more",
+      "accept": "Got it"
+    },
+    "errorPage": {
+      "title404": "Page not found",
+      "text404": "This page does not exist or has been moved.",
+      "title500": "Server error",
+      "text500": "Something went wrong on our end. Try again in a moment.",
+      "backHome": "Back to home"
+    },
+    "severity": {
+      "critical": "Critical",
+      "warning": "Warning",
+      "info": "Info"
+    }
+  }
+}

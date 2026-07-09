@@ -4,10 +4,10 @@ import {
   dailyDigestTemplate,
   resetPasswordTemplate,
   paymentFailedTemplate,
-  sitemapEstimateTemplate,
   inviteTemplate,
 } from './email-templates'
-import type { DailyDigestData, SitemapEstimateData } from './email-templates'
+import type { DailyDigestData } from './email-templates'
+import { toLocale } from '../../shared/utils/i18n'
 
 const log = createLogger('web', 'email')
 
@@ -126,35 +126,32 @@ async function sendEmail(params: SendEmailParams): Promise<void> {
 }
 
 // --- Convenience functions ---
+// `locale` = langue du destinataire (User.locale), coercée en Locale (fallback FR pour un
+// compte antérieur au champ). Les templates rendent sujet + corps dans cette langue.
 
-export async function sendWelcomeEmail(to: string, userId: string): Promise<void> {
-  const { subject, html } = welcomeTemplate()
+export async function sendWelcomeEmail(to: string, userId: string, locale?: string): Promise<void> {
+  const { subject, html } = welcomeTemplate(toLocale(locale))
   await sendEmail({ to, subject, html, type: 'welcome', userId })
 }
 
-export async function sendDailyDigestEmail(to: string, userId: string, siteId: string, data: DailyDigestData): Promise<void> {
-  const { subject, html } = dailyDigestTemplate(data)
+export async function sendDailyDigestEmail(to: string, userId: string, siteId: string, data: DailyDigestData, locale?: string): Promise<void> {
+  const { subject, html } = dailyDigestTemplate(data, toLocale(locale))
   await sendEmail({ to, subject, html, type: 'daily_digest', userId, siteId })
 }
 
-export async function sendResetPasswordEmail(to: string, resetUrl: string): Promise<void> {
-  const { subject, html } = resetPasswordTemplate(resetUrl)
+export async function sendResetPasswordEmail(to: string, resetUrl: string, locale?: string): Promise<void> {
+  const { subject, html } = resetPasswordTemplate(resetUrl, toLocale(locale))
   await sendEmail({ to, subject, html, type: 'reset_password' })
 }
 
-export async function sendPaymentFailedEmail(to: string, userId: string, orgId: string): Promise<void> {
-  const { subject, html } = paymentFailedTemplate(orgId)
+export async function sendPaymentFailedEmail(to: string, userId: string, orgId: string, locale?: string): Promise<void> {
+  const { subject, html } = paymentFailedTemplate(orgId, toLocale(locale))
   await sendEmail({ to, subject, html, type: 'payment_failed', userId })
 }
 
-export async function sendSitemapEstimateEmail(to: string, data: SitemapEstimateData): Promise<void> {
-  const { subject, html } = sitemapEstimateTemplate(data)
-  await sendEmail({ to, subject, html, type: 'sitemap_estimate' })
-}
-
-export async function sendInviteEmail(to: string, orgName: string, role: string, token: string): Promise<void> {
+export async function sendInviteEmail(to: string, orgName: string, role: string, token: string, locale?: string): Promise<void> {
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const inviteUrl = `${appUrl}/invite/${token}`
-  const { subject, html } = inviteTemplate(orgName, role, inviteUrl)
+  const { subject, html } = inviteTemplate(orgName, role, inviteUrl, toLocale(locale))
   await sendEmail({ to, subject, html, type: 'org_invite' })
 }

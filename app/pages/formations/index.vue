@@ -146,7 +146,7 @@ useSeoMeta({
   ogTitle: 'Formations SEO technique & GEO — rendez votre site visible par Google et par l\'IA',
   ogDescription: 'Formations gratuites SEO/GEO : ce que Google et l\'IA voient de votre site, et comment corriger les régressions avant qu\'elles coûtent du trafic.',
   ogType: 'website',
-  ogUrl: 'https://seogard.io/formations',
+  ogUrl: 'https://seogard.io/fr/formations',
   ogImage: 'https://seogard.io/og-image.png',
   twitterCard: 'summary_large_image',
   twitterImage: 'https://seogard.io/og-image.png',
@@ -156,7 +156,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: [{ rel: 'canonical', href: 'https://seogard.io/formations' }],
+  // Canonical + hreflang posés par useCanonicalHead() (layout landing) — jamais en dur ici.
   script: [{
     type: 'application/ld+json',
     innerHTML: JSON.stringify({
