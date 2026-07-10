@@ -9,11 +9,11 @@
     <ScanBar size="inline" />
     <ul class="rule-scan-cta__trust">
       <li class="rule-scan-cta__trust-item">
-        <AppIcon name="check" size="sm" />
+        <AppIcon name="check" size="sm" aria-hidden="true" />
         {{ $t('docs.fiche.scanTrustNoCard') }}
       </li>
       <li class="rule-scan-cta__trust-item">
-        <AppIcon name="check" size="sm" />
+        <AppIcon name="check" size="sm" aria-hidden="true" />
         {{ $t('docs.fiche.scanTrustFast') }}
       </li>
     </ul>
