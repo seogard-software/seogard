@@ -134,7 +134,7 @@ export function getTwinRuleId(id: string): string | null {
 
 // Date de dernière révision éditoriale des fiches (affichée + dateModified JSON-LD). À bumper
 // quand le contenu d'une vague est mis à jour. Une seule source pour rester honnête et simple.
-export const FICHE_UPDATED_AT = '2026-07-09'
+export const FICHE_UPDATED_AT = '2026-07-10'
 
 // ── « Ce que ce scan vérifie » — cible du CTA par FAMILLE (reco @seo-strategist 2026-07) ──
 // 6 familles réutilisées (pas 71 libellés). Le différenciateur SSR/CSR (« HTML brut vs rendu JS »)

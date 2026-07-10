@@ -3,13 +3,12 @@
 // Google et les LLM ne citent que ce qui a une identité crédible : le nœud Person doit être
 // AUTO-SUFFISANT (@type + name + url + @id) sur CHAQUE page — jamais un simple renvoi @id cross-page.
 
-// ⚠️ À COMPLÉTER par Aadil : URLs réelles (profil vérifiable = signal E-E-A-T). Laisser vide tant
-// qu'on n'a pas l'URL exacte plutôt que de mettre une URL fausse (une entité non résolue nuit).
+// Profils publics vérifiables (sameAs du Person) = signal E-E-A-T lu par Google et les IA.
 export const AUTHOR_SAME_AS: string[] = [
-  // 'https://www.linkedin.com/in/…',
-  // 'https://github.com/…',
-  // 'https://x.com/…',
-].filter(Boolean)
+  'https://www.linkedin.com/in/aadil-ttalbi-802a19105/',
+  'https://github.com/Thalad',
+  'https://x.com/seogard_io',
+]
 
 // Identité stable (le wording localisé — rôle, bio — vit dans i18n, pas ici).
 export const AUTHOR = {

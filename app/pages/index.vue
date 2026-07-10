@@ -354,7 +354,7 @@ useHead({
             'legalName': 'SAVEPNP',
             'url': abs('index'),
             'logo': ogImage.value,
-            'sameAs': ['https://github.com/seogard-software/seogard'],
+            'sameAs': ['https://github.com/seogard-software/seogard', 'https://x.com/seogard_io'],
             'address': {
               '@type': 'PostalAddress',
               'streetAddress': '25 rue Camille Blanc',
