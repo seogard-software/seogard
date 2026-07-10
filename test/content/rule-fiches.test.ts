@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import frRules from '../../i18n/locales/fr/rules.json' with { type: 'json' }
 import enRules from '../../i18n/locales/en/rules.json' with { type: 'json' }
-import { RAW_RULES, PUBLISHED_RULE_IDS, getPublishedRuleIds, isRulePublished } from '../../shared/utils/rules-list'
+import { RAW_RULES, PUBLISHED_RULE_IDS, getPublishedRuleIds, isRulePublished, isRuleCtaTargetMapped } from '../../shared/utils/rules-list'
 import { getRuleKnowledge } from '../../shared/utils/rule-knowledge'
 
 // CONTRAT D'ARCHI des fiches /docs/rules/[slug] (Step 1 de feat-fiches-regles-ssr).
@@ -45,6 +45,13 @@ describe('fiches de règles — slugs', () => {
       const bad = Object.entries(slugs).filter(([, s]) => !SLUG_RE.test(s)).map(([id, s]) => `${id}:${s}`)
       expect(bad, `slugs mal formés en ${locale}`).toEqual([])
     }
+  })
+})
+
+describe('fiches de règles — cible du CTA « Ce scan vérifie » (par famille)', () => {
+  it('chaque règle est mappée à une famille de cible (sinon fallback silencieux hors sujet)', () => {
+    const unmapped = RULE_IDS.filter(id => !isRuleCtaTargetMapped(id))
+    expect(unmapped, 'règles sans famille de cible dans CTA_TARGET_BY_RULE').toEqual([])
   })
 })
 

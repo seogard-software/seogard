@@ -105,7 +105,15 @@
       "exampleAfter": "After",
       "fixHeading": "How to fix it",
       "scanQuestion": "Is this issue on your site?",
-      "scanDiff": "Seogard compares raw HTML and the JavaScript render",
+      "scanTargetLabel": "This scan checks",
+      "scanTarget": {
+        "indexing": "the HTTP status, noindex and canonical of every page",
+        "meta": "the meta tags: title, description and Open Graph",
+        "content": "the content structure: H1, headings and text volume",
+        "ssr": "what is missing from the raw HTML but appears in the JavaScript render",
+        "geo": "the signals AI reads: structured data, llms.txt, author",
+        "tech": "technical compliance: viewport, charset, HTTPS, hreflang"
+      },
       "scanTrustNoCard": "No credit card",
       "scanTrustFast": "Result in ~30 s",
       "scanFallback": "Enter a URL: Seogard compares the raw HTML and the JavaScript-rendered page and tells you within 30 seconds whether the issue is present. Free, no credit card.",

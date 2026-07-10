@@ -135,3 +135,51 @@ export function getTwinRuleId(id: string): string | null {
 // Date de dernière révision éditoriale des fiches (affichée + dateModified JSON-LD). À bumper
 // quand le contenu d'une vague est mis à jour. Une seule source pour rester honnête et simple.
 export const FICHE_UPDATED_AT = '2026-07-09'
+
+// ── « Ce que ce scan vérifie » — cible du CTA par FAMILLE (reco @seo-strategist 2026-07) ──
+// 6 familles réutilisées (pas 71 libellés). Le différenciateur SSR/CSR (« HTML brut vs rendu JS »)
+// vit UNIQUEMENT dans la famille `ssr` — ailleurs il serait hors sujet (ex : status_code_changed).
+// Le wording des 6 familles est dans i18n `docs.fiche.scanTarget.<famille>`.
+export type CtaTarget = 'indexing' | 'meta' | 'content' | 'ssr' | 'geo' | 'tech'
+
+const CTA_TARGET_BY_RULE: Record<string, CtaTarget> = {
+  // 1 — Indexabilité / statut
+  noindex_added: 'indexing', status_code_changed: 'indexing', canonical_missing: 'indexing',
+  canonical_changed: 'indexing', soft_404: 'indexing', redirect_to_homepage: 'indexing',
+  page_redirected: 'indexing', js_redirect_detected: 'indexing', redirect_broken: 'indexing',
+  rec_redirect_temporary: 'indexing', rec_unclean_removal: 'indexing', rec_sitemap_noindex_conflict: 'indexing',
+  meta_refresh_detected: 'indexing', robots_txt_changed: 'indexing', robots_blocks_googlebot: 'indexing',
+  // 2 — Balises meta / SERP
+  meta_title_missing: 'meta', meta_description_missing: 'meta', og_image_removed: 'meta',
+  og_title_removed: 'meta', meta_title_changed: 'meta', meta_description_changed: 'meta',
+  rec_title_length_audit: 'meta', rec_description_length_audit: 'meta', rec_og_missing_audit: 'meta',
+  // 3 — Structure de contenu
+  h1_missing: 'content', h1_multiple: 'content', h1_changed: 'content', thin_content: 'content',
+  content_removed: 'content', heading_hierarchy_broken: 'content', word_count_changed: 'content',
+  rec_img_alt_audit: 'content', rec_h1_missing_audit: 'content', rec_favicon_missing_audit: 'content',
+  rec_semantic_structure_audit: 'content', rec_internal_links_audit: 'content',
+  // 4 — HTML brut vs rendu JS (LE différenciateur — gardé ici seulement)
+  ssr_rendering_failed: 'ssr', ssr_content_mismatch: 'ssr', ssr_title_mismatch: 'ssr',
+  ssr_meta_description_mismatch: 'ssr', ssr_blocked: 'ssr', rec_h1_missing_in_ssr: 'ssr',
+  rec_content_missing_in_ssr: 'ssr', rec_title_missing_in_ssr: 'ssr', rec_description_missing_in_ssr: 'ssr',
+  rec_internal_links_missing_in_ssr: 'ssr', rec_structured_data_missing_in_ssr: 'ssr',
+  rec_img_alt_missing_in_ssr: 'ssr', rec_semantic_structure_missing_in_ssr: 'ssr',
+  // 5 — Signaux de citation IA (GEO)
+  structured_data_removed: 'geo', structured_data_error: 'geo', llms_txt_removed: 'geo',
+  ai_crawlers_blocked_changed: 'geo', faq_schema_removed: 'geo', structured_data_author_removed: 'geo',
+  rec_structured_data_missing_audit: 'geo', rec_llms_txt_missing: 'geo', rec_ai_crawlers_blocked: 'geo',
+  rec_structured_data_incomplete: 'geo', rec_faq_schema_missing: 'geo', rec_citation_signals_missing: 'geo',
+  rec_content_structure_audit: 'geo',
+  // 6 — Conformité technique
+  viewport_missing: 'tech', hreflang_removed: 'tech', hreflang_changed: 'tech', https_mixed_content: 'tech',
+  lang_attribute_missing: 'tech', lang_attribute_changed: 'tech', charset_missing: 'tech',
+  perf_page_weight_explosion: 'tech', rec_perf_page_heavy: 'tech',
+}
+
+export function getRuleCtaTarget(id: string): CtaTarget {
+  return CTA_TARGET_BY_RULE[id] ?? 'tech'
+}
+
+export function isRuleCtaTargetMapped(id: string): boolean {
+  return id in CTA_TARGET_BY_RULE
+}

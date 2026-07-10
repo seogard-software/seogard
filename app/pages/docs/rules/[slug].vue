@@ -1,5 +1,5 @@
 <template>
-  <article class="fiche">
+  <article class="fiche" :data-rule-id="rule.id">
     <!-- 1. Fil d'Ariane -->
     <nav class="fiche__crumb" :aria-label="$t('docs.fiche.crumbAria')">
       <NuxtLink :to="localePath({ name: 'docs-rules' })">{{ $t('docs.fiche.crumbRules') }}</NuxtLink>
@@ -20,7 +20,6 @@
     <div class="fiche__badges">
       <AppBadge :variant="severityVariant">{{ severityLabel }}</AppBadge>
       <AppBadge variant="neutral">{{ priorityLabel }}</AppBadge>
-      <AppBadge variant="neutral" class="fiche__badge-id">{{ rule.id }}</AppBadge>
     </div>
 
     <!-- 5. De quoi s'agit-il ? (constat) -->
@@ -60,7 +59,7 @@
     <p v-else class="fiche__p">{{ knowledge.action }}</p>
 
     <!-- 10. Conversion ① — CTA inline (point le plus fort) -->
-    <RuleScanCta :hook="knowledge.scanHook ?? $t('docs.fiche.scanFallback')" />
+    <RuleScanCta :hook="knowledge.scanHook ?? $t('docs.fiche.scanFallback')" :target="ctaTarget" />
 
     <!-- 11. Ce que vous récupérez (gain) -->
     <h2 class="fiche__h2">{{ $t('docs.fiche.gainHeading') }}</h2>
@@ -120,7 +119,7 @@
 
 <script setup lang="ts">
 import { getRuleKnowledge, getRuleSlug, getRuleIdBySlug } from '~~/shared/utils/rule-knowledge'
-import { isRulePublished, getTwinRuleId, FICHE_UPDATED_AT } from '~~/shared/utils/rules-list'
+import { isRulePublished, getTwinRuleId, getRuleCtaTarget, FICHE_UPDATED_AT } from '~~/shared/utils/rules-list'
 import { getRulesCatalog, getPriorityMeta } from '~~/shared/utils/rules-catalog'
 import { buildPersonNode } from '~~/shared/utils/author'
 import { INTL_LOCALE } from '~~/shared/utils/format'
@@ -167,6 +166,9 @@ const severityKey = computed<SeverityKey>(() => {
 const severityVariant = computed(() => SEVERITY_VARIANT[severityKey.value])
 const severityLabel = computed(() => t(`docs.fiche.severity.${severityKey.value}`))
 const priorityLabel = computed(() => getPriorityMeta(loc.value)[rule.value.priority]?.label ?? rule.value.priority)
+
+// « Ce scan vérifie … » — cible par famille de règle (jamais le différenciateur SSR/CSR hors sujet).
+const ctaTarget = computed(() => t(`docs.fiche.scanTarget.${getRuleCtaTarget(ruleId.value!)}`))
 
 // ── Règles sœurs (même priorité, publiées, hors self et jumelle) ──
 const twinId = computed(() => getTwinRuleId(ruleId.value!))
@@ -230,6 +232,7 @@ useHead(() => ({
           '@type': 'TechArticle',
           'headline': h1.value,
           'description': metaDescription.value,
+          'identifier': rule.value.id,
           'inLanguage': loc.value,
           'datePublished': FICHE_UPDATED_AT,
           'dateModified': FICHE_UPDATED_AT,
@@ -304,7 +307,6 @@ useSeoMeta({
   }
 
   &__badges { display: flex; flex-wrap: wrap; gap: $spacing-2; margin-bottom: $spacing-8; }
-  &__badge-id { font-family: $font-family-mono; text-transform: none; }
 
   &__h2 {
     font-size: $font-size-xl;

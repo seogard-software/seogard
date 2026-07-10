@@ -1,9 +1,9 @@
 <template>
   <section class="rule-scan-cta">
-    <span class="rule-scan-cta__diff">
-      <AppIcon name="code" size="sm" />
-      {{ $t('docs.fiche.scanDiff') }}
-    </span>
+    <p class="rule-scan-cta__target">
+      <AppIcon name="search" size="sm" aria-hidden="true" />
+      <span><strong>{{ $t('docs.fiche.scanTargetLabel') }}</strong> {{ target }}</span>
+    </p>
     <p class="rule-scan-cta__q">{{ $t('docs.fiche.scanQuestion') }}</p>
     <p class="rule-scan-cta__d">{{ hook }}</p>
     <ScanBar size="inline" />
@@ -22,9 +22,9 @@
 
 <script setup lang="ts">
 // Point de conversion inline d'une fiche (① après « Comment corriger »). Message variabilisé par
-// règle (`scanHook`) ; le scan réel passe par ScanBar (même parcours que la home : modale
-// d'inscription → auto-création site + auto-crawl). La carte n'est que l'habillage.
-defineProps<{ hook: string }>()
+// règle (`scanHook`) ; `target` = « ce que ce scan vérifie » (famille de la règle, cf. getRuleCtaTarget).
+// Le scan réel passe par ScanBar (même parcours que la home : modale → auto-création site + auto-crawl).
+defineProps<{ hook: string, target: string }>()
 </script>
 
 <style scoped lang="scss">
@@ -38,18 +38,17 @@ defineProps<{ hook: string }>()
   background: linear-gradient(180deg, $color-info-bg, $color-white);
   box-shadow: 0 6px 20px rgba($color-info, 0.08);
 
-  &__diff {
-    display: inline-flex;
-    align-items: center;
+  &__target {
+    display: flex;
+    align-items: flex-start;
     gap: $spacing-2;
-    margin-bottom: $spacing-3;
-    padding: $spacing-1 $spacing-3;
+    margin: 0 0 $spacing-3;
     font-size: $font-size-xs;
-    font-weight: $font-weight-semibold;
-    color: $color-info;
-    background: $color-white;
-    border: 1px solid rgba($color-info, 0.2);
-    border-radius: $radius-full;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+
+    strong { color: $color-info; font-weight: $font-weight-semibold; }
+    :deep(.app-icon) { flex: none; margin-top: 1px; color: $color-info; }
   }
 
   &__q {

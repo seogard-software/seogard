@@ -105,7 +105,15 @@
       "exampleAfter": "Après",
       "fixHeading": "Comment corriger",
       "scanQuestion": "Ce défaut est-il sur votre site ?",
-      "scanDiff": "Seogard compare le HTML brut et le rendu JavaScript",
+      "scanTargetLabel": "Ce scan vérifie",
+      "scanTarget": {
+        "indexing": "le statut HTTP, le noindex et le canonical de chaque page",
+        "meta": "les balises meta : title, description et Open Graph",
+        "content": "la structure de contenu : H1, titres et volume de texte",
+        "ssr": "ce qui manque dans le HTML brut mais apparaît au rendu JavaScript",
+        "geo": "les signaux lus par les IA : données structurées, llms.txt, auteur",
+        "tech": "la conformité technique : viewport, charset, HTTPS, hreflang"
+      },
       "scanTrustNoCard": "Sans carte bancaire",
       "scanTrustFast": "Résultat en ~30 s",
       "scanFallback": "Entrez une URL : Seogard compare le HTML brut et le rendu JavaScript et vous dit en 30 s si le défaut est présent. Gratuit, sans carte bancaire.",
