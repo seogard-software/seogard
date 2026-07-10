@@ -1,0 +1,26 @@
+{
+  "about": {
+    "eyebrow": "About",
+    "title": "The author behind Seogard",
+    "role": "Vue.js Lead Dev · founder of Seogard",
+    "intro": "I build Vue.js interfaces full-time, and I build Seogard on the side — a guardian that catches SEO and GEO regressions before Google does. Not an SEO consultant, not a marketer: a developer who watched too many sites quietly break their own rankings on every deploy.",
+    "whyHeading": "Why I built Seogard",
+    "why1": "One Friday evening, a team ships a redesign. In the browser, everything works. But on the server, SSR broke on hundreds of pages — the metas were gone. Google indexes empty pages, and nobody notices. Three weeks later, organic traffic has dropped.",
+    "why2": "No tool on the market watches this continuously, because none compares the raw HTML Google indexes with the JavaScript render you see. I built the one that does.",
+    "masteryHeading": "What I know",
+    "factTerrainKey": "Ground",
+    "factTerrainValue": "Vue 3 · Nuxt · SSR/CSR",
+    "factFocusKey": "Focus",
+    "factFocusValue": "Technical SEO & GEO",
+    "factCrawlerKey": "Crawler",
+    "factCrawlerValue": "Distributed Playwright workers",
+    "factApproachKey": "Approach",
+    "factApproachValue": "Build in public",
+    "rules": "The rule guides on this site, I write one by one: each describes a real regression, how it plays out for Google and for language models, and how to fix it. No ranking promises, no made-up percentages — just the mechanics, honestly.",
+    "linksHeading": "Where to follow me",
+    "ctaTitle": "Check your site in 30 seconds",
+    "ctaText": "Seogard compares the raw HTML and the JavaScript render of your pages and tells you what Google actually sees. Free, no account.",
+    "seoTitle": "About — the author behind Seogard",
+    "seoDescription": "Aadil Talbi, Vue.js Lead Dev and founder of Seogard. Why and how I monitor SEO and GEO regressions by comparing raw HTML with the JavaScript render."
+  }
+}

@@ -12,6 +12,7 @@ const PAGE_FILES: Record<string, string> = {
   'outils-monitoring': 'app/pages/outils/monitoring.vue',
   'outils-audit': 'app/pages/outils/audit.vue',
   'tarifs': 'app/pages/tarifs.vue',
+  'a-propos': 'app/pages/a-propos.vue',
 }
 
 describe('slugs traduits par locale — synchro LOCALIZED_PATHS ↔ defineI18nRoute', () => {

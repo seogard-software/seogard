@@ -91,8 +91,42 @@
       "thLabel": "Label",
       "thSeverity": "Severity",
       "thDetails": "Details",
-      "detailBtn": "Learn more",
-      "loading": "Loading..."
+      "readFiche": "Read the guide"
+    },
+    "fiche": {
+      "crumbAria": "Breadcrumb",
+      "crumbHome": "Home",
+      "crumbRules": "SEO rules",
+      "inBrief": "In brief",
+      "definitionHeading": "What is it?",
+      "whyHeading": "Why it hurts SEO and AI",
+      "notProblemHeading": "When it is NOT a problem",
+      "exampleBefore": "Before",
+      "exampleAfter": "After",
+      "fixHeading": "How to fix it",
+      "scanQuestion": "Is this issue on your site?",
+      "scanDiff": "Seogard compares raw HTML and the JavaScript render",
+      "scanTrustNoCard": "No credit card",
+      "scanTrustFast": "Result in ~30 s",
+      "scanFallback": "Enter a URL: Seogard compares the raw HTML and the JavaScript-rendered page and tells you within 30 seconds whether the issue is present. Free, no credit card.",
+      "gainHeading": "What you get back",
+      "signalLabel": "How Seogard detects it:",
+      "signalText": "Seogard continuously compares the raw HTML (what Google indexes) and the JavaScript-rendered page (what you see) on every page, and alerts you the moment this issue appears.",
+      "faqHeading": "Frequently asked questions",
+      "sistersHeading": "Related rules",
+      "twinIntro": "Related case:",
+      "updatedOn": "Updated {date}",
+      "notFound": "Rule not found",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      },
+      "stickyText": "What about your site? Check this issue in 30 seconds — free, no credit card."
+    },
+    "author": {
+      "role": "Vue.js Lead Dev · founder of Seogard",
+      "about": "About"
     },
     "layout": {
       "menuAria": "Menu",

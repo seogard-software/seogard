@@ -91,8 +91,42 @@
       "thLabel": "Label",
       "thSeverity": "Severity",
       "thDetails": "Détails",
-      "detailBtn": "En savoir plus",
-      "loading": "Chargement..."
+      "readFiche": "Lire la fiche"
+    },
+    "fiche": {
+      "crumbAria": "Fil d'Ariane",
+      "crumbHome": "Accueil",
+      "crumbRules": "Règles SEO",
+      "inBrief": "En bref",
+      "definitionHeading": "De quoi s'agit-il ?",
+      "whyHeading": "Pourquoi c'est un problème pour le SEO et les IA",
+      "notProblemHeading": "Quand ce n'est PAS un problème",
+      "exampleBefore": "Avant",
+      "exampleAfter": "Après",
+      "fixHeading": "Comment corriger",
+      "scanQuestion": "Ce défaut est-il sur votre site ?",
+      "scanDiff": "Seogard compare le HTML brut et le rendu JavaScript",
+      "scanTrustNoCard": "Sans carte bancaire",
+      "scanTrustFast": "Résultat en ~30 s",
+      "scanFallback": "Entrez une URL : Seogard compare le HTML brut et le rendu JavaScript et vous dit en 30 s si le défaut est présent. Gratuit, sans carte bancaire.",
+      "gainHeading": "Ce que vous récupérez",
+      "signalLabel": "Comment Seogard le détecte :",
+      "signalText": "Seogard compare en continu le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez) sur chaque page, et vous alerte dès que ce défaut apparaît.",
+      "faqHeading": "Questions fréquentes",
+      "sistersHeading": "Règles sœurs",
+      "twinIntro": "Cas connexe :",
+      "updatedOn": "Mis à jour le {date}",
+      "notFound": "Règle introuvable",
+      "severity": {
+        "critical": "Critique",
+        "warning": "Avertissement",
+        "info": "Info"
+      },
+      "stickyText": "Et votre site ? Vérifiez ce défaut en 30 s — gratuit, sans carte bancaire."
+    },
+    "author": {
+      "role": "Lead Dev Vue.js · fondateur de Seogard",
+      "about": "À propos"
     },
     "layout": {
       "menuAria": "Menu",

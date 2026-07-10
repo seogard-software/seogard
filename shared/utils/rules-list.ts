@@ -87,3 +87,51 @@ export const RAW_RULES = [
 // SOURCE UNIQUE du nombre de règles affiché sur le site (home, scanner, outils, llms.txt…).
 // JAMAIS de littéral en dur dans les pages : le test rules-count.test.ts casse le build sinon.
 export const RULES_COUNT = RAW_RULES.length
+
+// ── Publication des fiches /docs/rules/[slug] — PAR VAGUES (pas d'un bloc) ──
+// Le domaine sort d'une purge de 308 articles générés : publier 71 pages template d'un coup
+// rallume le signal doorway. On publie donc vague par vague, chaque fiche relue mot à mot par
+// @seo-strategist (FR ET EN) avant d'entrer ici. Le code d'auto-création reste ; SEUL le
+// sitemap/hub/llms.txt se gate sur cette liste → une fiche non publiée n'existe pas pour Google.
+// TOUTES les règles sont publiées en fiche : décision produit 2026-07 (plus aucune modale « En
+// savoir plus » sur le hub — chaque règle = une page SSR indexable). Contenu FR+EN rédigé et validé
+// pour les 71. Le test verrouille : tout id publié a tldr/exemple/scanHook dans les 2 langues.
+export const PUBLISHED_RULE_IDS: ReadonlySet<string> = new Set<string>(RAW_RULES.map(r => r.id))
+
+export function isRulePublished(id: string): boolean {
+  return PUBLISHED_RULE_IDS.has(id)
+}
+
+// Ids publiés dans l'ordre du catalogue (pour sitemap / hub / llms.txt).
+export function getPublishedRuleIds(): string[] {
+  return RAW_RULES.map(r => r.id).filter(isRulePublished)
+}
+
+// ── Paires jumelles event ↔ recommendation (même élément, intention de recherche DIFFÉRENTE) ──
+// La régression (event) répond à « détecter/après un déploiement » ; l'audit (reco) répond à
+// « c'est quoi / comment corriger ». On croise les deux fiches explicitement pour éviter la
+// cannibalisation (title/H1 différenciés + cross-link). Le cross-link ne s'affiche que si la
+// jumelle est publiée. Bidirectionnel.
+const TWIN_PAIRS: readonly [string, string][] = [
+  ['h1_missing', 'rec_h1_missing_audit'],
+  ['meta_description_missing', 'rec_description_length_audit'],
+  ['structured_data_removed', 'rec_structured_data_missing_audit'],
+  ['og_image_removed', 'rec_og_missing_audit'],
+  ['og_title_removed', 'rec_og_missing_audit'],
+  ['llms_txt_removed', 'rec_llms_txt_missing'],
+  ['faq_schema_removed', 'rec_faq_schema_missing'],
+  ['ai_crawlers_blocked_changed', 'rec_ai_crawlers_blocked'],
+  ['structured_data_author_removed', 'rec_citation_signals_missing'],
+]
+
+const TWIN_OF: Record<string, string> = Object.fromEntries(
+  TWIN_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]]),
+)
+
+export function getTwinRuleId(id: string): string | null {
+  return TWIN_OF[id] ?? null
+}
+
+// Date de dernière révision éditoriale des fiches (affichée + dateModified JSON-LD). À bumper
+// quand le contenu d'une vague est mis à jour. Une seule source pour rester honnête et simple.
+export const FICHE_UPDATED_AT = '2026-07-09'

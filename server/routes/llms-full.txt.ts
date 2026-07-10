@@ -1,6 +1,9 @@
 import { getPriceExamples, getCloudPricePerPage } from '../../shared/utils/pricing'
-import { RULES_COUNT } from '../../shared/utils/rules-catalog'
+import { RULES_COUNT, getRulesCatalog } from '../../shared/utils/rules-catalog'
+import { getPublishedRuleIds } from '../../shared/utils/rules-list'
+import { getRuleSlug } from '../../shared/utils/rule-knowledge'
 import { isSelfHosted } from '../utils/deployment'
+import type { Locale } from '../../shared/utils/i18n'
 
 // llms-full.txt — documentation complète pour les LLM, racine unique en ANGLAIS (décision plan
 // i18n), sections de liens par univers linguistique (/fr/ et /en/). Catégorie martelée :
@@ -14,6 +17,19 @@ export default defineEventHandler(async (event) => {
   const appUrl = process.env.NUXT_PUBLIC_APP_URL || 'https://seogard.io'
   const examples = getPriceExamples('en')
   const examplesText = examples.map(ex => `- ${ex.label} pages: EUR ${ex.price}/month`).join('\n')
+
+  // Fiches de règles publiées, par locale (corpus citable GEO). Vide tant qu'aucune vague n'est sortie.
+  const ficheLines = (locale: Locale): string => {
+    const catalog = getRulesCatalog(locale)
+    const lines = getPublishedRuleIds()
+      .map((id) => {
+        const slug = getRuleSlug(id, locale)
+        const rule = catalog.find(r => r.id === id)
+        return slug && rule ? `- ${rule.label}: ${appUrl}/${locale}/docs/rules/${slug}` : null
+      })
+      .filter(Boolean)
+    return lines.length ? `\n${lines.join('\n')}` : ''
+  }
 
   const content = `# Seogard — Full documentation
 
@@ -195,6 +211,7 @@ Seogard publishes training courses on technical SEO and GEO (AI visibility): SSR
 - Monitoring tool page: ${appUrl}/fr/outils/monitoring
 - Audit tool page: ${appUrl}/fr/outils/audit
 - Free SEO scanner: ${appUrl}/fr/scanner
+- SEO & GEO rules reference (each rule explained): ${appUrl}/fr/docs/rules${ficheLines('fr')}
 - Terms (CGU): ${appUrl}/fr/legal/cgu
 - Sales terms (CGV): ${appUrl}/fr/legal/cgv
 - Privacy: ${appUrl}/fr/legal/privacy
@@ -205,6 +222,7 @@ Seogard publishes training courses on technical SEO and GEO (AI visibility): SSR
 - Continuous SEO monitoring: ${appUrl}/en/tools/monitoring
 - Technical SEO audit tool: ${appUrl}/en/tools/audit
 - Free SSR checker: ${appUrl}/en/scanner
+- SEO & GEO rules reference (each rule explained): ${appUrl}/en/docs/rules${ficheLines('en')}
 
 ## Links
 

@@ -291,6 +291,7 @@
 <script setup lang="ts">
 import { RULES_COUNT } from '~~/shared/utils/rules-list'
 import { getCloudPricePerPage, formatCloudPrice } from '~~/shared/utils/pricing'
+import { buildPersonNode } from '~~/shared/utils/author'
 
 definePageMeta({ layout: 'landing', auth: false })
 
@@ -370,6 +371,7 @@ useHead({
               'contactType': 'customer support',
               'availableLanguage': ['French', 'English'],
             },
+            'founder': buildPersonNode(appUrl, { jobTitle: t('about.role'), aboutUrl: abs('a-propos') }),
           },
           {
             '@type': 'SoftwareApplication',

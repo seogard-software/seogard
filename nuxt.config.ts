@@ -22,12 +22,12 @@ export default defineNuxtConfig({
       {
         code: 'fr',
         language: 'fr-FR',
-        files: ['fr/common.json', 'fr/validation.json', 'fr/landing.json', 'fr/docs.json', 'fr/auth.json', 'fr/dashboard.json', 'fr/errors.json', 'fr/seo.json', 'fr/legal.json'],
+        files: ['fr/common.json', 'fr/validation.json', 'fr/landing.json', 'fr/docs.json', 'fr/auth.json', 'fr/dashboard.json', 'fr/errors.json', 'fr/seo.json', 'fr/legal.json', 'fr/about.json'],
       },
       {
         code: 'en',
         language: 'en-US',
-        files: ['en/common.json', 'en/validation.json', 'en/landing.json', 'en/docs.json', 'en/auth.json', 'en/dashboard.json', 'en/errors.json', 'en/seo.json', 'en/legal.json'],
+        files: ['en/common.json', 'en/validation.json', 'en/landing.json', 'en/docs.json', 'en/auth.json', 'en/dashboard.json', 'en/errors.json', 'en/seo.json', 'en/legal.json', 'en/about.json'],
       },
     ],
     defaultLocale: 'fr',

@@ -2,20 +2,22 @@
   <div :class="['scan-bar', `scan-bar--${size}`]">
     <form class="scan-bar__form" @submit.prevent="handleSubmit">
       <div class="scan-bar__field">
+        <AppIcon v-if="size === 'inline'" name="search" size="sm" class="scan-bar__ico" />
+        <span v-if="size === 'inline'" class="scan-bar__proto" aria-hidden="true">https://</span>
         <input
           v-model="url"
           type="text"
           class="scan-bar__input"
-          :placeholder="size === 'compact' ? $t('common.scanBar.placeholderCompact') : $t('common.scanBar.placeholder')"
+          :placeholder="size === 'hero' ? $t('common.scanBar.placeholder') : $t('common.scanBar.placeholderCompact')"
           autocapitalize="off"
           autocorrect="off"
           spellcheck="false"
           :aria-invalid="!!error"
           :aria-label="$t('common.scanBar.ariaLabel')"
         >
-        <span class="scan-bar__badge">{{ $t('common.scanBar.badge') }}</span>
+        <span v-if="size !== 'inline'" class="scan-bar__badge">{{ $t('common.scanBar.badge') }}</span>
       </div>
-      <AppButton type="submit" variant="accent" :loading="loading" class="scan-bar__btn">
+      <AppButton type="submit" variant="accent" :size="size === 'inline' ? 'sm' : 'md'" :loading="loading" class="scan-bar__btn">
         {{ $t('common.scanBar.submit') }}
       </AppButton>
     </form>
@@ -31,7 +33,7 @@
 // Barre « Analyser » (onboarding scan) : home hero + sidebar blog. Connecté → crée/redirige + crawl
 // auto direct ; déconnecté → persiste l'URL (survie OAuth/SAML/SSO) + modale inscription, puis
 // reprise. L'orchestration vit dans useScanOnboarding ; l'overview affiche la progression existante.
-interface Props { size?: 'hero' | 'compact' }
+interface Props { size?: 'hero' | 'compact' | 'inline' }
 const { size = 'hero' } = defineProps<Props>()
 
 const { t } = useI18n()
@@ -171,6 +173,56 @@ async function onAuthSuccess() {
   &--compact {
     .scan-bar__form { flex-direction: column; }
     .scan-bar__btn { width: 100%; }
+  }
+
+  // ── Variante « inline » : champ fin façon maquette (loupe + https:// + bouton compact) ──
+  // Préfixe EN FLUX (pas d'absolute) → le placeholder ne peut jamais être recouvert par « https:// ».
+  &__ico { flex: none; color: $color-gray-400; pointer-events: none; }
+  &__proto {
+    flex: none;
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    color: $color-gray-400;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &--inline {
+    .scan-bar__form { flex-direction: row; gap: $spacing-2; align-items: stretch; }
+
+    // La bordure passe sur le conteneur ; loupe + https:// + input sont des frères en ligne.
+    .scan-bar__field {
+      align-items: center;
+      gap: $spacing-2;
+      padding: 0 $spacing-3;
+      border: 1px solid $color-gray-200;
+      border-radius: $radius-lg;
+      background: $color-white;
+      transition: border-color 0.15s, box-shadow 0.15s;
+
+      &:focus-within { border-color: $color-accent; box-shadow: 0 0 0 3px rgba($color-accent, 0.12); }
+    }
+
+    .scan-bar__input {
+      flex: 1;
+      width: auto;
+      min-width: 0;
+      padding: $spacing-3 0;
+      border: none;
+      background: transparent;
+      font-family: $font-family-mono;
+      font-size: $font-size-sm;
+
+      &:focus { outline: none; border: none; box-shadow: none; }
+    }
+
+    .scan-bar__btn { width: auto; white-space: nowrap; border-radius: $radius-lg; }
+    .scan-bar__consent { font-size: $font-size-xs; color: $color-gray-400; margin-top: $spacing-2; }
+
+    @media (max-width: $breakpoint-sm) {
+      .scan-bar__form { flex-direction: column; }
+      .scan-bar__btn { width: 100%; }
+    }
   }
 }
 </style>

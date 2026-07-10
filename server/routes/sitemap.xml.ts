@@ -1,4 +1,6 @@
 import { localizedPath } from '../../shared/utils/i18n'
+import { getPublishedRuleIds } from '../../shared/utils/rules-list'
+import { getRuleSlug } from '../../shared/utils/rule-knowledge'
 
 export default defineEventHandler(async (event) => {
   const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
@@ -12,6 +14,7 @@ export default defineEventHandler(async (event) => {
     { path: '/scanner', priority: '0.9', changefreq: 'monthly' },
     { path: '/formations', priority: '0.9', changefreq: 'weekly' },
     { path: '/tarifs', priority: '0.8', changefreq: 'monthly' },
+    { path: '/a-propos', priority: '0.6', changefreq: 'monthly' },
     { path: '/docs/rules', priority: '0.7', changefreq: 'monthly' },
     { path: '/docs/self-hosted', priority: '0.7', changefreq: 'monthly' },
     { path: '/bot', priority: '0.5', changefreq: 'monthly' },
@@ -30,6 +33,23 @@ export default defineEventHandler(async (event) => {
     <loc>${appUrl}/${locale}${paths[locale]}</loc>${hreflangBlock(paths.fr, paths.en)}
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
+  </url>`)
+    }
+  }
+
+  // Fiches de règles publiées (slug traduit par locale). Vide tant qu'aucune vague n'est publiée.
+  for (const id of getPublishedRuleIds()) {
+    const frSlug = getRuleSlug(id, 'fr')
+    const enSlug = getRuleSlug(id, 'en')
+    if (!frSlug || !enSlug) continue
+    const frPath = `/docs/rules/${frSlug}`
+    const enPath = `/docs/rules/${enSlug}`
+    const fichePaths = { fr: frPath, en: enPath }
+    for (const locale of ['fr', 'en'] as const) {
+      urls.push(`  <url>
+    <loc>${appUrl}/${locale}${fichePaths[locale]}</loc>${hreflangBlock(frPath, enPath)}
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>`)
     }
   }
