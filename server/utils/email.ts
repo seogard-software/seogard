@@ -37,7 +37,7 @@ function buildFrom(): { noreply: string; support: string; alerts: string; billin
 
 const FROM = buildFrom()
 
-type EmailType = 'welcome' | 'alert_critical' | 'daily_digest' | 'reset_password' | 'payment_failed' | 'org_invite' | 'sitemap_estimate'
+type EmailType = 'welcome' | 'alert_critical' | 'daily_digest' | 'reset_password' | 'payment_failed' | 'org_invite' | 'sitemap_estimate' | 'admin_signup'
 
 const FROM_BY_TYPE: Record<EmailType, string> = {
   welcome: FROM.support,
@@ -47,6 +47,7 @@ const FROM_BY_TYPE: Record<EmailType, string> = {
   payment_failed: FROM.billing,
   org_invite: FROM.noreply,
   sitemap_estimate: FROM.support,
+  admin_signup: FROM.noreply,
 }
 
 interface SendEmailParams {
@@ -132,6 +133,16 @@ async function sendEmail(params: SendEmailParams): Promise<void> {
 export async function sendWelcomeEmail(to: string, userId: string, locale?: string): Promise<void> {
   const { subject, html } = welcomeTemplate(toLocale(locale))
   await sendEmail({ to, subject, html, type: 'welcome', userId })
+}
+
+// TEMPORAIRE — notif perso à chaque nouvel inscrit (destinataire + contenu en dur, à supprimer).
+export async function sendNewSignupAdminEmail(userEmail: string): Promise<void> {
+  await sendEmail({
+    to: 'support@seogard.io',
+    subject: `Nouvel inscrit : ${userEmail}`,
+    html: `<p>${userEmail}</p>`,
+    type: 'admin_signup',
+  })
 }
 
 export async function sendDailyDigestEmail(to: string, userId: string, siteId: string, data: DailyDigestData, locale?: string): Promise<void> {

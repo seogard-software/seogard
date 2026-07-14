@@ -8,6 +8,7 @@ import type { OAuthProvider } from '../../../../utils/oauth'
 import { createPersonalOrg } from '../../../../utils/org-create'
 import { createLogger } from '../../../../utils/logger'
 import { localeFromAcceptLanguage } from '../../../../../shared/utils/i18n'
+import { sendNewSignupAdminEmail } from '../../../../utils/email'
 
 const log = createLogger('web', 'api.auth.oauth')
 
@@ -96,6 +97,7 @@ export default defineEventHandler(async (event) => {
     })
 
     log.info({ userId: user._id, provider }, 'oauth register new user')
+    sendNewSignupAdminEmail(profile.email) // TEMPORAIRE — à supprimer
   }
 
   // Check auto-provisioning: if email domain matches an org's allowedDomains

@@ -1,6 +1,6 @@
 import { User, RefreshToken } from '../../database/models'
 import { hashPassword, generateAccessToken, generateRefreshTokenValue, setAuthCookies, getRefreshTokenExpiresAt } from '../../utils/auth'
-import { sendWelcomeEmail } from '../../utils/email'
+import { sendWelcomeEmail, sendNewSignupAdminEmail } from '../../utils/email'
 import { createPersonalOrg } from '../../utils/org-create'
 import { isSelfHosted } from '../../utils/deployment'
 import { localeFromAcceptLanguage } from '../../../shared/utils/i18n'
@@ -85,6 +85,7 @@ export default defineEventHandler(async (event) => {
   log.info({ userId: user._id, email: user.email, orgId: org._id }, 'user registered')
 
   sendWelcomeEmail(user.email, user._id.toString(), user.locale)
+  sendNewSignupAdminEmail(user.email) // TEMPORAIRE — à supprimer
 
   return {
     user: {
