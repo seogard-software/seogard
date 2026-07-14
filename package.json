@@ -44,6 +44,7 @@
     "pdfmake": "^0.3.10",
     "pinia": "^3.0.1",
     "pino": "^10.3.1",
+    "posthog-js": "^1.399.4",
     "qrcode": "^1.5.4",
     "rehype-stringify": "^10.0.1",
     "remark": "^15.0.1",

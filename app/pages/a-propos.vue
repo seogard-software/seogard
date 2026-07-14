@@ -35,7 +35,7 @@
         <h2 class="about__cta-title">{{ $t('about.ctaTitle') }}</h2>
         <p class="about__cta-text">{{ $t('about.ctaText') }}</p>
         <div class="about__cta-bar">
-          <ScanBar size="hero" />
+          <ScanBar size="hero" source="about" />
         </div>
       </section>
     </div>

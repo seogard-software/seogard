@@ -21,7 +21,7 @@
           {{ $t('landing.index.hero.subtitle') }}
         </p>
         <div class="hero__scan">
-          <ScanBar size="hero" />
+          <ScanBar size="hero" source="home_hero" />
         </div>
         <div class="hero__ctas">
           <a :href="demoUrl" target="_blank" rel="noopener" class="hero__cta hero__cta--primary">

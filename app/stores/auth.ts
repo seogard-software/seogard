@@ -64,6 +64,12 @@ export const useAuthStore = defineStore('auth', {
       this.subscription = data.subscription as SubscriptionInfo | null
       this.trialEndsAt = (data as any).trialEndsAt ?? null
 
+      // Relie les session replays à une vraie personne (E-E-A-T du parcours : qui bloque où).
+      // Point d'identify robuste : fetchMe passe après login ET register ET au chargement.
+      if (import.meta.client && this.user) {
+        useAnalytics().identify(this.user._id, { email: this.user.email, locale: this.user.locale })
+      }
+
       // Sync organizations
       if ((data as any).organizations) {
         orgStore.setOrganizations((data as any).organizations)
@@ -75,6 +81,9 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.subscription = null
       this.trialEndsAt = null
+
+      // Dissocie le device de l'identité pour ne pas mélanger deux personnes sur le même navigateur.
+      if (import.meta.client) useAnalytics().reset()
 
       // Clear all stores to avoid stale data on next login
       const orgStore = useOrganizationStore()

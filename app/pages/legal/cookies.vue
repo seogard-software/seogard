@@ -34,6 +34,12 @@
         <li v-for="(item, i) in list('legal.cookies.analyticsList')" :key="i" v-html="item" />
       </ul>
 
+      <h3>{{ $t('legal.cookies.replayTitle') }}</h3>
+      <p v-html="$t('legal.cookies.replayP')" />
+      <ul>
+        <li v-for="(item, i) in list('legal.cookies.replayList')" :key="i" v-html="item" />
+      </ul>
+
       <h2>{{ $t('legal.cookies.thirdTitle') }}</h2>
       <p v-html="$t('legal.cookies.thirdP')" />
 

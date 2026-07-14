@@ -100,6 +100,9 @@ function formatDate(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString(numberLocale.value, { day: 'numeric', month: 'long', year: 'numeric' })
 }
+
+// Consultation de la valeur : l'utilisateur ouvre le rapport « État de santé SEO » de sa zone.
+onMounted(() => useAnalytics().capture('report_opened'))
 </script>
 
 <style scoped lang="scss">

@@ -69,6 +69,8 @@ export default defineNuxtConfig({
       demoUrl: 'https://cal.com/seogard-io/demo-seogard-15-min',
       umamiUrl: '',
       umamiId: '',
+      posthogKey: '',
+      posthogHost: 'https://eu.i.posthog.com',
     },
   },
 

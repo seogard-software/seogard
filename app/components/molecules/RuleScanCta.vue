@@ -6,7 +6,7 @@
     </p>
     <p class="rule-scan-cta__q">{{ $t('docs.fiche.scanQuestion') }}</p>
     <p class="rule-scan-cta__d">{{ hook }}</p>
-    <ScanBar size="inline" />
+    <ScanBar size="inline" :source="source" />
     <ul class="rule-scan-cta__trust">
       <li class="rule-scan-cta__trust-item">
         <AppIcon name="check" size="sm" aria-hidden="true" />
@@ -24,7 +24,7 @@
 // Point de conversion inline d'une fiche (① après « Comment corriger »). Message variabilisé par
 // règle (`scanHook`) ; `target` = « ce que ce scan vérifie » (famille de la règle, cf. getRuleCtaTarget).
 // Le scan réel passe par ScanBar (même parcours que la home : modale → auto-création site + auto-crawl).
-defineProps<{ hook: string, target: string }>()
+defineProps<{ hook: string, target: string, source: ScanSource }>()
 </script>
 
 <style scoped lang="scss">

@@ -17,7 +17,7 @@
         </h1>
         <p class="scanner__subtitle" v-html="$t('landing.scanner.hero.subtitle')" />
         <div class="scanner__bar">
-          <ScanBar size="hero" />
+          <ScanBar size="hero" source="scanner_page" />
         </div>
         <p class="scanner__trust">
           {{ $t('landing.scanner.hero.trust', { price: cloudPriceDisplay }) }}
@@ -108,7 +108,7 @@
         <h2 class="scanner__cta-title">{{ $t('landing.scanner.cta.title') }}</h2>
         <p class="scanner__cta-sub">{{ $t('landing.scanner.cta.subtitle') }}</p>
         <div class="scanner__bar">
-          <ScanBar size="hero" />
+          <ScanBar size="hero" source="scanner_page" />
         </div>
       </div>
     </section>

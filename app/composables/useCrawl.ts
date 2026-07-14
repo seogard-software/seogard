@@ -2,6 +2,7 @@ export function useCrawl() {
   const crawlResults = ref<CrawlResult[]>([])
   const loading = ref(false)
   const activeCrawl = ref<CrawlResult | null>(null)
+  const analytics = useAnalytics()
 
   let pollingInterval: ReturnType<typeof setInterval> | null = null
   let pollingSiteId: string | null = null
@@ -33,11 +34,21 @@ export function useCrawl() {
 
     try {
       const data = await $fetch<CrawlResult | null>(`/api/sites/${pollingSiteId}/zones/${pollingZoneId}/crawl-status`)
-      const wasCrawling = activeCrawl.value !== null
+      const prev = activeCrawl.value
+      const wasCrawling = prev !== null
       activeCrawl.value = data
 
       if (wasCrawling && !data) {
         stopPolling()
+        // Fin de scan : le endpoint ne renvoie plus de crawl actif → on lit le dernier snapshot connu.
+        // Cas terminal-échec rarement capté par le poll (status déjà null) → on émet completed par
+        // défaut avec les compteurs, failed seulement si le dernier statut vu était explicitement KO.
+        if (prev?.status === 'failed' || prev?.status === 'cancelled') {
+          analytics.capture('scan_failed', { reason: prev.status })
+        }
+        else {
+          analytics.capture('scan_completed', { pages: prev?.pagesScanned ?? 0, alerts: prev?.alertsGenerated ?? 0 })
+        }
         onCrawlCompleted()
       }
 

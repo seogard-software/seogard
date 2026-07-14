@@ -127,6 +127,7 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
+const analytics = useAnalytics()
 
 const orgId = computed(() => route.params.orgId as string)
 
@@ -134,6 +135,7 @@ onMounted(async () => {
   const checkout = route.query.checkout as string | undefined
   if (checkout === 'success') {
     await authStore.fetchMe()
+    analytics.capture('checkout_completed')
     toast.success(t('dashboard.billing.checkoutSuccess'))
     router.replace({ query: {} })
   } else if (checkout === 'cancel') {
@@ -230,6 +232,7 @@ const subscribeLoading = ref(false)
 const portalLoading = ref(false)
 
 async function activateBilling() {
+  analytics.capture('subscribe_clicked')
   subscribeLoading.value = true
   try {
     const { url } = await $fetch<{ url: string }>('/api/stripe/subscribe', {

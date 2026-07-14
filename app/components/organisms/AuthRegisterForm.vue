@@ -66,6 +66,7 @@ const emit = defineEmits<{ success: [] }>()
 const { t } = useI18n()
 const apiError = useApiError()
 const localePath = useLocalePath()
+const analytics = useAnalytics()
 
 const authStore = useAuthStore()
 
@@ -107,6 +108,9 @@ async function handleRegister() {
       body: { email: email.value, password: password.value, acceptedTerms: true },
     })
     await authStore.fetchMe()
+    // Inscription email. Les inscriptions OAuth passent par un redirect serveur (callback) :
+    // l'identify au fetchMe les relie quand même, autocapture logue le clic du bouton.
+    analytics.capture('signup_completed', { method: 'password' })
     emit('success')
   }
   catch (error: unknown) {

@@ -524,6 +524,8 @@ function startDiscoveryPolling() {
 }
 
 if (import.meta.client) {
+  // Activation (le « aha ») : l'utilisateur atterrit sur les pages scannées de sa zone.
+  useAnalytics().capture('dashboard_viewed')
   checkAndPoll(siteId.value, zoneId.value)
   fetchTree()
 

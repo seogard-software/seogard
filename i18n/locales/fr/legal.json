@@ -203,7 +203,7 @@
         "description": "Politique de cookies de Seogard. Détail des cookies utilisés, aucun cookie tiers, analytics respectueux de la vie privée."
       },
       "title": "Politique de cookies",
-      "updated": "Dernière mise à jour : 18 mars 2026",
+      "updated": "Dernière mise à jour : 14 juillet 2026",
       "whatTitle": "1. Qu'est-ce qu'un cookie ?",
       "whatP": "Un cookie est un petit fichier texte stocké sur votre appareil lors de la visite d'un site web. Il permet au site de mémoriser vos actions et préférences pendant une durée déterminée.",
       "usedTitle": "2. Cookies utilisés par Seogard",
@@ -237,8 +237,16 @@
         "Ne partage aucune donnée avec des tiers",
         "Est conforme au RGPD sans nécessiter de consentement (données anonymisées)"
       ],
+      "replayTitle": "2.3 Enregistrement de session (analyse de parcours)",
+      "replayP": "Nous utilisons <strong>PostHog</strong>, hébergé dans l'<strong>Union européenne</strong>, pour enregistrer de façon anonyme le parcours de navigation et comprendre où les utilisateurs rencontrent des difficultés. Cet outil :",
+      "replayList": [
+        "N'est activé <strong>qu'après votre consentement explicite</strong> (bouton « Accepter »)",
+        "<strong>Masque les champs de saisie</strong> — vos mots de passe et le contenu des formulaires ne sont jamais enregistrés",
+        "Peut être désactivé à tout moment en <strong>refusant les cookies</strong>",
+        "Ne partage aucune donnée à des fins publicitaires"
+      ],
       "thirdTitle": "3. Cookies tiers",
-      "thirdP": "Seogard <strong>n'utilise aucun cookie tiers</strong> (pas de Google Analytics, pas de Facebook Pixel, pas de cookie publicitaire). Nous n'avons aucune intégration avec des régies publicitaires.",
+      "thirdP": "Hormis <strong>PostHog</strong> (analyse de parcours, activé uniquement après votre consentement, hébergé dans l'UE), Seogard <strong>n'utilise aucun cookie publicitaire</strong> (pas de Google Analytics, pas de Facebook Pixel). Nous n'avons aucune intégration avec des régies publicitaires.",
       "manageTitle": "4. Gestion des cookies",
       "manageP": "Vous pouvez à tout moment supprimer les cookies via les paramètres de votre navigateur. La suppression des cookies d'authentification entraînera une déconnexion du Service.",
       "contactTitle": "5. Contact",
@@ -250,7 +258,7 @@
         "description": "Politique de confidentialité et RGPD de Seogard. Données collectées, finalités, droits des utilisateurs, sous-traitants."
       },
       "title": "Politique de confidentialité",
-      "updated": "Dernière mise à jour : 18 mars 2026",
+      "updated": "Dernière mise à jour : 14 juillet 2026",
       "frPrevails": "La version française de la présente politique fait foi ; toute traduction n'est fournie qu'à titre indicatif.",
       "intro": "SAVEPNP, SAS immatriculée au RCS de Créteil sous le n° 912 784 030, dont le siège social est situé 25 rue Camille Blanc, 94400 Vitry-sur-Seine (ci-après « nous », « notre »), éditrice de la plateforme Seogard, s'engage à protéger la vie privée de ses utilisateurs conformément au Règlement Général sur la Protection des Données (RGPD — Règlement UE 2016/679) et à la loi Informatique et Libertés du 6 janvier 1978 modifiée.",
       "controllerTitle": "1. Responsable du traitement",
@@ -337,6 +345,12 @@
           "purpose": "Statistiques d'usage anonymes",
           "basis": "Intérêt légitime",
           "retention": "24 mois"
+        },
+        {
+          "data": "Enregistrement de session (PostHog)",
+          "purpose": "Comprendre le parcours et les points de blocage",
+          "basis": "Consentement",
+          "retention": "1 mois"
         }
       ],
       "subprocessorsTitle": "3. Sous-traitants",
@@ -373,6 +387,11 @@
           "name": "Umami",
           "purpose": "Analytics (self-hosted, sans cookies tiers)",
           "location": "UE (Allemagne — notre VPS)"
+        },
+        {
+          "name": "PostHog",
+          "purpose": "Session replay et analyse de parcours (après consentement)",
+          "location": "UE (PostHog Cloud EU)"
         }
       ],
       "subprocessorsNote": "Pour les transferts hors UE, des Clauses Contractuelles Types (CCT) de la Commission européenne sont en place.",

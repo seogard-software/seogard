@@ -59,7 +59,7 @@
     <p v-else class="fiche__p">{{ knowledge.action }}</p>
 
     <!-- 10. Conversion ① — CTA inline (point le plus fort) -->
-    <RuleScanCta :hook="knowledge.scanHook ?? $t('docs.fiche.scanFallback')" :target="ctaTarget" />
+    <RuleScanCta :hook="knowledge.scanHook ?? $t('docs.fiche.scanFallback')" :target="ctaTarget" :source="`fiche:${rule.id}`" />
 
     <!-- 11. Ce que vous récupérez (gain) -->
     <h2 class="fiche__h2">{{ $t('docs.fiche.gainHeading') }}</h2>
@@ -109,7 +109,7 @@
         <div v-if="showSticky" class="fiche__sticky">
           <span class="fiche__sticky-t">{{ $t('docs.fiche.stickyText') }}</span>
           <div class="fiche__sticky-scan">
-            <ScanBar size="inline" />
+            <ScanBar size="inline" :source="`fiche:${rule.id}`" />
           </div>
         </div>
       </Transition>

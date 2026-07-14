@@ -21,29 +21,24 @@
 </template>
 
 <script setup lang="ts">
-const CONSENT_COOKIE = 'cookie-consent'
-const CONSENT_MAX_AGE = 365 * 24 * 60 * 60 // 1 an
-
-const consentCookie = useCookie(CONSENT_COOKIE, {
-  maxAge: CONSENT_MAX_AGE,
-  path: '/',
-  sameSite: 'lax',
-})
+// L'état + les effets (opt-in/opt-out PostHog) vivent dans useCookieConsent (source unique).
+// Ce composant ne gère plus que l'affichage de la bannière.
+const { state, accept: grant, refuse: deny } = useCookieConsent()
 
 const visible = ref(false)
 
 function accept() {
-  consentCookie.value = 'accepted'
+  grant()
   visible.value = false
 }
 
 function refuse() {
-  consentCookie.value = 'refused'
+  deny()
   visible.value = false
 }
 
 onMounted(() => {
-  if (!consentCookie.value) {
+  if (!state.value) {
     visible.value = true
   }
 })

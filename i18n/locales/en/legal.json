@@ -203,7 +203,7 @@
         "description": "Seogard's Cookie Policy. Details of the cookies used, no third-party cookies, privacy-friendly analytics."
       },
       "title": "Cookie Policy",
-      "updated": "Last updated: 18 March 2026",
+      "updated": "Last updated: 14 July 2026",
       "whatTitle": "1. What is a cookie?",
       "whatP": "A cookie is a small text file stored on your device when you visit a website. It allows the site to remember your actions and preferences for a set period.",
       "usedTitle": "2. Cookies used by Seogard",
@@ -237,8 +237,16 @@
         "Shares no data with third parties",
         "Is GDPR-compliant without requiring consent (anonymized data)"
       ],
+      "replayTitle": "2.3 Session recording (journey analytics)",
+      "replayP": "We use <strong>PostHog</strong>, hosted in the <strong>European Union</strong>, to anonymously record browsing journeys and understand where users run into difficulties. This tool:",
+      "replayList": [
+        "Is enabled <strong>only after your explicit consent</strong> (the “Accept” button)",
+        "<strong>Masks input fields</strong> — your passwords and form content are never recorded",
+        "Can be turned off at any time by <strong>declining cookies</strong>",
+        "Never shares any data for advertising purposes"
+      ],
       "thirdTitle": "3. Third-party cookies",
-      "thirdP": "Seogard <strong>uses no third-party cookies</strong> (no Google Analytics, no Facebook Pixel, no advertising cookies). We have no integration with any advertising networks.",
+      "thirdP": "Apart from <strong>PostHog</strong> (journey analytics, enabled only after your consent, hosted in the EU), Seogard <strong>uses no advertising cookies</strong> (no Google Analytics, no Facebook Pixel). We have no integration with any advertising networks.",
       "manageTitle": "4. Managing cookies",
       "manageP": "You can delete cookies at any time via your browser settings. Deleting the authentication cookies will log you out of the Service.",
       "contactTitle": "5. Contact",
@@ -250,7 +258,7 @@
         "description": "Seogard's Privacy Policy and GDPR notice. Data collected, purposes, user rights, sub-processors."
       },
       "title": "Privacy Policy",
-      "updated": "Last updated: 18 March 2026",
+      "updated": "Last updated: 14 July 2026",
       "frPrevails": "This English version is provided for convenience only; in case of any discrepancy, the French version shall prevail.",
       "intro": "SAVEPNP, a French SAS registered with the Créteil Trade and Companies Register under No. 912 784 030, with its registered office at 25 rue Camille Blanc, 94400 Vitry-sur-Seine (hereinafter \"we\", \"our\"), publisher of the Seogard platform, is committed to protecting the privacy of its users in accordance with the General Data Protection Regulation (GDPR — EU Regulation 2016/679) and the French Data Protection Act of 6 January 1978 as amended.",
       "controllerTitle": "1. Data controller",
@@ -337,6 +345,12 @@
           "purpose": "Anonymous usage statistics",
           "basis": "Legitimate interest",
           "retention": "24 months"
+        },
+        {
+          "data": "Session recording (PostHog)",
+          "purpose": "Understand journeys and friction points",
+          "basis": "Consent",
+          "retention": "1 month"
         }
       ],
       "subprocessorsTitle": "3. Sub-processors",
@@ -373,6 +387,11 @@
           "name": "Umami",
           "purpose": "Analytics (self-hosted, no third-party cookies)",
           "location": "EU (Germany — our VPS)"
+        },
+        {
+          "name": "PostHog",
+          "purpose": "Session replay and journey analytics (after consent)",
+          "location": "EU (PostHog Cloud EU)"
         }
       ],
       "subprocessorsNote": "For transfers outside the EU, the European Commission's Standard Contractual Clauses (SCCs) are in place.",

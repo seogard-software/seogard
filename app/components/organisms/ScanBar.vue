@@ -33,12 +33,16 @@
 // Barre « Analyser » (onboarding scan) : home hero + sidebar blog. Connecté → crée/redirige + crawl
 // auto direct ; déconnecté → persiste l'URL (survie OAuth/SAML/SSO) + modale inscription, puis
 // reprise. L'orchestration vit dans useScanOnboarding ; l'overview affiche la progression existante.
-interface Props { size?: 'hero' | 'compact' | 'inline' }
-const { size = 'hero' } = defineProps<Props>()
+// `source` = page d'acquisition qui héberge la barre (home_hero, scanner_page, fiche:<ruleId>…).
+// Portée en propriété de l'event scan_submitted → attribution « quelle page déclenche les scans »
+// en 1 event ventilable, au lieu d'un event par page.
+interface Props { size?: 'hero' | 'compact' | 'inline', source?: ScanSource }
+const { size = 'hero', source = 'unknown' } = defineProps<Props>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const onboarding = useScanOnboarding()
+const analytics = useAnalytics()
 
 const url = ref('')
 const error = ref('')
@@ -62,6 +66,7 @@ async function handleSubmit() {
     return
   }
   pendingUrl.value = candidate
+  analytics.capture('scan_submitted', { source, url: candidate })
 
   loading.value = true
   try {
@@ -70,6 +75,7 @@ async function handleSubmit() {
     }
     else {
       onboarding.persistPending(candidate) // survit aux redirections OAuth/SAML/SSO
+      analytics.capture('signup_modal_opened', { source })
       showAuth.value = true
     }
   }

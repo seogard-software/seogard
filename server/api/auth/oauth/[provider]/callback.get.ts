@@ -133,7 +133,7 @@ export default defineEventHandler(async (event) => {
   if (!hasOrg) {
     await createPersonalOrg({
       userId: user._id.toString(),
-      name: user.name || profile.email.split('@')[0],
+      name: user.name || profile.email.split('@')[0] || profile.email,
       email: profile.email,
     })
   }
