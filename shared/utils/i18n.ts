@@ -19,6 +19,21 @@ export function toLocale(value: unknown): Locale {
   return isLocale(value) ? value : DEFAULT_LOCALE
 }
 
+/**
+ * Locale d'un NOUVEAU compte, dérivée de l'en-tête HTTP Accept-Language du navigateur.
+ * SOURCE UNIQUE des deux chemins d'inscription (email + OAuth).
+ *
+ * Règle : on détecte EXPLICITEMENT le français ; tout le reste (anglais ET langues non gérées :
+ * allemand, arabe, farsi…) part en 'en'. Défaut EN volontaire car l'audience non francophone est
+ * majoritairement internationale — un dashboard anglais la sert mieux qu'un dashboard français.
+ *
+ * ⚠️ C'est le défaut du COMPTE au signup — À NE PAS confondre avec DEFAULT_LOCALE ('fr'), qui reste
+ * le défaut CANONIQUE du site (URLs /fr, slugs, sitemap, hreflang, localizedPath). On n'y touche pas.
+ */
+export function localeFromAcceptLanguage(acceptLanguage: string | null | undefined): Locale {
+  return (acceptLanguage ?? '').trim().toLowerCase().startsWith('fr') ? 'fr' : 'en'
+}
+
 // Chemins publics dont le slug est TRADUIT par locale (slug FR = défaut du fichier ; slug EN
 // traduit pour le CTR/SEO anglophone). SOURCE UNIQUE : le sitemap et llms.txt l'utilisent ;
 // les pages concernées déclarent le MÊME mapping via defineI18nRoute({ paths }) (macro = ne peut

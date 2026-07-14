@@ -7,6 +7,7 @@ import { getOAuthClient, isValidOAuthProvider } from '../../../../utils/oauth'
 import type { OAuthProvider } from '../../../../utils/oauth'
 import { createPersonalOrg } from '../../../../utils/org-create'
 import { createLogger } from '../../../../utils/logger'
+import { localeFromAcceptLanguage } from '../../../../../shared/utils/i18n'
 
 const log = createLogger('web', 'api.auth.oauth')
 
@@ -76,6 +77,11 @@ export default defineEventHandler(async (event) => {
   } else {
     // New user — create with personal org
     // OAuth login implies acceptance of terms (consent screen + redirect flow)
+    // Locale du compte : dérivée de l'en-tête Accept-Language (helper partagé avec register.post.ts).
+    // Sans ça, tout inscrit OAuth tombait sur le défaut 'fr' du modèle → dashboard français pour
+    // un anglophone (ex. en-AU). Seulement à la création : un user existant garde sa locale.
+    const locale = localeFromAcceptLanguage(getHeader(event, 'accept-language'))
+
     user = await User.create({
       email: profile.email,
       name: profile.name,
@@ -83,6 +89,7 @@ export default defineEventHandler(async (event) => {
       authProvider: provider,
       oauthProviderId: profile.providerId,
       passwordHash: null,
+      locale,
       trialEndsAt: isSelfHosted() ? null : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       acceptedTermsAt: new Date(),
       acceptedTermsVersion: '2026-03-18',

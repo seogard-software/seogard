@@ -3,6 +3,7 @@ import { hashPassword, generateAccessToken, generateRefreshTokenValue, setAuthCo
 import { sendWelcomeEmail } from '../../utils/email'
 import { createPersonalOrg } from '../../utils/org-create'
 import { isSelfHosted } from '../../utils/deployment'
+import { localeFromAcceptLanguage } from '../../../shared/utils/i18n'
 
 export default defineEventHandler(async (event) => {
   const log = useRequestLog(event, 'api.auth')
@@ -40,8 +41,7 @@ export default defineEventHandler(async (event) => {
   const CURRENT_TERMS_VERSION = '2026-03-18'
 
   // Locale du compte : dérivée de l'en-tête Accept-Language du navigateur à l'inscription
-  const acceptLanguage = getHeader(event, 'accept-language') ?? ''
-  const locale = acceptLanguage.trim().toLowerCase().startsWith('en') ? 'en' : 'fr'
+  const locale = localeFromAcceptLanguage(getHeader(event, 'accept-language'))
 
   const user = await User.create({
     email: body.email,
