@@ -67,6 +67,13 @@
           </div>
         </div>
         <p class="problem__footer">{{ $t('landing.index.problem.footer') }}</p>
+        <p class="problem__monitor">
+          <i18n-t keypath="landing.index.problem.monitorLine" tag="span" scope="global">
+            <template #link>
+              <NuxtLink :to="localePath({ name: 'outils-monitoring' })">{{ $t('landing.index.problem.monitorAnchor') }}</NuxtLink>
+            </template>
+          </i18n-t>
+        </p>
       </div>
     </section>
 
@@ -896,6 +903,16 @@ useSeoMeta({
     font-weight: $font-weight-semibold;
     color: $color-gray-900;
     margin-top: $spacing-8;
+  }
+
+  &__monitor {
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+    margin-top: $spacing-3;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
   }
 }
 

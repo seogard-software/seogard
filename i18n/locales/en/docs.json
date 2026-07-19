@@ -120,6 +120,13 @@
       "gainHeading": "What you get back",
       "signalLabel": "How Seogard detects it:",
       "signalText": "Seogard continuously compares the raw HTML (what Google indexes) and the JavaScript-rendered page (what you see) on every page, and alerts you the moment this issue appears.",
+      "maillageSentence": "Seogard catches this regression automatically — through its {link}.",
+      "maillageLink": {
+        "ssr": "SSR checker",
+        "geo": "GEO monitoring",
+        "meta": "monitoring for your metas and canonicals",
+        "monitoring": "continuous SEO monitoring"
+      },
       "faqHeading": "Frequently asked questions",
       "sistersHeading": "Related rules",
       "twinIntro": "Related case:",

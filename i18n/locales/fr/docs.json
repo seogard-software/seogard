@@ -120,6 +120,13 @@
       "gainHeading": "Ce que vous récupérez",
       "signalLabel": "Comment Seogard le détecte :",
       "signalText": "Seogard compare en continu le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez) sur chaque page, et vous alerte dès que ce défaut apparaît.",
+      "maillageSentence": "Seogard détecte cette régression automatiquement — via le {link}.",
+      "maillageLink": {
+        "ssr": "scanner SSR",
+        "geo": "monitoring GEO",
+        "meta": "monitoring de vos metas et canonicals",
+        "monitoring": "monitoring SEO continu"
+      },
       "faqHeading": "Questions fréquentes",
       "sistersHeading": "Règles sœurs",
       "twinIntro": "Cas connexe :",

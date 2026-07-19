@@ -102,7 +102,9 @@
         "card2Label": "de revenus SEO perdus en une seule régression",
         "card3Value": "21 jours",
         "card3Label": "délai moyen de détection sans monitoring automatisé",
-        "footer": "Avec Seogard, l'alerte serait arrivée vendredi à 17h30."
+        "footer": "Avec Seogard, l'alerte serait arrivée vendredi à 17h30.",
+        "monitorLine": "Le {link} de Seogard détecte ces régressions le jour du déploiement — pas 3 semaines après.",
+        "monitorAnchor": "monitoring SEO continu"
       },
       "features": {
         "label": "Fonctionnalités",
@@ -195,14 +197,14 @@
     },
     "outilsMonitoring": {
       "hero": {
-        "badge": "Monitoring SEO continu",
-        "title": "Détectez les régressions SEO <em>avant</em> Google",
-        "subtitle": "Seogard surveille votre site en continu et compare le HTML brut (ce que Google et les IA indexent) au rendu JavaScript (ce que vous voyez). Dès qu'une meta, un canonical, un <code>noindex</code> ou un status code régresse, vous êtes alerté — avant que ça ne coûte du trafic.",
+        "badge": "HTML brut vs rendu JS, en continu",
+        "title": "Le monitoring SEO qui compare ce que Google indexe et ce que votre navigateur affiche",
+        "subtitle": "Seogard surveille en continu le HTML brut (SSR) face au rendu JavaScript. Quand un déploiement casse vos metas, canonicals ou <code>noindex</code> côté serveur, vous le savez le jour même — pas 3 semaines après la chute de trafic.",
         "ctaPrimary": "Tester gratuitement",
         "ctaSecondary": "Scanner mon site"
       },
       "features": {
-        "sectionTitle": "Ce que le monitoring surveille en continu",
+        "sectionTitle": "Ce que votre monitoring SEO surveille en continu",
         "feature1Title": "HTML brut vs rendu JavaScript",
         "feature1Desc": "La comparaison continue SSR/CSR qui détecte les régressions invisibles quand le SSR casse mais que le navigateur affiche tout normalement.",
         "feature2Title": "Metas, canonicals, noindex, status codes",
@@ -286,7 +288,9 @@
         "renderedLine3": "<h1>Chaussures running homme</h1>",
         "renderedLine4": "<link rel=\"canonical\" …>",
         "renderedVerdict": "Tout est là — dans le navigateur seulement.",
-        "note": "C'est exactement la fenêtre où un SSR cassé indexe du vide. Oncrawl, Lumar, ContentKing crawlent sans comparer en continu les deux. <strong>Seogard, si.</strong>"
+        "note": "C'est exactement la fenêtre où un SSR cassé indexe du vide. Oncrawl, Lumar, ContentKing crawlent sans comparer en continu les deux. <strong>Seogard, si.</strong>",
+        "monitorLine": "Un scan, c'est une photo. Pour surveiller ça en permanence, il y a le {link}.",
+        "monitorAnchor": "monitoring SEO continu"
       },
       "steps": {
         "eyebrow": "En 30 secondes",
@@ -300,7 +304,7 @@
       },
       "checks": {
         "eyebrow": "{count} règles, vérifiées à chaque crawl",
-        "title": "Ce que le scan détecte",
+        "title": "Ce que le scan de site SEO détecte",
         "check1Title": "Régressions SSR / CSR",
         "check1Text": "Metas, H1, canonical ou contenu présents dans le navigateur mais absents du HTML brut indexé.",
         "check2Title": "Metas & titles",

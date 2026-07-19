@@ -54,6 +54,13 @@
           </article>
         </div>
         <p class="scanner__compare-note" v-html="$t('landing.scanner.compare.note')" />
+        <p class="scanner__compare-monitor">
+          <i18n-t keypath="landing.scanner.compare.monitorLine" tag="span" scope="global">
+            <template #link>
+              <NuxtLink :to="localePath({ name: 'outils-monitoring' })">{{ $t('landing.scanner.compare.monitorAnchor') }}</NuxtLink>
+            </template>
+          </i18n-t>
+        </p>
       </div>
     </section>
 
@@ -395,6 +402,17 @@ useSeoMeta({
     color: $color-gray-600;
 
     strong { color: $color-gray-900; }
+  }
+
+  &__compare-monitor {
+    max-width: 640px;
+    margin: $spacing-3 auto 0;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
   }
 
   // ── STEPS ──

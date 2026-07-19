@@ -71,6 +71,15 @@
       <span><strong>{{ $t('docs.fiche.signalLabel') }}</strong> {{ $t('docs.fiche.signalText') }}</span>
     </aside>
 
+    <!-- 12b. Maillage interne contextuel → page money (piloté par la famille de la règle) -->
+    <p class="fiche__maillage">
+      <i18n-t keypath="docs.fiche.maillageSentence" tag="span" scope="global">
+        <template #link>
+          <NuxtLink :to="maillage.to">{{ maillage.anchor }}</NuxtLink>
+        </template>
+      </i18n-t>
+    </p>
+
     <!-- 13. FAQ (h3, PAS de FAQPage schema) -->
     <section v-if="knowledge.faq?.length" class="fiche__faq">
       <h2 class="fiche__h2">{{ $t('docs.fiche.faqHeading') }}</h2>
@@ -169,6 +178,23 @@ const priorityLabel = computed(() => getPriorityMeta(loc.value)[rule.value.prior
 
 // « Ce scan vérifie … » — cible par famille de règle (jamais le différenciateur SSR/CSR hors sujet).
 const ctaTarget = computed(() => t(`docs.fiche.scanTarget.${getRuleCtaTarget(ruleId.value!)}`))
+
+// Maillage interne contextuel : la fiche pointe vers UNE page money selon sa famille.
+// ssr → /scanner (renforce « ssr checker ») ; tout le reste → /outils/monitoring (irrigue la page
+// hors striking distance qui a besoin de volume de liens). Ancre variée par famille (anti-footprint),
+// un seul lien money par fiche. Cibles via localePath (slugs traduits : /tools/monitoring en EN).
+const MAILLAGE_BY_TARGET = {
+  ssr: { route: 'scanner', anchor: 'ssr' },
+  geo: { route: 'outils-monitoring', anchor: 'geo' },
+  meta: { route: 'outils-monitoring', anchor: 'meta' },
+  indexing: { route: 'outils-monitoring', anchor: 'meta' },
+  tech: { route: 'outils-monitoring', anchor: 'monitoring' },
+  content: { route: 'outils-monitoring', anchor: 'monitoring' },
+} as const
+const maillage = computed(() => {
+  const m = MAILLAGE_BY_TARGET[getRuleCtaTarget(ruleId.value!)] ?? MAILLAGE_BY_TARGET.tech
+  return { to: localePath({ name: m.route }), anchor: t(`docs.fiche.maillageLink.${m.anchor}`) }
+})
 
 // ── Règles sœurs (même priorité, publiées, hors self et jumelle) ──
 const twinId = computed(() => getTwinRuleId(ruleId.value!))
@@ -381,6 +407,16 @@ useSeoMeta({
     line-height: $line-height-normal;
 
     strong { color: $color-gray-900; }
+  }
+
+  &__maillage {
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+    line-height: $line-height-normal;
+    margin: $spacing-4 0 0;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
   }
 
   &__faq-q { font-size: $font-size-base; font-weight: $font-weight-semibold; color: $color-gray-900; margin: $spacing-4 0 $spacing-1; }

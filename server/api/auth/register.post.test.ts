@@ -47,6 +47,7 @@ vi.mock('../../utils/auth', () => ({
 
 vi.mock('../../utils/email', () => ({
   sendWelcomeEmail: vi.fn(),
+  sendNewSignupAdminEmail: vi.fn(),
 }))
 
 vi.mock('../../utils/stripe', () => ({

@@ -102,7 +102,9 @@
         "card2Label": "in SEO revenue gone from a single regression",
         "card3Value": "21 days",
         "card3Label": "average time-to-detection without automated monitoring",
-        "footer": "With Seogard, the alert would have landed Friday at 5:30pm."
+        "footer": "With Seogard, the alert would have landed Friday at 5:30pm.",
+        "monitorLine": "Seogard's {link} catches these regressions the day you deploy — not three weeks later.",
+        "monitorAnchor": "continuous SEO monitoring"
       },
       "features": {
         "label": "Features",
@@ -195,14 +197,14 @@
     },
     "outilsMonitoring": {
       "hero": {
-        "badge": "Continuous SEO monitoring",
-        "title": "Catch SEO regressions <em>before</em> Google",
-        "subtitle": "Seogard watches your site continuously and compares the raw HTML (what Google and AI index) with the JavaScript render (what you see). The moment a meta, a canonical, a <code>noindex</code> or a status code regresses, you get alerted — before it costs you traffic.",
+        "badge": "Raw HTML vs JS render, continuous",
+        "title": "The SEO monitoring that compares what Google indexes with what your browser shows",
+        "subtitle": "Seogard continuously watches the raw HTML (SSR) against the JavaScript render. When a deploy breaks your metas, canonicals or <code>noindex</code> server-side, you know the same day — not three weeks after traffic drops.",
         "ctaPrimary": "Start free trial",
         "ctaSecondary": "Scan your site free"
       },
       "features": {
-        "sectionTitle": "What continuous monitoring watches",
+        "sectionTitle": "What your SEO monitoring watches",
         "feature1Title": "Raw HTML vs JavaScript render",
         "feature1Desc": "The continuous SSR/CSR comparison that catches invisible regressions when SSR breaks but the browser still renders everything fine.",
         "feature2Title": "Metas, canonicals, noindex, status codes",
@@ -286,7 +288,9 @@
         "renderedLine3": "<h1>Men's running shoes</h1>",
         "renderedLine4": "<link rel=\"canonical\" …>",
         "renderedVerdict": "Everything is there — in the browser only.",
-        "note": "That is exactly the window where broken SSR gets indexed as empty HTML. Oncrawl, Lumar, ContentKing crawl without continuously comparing the two. <strong>Seogard does.</strong>"
+        "note": "That is exactly the window where broken SSR gets indexed as empty HTML. Oncrawl, Lumar, ContentKing crawl without continuously comparing the two. <strong>Seogard does.</strong>",
+        "monitorLine": "A scan is a snapshot. To watch this permanently, there's {link}.",
+        "monitorAnchor": "continuous SEO monitoring"
       },
       "steps": {
         "eyebrow": "In 30 seconds",
@@ -300,7 +304,7 @@
       },
       "checks": {
         "eyebrow": "{count} rules, checked on every crawl",
-        "title": "What the scan detects",
+        "title": "What the SEO site scan detects",
         "check1Title": "SSR / CSR regressions",
         "check1Text": "Metas, H1, canonical or content present in the browser but missing from the indexed raw HTML.",
         "check2Title": "Metas & titles",
