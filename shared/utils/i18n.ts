@@ -44,6 +44,7 @@ export const LOCALIZED_PATHS: Record<string, { fr: string, en: string }> = {
   'outils-audit': { fr: '/outils/audit', en: '/tools/audit' },
   'tarifs': { fr: '/tarifs', en: '/pricing' },
   'a-propos': { fr: '/a-propos', en: '/about' },
+  'alternative-oseox': { fr: '/alternative-oseox', en: '/oseox-alternative' },
 }
 
 /** Chemin (sans préfixe de locale) d'une page publique dans la locale donnée. */

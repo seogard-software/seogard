@@ -1,0 +1,111 @@
+{
+  "compare": {
+    "dataNote": "Données Oseox relevées le 21 juillet 2026 sur tool.oseox.com et oseox-software.com, susceptibles d'évoluer.",
+    "links": {
+      "hubLabel": "Comparatifs",
+      "vsAnchor": "Oseox vs Seogard",
+      "altAnchor": "Alternative à Oseox",
+      "scannerAside": "Vous venez d'Oseox ? Un crawl sans JavaScript ne voit pas les régressions SSR.",
+      "scannerLink": "Comprendre la différence",
+      "homeLead": "La plupart des outils de monitoring n'exécutent pas le JavaScript.",
+      "homeLink": "Oseox vs Seogard",
+      "monitoringAnchor": "monitoring SEO en continu",
+      "selfHostedAnchor": "version self-hosted"
+    },
+    "table": {
+      "heading": "Oseox et Seogard, ligne par ligne",
+      "criteriaLabel": "Critère",
+      "rows": [
+        { "criteria": "Suivi de positions et mots-clés", "oseox": "Oui", "seogard": "Non" },
+        { "criteria": "Monitoring de backlinks", "oseox": "Oui", "seogard": "Non" },
+        { "criteria": "Détection de changement on-page (title, meta, canonical, robots, HTTP, H1)", "oseox": "Oui", "seogard": "Oui" },
+        { "criteria": "Exécute le JavaScript au crawl", "oseox": "Non", "seogard": "Oui" },
+        { "criteria": "Compare le HTML brut (SSR) et le rendu JS (CSR) sur la même page", "oseox": "Non", "seogard": "Oui" },
+        { "criteria": "Core Web Vitals", "oseox": "Oui", "seogard": "Mesuré (sans alerte)" },
+        { "criteria": "Intégration Search Console", "oseox": "Oui", "seogard": "Non" },
+        { "criteria": "Uptime et expiration domaine / SSL", "oseox": "Oui", "seogard": "Non" },
+        { "criteria": "Self-hosted / code source disponible", "oseox": "Non (SaaS propriétaire)", "seogard": "Oui (licence BSL 1.1)" },
+        { "criteria": "Tarif", "oseox": "99 à 479 $/mois selon le palier d'URLs", "seogard": "0,01 €/mois/page + self-hosted gratuit" },
+        { "criteria": "Essai sans carte bancaire", "oseox": "Essai gratuit", "seogard": "14 jours sans carte" }
+      ]
+    },
+    "alternativeOseox": {
+      "seo": {
+        "title": "Alternative à Oseox : le monitoring SEO qui rend le JavaScript | Seogard",
+        "description": "Oseox crawle sans exécuter le JavaScript (leur propre doc). Sur un site Nuxt, Next ou Vue, les régressions SSR/CSR lui échappent. Seogard compare le HTML brut et le rendu JS. Scan gratuit, sans carte.",
+        "ogTitle": "Alternative à Oseox — le monitoring qui exécute le JavaScript",
+        "ogDescription": "Le crawler d'Oseox n'exécute pas le JS. Seogard compare HTML brut et rendu JavaScript, en complément. Scan gratuit.",
+        "twitterTitle": "Alternative à Oseox — le monitoring qui exécute le JavaScript",
+        "twitterDescription": "Le crawler d'Oseox n'exécute pas le JS. Seogard compare HTML brut et rendu JS. Scan gratuit."
+      },
+      "badge": "Complément d'Oseox, pas remplacement",
+      "h1": "Alternative à Oseox pour le monitoring SEO",
+      "tldr": "Oseox est un très bon outil anti-régression SEO — et il le dit lui-même : son crawler n'exécute pas le JavaScript. Sur une stack Nuxt, Next, Vue ou React, il voit le HTML brut, pas ce que le navigateur affiche réellement. Seogard compare les deux, page par page, et vous alerte quand ils divergent. Ça ne remplace pas Oseox : ça couvre l'angle mort.",
+      "already": {
+        "title": "Vous avez déjà Oseox ? Parfait.",
+        "p1": "On ne va pas vous vendre le remplaçant d'un outil qui marche. Oseox fait des choses que Seogard ne fait pas : suivi de positions, mots-clés, backlinks. Gardez-le.",
+        "p2": "La seule question : votre monitoring exécute-t-il le JavaScript ? Celui d'Oseox, non — c'est écrit noir sur blanc dans leur documentation. Sur un site rendu côté serveur, le jour où le SSR casse sur 200 pages mais que le navigateur continue d'afficher le rendu JavaScript, personne ne le voit. C'est exactement le scénario qu'Oseox vous dit de surveiller.",
+        "p3": "Seogard le surveille en comparant les deux rendus en continu. Coût de la vérification : 30 secondes, votre URL, zéro carte bancaire."
+      },
+      "stack": {
+        "title": "Nuxt, Next, Vue, React SSR : le risque précis",
+        "story": "Vendredi 17h, l'équipe pousse une refonte du header. Dans le navigateur, tout fonctionne. Mais côté serveur, le rendu a cassé sur 200 pages produit — les metas ont disparu du HTML brut. Google indexe du vide. Personne ne s'en aperçoit, parce que le navigateur, lui, exécute le JavaScript et affiche une page correcte.",
+        "tech": "Sur ces stacks, deux versions de votre page coexistent : le HTML brut envoyé par le serveur (ce que Google indexe en premier, ce que lisent les IA) et le DOM après hydratation JavaScript (ce que vous voyez dans le navigateur). Un monitoring qui n'exécute pas le JavaScript ne peut voir qu'un seul côté. Seogard mesure l'écart entre les deux, sur chaque page, à chaque crawl."
+      },
+      "complement": {
+        "title": "Oseox et Seogard : complément, pas remplacement",
+        "text": "Gardez Oseox pour le ranking, les mots-clés et les backlinks — il les fait bien. Ajoutez Seogard pour l'angle mort qu'un crawl sans JavaScript laisse ouvert : les régressions SSR/CSR, et la visibilité auprès des moteurs IA (llms.txt, crawlers GPTBot / ClaudeBot). Les deux se complètent."
+      },
+      "faq": {
+        "heading": "Questions fréquentes",
+        "items": [
+          { "q": "Oseox exécute-t-il le JavaScript ?", "a": "Non. Leur documentation l'indique explicitement : leur crawler n'exécute pas le JavaScript. Il lit le HTML brut renvoyé par le serveur — ce qui suffit pour la plupart des sites, mais pas pour détecter un écart entre le rendu serveur et le rendu navigateur sur une stack JS moderne." },
+          { "q": "Seogard remplace-t-il Oseox ?", "a": "Non, et ce n'est pas le but. Seogard ne fait ni le suivi de positions, ni les mots-clés, ni les backlinks. Il se concentre sur un seul angle qu'Oseox ne couvre pas : comparer le HTML brut et le rendu JavaScript en continu." },
+          { "q": "Combien coûte Seogard ?", "a": "Le Cloud est à 0,01 €/mois/page monitorée, avec un essai de 14 jours sans carte bancaire. La version self-hosted est gratuite (code source disponible, licence BSL 1.1)." }
+        ]
+      },
+      "cta": {
+        "title": "Vérifiez l'écart sur votre propre site",
+        "text": "Collez votre URL : Seogard compare le HTML brut et le rendu JavaScript et vous montre l'écart en 30 secondes. Gratuit, sans carte bancaire.",
+        "selfHosted": "Ou installez la {link}, gratuite et à code source disponible."
+      }
+    },
+    "vsSeogard": {
+      "seo": {
+        "title": "Oseox vs Seogard : quelle différence pour le monitoring SEO ?",
+        "description": "Oseox : suite SEO tout-en-un qui crawle sans JavaScript. Seogard : détection des régressions SSR/CSR (HTML brut vs rendu JS). Comparatif factuel et honnête, sources à l'appui.",
+        "ogTitle": "Oseox vs Seogard — le comparatif honnête",
+        "ogDescription": "Oseox = suite large (ranking, mots-clés, backlinks). Seogard = régression SSR/CSR (HTML brut vs rendu JS). Deux usages différents.",
+        "twitterTitle": "Oseox vs Seogard — le comparatif honnête",
+        "twitterDescription": "Oseox = suite large. Seogard = régression SSR/CSR (HTML brut vs rendu JS). Comparatif factuel."
+      },
+      "badge": "Comparatif factuel et sourcé",
+      "h1": "Oseox vs Seogard : le comparatif honnête",
+      "tldr": "Oseox fait le suivi de positions, les mots-clés et les backlinks — pas Seogard. Seogard fait une chose qu'Oseox ne fait pas, de son propre aveu : exécuter le JavaScript pour comparer le HTML brut au rendu réel. Si votre site est en Nuxt, Next, Vue ou React, c'est l'angle mort qui coûte le plus cher.",
+      "positioning": {
+        "title": "Deux outils qui ne jouent pas le même match",
+        "oseox": "Oseox est une suite SEO large : suivi de positions, base de mots-clés, backlinks, uptime, et une détection de changement on-page qui crawle sans exécuter le JavaScript.",
+        "seogard": "Seogard est un spécialiste du rendu technique : il compare le HTML brut (SSR) au rendu JavaScript (CSR) sur chaque page, alerte sur les régressions, et peut bloquer un déploiement régressif via un webhook CI/CD."
+      },
+      "jsDiff": {
+        "title": "La vraie différence : le rendu JavaScript",
+        "text": "Ce n'est pas une opinion, c'est écrit dans la documentation d'Oseox. Leur crawler n'exécute pas le JavaScript. Concrètement, il ne peut pas comparer, sur la même page au même instant, le HTML brut et le DOM rendu après JavaScript — l'écart précis qui trahit une régression SSR sur une stack moderne.",
+        "verbatim": "Our crawler does not execute Javascript, so if your prerender fails, you will automatically receive a notification within the hour.",
+        "verbatimSource": "Source : documentation Oseox (oseox-software.com), relevée le 21 juillet 2026."
+      },
+      "pricingNote": {
+        "title": "Le prix, à périmètre égal",
+        "text": "Comparer les prix n'a de sens qu'à périmètre égal. Oseox facture une suite complète, par palier d'URLs (99 à 479 $/mois). Seogard facture le seul monitoring de rendu, à l'usage : 0,01 €/mois/page, soit environ 10 €/mois pour 1 000 pages surveillées. Mais si vous voulez le suivi de positions et les backlinks, c'est Oseox qu'il vous faut, pas nous."
+      },
+      "choose": {
+        "title": "Lequel choisir ?",
+        "text": "Oseox si vous voulez une suite SEO large et tout-en-un. Seogard — ou les deux — si vous êtes sur une stack JavaScript moderne (Nuxt, Next, Vue, React) et que la régression SSR/CSR est votre risque numéro un. Le seul moyen de trancher : lancez le scan sur votre propre URL et regardez s'il y a un écart."
+      },
+      "cta": {
+        "title": "Vérifiez sur votre propre URL",
+        "text": "Seogard compare le HTML brut et le rendu JavaScript et vous montre l'écart en 30 secondes. Gratuit, sans carte bancaire.",
+        "selfHosted": "Ou installez la {link}, gratuite et à code source disponible."
+      }
+    }
+  }
+}

@@ -1,0 +1,174 @@
+@use '~/assets/styles/variables' as *;
+
+// Style partagé des pages « concurrent » (alternative-oseox, oseox-vs-seogard).
+.compare-page {
+  &__hero {
+    max-width: 760px;
+    margin: 0 auto;
+    // 9rem en haut = même air sous le header fixe que les autres pages (scanner, outils).
+    padding: 9rem $spacing-6 $spacing-8;
+    text-align: center;
+
+    @media (max-width: $breakpoint-sm) {
+      padding: 7rem $spacing-4 $spacing-6;
+    }
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: $spacing-1 $spacing-3;
+    border: 1px solid rgba($color-info, 0.2);
+    background: $color-info-bg;
+    color: $color-info;
+    border-radius: $radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.01em;
+    margin-bottom: $spacing-4;
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    letter-spacing: -0.02em;
+    line-height: $line-height-tight;
+    color: $color-gray-900;
+    text-wrap: balance;
+    margin: 0 0 $spacing-4;
+  }
+
+  &__tldr {
+    font-size: $font-size-lg;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+    max-width: 62ch;
+    margin: 0 auto $spacing-6;
+  }
+
+  &__scan {
+    max-width: 560px;
+    margin: $spacing-2 auto 0;
+    padding: $spacing-5 $spacing-5 $spacing-4;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-sm;
+    text-align: left;
+  }
+
+  &__body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-10;
+  }
+
+  &__block {
+    &--callout {
+      padding: $spacing-6;
+      border: 1px solid $color-gray-200;
+      border-left: 3px solid $color-gray-900;
+      border-radius: 0 $radius-xl $radius-xl 0;
+      background: $color-gray-50;
+    }
+  }
+
+  &__h2 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    letter-spacing: -0.01em;
+    color: $color-gray-900;
+    margin: 0 0 $spacing-4;
+  }
+
+  &__p {
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+    color: $color-gray-700;
+    margin: 0 0 $spacing-3;
+
+    strong { color: $color-gray-900; }
+  }
+
+  &__story {
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+    color: $color-gray-600;
+    font-style: italic;
+    border-left: 3px solid $color-gray-200;
+    padding-left: $spacing-4;
+    margin: 0 0 $spacing-4;
+  }
+
+  &__datanote {
+    font-size: $font-size-xs;
+    color: $color-gray-400;
+    margin: $spacing-3 0 0;
+  }
+
+  &__crosslink {
+    margin: $spacing-4 0 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
+  }
+
+  &__quote {
+    margin: $spacing-4 0 0;
+    padding: $spacing-4 $spacing-5;
+    background: $color-gray-50;
+    border-radius: $radius-lg;
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    color: $color-gray-800;
+    line-height: $line-height-normal;
+  }
+
+  &__quote-src {
+    display: block;
+    margin-top: $spacing-2;
+    font-family: $font-family-base;
+    font-style: normal;
+    font-size: $font-size-xs;
+    color: $color-gray-500;
+  }
+
+  &__faq { margin-bottom: $spacing-4; }
+  &__faq-q { font-size: $font-size-base; font-weight: $font-weight-semibold; color: $color-gray-900; margin: 0 0 $spacing-1; }
+  &__faq-a { font-size: $font-size-sm; line-height: $line-height-normal; color: $color-gray-700; margin: 0; }
+
+  &__cta {
+    max-width: 640px;
+    margin: $spacing-12 auto 0;
+    padding: $spacing-10 $spacing-6 $spacing-12;
+    text-align: center;
+  }
+
+  &__cta-title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    letter-spacing: -0.02em;
+    color: $color-gray-900;
+    margin: 0 0 $spacing-3;
+  }
+
+  &__cta-text {
+    font-size: $font-size-base;
+    color: $color-gray-600;
+    max-width: 52ch;
+    margin: 0 auto $spacing-6;
+  }
+
+  &__cta-self {
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+    margin: $spacing-4 0 0;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
+  }
+}

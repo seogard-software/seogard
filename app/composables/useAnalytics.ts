@@ -14,6 +14,7 @@ export type ScanSource =
   | 'audit'
   | 'pricing'
   | 'formations'
+  | 'oseox'
   | `fiche:${string}`
   | 'unknown'
 

@@ -74,6 +74,10 @@
             </template>
           </i18n-t>
         </p>
+        <p class="problem__monitor">
+          {{ $t('compare.links.homeLead') }}
+          <NuxtLink :to="localePath({ name: 'oseox-vs-seogard' })">{{ $t('compare.links.homeLink') }}</NuxtLink>
+        </p>
       </div>
     </section>
 

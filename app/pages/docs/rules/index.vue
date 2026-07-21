@@ -110,6 +110,13 @@
           </template>
         </div>
       </div>
+
+      <p class="docs-rules__compare-links">
+        {{ $t('compare.links.hubLabel') }} :
+        <NuxtLink :to="localePath({ name: 'oseox-vs-seogard' })">{{ $t('compare.links.vsAnchor') }}</NuxtLink>
+        ·
+        <NuxtLink :to="localePath({ name: 'alternative-oseox' })">{{ $t('compare.links.altAnchor') }}</NuxtLink>
+      </p>
     </div>
   </div>
 </template>
@@ -218,6 +225,17 @@ useSeoMeta({
   }
 
   &__subtitle { font-size: $font-size-sm; color: $color-gray-500; margin: 0 0 $spacing-8; }
+
+  &__compare-links {
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+    margin: $spacing-10 0 0;
+    padding-top: $spacing-6;
+    border-top: 1px solid $color-gray-100;
+
+    a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: $color-accent; }
+  }
 
   &__block { margin-bottom: $spacing-4; }
 

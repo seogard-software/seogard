@@ -18,6 +18,8 @@ export default defineEventHandler(async (event) => {
     { path: '/docs/rules', priority: '0.7', changefreq: 'monthly' },
     { path: '/docs/self-hosted', priority: '0.7', changefreq: 'monthly' },
     { path: '/bot', priority: '0.5', changefreq: 'monthly' },
+    { path: '/alternative-oseox', priority: '0.7', changefreq: 'monthly' },
+    { path: '/oseox-vs-seogard', priority: '0.7', changefreq: 'monthly' },
   ]
 
   const hreflangBlock = (frPath: string, enPath: string) => `
