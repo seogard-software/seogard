@@ -21,6 +21,6 @@
     "ctaTitle": "Vérifiez votre site en 30 secondes",
     "ctaText": "Seogard compare le HTML brut et le rendu JavaScript de vos pages et vous dit ce que Google voit vraiment. Gratuit, sans compte.",
     "seoTitle": "À propos — l'auteur derrière Seogard",
-    "seoDescription": "Aadil Talbi, Lead Dev Vue.js et fondateur de Seogard. Pourquoi et comment je surveille les régressions SEO et GEO en comparant le HTML brut et le rendu JavaScript."
+    "seoDescription": "Aadil Talbi, Lead Dev Vue.js et fondateur de Seogard. Pourquoi je construis un outil qui compare le HTML brut de Google au rendu JavaScript."
   }
 }

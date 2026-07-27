@@ -40,10 +40,6 @@
             </p>
             <GithubLink label class="layout-landing__footer-github" />
           </div>
-          <div class="layout-landing__footer-faq">
-            <h4 class="layout-landing__footer-heading">{{ $t('landing.layout.footer.faqHeading') }}</h4>
-            <AppAccordion :items="footerFaq" size="sm" />
-          </div>
           <div class="layout-landing__footer-col">
             <h4 class="layout-landing__footer-heading">{{ $t('landing.layout.footer.linksHeading') }}</h4>
             <NuxtLink :to="localePath({ name: 'index', hash: '#features' })" class="layout-landing__footer-link">{{ $t('landing.layout.footer.linkFeatures') }}</NuxtLink>
@@ -64,6 +60,7 @@
             <NuxtLink :to="localePath({ name: 'legal-cookies' })" class="layout-landing__footer-link">{{ $t('landing.layout.footer.linkCookies') }}</NuxtLink>
             <NuxtLink :to="localePath({ name: 'legal-mentions' })" class="layout-landing__footer-link">{{ $t('landing.layout.footer.linkMentions') }}</NuxtLink>
             <a href="https://github.com/seogard-software/seogard/blob/main/LICENCE" target="_blank" rel="noopener" class="layout-landing__footer-link">{{ $t('landing.layout.footer.linkLicence') }}</a>
+            <p class="layout-landing__footer-legal">{{ $t('landing.layout.footer.legalLine') }}</p>
           </div>
         </div>
       </div>
@@ -74,19 +71,9 @@
 </template>
 
 <script setup lang="ts">
-import { RULES_COUNT } from '~~/shared/utils/rules-list'
-
-const { t } = useI18n()
 const localePath = useLocalePath()
 
 useCanonicalHead()
-
-const footerFaq = computed(() => [
-  { q: t('landing.layout.faq.q1'), a: t('landing.layout.faq.a1', { count: RULES_COUNT }) },
-  { q: t('landing.layout.faq.q2'), a: t('landing.layout.faq.a2') },
-  { q: t('landing.layout.faq.q3'), a: t('landing.layout.faq.a3') },
-  { q: t('landing.layout.faq.q4'), a: t('landing.layout.faq.a4') },
-])
 
 const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
@@ -164,7 +151,7 @@ onUnmounted(() => {
 
   &__footer-grid {
     display: grid;
-    grid-template-columns: 2fr 3fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: $spacing-8;
     margin-bottom: $spacing-12;
   }
@@ -182,12 +169,6 @@ onUnmounted(() => {
     margin: 0;
   }
 
-  &__footer-faq {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-4;
-  }
-
   &__footer-col {
     display: flex;
     flex-direction: column;
@@ -201,6 +182,13 @@ onUnmounted(() => {
     margin-bottom: $spacing-1;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  &__footer-legal {
+    margin-top: $spacing-3;
+    font-size: $font-size-xs;
+    line-height: $line-height-normal;
+    color: $color-gray-400;
   }
 
   &__footer-link {
@@ -251,8 +239,7 @@ onUnmounted(() => {
       gap: $spacing-8;
     }
 
-    &__footer-brand,
-    &__footer-faq {
+    &__footer-brand {
       grid-column: 1 / -1;
     }
   }

@@ -21,6 +21,6 @@
     "ctaTitle": "Check your site in 30 seconds",
     "ctaText": "Seogard compares the raw HTML and the JavaScript render of your pages and tells you what Google actually sees. Free, no account.",
     "seoTitle": "About — the author behind Seogard",
-    "seoDescription": "Aadil Talbi, Vue.js Lead Dev and founder of Seogard. Why and how I monitor SEO and GEO regressions by comparing raw HTML with the JavaScript render."
+    "seoDescription": "Aadil Talbi, Vue.js Lead Dev and founder of Seogard. Why I build a tool that compares the raw HTML Google reads with the JavaScript render."
   }
 }

@@ -32,7 +32,7 @@
     "alternativeOseox": {
       "seo": {
         "title": "Oseox Alternative: SEO Monitoring That Renders JavaScript | Seogard",
-        "description": "Oseox crawls without executing JavaScript (their own docs). On a Nuxt, Next or Vue site, SSR/CSR regressions slip through. Seogard diffs raw HTML against the JS render. Free scan, no card.",
+        "description": "Oseox crawls without executing JavaScript. On a Nuxt, Next or Vue site, SSR regressions slip through. Seogard diffs raw HTML against the JS render.",
         "ogTitle": "Oseox Alternative — the monitoring that executes JavaScript",
         "ogDescription": "Oseox's crawler doesn't execute JS. Seogard diffs raw HTML and the JavaScript render, as a complement. Free scan.",
         "twitterTitle": "Oseox Alternative — the monitoring that executes JavaScript",
@@ -73,7 +73,7 @@
     "vsSeogard": {
       "seo": {
         "title": "Oseox vs Seogard: SEO Monitoring Compared",
-        "description": "Oseox: all-in-one SEO suite that crawls without JavaScript. Seogard: SSR/CSR regression detection (raw HTML vs JS render). An honest, sourced side-by-side.",
+        "description": "Oseox tracks rankings and backlinks. Seogard diffs raw HTML against the JavaScript render. An honest, sourced side-by-side comparison.",
         "ogTitle": "Oseox vs Seogard — the honest comparison",
         "ogDescription": "Oseox = broad suite (rank, keywords, backlinks). Seogard = SSR/CSR regression (raw HTML vs JS render). Two different jobs.",
         "twitterTitle": "Oseox vs Seogard — the honest comparison",
