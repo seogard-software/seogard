@@ -12,7 +12,9 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
-export function normalizeUrl(url: string): string {
+// Identite d'un Site : sans slash final. Les URLs de PAGE passent par
+// normalizePageUrl (shared/utils/sitemap), qui garde le slash sur la racine.
+export function normalizeSiteUrl(url: string): string {
   const parsed = new URL(url)
   return `${parsed.protocol}//${parsed.host}${parsed.pathname}`.replace(/\/$/, '')
 }

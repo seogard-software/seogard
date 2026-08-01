@@ -7,7 +7,8 @@ import { renderPage } from './renderer'
 import { compareSnapshots, REDIRECT_SAFE_RESOLVE, type AlertData } from './comparator'
 import { purgeableFilter } from './page-lifecycle'
 import { deletePagesCascade } from '../server/database/cascade'
-import { isSsrBlocked, isRedirectToWaf, normalizeUrl } from './rules/helpers'
+import { isSsrBlocked, isRedirectToWaf } from './rules/helpers'
+import { normalizePageUrl } from '../shared/utils/sitemap'
 import { sendEmailNotification, sendCrawlerBlockedNotification, toLocale, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
 import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
@@ -16,16 +17,6 @@ import { writeCrawlSnapshot, type SnapshotResult } from './crawl-snapshot'
 import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
 
 const log = createLogger('worker')
-
-function normalizePageUrl(url: string): string {
-  try {
-    const parsed = new URL(url)
-    // Ensure root URLs have trailing slash: https://example.com → https://example.com/
-    if (parsed.pathname === '') parsed.pathname = '/'
-    return parsed.toString()
-  }
-  catch { return url }
-}
 
 // In-memory crawl context (set by initCrawl, shared across processPages calls)
 const crawlContexts = new Map<string, { siteId: string, siteName: string, startedAt: number, siteContext?: SiteContext, oldSiteContext?: SiteContext, siteRootUrl?: string, mutedRuleIds?: Set<string> }>()
@@ -126,7 +117,7 @@ export async function processPages(crawlId: string): Promise<void> {
         // Ancre des règles site-level : l'URL racine ENREGISTRÉE du site (et pas seulement
         // pathname '/'), pour couvrir les sites servis sous un chemin (ex. /fr/) ou dont la
         // home n'est pas exactement '/'.
-        ctx.siteRootUrl = normalizeUrl(site.url)
+        ctx.siteRootUrl = normalizePageUrl(site.url)
         log.info({ siteId, hasLlmsTxt: ctx.siteContext.hasLlmsTxt, aiCrawlersBlocked: ctx.siteContext.aiCrawlersBlocked }, 'site GEO context fetched')
       }
     }
@@ -210,7 +201,9 @@ export async function processPages(crawlId: string): Promise<void> {
       }
 
       // Sinon : page 200 → CSR pour détecter les divergences SSR/CSR.
-      ssrResults.push({ pageUrl: urls[i], result: page })
+      // La clé de la phase SSR, pas l'URL brute : les deux phases doivent écrire
+      // sous la même clé.
+      ssrResults.push({ pageUrl: page.pageUrl, result: page })
     }
 
     // Phase 2 — CSR render for changed/new pages (limited concurrency)
@@ -411,6 +404,9 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
 // --- Page processing ---
 
 interface PageProcessResult {
+  /** Clé normalisée utilisée pour le fetch et en base. La phase CSR réutilise
+   *  celle-ci, jamais l'URL brute de la file : sinon deux clés pour une page. */
+  pageUrl: string
   isFirstCrawl: boolean
   alerts: AlertData[]
   pageId: string
@@ -459,6 +455,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
     }], mutedRuleIds)
 
     return {
+      pageUrl,
       isFirstCrawl,
       alerts: [],
       pageId: page._id.toString(),
@@ -538,6 +535,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
   }
 
   return {
+    pageUrl,
     isFirstCrawl,
     alerts: pageAlerts,
     pageId: page._id.toString(),

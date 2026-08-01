@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Invalid URL', data: { errorCode: 'INVALID_URL' } })
   }
 
-  const normalizedUrl = normalizeUrl(body.url)
+  const normalizedUrl = normalizeSiteUrl(body.url)
 
   const existing = await Site.findOne({ orgId, url: normalizedUrl }).lean()
 

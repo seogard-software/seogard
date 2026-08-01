@@ -22,7 +22,7 @@ vi.stubGlobal('getOrgIdFromHeader', vi.fn(() => 'org1'))
 vi.stubGlobal('requireOrgRole', (...a: unknown[]) => mockRequireOrgRole(...a))
 vi.stubGlobal('useRequestLog', vi.fn(() => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() })))
 vi.stubGlobal('isValidUrl', (url: string) => typeof url === 'string' && url.startsWith('http'))
-vi.stubGlobal('normalizeUrl', (url: string) => url.replace(/\/$/, ''))
+vi.stubGlobal('normalizeSiteUrl', (url: string) => url.replace(/\/$/, ''))
 let body: unknown = {}
 vi.stubGlobal('readBody', vi.fn(() => Promise.resolve(body)))
 

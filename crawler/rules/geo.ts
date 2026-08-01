@@ -1,5 +1,5 @@
 import { registerRule, type RuleContext } from './engine'
-import { normalizeUrl } from './helpers'
+import { normalizePageUrl } from '../../shared/utils/sitemap'
 
 // Les règles site-level ne doivent fire qu'UNE fois par crawl, sur la page racine du site.
 // Ancre = l'URL racine ENREGISTRÉE du site (couvre les sites servis sous un chemin comme /fr/
@@ -7,11 +7,11 @@ import { normalizeUrl } from './helpers'
 function isSiteAnchor(ctx: RuleContext): boolean {
   // On compare l'URL REQUISE (normalisée comme siteRootUrl côté worker), pas finalUrl :
   // finalUrl peut pointer vers une redirection/canonical différente de l'URL enregistrée.
-  // Comparaison INSENSIBLE au slash final : `normalizeUrl` ne le pose que sur la racine,
-  // donc `https://x.com/fr` (site.url sans slash) doit matcher `https://x.com/fr/` (page).
+  // Comparaison insensible au slash final : `https://x.com/fr` doit matcher
+  // `https://x.com/fr/`.
   const url = ctx.pageUrl
   const root = ctx.siteContext?.siteRootUrl
-  if (root && normalizeUrl(url).replace(/\/$/, '') === root.replace(/\/$/, '')) return true
+  if (root && normalizePageUrl(url).replace(/\/$/, '') === root.replace(/\/$/, '')) return true
   try {
     const pathname = new URL(url).pathname
     return pathname === '/' || pathname === ''

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!body?.url || typeof body.url !== 'string' || !isValidUrl(body.url)) {
     throw createError({ statusCode: 400, message: 'Invalid URL', data: { errorCode: 'INVALID_URL' } })
   }
-  const url = normalizeUrl(body.url)
+  const url = normalizeSiteUrl(body.url)
   log.info({ userId, url }, 'scan requested')
 
   // Dédup CROSS-ORGA : toutes les orgas de l'utilisateur, pas seulement l'active.

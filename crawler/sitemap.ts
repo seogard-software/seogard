@@ -71,7 +71,7 @@ export async function discoverPages(siteUrl: string): Promise<DiscoverResult> {
     if (kept.length === 0) {
       log.error({ siteUrl, droppedCount: dropped.length, foreignHostnames, sample: dropped.slice(0, 3) },
         'sitemap is 100% cross-domain — falling back to homepage')
-      return { urls: [siteUrl], sitemapBlocked: false, sitemapMissing: false, foreignHostnames, foreignUrlCount: dropped.length }
+      return { urls: [normalizePageUrl(siteUrl)], sitemapBlocked: false, sitemapMissing: false, foreignHostnames, foreignUrlCount: dropped.length }
     }
 
     log.info({ siteUrl, pagesFound: kept.length, sitemapsScanned: candidates.length, dropped: dropped.length }, 'all sitemaps merged and deduplicated')
@@ -86,7 +86,7 @@ export async function discoverPages(siteUrl: string): Promise<DiscoverResult> {
   }
 
   // sitemapMissing = vrai SEULEMENT si on n'est pas bloqué (sinon le sitemap existe sûrement).
-  return { urls: [siteUrl], sitemapBlocked: sawBlocked, sitemapMissing: !sawBlocked, foreignHostnames: [], foreignUrlCount: 0 }
+  return { urls: [normalizePageUrl(siteUrl)], sitemapBlocked: sawBlocked, sitemapMissing: !sawBlocked, foreignHostnames: [], foreignUrlCount: 0 }
 }
 
 function uniqueHostnames(urls: string[]): string[] {
