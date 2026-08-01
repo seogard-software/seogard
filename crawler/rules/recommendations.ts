@@ -21,7 +21,7 @@ registerRule({
       severity: count >= 10 ? 'warning' : 'info',
       message: `${count} image(s) missing an alt attribute`,
       previousValue: null,
-      currentValue: `${count} images sans alt`,
+      currentValue: `${count} images without alt`,
     }]
   },
 })
@@ -33,7 +33,7 @@ registerRule({
     if (!title) return [] // handled by meta_title_missing
     const len = title.length
     if (len >= 15 && len <= 60) return []
-    const issue = len < 15 ? 'trop court' : 'trop long'
+    const issue = len < 15 ? 'too short' : 'too long'
     return [{
       type: 'rec_title_length_audit',
       severity: 'info',
@@ -51,7 +51,7 @@ registerRule({
     if (!desc) return [] // handled by meta_description_missing
     const len = desc.length
     if (len >= 50 && len <= 160) return []
-    const issue = len < 50 ? 'trop courte' : 'trop longue'
+    const issue = len < 50 ? 'too short' : 'too long'
     return [{
       type: 'rec_description_length_audit',
       severity: 'info',
@@ -146,7 +146,7 @@ registerRule({
       severity: 'warning',
       message: `${missing} of ${csr} words only appear after JavaScript execution. AI crawlers (ChatGPT, Perplexity, Claude) read raw HTML and will probably never see this content.`,
       previousValue: null,
-      currentValue: `SSR ${ssr} mots / CSR ${csr} mots`,
+      currentValue: `SSR ${ssr} words / CSR ${csr} words`,
     }]
   },
 })
@@ -382,7 +382,7 @@ registerRule({
       severity: 'info',
       message: `${newlyAddedWithoutAlt.length} image(s) added by JavaScript have no alt attribute. Google Image Search will probably not index them (it reads raw HTML), and visually impaired users cannot understand them. Fix: add a descriptive alt attribute to every image, and render them server-side when possible.`,
       previousValue: null,
-      currentValue: `${newlyAddedWithoutAlt.length} images JS sans alt`,
+      currentValue: `${newlyAddedWithoutAlt.length} JS images without alt`,
     }]
   },
 })
