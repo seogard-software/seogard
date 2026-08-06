@@ -7,6 +7,7 @@ import {
   fetchSitemapHttp,
   parseSitemapXml,
   filterUrlsByHost,
+  normalizePageUrl,
   type FetchOptions,
 } from '../shared/utils/sitemap'
 
