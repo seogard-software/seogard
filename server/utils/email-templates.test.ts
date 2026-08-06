@@ -71,11 +71,11 @@ describe('crawlReportTemplate — corps', () => {
     const { html } = crawlReportTemplate({
       ...base,
       regressions: [{ pageUrl: '/a', severity: 'critical', message: 'x' }],
-      topRecos: [{ ruleId: 'rec_llms_txt_missing', label: '/llms.txt manquant', pagesAffected: 1, siteLevel: true, hint: 'visibilité IA (ChatGPT, Claude, Perplexity)' }],
+      topRecos: [{ ruleId: 'rec_llms_txt_missing', label: '/llms.txt manquant', pagesAffected: 1, siteLevel: true, hint: 'convention spéculative — aucun moteur IA ne confirme la lire' }],
       recoCount: 23,
     })
     expect(html).toContain('/llms.txt manquant')
-    expect(html).toContain('visibilité IA')
+    expect(html).toContain('convention spéculative')
     expect(html).toContain('+ 22 autres recommandations') // 23 - 1
   })
 

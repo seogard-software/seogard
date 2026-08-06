@@ -152,7 +152,7 @@
     "footer": "This link expires in <strong>7 days</strong>. If you did not request this invitation, ignore this email."
   },
   "recoHints": {
-    "rec_llms_txt_missing": "AI visibility (ChatGPT, Claude, Perplexity)",
+    "rec_llms_txt_missing": "speculative convention — no AI engine confirms reading it",
     "rec_ai_crawlers_blocked": "AI systems cannot index your site"
   }
 }

@@ -152,7 +152,7 @@
     "footer": "Ce lien expire dans <strong>7 jours</strong>. Si vous n'avez pas demandé cette invitation, ignorez cet email."
   },
   "recoHints": {
-    "rec_llms_txt_missing": "visibilité IA (ChatGPT, Claude, Perplexity)",
+    "rec_llms_txt_missing": "convention spéculative — aucun moteur IA ne confirme la lire",
     "rec_ai_crawlers_blocked": "les IA ne peuvent pas indexer votre site"
   }
 }

@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
   if (!path.startsWith('/api/')) return
   if (PUBLIC_API_ROUTES.some(route => path.startsWith(route))) return
   if (getHeader(event, 'x-api-key') && CI_ZONE_CRAWL.test(path)) return
+  // Deja authentifie par cle partagee dans 00.internal-api, qui tourne avant.
+  if (path.startsWith('/api/internal/')) return
 
   // 1. Try access token
   const accessToken = getCookie(event, AUTH_COOKIE_NAME)
