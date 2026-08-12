@@ -21,7 +21,7 @@ export async function loadZoneCrawlHistory(siteId: string, zoneId: string, local
   const snapshots = await CrawlReport.find({ siteId: new Types.ObjectId(siteId), zoneId: new Types.ObjectId(zoneId) })
     .sort({ completedAt: -1 })
     .limit(HISTORY_DISPLAY_LIMIT)
-    .select('crawlId completedAt pagesScanned regressions fixed verdict')
+    .select('crawlId completedAt pagesScanned pagesAnalysed coveragePct regressions fixed verdict')
     .lean()
 
   const timeline: CrawlTimelineEntry[] = snapshots.map(s => ({
@@ -29,6 +29,8 @@ export async function loadZoneCrawlHistory(siteId: string, zoneId: string, local
     completedAt: s.completedAt ? new Date(s.completedAt).toISOString() : null,
     status: 'completed',
     pagesScanned: s.pagesScanned ?? 0,
+    pagesAnalysed: s.pagesAnalysed ?? null,
+    coveragePct: s.coveragePct ?? null,
     regressions: s.regressions ?? 0,
     fixed: s.fixed ?? 0,
     verdict: (s.verdict ?? 'stable') as CrawlActivityVerdict,

@@ -2,6 +2,27 @@ import { Types } from 'mongoose'
 import { Site, Zone, Crawl, Alert, CrawlReport, Organization, User } from '../server/database/models'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '../shared/utils/i18n'
 import { alertZoneScopeStages } from '../server/utils/zone-alert-scope'
+import { buildCrawlCoverage } from '../shared/utils/crawl-coverage'
+import type { ReportCoverage } from '../shared/types/zone-report'
+
+/**
+ * Couverture telle que le rapport doit l'afficher. `null` quand elle n'est pas mesurable :
+ * crawl antérieur à la mesure, ou compteurs Redis évincés. Une donnée absente s'affiche comme
+ * absente — jamais comme un zéro qui se lirait « rien n'a été analysé ».
+ */
+function toReportCoverage(crawl: { pagesTotal?: number, pagesRendered?: number, pagesCsrFailed?: number, pagesCsrBlocked?: number, pagesNotComparable?: number, pagesBlocked?: number, pagesFailed?: number }): ReportCoverage | null {
+  const c = buildCrawlCoverage({
+    pagesTotal: crawl.pagesTotal ?? 0,
+    pagesRendered: crawl.pagesRendered ?? null,
+    pagesCsrFailed: crawl.pagesCsrFailed ?? null,
+    pagesCsrBlocked: crawl.pagesCsrBlocked ?? 0,
+    pagesNotComparable: crawl.pagesNotComparable ?? 0,
+    pagesBlocked: crawl.pagesBlocked ?? 0,
+    pagesFailed: crawl.pagesFailed ?? 0,
+  })
+  if (!c.measurable) return null
+  return { analysable: c.analysable, analysed: c.analysed, pct: c.pct, causes: c.causes.map(x => ({ key: x.key, count: x.count })) }
+}
 import { buildZoneReport, MD_REPORT_CAPS, REPORT_RETENTION_DAYS, type ReportAlertInput } from '../server/utils/report-builder'
 import { renderReportMarkdown } from '../server/utils/report-markdown'
 import { renderReportPdf } from '../server/utils/report-pdf'
@@ -38,7 +59,7 @@ export interface SnapshotResult { pdf: Buffer, pdfFilename: string }
 export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promise<SnapshotResult | null> {
   if (!isObjectStorageEnabled()) return null
 
-  const crawl = await Crawl.findById(crawlId).select('zoneId completedAt pagesScanned pagesTotal pagesPurged').lean()
+  const crawl = await Crawl.findById(crawlId).select('zoneId completedAt pagesScanned pagesTotal pagesPurged pagesRendered pagesCsrFailed pagesCsrBlocked pagesNotComparable pagesBlocked pagesFailed').lean()
   if (!crawl?.zoneId) return null
   const zone = await Zone.findById(crawl.zoneId).lean()
   if (!zone) return null
@@ -93,6 +114,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
   try { domain = new URL(domain).hostname } catch { /* garde l'URL brute si invalide */ }
 
   // Un seul rapport exhaustif → rend le .md (tout) et le .pdf (le rendu PDF compacte de lui-même).
+  const coverage = toReportCoverage(crawl)
   const report = buildZoneReport({
     site: { name: site.name, domain },
     zone: { name: zone.name ?? null, isDefault: !!zone.isDefault },
@@ -100,6 +122,7 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
       completedAt: crawl.completedAt ? new Date(crawl.completedAt).toISOString() : null,
       pagesScanned: crawl.pagesScanned ?? 0,
       pagesTotal: crawl.pagesTotal ?? 0,
+      coverage,
       pagesPurged: crawl.pagesPurged ?? 0,
     },
     openAlerts,
@@ -128,6 +151,8 @@ export async function writeCrawlSnapshot(crawlId: string, siteId: string): Promi
         zoneId: zid,
         completedAt: crawl.completedAt ?? new Date(),
         pagesScanned: crawl.pagesScanned ?? 0,
+        pagesAnalysed: coverage?.analysed ?? null,
+        coveragePct: coverage?.pct ?? null,
         regressions: total,
         fixed,
         verdict: activityVerdict(critical, warning, total),

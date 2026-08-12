@@ -109,6 +109,37 @@ function businessMeaning(report: ZoneReport, locale: Locale): Content[] {
   ]
 }
 
+/**
+ * Bloc de couverture, page 1. Sans couleur : la gravité est portée par le mot et par les
+ * nombres, pour rester lisible en noir et blanc comme le reste du document.
+ */
+function coverageBlock(meta: ZoneReport['meta']): Content[] {
+  const locale = meta.locale
+  const { coverage } = meta
+  if (!coverage) {
+    return [{ text: t(locale, 'report.coverage.unmeasured'), style: 'meta', margin: [0, 0, 0, 12] }]
+  }
+  if (coverage.pct >= 100) {
+    return [{ text: stripMd(t(locale, 'report.coverage.full', { analysable: fmtNum(coverage.analysable, locale) })), style: 'meta', margin: [0, 0, 0, 12] }]
+  }
+  const causes = coverage.causes
+    .map(c => t(locale, `report.coverage.${c.key}`, { count: fmtNum(c.count, locale) }))
+    .join(' · ')
+  return [
+    { text: stripMd(t(locale, 'report.coverage.partial', {
+      analysed: fmtNum(coverage.analysed, locale),
+      analysable: fmtNum(coverage.analysable, locale),
+      pct: coverage.pct,
+    })), style: 'meta', bold: true, margin: [0, 0, 0, 2] },
+    { text: causes, style: 'meta', margin: [0, 0, 0, 12] },
+  ]
+}
+
+/** Le wording est partagé avec le .md, qui porte du gras Markdown : le PDF ne le rend pas. */
+function stripMd(value: string): string {
+  return value.replace(/\*\*/g, '')
+}
+
 export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitions {
   const { meta, verdict } = report
   const locale = meta.locale
@@ -121,9 +152,11 @@ export function buildReportDocDefinition(report: ZoneReport): TDocumentDefinitio
     { text: t(locale, 'report.tagline'), style: 'tagline' },
     { text: t(locale, 'report.crawl_line', {
       lastCrawl: formatDate(meta.crawlCompletedAt, locale),
-      pages: fmtNum(meta.pagesScanned, locale),
+      pages: fmtNum(meta.pagesTotal || meta.pagesScanned, locale),
       generated: formatDate(meta.generatedAt, locale),
-    }), style: 'meta', margin: [0, 4, 0, 16] },
+    }), style: 'meta', margin: [0, 4, 0, 8] },
+    // Couverture AVANT le tableau de verdict : elle en conditionne la lecture.
+    ...coverageBlock(meta),
     {
       table: {
         widths: ['*', '*', '*', '*'],

@@ -4,7 +4,7 @@
   "zone_unnamed": "Zone",
   "title": "État de santé SEO",
   "tagline": "Comparaison HTML brut (indexé par Google) vs rendu JavaScript",
-  "crawl_line": "Dernier crawl : {lastCrawl} · {pages} pages crawlées · Généré le {generated}",
+  "crawl_line": "Dernier crawl : {lastCrawl} · {pages} pages à surveiller · Généré le {generated}",
   "status": {
     "ok": "OK",
     "warning": "À surveiller",
@@ -27,7 +27,7 @@
     "affected_pages": "Pages concernées :",
     "more_pages": "… et {count} autres pages",
     "verdict": "Verdict : {label}",
-    "table_header": "| Régressions critiques | Warnings | Recommandations | Pages crawlées |",
+    "table_header": "| Régressions critiques | Warnings | Recommandations | Pages analysées |",
     "signature_mismatch_one": "**⚠️ {count} page où Google et les IA voient un contenu différent de vos visiteurs** (écart entre le HTML brut et le rendu JavaScript).",
     "signature_mismatch_other": "**⚠️ {count} pages où Google et les IA voient un contenu différent de vos visiteurs** (écart entre le HTML brut et le rendu JavaScript).",
     "signature_ok": "**✅ Aucun écart détecté entre ce que voient vos visiteurs et ce que voient Google et les IA.**",
@@ -80,5 +80,16 @@
     "detail_title": "Détail complet — ",
     "detail_body": "ce PDF est une synthèse. Pour TOUTES les pages et alertes (URLs comprises), téléchargez l’export Markdown du rapport depuis le dashboard Seogard (bouton « Export pour IA »).",
     "footer": "Généré par Seogard — seogard.io"
+  },
+  "coverage": {
+    "full": "✅ **Analyse complète** — les {analysable} pages à surveiller ont toutes été analysées.",
+    "partial": "⚠️ **Analyse partielle — {analysed} des {analysable} pages à surveiller ont été analysées ({pct} %).** Les conclusions ci-dessous ne portent que sur ces pages.",
+    "unmeasured": "Couverture non mesurée sur ce crawl.",
+    "scope": "établi sur {pct} % des pages à surveiller",
+    "blocked": "{count} bloquées par votre pare-feu (requête HTTP)",
+    "notRetrieved": "{count} non récupérées",
+    "renderFailed": "{count} dont le rendu JavaScript a échoué",
+    "renderBlocked": "{count} bloquées par votre pare-feu (rendu JavaScript)",
+    "unexplained": "{count} sans cause identifiée"
   }
 }

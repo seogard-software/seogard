@@ -306,17 +306,19 @@
       "latestTitle": "Latest crawl — {date}",
       "regressionCount": "{count} regressions | {count} regression | {count} regressions",
       "fixedCount": "{count} fixed | {count} fixed | {count} fixed",
-      "pagesCount": "{count} pages",
+      "pagesCount": "{count} pages analysed",
       "pdfHint": "business summary",
       "mdHint": "exhaustive, for AI",
       "historyTitle": "Previous crawls",
-      "crawlCounts": "{regressions} reg. · {fixed} fixed · {pages} pages",
+      "crawlCounts": "{regressions} regr. · {fixed} fixed · {pages} pages analysed",
       "verdict": {
         "critical": "Critical regressions",
         "warning": "Regressions to watch",
         "info": "Minor regressions",
         "stable": "Stable"
-      }
+      },
+      "pagesCountUnmeasured": "{count} pages to monitor",
+      "crawlCountsUnmeasured": "{regressions} regr. · {fixed} fixed · {pages} pages to monitor"
     },
     "schedule": {
       "tabTitle": "Schedule — {zone}",

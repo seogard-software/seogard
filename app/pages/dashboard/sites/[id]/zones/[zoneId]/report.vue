@@ -27,7 +27,7 @@
             <p class="zone-report__latest-meta">
               {{ verdictLabel(latest.verdict) }} · {{ $t('dashboard.report.regressionCount', { count: latest.regressions.toLocaleString(numberLocale) }, latest.regressions) }}
               · {{ $t('dashboard.report.fixedCount', { count: latest.fixed.toLocaleString(numberLocale) }, latest.fixed) }}
-              · {{ $t('dashboard.report.pagesCount', { count: latest.pagesScanned.toLocaleString(numberLocale) }) }}
+              · {{ pagesLabel(latest) }}
             </p>
           </div>
         </div>
@@ -50,7 +50,7 @@
             <span class="zone-report__crawl-date">{{ formatDate(entry.completedAt) }}</span>
             <span class="zone-report__crawl-verdict">{{ verdictLabel(entry.verdict) }}</span>
             <span class="zone-report__crawl-counts">
-              {{ $t('dashboard.report.crawlCounts', { regressions: entry.regressions.toLocaleString(numberLocale), fixed: entry.fixed.toLocaleString(numberLocale), pages: entry.pagesScanned.toLocaleString(numberLocale) }) }}
+              {{ countsLabel(entry) }}
             </span>
             <AppIcon name="chevron-down" size="sm" class="zone-report__crawl-chevron" />
           </summary>
@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CrawlActivityVerdict, ZoneCrawlHistory } from '~~/shared/types/zone-report'
+import type { CrawlActivityVerdict, CrawlTimelineEntry, ZoneCrawlHistory } from '~~/shared/types/zone-report'
 import { crawlReportDownloadPath } from '~~/shared/utils/report-links'
 defineI18nRoute(false)
 
@@ -90,6 +90,26 @@ useHead({ title: computed(() => t('dashboard.report.tabTitle', { zone: history.v
 const timeline = computed(() => history.value?.timeline ?? [])
 const latest = computed(() => timeline.value[0])
 const previous = computed(() => timeline.value.slice(1))
+
+// Un crawl antérieur à la mesure de couverture n'a pas de nombre de pages ANALYSÉES :
+// on annonce alors l'ensemble à surveiller, jamais un total présenté comme analysé.
+function pagesLabel(entry: CrawlTimelineEntry): string {
+  const count = (entry.pagesAnalysed ?? entry.pagesScanned).toLocaleString(numberLocale.value)
+  return entry.pagesAnalysed === null
+    ? t('dashboard.report.pagesCountUnmeasured', { count })
+    : t('dashboard.report.pagesCount', { count })
+}
+
+function countsLabel(entry: CrawlTimelineEntry): string {
+  const params = {
+    regressions: entry.regressions.toLocaleString(numberLocale.value),
+    fixed: entry.fixed.toLocaleString(numberLocale.value),
+    pages: (entry.pagesAnalysed ?? entry.pagesScanned).toLocaleString(numberLocale.value),
+  }
+  return entry.pagesAnalysed === null
+    ? t('dashboard.report.crawlCountsUnmeasured', params)
+    : t('dashboard.report.crawlCounts', params)
+}
 
 function mdUrl(crawlId: string) { return crawlReportDownloadPath(siteId.value, zoneId.value, crawlId, 'md') }
 function pdfUrl(crawlId: string) { return crawlReportDownloadPath(siteId.value, zoneId.value, crawlId, 'pdf') }

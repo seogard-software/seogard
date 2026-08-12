@@ -306,17 +306,19 @@
       "latestTitle": "Dernier crawl — {date}",
       "regressionCount": "{count} régression | {count} régression | {count} régressions",
       "fixedCount": "{count} réparée | {count} réparée | {count} réparées",
-      "pagesCount": "{count} pages",
+      "pagesCount": "{count} pages analysées",
       "pdfHint": "synthèse métier",
       "mdHint": "exhaustif, pour IA",
       "historyTitle": "Crawls précédents",
-      "crawlCounts": "{regressions} régr. · {fixed} rép. · {pages} pages",
+      "crawlCounts": "{regressions} régr. · {fixed} rép. · {pages} pages analysées",
       "verdict": {
         "critical": "Régressions critiques",
         "warning": "Régressions à surveiller",
         "info": "Régressions mineures",
         "stable": "Stable"
-      }
+      },
+      "pagesCountUnmeasured": "{count} pages à surveiller",
+      "crawlCountsUnmeasured": "{regressions} régr. · {fixed} rép. · {pages} pages à surveiller"
     },
     "schedule": {
       "tabTitle": "Planification — {zone}",

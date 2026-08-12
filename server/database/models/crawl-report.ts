@@ -9,6 +9,10 @@ const crawlReportSchema = new Schema({
   zoneId: { type: Types.ObjectId, ref: 'Zone', required: true },
   completedAt: { type: Date, required: true },
   pagesScanned: { type: Number, default: 0 },
+  // Couverture réelle, pour l'historique de la page rapport. `null` = non mesurée
+  // (crawl antérieur à la mesure) — jamais 0, qui se lirait « rien n'a été analysé ».
+  pagesAnalysed: { type: Number, default: null },
+  coveragePct: { type: Number, default: null },
   // Activité du crawl (mêmes définitions que l'email) — sert la frise sans recalcul.
   regressions: { type: Number, default: 0 },
   fixed: { type: Number, default: 0 },

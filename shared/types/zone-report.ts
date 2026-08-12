@@ -7,6 +7,17 @@ import type { Locale } from '../utils/i18n'
 
 export type ReportSeverity = 'critical' | 'warning' | 'info'
 
+/** Couverture d'analyse, telle qu'affichée dans le rapport. */
+export interface ReportCoverage {
+  /** Pages qu'il fallait analyser : sitemap moins celles qui n'avaient pas à l'être. */
+  analysable: number
+  analysed: number
+  /** Arrondi plancher : « 100 » n'apparaît que si tout a été analysé. */
+  pct: number
+  /** Une entrée par cause MESURÉE, jamais fusionnées. Clé i18n + nombre. */
+  causes: { key: string, count: number }[]
+}
+
 export interface ZoneReportMeta {
   siteName: string
   siteDomain: string
@@ -18,6 +29,12 @@ export interface ZoneReportMeta {
   pagesTotal: number
   /** Pages sorties du monitoring par la purge (410 + hors sitemap au-delà de la fenêtre). */
   pagesPurged: number
+  /**
+   * Couverture réelle du crawl. `null` = non mesurable (crawl antérieur à la mesure, ou
+   * compteurs évincés). Portée AVANT le verdict dans les trois rendus : une conclusion
+   * calculée sur une fraction du site n'est pas la même affirmation qu'une conclusion complète.
+   */
+  coverage: ReportCoverage | null
   /** Date de génération du rapport (ISO) — fournie par l'appelant (pureté). */
   generatedAt: string
   /** Langue du rapport (libellés, dates) — figée à la génération, portée par le rapport lui-même. */
@@ -98,6 +115,9 @@ export interface CrawlTimelineEntry {
   completedAt: string | null
   status: string
   pagesScanned: number
+  /** Pages réellement analysées. `null` = crawl antérieur à la mesure de couverture. */
+  pagesAnalysed: number | null
+  coveragePct: number | null
   /** Régressions event/state signalées ce crawl (même définition que l'email : lastCrawlId == crawl). */
   regressions: number
   /** Régressions réparées ce crawl (resolvedCrawlId == crawl). */

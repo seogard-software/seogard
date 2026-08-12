@@ -37,6 +37,40 @@ function renderRuleEntry(entry: ReportRuleEntry, lines: string[], locale: Locale
   }
 }
 
+/**
+ * Bloc de couverture : ce qui a RÉELLEMENT été analysé, avec la ventilation par cause.
+ * Chaque nombre vient d'un compteur unique — deux causes ne sont jamais additionnées.
+ */
+function coverageLines(meta: ZoneReport['meta'], locale: Locale, intl: string): string[] {
+  const { coverage } = meta
+  if (!coverage) return [t(locale, 'report.coverage.unmeasured'), '']
+
+  if (coverage.pct >= 100) {
+    return [t(locale, 'report.coverage.full', { analysable: coverage.analysable.toLocaleString(intl) }), '']
+  }
+
+  const out = [t(locale, 'report.coverage.partial', {
+    analysed: coverage.analysed.toLocaleString(intl),
+    analysable: coverage.analysable.toLocaleString(intl),
+    pct: coverage.pct,
+  })]
+  for (const cause of coverage.causes) {
+    out.push(`- ${t(locale, `report.coverage.${cause.key}`, { count: cause.count.toLocaleString(intl) })}`)
+  }
+  out.push('')
+  return out
+}
+
+// Le frontmatter est en français : les clés de cause le sont aussi, sinon le fichier panache
+// « non_analysees_ » avec du camelCase anglais dans un document destiné à être parsé.
+const FRONTMATTER_CAUSE: Record<string, string> = {
+  blocked: 'pare_feu_http',
+  notRetrieved: 'non_recuperees',
+  renderFailed: 'rendu_echoue',
+  renderBlocked: 'pare_feu_rendu',
+  unexplained: 'sans_cause',
+}
+
 export function renderReportMarkdown(report: ZoneReport): string {
   const { meta, verdict } = report
   const locale = meta.locale
@@ -49,8 +83,18 @@ export function renderReportMarkdown(report: ZoneReport): string {
   lines.push(`zone: "${meta.zoneName}"`)
   lines.push(`crawl: ${meta.crawlCompletedAt ?? 'null'}`)
   lines.push(`genere_le: ${meta.generatedAt}`)
-  lines.push(`pages_crawlees: ${meta.pagesScanned}`)
-  lines.push(`pages_total: ${meta.pagesTotal}`)
+  lines.push(`pages_a_surveiller: ${meta.pagesTotal || meta.pagesScanned}`)
+  // « pages_crawlees » a été retiré : il portait pagesScanned, c'est-à-dire les pages TENTÉES.
+  // Une IA qui lisait ce champ concluait que tout avait été analysé.
+  if (meta.coverage) {
+    lines.push(`pages_analysees: ${meta.coverage.analysed}`)
+    lines.push(`couverture_pct: ${meta.coverage.pct}`)
+    lines.push(`couverture_portee: ${meta.coverage.pct >= 100 ? 'complete' : 'partielle'}`)
+    for (const cause of meta.coverage.causes) lines.push(`non_analysees_${FRONTMATTER_CAUSE[cause.key] ?? cause.key}: ${cause.count}`)
+  }
+  else {
+    lines.push('couverture_portee: non_mesuree')
+  }
   lines.push(`statut: ${verdict.status}`)
   lines.push(`regressions_critiques: ${verdict.critical}`)
   lines.push(`regressions_warnings: ${verdict.warning}`)
@@ -67,15 +111,23 @@ export function renderReportMarkdown(report: ZoneReport): string {
   lines.push('')
   lines.push(t(locale, 'report.crawl_line', {
     lastCrawl: formatDate(meta.crawlCompletedAt, locale),
-    pages: meta.pagesScanned.toLocaleString(intl),
+    pages: (meta.pagesTotal || meta.pagesScanned).toLocaleString(intl),
     generated: formatDate(meta.generatedAt, locale),
   }))
   lines.push('')
-  lines.push(`## ${t(locale, 'report.md.verdict', { label: t(locale, `report.status.${verdict.status}`) })}`)
+
+  // La COUVERTURE avant le verdict : une conclusion calculée sur une fraction du site n'est
+  // pas la même affirmation qu'une conclusion complète. Le lecteur doit le savoir avant.
+  lines.push(...coverageLines(meta, locale, intl))
+
+  const scope = meta.coverage && meta.coverage.pct < 100
+    ? ` (${t(locale, 'report.coverage.scope', { pct: meta.coverage.pct })})`
+    : ''
+  lines.push(`## ${t(locale, 'report.md.verdict', { label: t(locale, `report.status.${verdict.status}`) })}${scope}`)
   lines.push('')
   lines.push(t(locale, 'report.md.table_header'))
   lines.push(`|---|---|---|---|`)
-  lines.push(`| ${verdict.critical} | ${verdict.warning} | ${verdict.recommendations} | ${meta.pagesScanned.toLocaleString(intl)} |`)
+  lines.push(`| ${verdict.critical} | ${verdict.warning} | ${verdict.recommendations} | ${(meta.coverage?.analysed ?? meta.pagesScanned).toLocaleString(intl)} |`)
   lines.push('')
   if (verdict.signaturePagesCount > 0) {
     lines.push(tc(locale, 'report.md.signature_mismatch', verdict.signaturePagesCount, { count: verdict.signaturePagesCount.toLocaleString(intl) }))

@@ -1,4 +1,4 @@
-import type { ReportAnnexPage, ReportRuleEntry, ReportSeverity, ZoneReport } from '../../shared/types/zone-report'
+import type { ReportAnnexPage, ReportCoverage, ReportRuleEntry, ReportSeverity, ZoneReport } from '../../shared/types/zone-report'
 import type { Locale } from '../../shared/utils/i18n'
 import { DEFAULT_LOCALE } from '../../shared/utils/i18n'
 import { getAlertTypeLabels, getRuleCategory } from '../../shared/utils/constants'
@@ -66,7 +66,7 @@ export interface ReportAlertInput {
 export interface BuildZoneReportInput {
   site: { name: string, domain: string }
   zone: { name: string | null, isDefault: boolean }
-  crawl: { completedAt: string | null, pagesScanned: number, pagesTotal: number, pagesPurged?: number } | null
+  crawl: { completedAt: string | null, pagesScanned: number, pagesTotal: number, pagesPurged?: number, coverage?: ReportCoverage | null } | null
   openAlerts: ReportAlertInput[]
   repairedAlerts: { ruleId: string, pageUrl: string }[]
   generatedAt: string
@@ -192,6 +192,7 @@ export function buildZoneReport(input: BuildZoneReportInput, caps: ReportCaps = 
       pagesScanned: input.crawl?.pagesScanned ?? 0,
       pagesTotal: input.crawl?.pagesTotal ?? 0,
       pagesPurged: input.crawl?.pagesPurged ?? 0,
+      coverage: input.crawl?.coverage ?? null,
       generatedAt: input.generatedAt,
       locale,
     },
