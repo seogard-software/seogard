@@ -37,6 +37,11 @@ const CRAWL_DEQUEUED = (crawlId: string) => `crawl:${crawlId}:dequeued`
 const CRAWL_BLOCKED = (crawlId: string) => `crawl:${crawlId}:blocked`
 const CRAWL_FAILED = (crawlId: string) => `crawl:${crawlId}:failed`
 const CRAWL_ALERTS = (crawlId: string) => `crawl:${crawlId}:alerts`
+// Couverture : seul `rendered` prouve qu'une page a été analysée de bout en bout.
+const CRAWL_RENDERED = (crawlId: string) => `crawl:${crawlId}:rendered`
+const CRAWL_CSR_FAILED = (crawlId: string) => `crawl:${crawlId}:csr-failed`
+const CRAWL_NOT_COMPARABLE = (crawlId: string) => `crawl:${crawlId}:not-comparable`
+const CRAWL_CSR_BLOCKED = (crawlId: string) => `crawl:${crawlId}:csr-blocked`
 const ACTIVE_CRAWLS = 'crawl:active-set'
 const DISTRIBUTING_LOCK = 'crawl:distributing'
 
@@ -60,6 +65,17 @@ export async function pushPages(crawlId: string, siteId: string, urls: string[])
   pipeline.expire(CRAWL_FAILED(crawlId), 86400)
   pipeline.set(CRAWL_ALERTS(crawlId), '0')
   pipeline.expire(CRAWL_ALERTS(crawlId), 86400)
+  // Initialisés ici, et pas seulement par `incrby` : sans ça, un crawl sans aucun échec
+  // laisserait ces clés absentes, ce que `getCoverageCounters` lit comme « non mesurable ».
+  // Une clé absente doit signifier « évincée », jamais « rien ne s'est produit ».
+  pipeline.set(CRAWL_RENDERED(crawlId), '0')
+  pipeline.expire(CRAWL_RENDERED(crawlId), 86400)
+  pipeline.set(CRAWL_CSR_FAILED(crawlId), '0')
+  pipeline.expire(CRAWL_CSR_FAILED(crawlId), 86400)
+  pipeline.set(CRAWL_NOT_COMPARABLE(crawlId), '0')
+  pipeline.expire(CRAWL_NOT_COMPARABLE(crawlId), 86400)
+  pipeline.set(CRAWL_CSR_BLOCKED(crawlId), '0')
+  pipeline.expire(CRAWL_CSR_BLOCKED(crawlId), 86400)
 
   // Push all URLs in batches of 1000 to avoid huge commands
   for (let i = 0; i < urls.length; i += 1000) {
@@ -113,6 +129,49 @@ export async function incrementFailed(crawlId: string, count: number = 1): Promi
 export async function incrementAlerts(crawlId: string, count: number = 1): Promise<number> {
   const redis = getRedis()
   return redis.incrby(CRAWL_ALERTS(crawlId), count)
+}
+
+export async function incrementRendered(crawlId: string, count: number = 1): Promise<number> {
+  const redis = getRedis()
+  return redis.incrby(CRAWL_RENDERED(crawlId), count)
+}
+
+export async function incrementCsrFailed(crawlId: string, count: number = 1): Promise<number> {
+  const redis = getRedis()
+  return redis.incrby(CRAWL_CSR_FAILED(crawlId), count)
+}
+
+export async function incrementNotComparable(crawlId: string, count: number = 1): Promise<number> {
+  const redis = getRedis()
+  return redis.incrby(CRAWL_NOT_COMPARABLE(crawlId), count)
+}
+
+export async function incrementCsrBlocked(crawlId: string, count: number = 1): Promise<number> {
+  const redis = getRedis()
+  return redis.incrby(CRAWL_CSR_BLOCKED(crawlId), count)
+}
+
+/**
+ * Compteurs de couverture, avec `null` quand la clé n'existe pas — à la différence de
+ * `getProgress` qui ramène tout à 0. La distinction est vitale : Redis tourne en `allkeys-lru`
+ * et peut évincer ces clés (57 crawls figés sur l'instance campagne, 2026-08-10). Lire un
+ * compteur évincé comme « 0 rendu » ferait crier au drame sur un crawl parfait.
+ */
+export async function getCoverageCounters(crawlId: string): Promise<{ rendered: number | null, csrFailed: number | null, csrBlocked: number, notComparable: number }> {
+  const redis = getRedis()
+  const [rendered, csrFailed, csrBlocked, notComparable] = await redis.mget(
+    CRAWL_RENDERED(crawlId),
+    CRAWL_CSR_FAILED(crawlId),
+    CRAWL_CSR_BLOCKED(crawlId),
+    CRAWL_NOT_COMPARABLE(crawlId),
+  )
+
+  return {
+    rendered: rendered === null ? null : Number(rendered) || 0,
+    csrFailed: csrFailed === null ? null : Number(csrFailed) || 0,
+    csrBlocked: Number(csrBlocked) || 0,
+    notComparable: Number(notComparable) || 0,
+  }
 }
 
 export async function getProgress(crawlId: string): Promise<{ scanned: number, dequeued: number, total: number, blocked: number, failed: number, alerts: number, lastProgressAt: number }> {

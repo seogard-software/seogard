@@ -9,6 +9,10 @@ export interface CrawlResult {
   pagesFailed: number
   pagesBlocked: number
   pagesTotal: number
+  pagesRendered: number
+  pagesCsrFailed: number
+  pagesCsrBlocked: number
+  pagesNotComparable: number
   alertsGenerated: number
   pagesSkipped: number
   sitemapBlocked: boolean

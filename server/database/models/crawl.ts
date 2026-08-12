@@ -11,6 +11,12 @@ const crawlSchema = new Schema({
   pagesFailed: { type: Number, default: 0 },
   pagesBlocked: { type: Number, default: 0 },
   pagesTotal: { type: Number, default: 0 },
+  // Couverture : `pagesScanned` compte les pages dépilées (succès ET échecs), seul
+  // `pagesRendered` prouve qu'une page a été analysée de bout en bout.
+  pagesRendered: { type: Number, default: 0 },
+  pagesCsrFailed: { type: Number, default: 0 },
+  pagesCsrBlocked: { type: Number, default: 0 },
+  pagesNotComparable: { type: Number, default: 0 },
   alertsGenerated: { type: Number, default: 0 },
   pagesSkipped: { type: Number, default: 0 },
   // Pages sorties du monitoring par la purge de fin de crawl (410 + hors sitemap au-delà de la

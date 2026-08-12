@@ -4,6 +4,7 @@
 
 import type { PipelineStage } from 'mongoose'
 import { patternsToRegexSource } from '../../shared/utils/zone'
+import { SITE_LEVEL_RULE_IDS } from '../../shared/utils/rules-catalog'
 
 interface ZoneScopeInput {
   isDefault: boolean
@@ -46,5 +47,16 @@ export function alertZoneScopeStages(zone: ZoneScopeInput): PipelineStage[] {
   // Zone custom : regex stockée, sinon recalculée depuis les patterns (zones d'avant le champ
   // _patternsRegex) — jamais de fallback « site entier » qui sur-rapporterait.
   const regexSource = zone._patternsRegex || patternsToRegexSource(zone.patterns ?? [])
-  return [extractPathname, { $match: { _alertPathname: { $regex: regexSource } } }]
+  // Les règles site-level sont ancrées sur l'URL racine par convention : les filtrer par
+  // pathname les ferait disparaître de toute zone qui ne contient pas la racine, alors qu'elles
+  // décrivent le site (ou le crawl) et concernent donc TOUTES les zones. Sans cette exemption,
+  // `crawl_coverage_incomplete` bloquerait la CI d'une zone sans figurer dans son rapport.
+  return [extractPathname, {
+    $match: {
+      $or: [
+        { ruleId: { $in: [...SITE_LEVEL_RULE_IDS] } },
+        { _alertPathname: { $regex: regexSource } },
+      ],
+    },
+  }]
 }

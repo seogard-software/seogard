@@ -70,7 +70,8 @@
     "rec_citation_signals_missing": "Weak citation signals",
     "rec_content_structure_audit": "Content structure (GEO)",
     "perf_page_weight_explosion": "Page weight increase",
-    "rec_perf_page_heavy": "Heavy page"
+    "rec_perf_page_heavy": "Heavy page",
+    "crawl_coverage_incomplete": "Incomplete site analysis"
   },
   "descriptions": {
     "noindex_added": "A noindex directive was added (robots/googlebot meta tag or X-Robots-Tag HTTP header). The page will disappear from Google results within days.",
@@ -143,7 +144,8 @@
     "rec_citation_signals_missing": "Several citation signals are missing (author, date, sources). AI systems favor attributable, dated content.",
     "rec_content_structure_audit": "The content has neither subheadings (H2) nor lists. AI systems extract information better when content is well structured.",
     "perf_page_weight_explosion": "The page weight increased sharply. A heavy page loads slowly, especially on mobile and 4G.",
-    "rec_perf_page_heavy": "The page exceeds 1.6 MB (Lighthouse threshold), excessive beyond 5 MB. Compressing images and trimming JavaScript would speed up loading."
+    "rec_perf_page_heavy": "The page exceeds 1.6 MB (Lighthouse threshold), excessive beyond 5 MB. Compressing images and trimming JavaScript would speed up loading.",
+    "crawl_coverage_incomplete": "Some of the pages listed in the sitemap could not be fully analysed, so this crawl's verdict does not cover the whole site. The alert breaks down what is missing, cause by cause."
   },
   "knowledge": {
     "noindex_added": {
@@ -2771,6 +2773,51 @@
           "a": "Almost always images: compressing them to WebP/AVIF, sizing them to their display size and lazy-loading them cuts weight faster than any other change."
         }
       ]
+    },
+    "crawl_coverage_incomplete": {
+      "constat": "Seogard retrieved the list of pages from the sitemap but could not complete the analysis on all of them. Every missing page is tied to the cause that explains it, and pages no counter explains are reported separately.",
+      "pourquoi": "The risk is not the missing page, it is the conclusion. A report saying \"no regression\" computed on a fraction of the site reads as a green light while nothing was checked elsewhere. Google and answer engines do see the pages the monitoring missed.",
+      "action": "Look at the dominant cause shown in the alert and address it: allow the crawler through the firewall, or fix what makes the pages unreachable.",
+      "gain": "The next crawl's verdict covers the whole site. The value is not a better score, it is knowing what your report is based on.",
+      "seoTitle": "Incomplete analysis: when monitoring did not see the whole site",
+      "h1": "Incomplete site analysis: why your verdict is partial",
+      "metaDescription": "A crawl can finish without having analysed every page. Understand the causes (firewall, unreachable pages, failed rendering) and restore full coverage.",
+      "tldr": "This signal does not describe a defect in your pages: it says the monitoring could not analyse them all, so this crawl's verdict does not cover the whole site. While it is open, read \"no regression detected\" as \"no regression detected on the part that was analysed\".",
+      "whenNotAProblem": [
+        "Your firewall deliberately blocks every external robot: partial coverage is a deliberate choice, not a surprise. You can mute the rule in that case.",
+        "A handful of pages are missing out of several thousand on a site that changes during the crawl: the alert stays informational and closes by itself on the next crawl."
+      ],
+      "exemple": {
+        "avant": "# Crawl finished, verdict shown\n7,442 pages in the sitemap — no regression detected\n# ... but only 1,024 pages were analysed end to end",
+        "apres": "# The crawler is allowed through the firewall\n7,442 pages in the sitemap — 7,442 analysed\n# the verdict now covers the whole site",
+        "note": "The figure shown before the fix was not wrong, it was incomplete — and nothing said so. That missing signal is what this rule restores."
+      },
+      "actionSteps": [
+        "Open the alert: it lists each cause separately with its own page count. Two causes are never added together, and the largest one tells you where to start.",
+        "If pages are blocked by a firewall, allow the monitoring crawler through your WAF or CDN, by User-Agent or by IP range.",
+        "If pages are not retrieved, check response times and server errors on the URLs concerned: the crawler gives up on a page that does not answer.",
+        "If pages show up as unexplained, report it: that is a limitation of our instrumentation, not of your site.",
+        "Run another crawl and check that the alert closes by itself."
+      ],
+      "scanHook": "Can a robot analyse your site end to end? Enter a URL: Seogard attempts the HTTP fetch then the JavaScript render, and tells you what it could actually see.",
+      "faq": [
+        {
+          "q": "Does this mean my site has an SEO problem?",
+          "a": "Not directly. This signal is about the measurement, not your pages. It does have a real SEO consequence though: while it is open, a regression may exist on the unanalysed pages without anyone seeing it."
+        },
+        {
+          "q": "Why are some pages counted as \"unexplained\"?",
+          "a": "Because we refuse to assign them a cause we did not measure. A missing counter is shown as such rather than folded into a plausible explanation."
+        },
+        {
+          "q": "Do redirects count as missing pages?",
+          "a": "No. A page that redirects does not need to be rendered: it leaves the calculation instead of being counted as a failure."
+        },
+        {
+          "q": "Can this alert block a deployment?",
+          "a": "Yes, by design. In strict mode, a check that did not cover the whole site is not a check that passed. If your site is permanently only partially analysable, mute the rule or pick a less strict mode."
+        }
+      ]
     }
   },
   "slugs": {
@@ -2844,7 +2891,8 @@
     "rec_citation_signals_missing": "weak-citation-signals",
     "rec_content_structure_audit": "geo-content-structure",
     "perf_page_weight_explosion": "page-weight-increase",
-    "rec_perf_page_heavy": "heavy-page"
+    "rec_perf_page_heavy": "heavy-page",
+    "crawl_coverage_incomplete": "incomplete-site-analysis"
   },
   "priorities": {
     "P0": {

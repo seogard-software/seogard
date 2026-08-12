@@ -70,7 +70,8 @@
     "rec_citation_signals_missing": "Signaux de citation faibles",
     "rec_content_structure_audit": "Structure de contenu (GEO)",
     "perf_page_weight_explosion": "Poids de page en hausse",
-    "rec_perf_page_heavy": "Page trop lourde"
+    "rec_perf_page_heavy": "Page trop lourde",
+    "crawl_coverage_incomplete": "Analyse incomplète du site"
   },
   "descriptions": {
     "noindex_added": "Une directive noindex a été ajoutée (balise meta robots/googlebot ou en-tête HTTP X-Robots-Tag). La page va disparaître des résultats Google sous quelques jours.",
@@ -143,7 +144,8 @@
     "rec_citation_signals_missing": "Plusieurs signaux de citation manquent (auteur, date, sources). Les IA privilégient les contenus attribuables et datés.",
     "rec_content_structure_audit": "Le contenu n'a ni sous-titres (H2) ni listes. Les IA extraient mieux l'information quand le contenu est bien structuré.",
     "perf_page_weight_explosion": "Le poids de la page a fortement augmenté. Une page lourde charge lentement, surtout sur mobile et en 4G.",
-    "rec_perf_page_heavy": "La page dépasse 1,6 MB (seuil Lighthouse), excessif au-delà de 5 MB. Compresser les images et alléger le JavaScript accélérerait son chargement."
+    "rec_perf_page_heavy": "La page dépasse 1,6 MB (seuil Lighthouse), excessif au-delà de 5 MB. Compresser les images et alléger le JavaScript accélérerait son chargement.",
+    "crawl_coverage_incomplete": "Une partie des pages du sitemap n'a pas pu être analysée jusqu'au bout : le verdict de ce crawl ne porte donc pas sur tout le site. La fiche détaille ce qui manque, page par cause."
   },
   "knowledge": {
     "noindex_added": {
@@ -2771,6 +2773,51 @@
           "a": "Presque toujours les images : les compresser en WebP/AVIF, les dimensionner à leur taille d'affichage et les charger en lazy-loading réduit le poids plus vite que tout autre changement."
         }
       ]
+    },
+    "crawl_coverage_incomplete": {
+      "constat": "Seogard a récupéré la liste des pages du sitemap, mais n'a pas pu mener l'analyse complète sur toutes. Chaque page manquante est rattachée à la cause qui l'explique, et celles qu'aucun compteur n'explique sont comptées à part.",
+      "pourquoi": "Le risque n'est pas la page manquante, c'est la conclusion. Un rapport « aucune régression » calculé sur une fraction du site se lit comme un feu vert alors que rien n'a été vérifié ailleurs. Google et les moteurs de réponse, eux, voient les pages que le monitoring n'a pas vues.",
+      "action": "Regarder la cause majoritaire indiquée dans l'alerte et la traiter : autoriser le crawler dans le pare-feu, ou corriger ce qui rend les pages injoignables.",
+      "gain": "Le verdict du crawl suivant porte sur l'ensemble du site. La valeur n'est pas d'améliorer un score, c'est de savoir sur quoi votre rapport s'appuie.",
+      "seoTitle": "Analyse incomplète : quand le monitoring n'a pas vu tout le site",
+      "h1": "Analyse incomplète du site : pourquoi votre verdict est partiel",
+      "metaDescription": "Un crawl peut se terminer sans avoir analysé toutes les pages. Comprendre les causes (pare-feu, pages injoignables, rendu échoué) et rétablir une couverture complète.",
+      "tldr": "Ce signal ne décrit pas un défaut de vos pages : il dit que le monitoring n'a pas pu toutes les analyser, et donc que le verdict de ce crawl ne couvre pas tout le site. Tant qu'il est ouvert, lisez « aucune régression détectée » comme « aucune régression détectée sur la partie analysée ».",
+      "whenNotAProblem": [
+        "Votre pare-feu bloque volontairement tout robot externe : la couverture partielle est un choix assumé, pas une surprise. Vous pouvez alors mettre la règle en sourdine.",
+        "Il manque quelques pages sur plusieurs milliers, sur un site qui bouge pendant le crawl : l'alerte reste en information et se referme d'elle-même au crawl suivant."
+      ],
+      "exemple": {
+        "avant": "# Crawl termine, verdict affiche\n7 442 pages au sitemap — aucune regression detectee\n# ... mais 1 024 pages seulement ont ete analysees jusqu'au bout",
+        "apres": "# Le crawler est autorise dans le pare-feu\n7 442 pages au sitemap — 7 442 analysees\n# le verdict porte desormais sur l'ensemble du site",
+        "note": "Le chiffre affiché avant correction n'était pas faux : il était incomplet, et rien ne le disait. C'est cette absence de signal que la règle corrige."
+      },
+      "actionSteps": [
+        "Ouvrez l'alerte : elle liste les causes séparément, chacune avec son nombre de pages. Deux causes ne sont jamais additionnées, la plus nombreuse indique par où commencer.",
+        "Si des pages sont bloquées par un pare-feu, autorisez le crawler de monitoring dans votre WAF ou CDN, par User-Agent ou par plage d'adresses IP.",
+        "Si des pages ne sont pas récupérées, vérifiez les délais de réponse et les erreurs serveur sur les URL concernées : le crawler abandonne une page qui ne répond pas.",
+        "Si des pages apparaissent sans cause enregistrée, signalez-le : c'est une limite de notre instrumentation, pas de votre site.",
+        "Relancez un crawl et vérifiez que l'alerte se referme d'elle-même."
+      ],
+      "scanHook": "Votre site est-il entièrement analysable par un robot ? Entrez une URL : Seogard tente la récupération HTTP puis le rendu JavaScript, et vous dit ce qu'il a réellement pu voir.",
+      "faq": [
+        {
+          "q": "Est-ce que ça veut dire que mon site a un problème SEO ?",
+          "a": "Pas directement. Ce signal porte sur la mesure, pas sur vos pages. En revanche il a une conséquence SEO réelle : tant qu'il est ouvert, une régression peut exister sur les pages non analysées sans que personne ne la voie."
+        },
+        {
+          "q": "Pourquoi certaines pages sont-elles comptées « sans cause enregistrée » ?",
+          "a": "Parce que nous refusons de leur attribuer une cause que nous n'avons pas mesurée. Un compteur manquant est affiché comme tel plutôt que fondu dans une explication plausible."
+        },
+        {
+          "q": "Les redirections comptent-elles comme des pages manquantes ?",
+          "a": "Non. Une page qui redirige n'a pas à être rendue : elle sort du calcul au lieu d'être comptée comme un échec."
+        },
+        {
+          "q": "Cette alerte peut-elle bloquer un déploiement ?",
+          "a": "Oui, et c'est voulu. En mode strict, un contrôle qui n'a pas couvert tout le site n'est pas un contrôle passé. Si votre site est durablement partiellement analysable, mettez la règle en sourdine ou choisissez un mode moins strict."
+        }
+      ]
     }
   },
   "slugs": {
@@ -2844,7 +2891,8 @@
     "rec_citation_signals_missing": "signaux-de-citation-faibles",
     "rec_content_structure_audit": "structure-de-contenu-geo",
     "perf_page_weight_explosion": "poids-de-page-en-hausse",
-    "rec_perf_page_heavy": "page-trop-lourde"
+    "rec_perf_page_heavy": "page-trop-lourde",
+    "crawl_coverage_incomplete": "analyse-incomplete-du-site"
   },
   "priorities": {
     "P0": {

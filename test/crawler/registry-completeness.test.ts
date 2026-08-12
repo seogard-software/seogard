@@ -9,8 +9,11 @@ import { getRegisteredRuleIds } from '../../crawler/rules/engine'
 import { RULES } from '../../shared/utils/rules-catalog'
 
 // Règles du catalogue qui ne passent PAS par le moteur de comparaison (émises directement) :
-// ssr_blocked = détection anti-bot (WAF) dans worker.ts, jamais via runAllRules.
-const NON_ENGINE_RULES = new Set(['ssr_blocked'])
+// ssr_blocked                = détection anti-bot (WAF) dans worker.ts, jamais via runAllRules.
+// crawl_coverage_incomplete  = évaluée en FIN de crawl (finalizeCrawl) : la couverture n'est
+//                              connue qu'une fois tous les compteurs figés, donc hors du
+//                              moteur par page.
+const NON_ENGINE_RULES = new Set(['ssr_blocked', 'crawl_coverage_incomplete'])
 
 describe('registre du moteur — complétude vs catalogue', () => {
   it('chaque règle du catalogue (hors émises directement) est enregistrée via comparator', () => {

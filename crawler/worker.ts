@@ -5,13 +5,14 @@ import { fetchPage, fetchSiteContext, toMetaCore, type PageMeta, type SiteContex
 import type { PerfMetrics } from '../shared/types/perf'
 import { renderPage } from './renderer'
 import { compareSnapshots, REDIRECT_SAFE_RESOLVE, type AlertData } from './comparator'
+import { decideCoverageAlert, COVERAGE_RULE_ID } from './crawl-coverage-rule'
 import { purgeableFilter } from './page-lifecycle'
 import { deletePagesCascade } from '../server/database/cascade'
-import { isSsrBlocked, isRedirectToWaf } from './rules/helpers'
+import { isSsrBlocked, isCsrBlocked, isRedirectToWaf } from './rules/helpers'
 import { normalizePageUrl } from '../shared/utils/sitemap'
 import { sendEmailNotification, sendCrawlerBlockedNotification, toLocale, type CrawlReportNotification, type EmailAttachment } from './notifications'
 import { buildCrawlReport, type ReportAlert } from '../shared/utils/crawl-report'
-import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, getProgress } from './redis'
+import { popPageBatch, incrementProgress, incrementBlocked, incrementFailed, incrementAlerts, incrementRendered, incrementCsrFailed, incrementCsrBlocked, incrementNotComparable, getCoverageCounters, getProgress } from './redis'
 import { isCrawlComplete, claimCrawlFinalization } from './crawl-completion'
 import { writeCrawlSnapshot, type SnapshotResult } from './crawl-snapshot'
 import { STATE_RULES, RECOMMENDATION_RULES } from '../shared/utils/constants'
@@ -82,6 +83,43 @@ async function resolveRecoveredAlerts(siteId: string, pageUrl: string, ruleIds: 
     { siteId, pageUrl, ruleId: { $in: ruleIds }, status: 'open' },
     { $set: { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto', resolvedCrawlId: crawlId } },
   )
+}
+
+/**
+ * Applique la règle de couverture : lit les compteurs, délègue la DÉCISION à
+ * `decideCoverageAlert` (pur, testé), et n'exécute ici que les écritures.
+ */
+async function evaluateCrawlCoverage(crawlId: string, siteId: string, mutedRuleIds?: Set<string>): Promise<void> {
+  const [crawl, counters, site] = await Promise.all([
+    Crawl.findById(crawlId).select('pagesTotal pagesBlocked pagesFailed').lean(),
+    getCoverageCounters(crawlId),
+    Site.findById(siteId).select('url').lean(),
+  ])
+  if (!crawl || !site?.url) return
+
+  const anchorUrl = normalizePageUrl(site.url)
+  const { alert, shouldResolve, coverage } = decideCoverageAlert({
+    anchorUrl,
+    pagesTotal: crawl.pagesTotal ?? 0,
+    pagesBlocked: crawl.pagesBlocked ?? 0,
+    pagesFailed: crawl.pagesFailed ?? 0,
+    pagesRendered: counters.rendered,
+    pagesCsrFailed: counters.csrFailed,
+    pagesCsrBlocked: counters.csrBlocked,
+    pagesNotComparable: counters.notComparable,
+  })
+
+  if (shouldResolve) {
+    await Alert.updateMany(
+      { siteId, pageUrl: anchorUrl, ruleId: COVERAGE_RULE_ID, status: 'open' },
+      { $set: { status: 'resolved', resolvedAt: new Date(), resolvedBy: 'auto', resolvedCrawlId: crawlId } },
+    )
+    return
+  }
+
+  if (!alert) return
+  await upsertAlerts(siteId, crawlId, [alert], mutedRuleIds)
+  log.warn({ crawlId, siteId, analysed: coverage.analysed, analysable: coverage.analysable, pct: coverage.pct, causes: coverage.causes }, 'crawl coverage incomplete')
 }
 
 /**
@@ -177,6 +215,10 @@ export async function processPages(crawlId: string): Promise<void> {
     const ssrResults: { pageUrl: string, result: PageProcessResult }[] = []
     let batchBlocked = 0
     let batchFailed = 0
+    let batchNotComparable = 0
+    let batchRendered = 0
+    let batchCsrFailed = 0
+    let batchCsrBlocked = 0
 
     const results = await Promise.allSettled(
       urls.map(pageUrl => processPageSSR(siteId, crawlId, pageUrl, { current: ctx.siteContext, old: ctx.oldSiteContext, rootUrl: ctx.siteRootUrl }, ctx.mutedRuleIds)),
@@ -197,6 +239,7 @@ export async function processPages(crawlId: string): Promise<void> {
         continue
       }
       if (page.isRedirect) {
+        batchNotComparable++ // le rendu n'a pas lieu d'être : hors dénominateur de couverture
         continue // redirige → la destination n'est pas cette page (rendre suivrait la redirection) ; signal émis en SSR
       }
 
@@ -213,9 +256,12 @@ export async function processPages(crawlId: string): Promise<void> {
       await Promise.allSettled(
         batch.map(async ({ pageUrl, result }) => {
           try {
-            await processPageCSR(siteId, crawlId, pageUrl, result, ctx.mutedRuleIds)
+            const outcome = await processPageCSR(siteId, crawlId, pageUrl, result, ctx.mutedRuleIds)
+            if (outcome.blockedAtRender) batchCsrBlocked++
+            else batchRendered++ // seule preuve qu'une page a été analysée de bout en bout
           }
           catch (error) {
+            batchCsrFailed++ // sans ce compteur, un rendu qui plante ne laisse aucune trace
             log.warn({ crawlId, pageUrl, errorCode: 'CSR_PROCESS_ERROR', error: (error as Error).message }, 'CSR failed')
           }
         }),
@@ -226,6 +272,10 @@ export async function processPages(crawlId: string): Promise<void> {
     await incrementProgress(crawlId, urls.length)
     if (batchBlocked > 0) await incrementBlocked(crawlId, batchBlocked)
     if (batchFailed > 0) await incrementFailed(crawlId, batchFailed)
+    if (batchRendered > 0) await incrementRendered(crawlId, batchRendered)
+    if (batchCsrFailed > 0) await incrementCsrFailed(crawlId, batchCsrFailed)
+    if (batchCsrBlocked > 0) await incrementCsrBlocked(crawlId, batchCsrBlocked)
+    if (batchNotComparable > 0) await incrementNotComparable(crawlId, batchNotComparable)
 
     // Sync to MongoDB every 10 seconds
     if (Date.now() - lastSyncAt >= DB_SYNC_INTERVAL_MS) {
@@ -235,11 +285,16 @@ export async function processPages(crawlId: string): Promise<void> {
 
   // Final progress sync
   const finalProgress = await getProgress(crawlId)
+  const finalCoverage = await getCoverageCounters(crawlId)
   await Crawl.findByIdAndUpdate(crawlId, {
     pagesScanned: finalProgress.scanned,
     pagesBlocked: finalProgress.blocked,
     pagesFailed: finalProgress.failed,
     alertsGenerated: finalProgress.alerts,
+    pagesRendered: finalCoverage.rendered ?? 0,
+    pagesCsrFailed: finalCoverage.csrFailed ?? 0,
+    pagesCsrBlocked: finalCoverage.csrBlocked,
+    pagesNotComparable: finalCoverage.notComparable,
   })
 
   // Crawl terminé = toutes les pages ANALYSÉES (scanned ≥ total), PAS file Redis vide :
@@ -276,6 +331,15 @@ export async function finalizeCrawl(crawlId: string, siteId: string): Promise<vo
     if (!claimed) return
 
     log.info({ crawlId, siteId, siteName: ctx?.siteName, pagesScanned: finalProgress.scanned, alertsGenerated: finalProgress.alerts, durationMs }, 'crawl completed')
+
+    // AVANT l'auto-resolve : l'alerte de couverture doit porter le lastCrawlId de CE crawl,
+    // sinon le balayage STATE ci-dessous la fermerait à tort dans la foulée.
+    try {
+      await evaluateCrawlCoverage(crawlId, siteId, ctx?.mutedRuleIds)
+    }
+    catch (error) {
+      log.error({ crawlId, siteId, errorCode: 'COVERAGE_EVAL_ERROR', error: (error as Error).message }, 'crawl coverage evaluation failed')
+    }
 
     // Auto-resolve STATE alerts whose page was crawled but problem not re-detected
     try {
@@ -548,7 +612,7 @@ async function processPageSSR(siteId: string, crawlId: string, rawPageUrl: strin
   }
 }
 
-async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, ssrData: PageProcessResult, mutedRuleIds?: Set<string>): Promise<void> {
+async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, ssrData: PageProcessResult, mutedRuleIds?: Set<string>): Promise<{ blockedAtRender: boolean }> {
   const renderResult = await renderPage(pageUrl, ssrData.ttfbMs)
 
   const { alerts: csrAlerts, clearedRuleIds } = compareSnapshots({
@@ -588,6 +652,10 @@ async function processPageCSR(siteId: string, crawlId: string, pageUrl: string, 
     lastRenderedAt: new Date(),
     lastPerf: renderResult.perf,
   })
+
+  // Le navigateur a bien rendu, mais un WAF a servi une page de challenge : les règles SSR/CSR
+  // ne fire pas dessus. La compter comme analysée surestimerait la couverture.
+  return { blockedAtRender: isCsrBlocked(renderResult.renderedMeta, renderResult.csrContentLength) }
 }
 
 async function sendNotifications(

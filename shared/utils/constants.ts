@@ -18,6 +18,8 @@ export const STATE_RULES: Set<string> = new Set([
   'js_redirect_detected',
   'ssr_content_mismatch', 'ssr_rendering_failed',
   'ssr_title_mismatch', 'ssr_meta_description_mismatch', 'ssr_blocked',
+  // Évaluée en fin de crawl : état absolu du crawl, se déclenche dès le premier passage.
+  'crawl_coverage_incomplete',
 ])
 
 export const RECOMMENDATION_RULES: Set<string> = new Set([

@@ -48,6 +48,9 @@ export const RAW_RULES = [
   { id: 'meta_title_changed', severity: 'warning', type: 'cross-crawl', file: 'meta.ts', priority: 'P3' },
   { id: 'meta_description_changed', severity: 'info', type: 'cross-crawl', file: 'meta.ts', priority: 'P3' },
   { id: 'ssr_blocked', severity: 'warning', type: 'within-crawl', file: 'worker.ts', priority: 'P3' },
+  // Évaluée en fin de crawl (worker.ts), pas dans le moteur par page : la couverture n'est
+  // connue qu'une fois tous les compteurs figés. Sévérité selon l'ampleur du trou.
+  { id: 'crawl_coverage_incomplete', severity: 'critical/warning/info', type: 'site-level', file: 'worker.ts', priority: 'P3' },
   // GEO — monitoring
   { id: 'llms_txt_removed', severity: 'info', type: 'site-level', file: 'geo.ts', priority: 'GEO' },
   { id: 'ai_crawlers_blocked_changed', severity: 'warning', type: 'site-level', file: 'geo.ts', priority: 'GEO' },
@@ -174,6 +177,9 @@ const CTA_TARGET_BY_RULE: Record<string, CtaTarget> = {
   viewport_missing: 'tech', hreflang_removed: 'tech', hreflang_changed: 'tech', https_mixed_content: 'tech',
   lang_attribute_missing: 'tech', lang_attribute_changed: 'tech', charset_missing: 'tech',
   perf_page_weight_explosion: 'tech', rec_perf_page_heavy: 'tech',
+  // Couverture : ce n'est pas du SSR (le différenciateur reste réservé à la famille 4),
+  // c'est la capacité d'un robot à parcourir le site de bout en bout.
+  crawl_coverage_incomplete: 'tech',
 }
 
 export function getRuleCtaTarget(id: string): CtaTarget {

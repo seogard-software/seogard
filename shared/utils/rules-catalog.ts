@@ -18,6 +18,16 @@ export const RULES = RAW_RULES.map(r => ({
   category: getRuleCategory(r.id),
 }))
 
+/**
+ * Règles qui décrivent le SITE (ou le crawl), pas une page : leur alerte est ancrée sur l'URL
+ * racine par convention. Elles ne doivent donc JAMAIS être filtrées par les patterns d'une zone
+ * — sinon une zone `/produits/**` perdrait une information qui la concerne aussi.
+ * Source unique, consommée par le rapport et par le scoping d'alertes par zone.
+ */
+export const SITE_LEVEL_RULE_IDS: ReadonlySet<string> = new Set(
+  RAW_RULES.filter(r => r.type === 'site-level').map(r => r.id),
+)
+
 /** Catalogue localisé (labels + descriptions de la locale, fallback FR). */
 export function getRulesCatalog(locale: Locale): typeof RULES {
   if (locale !== 'en') return RULES

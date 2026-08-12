@@ -20,6 +20,8 @@ const ALERT_TYPES = [
   'ssr_title_mismatch',
   'ssr_meta_description_mismatch',
   'ssr_blocked',
+  // Couverture du crawl (évaluée en fin de crawl, pas dans le moteur par page)
+  'crawl_coverage_incomplete',
   // Heading (heading.ts)
   'h1_missing',
   'h1_multiple',

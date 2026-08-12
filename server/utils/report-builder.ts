@@ -3,7 +3,7 @@ import type { Locale } from '../../shared/utils/i18n'
 import { DEFAULT_LOCALE } from '../../shared/utils/i18n'
 import { getAlertTypeLabels, getRuleCategory } from '../../shared/utils/constants'
 import { getRuleKnowledge } from '../../shared/utils/rule-knowledge'
-import { RULES } from '../../shared/utils/rules-catalog'
+import { SITE_LEVEL_RULE_IDS } from '../../shared/utils/rules-catalog'
 import { t } from './i18n'
 
 // Construit le rapport « État de santé SEO » d'une zone — FONCTION PURE :
@@ -46,7 +46,7 @@ export const REPORT_RETENTION_DAYS = 90
 const SEVERITY_WEIGHT: Record<ReportSeverity, number> = { critical: 3, warning: 2, info: 1 }
 
 // Règles site-level (1 occurrence = tout le site) — depuis le catalogue, source unique.
-const SITE_LEVEL_RULES = new Set(RULES.filter(r => r.type === 'site-level').map(r => r.id))
+const SITE_LEVEL_RULES = SITE_LEVEL_RULE_IDS
 
 /** La ligne signature : écart entre HTML brut et rendu (hors ssr_blocked = WAF, pas un écart de contenu). */
 export function isSignatureRule(ruleId: string): boolean {
