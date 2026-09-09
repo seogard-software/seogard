@@ -103,6 +103,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       DATABASE_URL: process.env.E2E_DATABASE_URL || '',
+      NUXT_PUBLIC_APP_URL: BASE_URL,
       NUXT_JWT_SECRET: 'test-secret-for-e2e',
       // Vide = sendEmail skip proprement. Sinon nuxt dev charge la vraie clé du .env
       // → envois réels vers des adresses de test → erreurs non déterministes.

@@ -110,7 +110,7 @@
     "lang_attribute_changed": "L'attribut lang a changé (ex : fr → en). Peut casser le ciblage linguistique si c'est accidentel.",
     "word_count_changed": "Le volume de contenu a changé de 30 à 50%. Changement notable mais pas catastrophique — à vérifier.",
     "charset_missing": "La déclaration charset a disparu. Risque de caractères mal affichés (accents, emojis) sur certains navigateurs.",
-    "ssr_title_mismatch": "Le titre dans le HTML brut (envoyé par le serveur) est différent du titre affiché après chargement JavaScript. Google indexe la version du HTML brut.",
+    "ssr_title_mismatch": "Le titre de la réponse HTML diffère du titre relevé après exécution du JavaScript. Définissez le titre de la page dans le rendu serveur, puis vérifiez qu'il reste cohérent après JavaScript.",
     "ssr_meta_description_mismatch": "La meta description du HTML brut est différente de celle rendue après chargement JavaScript. Google utilise la version du HTML brut.",
     "meta_title_changed": "Le meta title a été modifié. Peut être voulu (A/B test, rebrand) ou accidentel (bug de template).",
     "meta_description_changed": "La meta description a été modifiée. Rarement un problème — souvent une mise à jour éditoriale.",
@@ -125,9 +125,9 @@
     "rec_description_length_audit": "La meta description est trop courte (< 50 caractères) ou trop longue (> 160 caractères). Idéalement entre 120 et 155 caractères.",
     "rec_h1_missing_audit": "Aucun H1 sur la page (vérifié sur le DOM rendu après hydratation JavaScript). Le titre principal est un signal SEO fort — chaque page devrait en avoir un.",
     "rec_h1_missing_in_ssr": "Le H1 est absent ou vide dans le HTML brut envoyé par votre serveur mais rempli après chargement JavaScript. Google peut le voir avec un délai (24h à plusieurs semaines). Les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement jamais — ils lisent principalement le HTML brut.",
-    "rec_content_missing_in_ssr": "Une part majoritaire du corps de texte n'est présente qu'après exécution JavaScript (absente du HTML brut). Les robots d'IA (ChatGPT, Perplexity, Claude) lisent le HTML brut et ne verront probablement pas ce contenu.",
-    "rec_title_missing_in_ssr": "Le <title> est absent du HTML brut envoyé par votre serveur mais rempli après chargement JavaScript. Google peut le voir avec délai et les LLM (ChatGPT, Perplexity, Claude) ne le voient probablement pas — ils lisent principalement le HTML brut. Solution : rendre le titre côté serveur (SSR).",
-    "rec_description_missing_in_ssr": "La meta description est absente du HTML brut mais présente après chargement JavaScript. Google et les LLM lisent surtout le HTML brut — votre snippet de recherche et votre visibilité IA peuvent en pâtir. Solution : rendre la meta description côté serveur (SSR).",
+    "rec_content_missing_in_ssr": "Le navigateur affiche sensiblement plus de mots après JavaScript que le texte extrait de la réponse HTML. Servez le contenu principal dans la réponse HTML lorsque c'est adapté, puis vérifiez le résultat avant et après rendu.",
+    "rec_title_missing_in_ssr": "La balise title est absente du HTML brut mais remplie après exécution du JavaScript.",
+    "rec_description_missing_in_ssr": "La meta description n’existe que dans le rendu JavaScript, pas dans le HTML brut.",
     "rec_internal_links_missing_in_ssr": "Vos liens internes ne sont pas dans le HTML brut envoyé par votre serveur mais apparaissent uniquement après chargement JavaScript. Google découvre vos pages plus lentement. Solution : rendre les liens de menu, footer et navigation côté serveur (SSR).",
     "rec_structured_data_missing_in_ssr": "Données structurées (JSON-LD) injectées par JavaScript uniquement. Les IA (ChatGPT, Perplexity, Claude) ne les voient probablement pas — elles lisent surtout le HTML brut. Pour une meilleure visibilité IA, rendez le JSON-LD côté serveur.",
     "rec_img_alt_missing_in_ssr": "Des images ajoutées par JavaScript n'ont pas d'attribut alt. Google Image Search ne les indexera probablement pas (il lit le HTML brut), et les utilisateurs malvoyants ne pourront pas les comprendre. Solution : ajouter un attribut alt et rendre les images côté serveur si possible.",
@@ -1480,39 +1480,51 @@
       ]
     },
     "ssr_title_mismatch": {
-      "constat": "Le title du HTML brut diffère de celui affiché après exécution du JavaScript.",
-      "pourquoi": "Google peut indexer le title de la version brute (souvent un titre générique type « App »), pas celui que vous croyez avoir. Les LLM ne voient quasi que le title brut. Vous pilotez votre SEO sur un titre que les machines ne lisent pas.",
-      "action": "Définir le title côté serveur (head SSR), pas via un script client.",
-      "gain": "Le titre indexé et cité correspond enfin à celui que vous avez rédigé.",
-      "seoTitle": "Title SSR ≠ CSR : Google indexe le mauvais titre",
-      "h1": "Title différent en HTML brut et après JavaScript : lequel Google lit-il ?",
-      "metaDescription": "Quand le title du HTML brut diffère de celui rendu par le JavaScript, Google indexe la version brute — souvent un titre générique. Détection et correction.",
-      "tldr": "Le title de votre HTML brut n'est pas le même que celui affiché après exécution du JavaScript : Google et les IA lisent le title brut, souvent un fallback générique. Il faut définir le title côté serveur pour que la version indexée soit bien celle que vous avez rédigée.",
+      "constat": "Le titre de la réponse HTML diffère du titre relevé après exécution du JavaScript.",
+      "pourquoi": "Un titre générique côté serveur peut signaler une configuration SSR incomplète. Google peut rendre JavaScript et utilise plusieurs sources pour choisir le titre affiché dans ses résultats. L'écart mesuré ne permet pas de savoir quel titre il a retenu.",
+      "action": "Définissez le titre de la page dans le rendu serveur, puis vérifiez qu'il reste cohérent après JavaScript.",
+      "gain": "Un titre descriptif disponible dès la réponse HTML, avec un contrôle reproductible de sa cohérence après rendu.",
+      "seoTitle": "Title différent entre HTML et JavaScript : corriger le SSR",
+      "h1": "Titre différent entre HTML brut et JavaScript : diagnostic SSR",
+      "metaDescription": "Comparez le title du code source et du DOM rendu. Identifiez un titre générique côté serveur et corrigez sa définition SSR, avec un exemple Nuxt.",
+      "tldr": "Comparez la balise title reçue du serveur avec document.title après le rendu JavaScript. Si elles diffèrent, vérifiez la définition du titre côté serveur et son éventuelle réécriture côté client. Ce contrôle ne révèle pas le titre choisi par Google.",
       "whenNotAProblem": [
-        "Le title du HTML brut est déjà le bon et la version JavaScript ne fait que le confirmer à l'identique : aucun écart réel.",
-        "La page n'a pas vocation à être indexée ni citée (interface applicative, écran connecté) : le title vu par Google importe peu.",
-        "L'écart est une simple différence d'espaces ou de casse sans changement de sens : cosmétique, sans impact SEO."
+        "Le titre change volontairement après une interaction, par exemple pour afficher un compteur de notifications.",
+        "La page est une interface privée qui n'a pas vocation à apparaître dans les résultats de recherche.",
+        "Une différence de majuscules peut être sans conséquence sur le sens, mais Seogard la signale. Les entités HTML et les espaces sont normalisés avant comparaison."
       ],
       "exemple": {
-        "avant": "<!-- HTML brut renvoyé par le serveur -->\n<title>App</title>\n<!-- après JavaScript, dans le navigateur -->\n<title>Chaussures de trail homme - Marque</title>",
-        "apres": "<!-- HTML brut renvoyé par le serveur -->\n<title>Chaussures de trail homme - Marque</title>",
-        "note": "À gauche, Google indexe « App ». À droite, le vrai titre est présent dès le HTML brut, avant tout JavaScript."
+        "avant": "<title>App</title>\n<!-- Après JavaScript : -->\n<title>Scanner SSR | Seogard</title>",
+        "apres": "// Nuxt : dans le setup de la page, exécuté aussi côté serveur\nuseHead({ title: 'Scanner SSR | Seogard' })",
+        "note": "Exemple de correction Nuxt : évitez de définir le titre uniquement dans onMounted. Le test du scanner ci-dessous vérifie le même principe avec une page de démonstration."
       },
       "actionSteps": [
-        "Affichez le code source réel de la page (clic droit puis Afficher le code source, pas l'inspecteur) et lisez la balise <title> telle qu'elle arrive du serveur.",
-        "Repérez le composant client qui réécrit le title après coup (routeur SPA, hook de tête de page côté navigateur).",
-        "Déplacez la définition du title dans le rendu serveur (head SSR) pour qu'il soit correct dès la réponse HTTP.",
-        "Recrawlez la page et vérifiez que le title brut correspond désormais au title affiché."
+        "Dans le code source de la page, relevez le title de la réponse HTML. Dans la console du navigateur, comparez-le à document.title.",
+        "Vérifiez si un routeur, un composant ou un script remplace le titre après chargement.",
+        "Dans Nuxt, définissez le titre avec useHead ou useSeoMeta dans le setup exécuté côté serveur. Si le titre dépend d'une requête, rendez ses données disponibles pendant le SSR.",
+        "Relancez le contrôle : les deux titres doivent correspondre au titre attendu. Si le rendu échoue, le résultat est incomplet, pas une preuve de conformité.",
+        "Pour examiner ce que Google a enregistré, utilisez l'inspection d'URL de Search Console. Le titre affiché dans les résultats peut néanmoins être réécrit par Google."
       ],
-      "scanHook": "Le titre que Google indexe est-il vraiment celui que vous avez écrit ? Entrez une URL : Seogard compare le title du HTML brut et celui rendu par le JavaScript, et vous montre l'écart en 30 s. Gratuit, sans carte bancaire.",
+      "scanHook": "Le titre de votre page change-t-il après JavaScript ? Comparez les deux versions avec le scanner SSR. Inscription requise, essai de 14 jours sans carte bancaire.",
       "faq": [
         {
-          "q": "Google finit-il par voir le title rendu en JavaScript ?",
-          "a": "Il peut le voir à son second passage de rendu, mais il a déjà indexé le title brut entre-temps, et les moteurs de réponse IA ne lisent quasiment que la version brute."
+          "q": "Google peut-il utiliser un titre modifié par JavaScript ?",
+          "a": "Oui, Google peut exécuter JavaScript. Cela ne garantit ni le rendu de votre page ni le choix exact du titre affiché. Fournir un titre descriptif dès le HTML facilite aussi sa lecture par les outils sans rendu JavaScript."
         },
         {
-          "q": "Comment savoir quel title est réellement indexé ?",
-          "a": "Regardez le title dans le code source (Ctrl+U) sans exécuter le JavaScript : c'est celui-là que Google prend en priorité, pas celui de l'onglet du navigateur."
+          "q": "Une différence de titre prouve-t-elle une perte SEO ?",
+          "a": "Non. C'est un écart mesuré entre deux versions. Il faut vérifier s'il est voulu, s'il affecte le sens du titre et ce que montrent les données de recherche."
+        }
+      ],
+      "updatedAt": "2026-09-08",
+      "sources": [
+        {
+          "title": "Google : JavaScript et SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
+        },
+        {
+          "title": "Google : titres des résultats",
+          "url": "https://developers.google.com/search/docs/appearance/title-link"
         }
       ]
     },
@@ -2035,113 +2047,133 @@
       ]
     },
     "rec_content_missing_in_ssr": {
-      "constat": "Une part importante du texte de la page n’existe que dans le rendu JavaScript.",
-      "pourquoi": "Google finit par le voir (second passage, avec délai) ; les LLM, quasiment jamais. Plus la part injectée en JS est grande, plus votre contenu est invisible pour les moteurs de réponse IA — le canal qui monte.",
-      "action": "Rendre le contenu principal côté serveur ; réserver le JS aux éléments interactifs.",
-      "gain": "Contenu intégralement indexable sans délai et citable par les IA.",
-      "seoTitle": "Contenu chargé en JS : invisible pour Google et les IA ?",
-      "h1": "Contenu injecté par JavaScript : ce que Google et les IA ne voient pas",
-      "metaDescription": "Le contenu qui n’apparaît qu’après le JavaScript est absent du HTML brut, lu en premier par Google et presque exclusivement par les IA. Diagnostic et correction.",
-      "tldr": "Si une partie de votre contenu n’apparaît qu’après exécution du JavaScript, elle est absente du HTML brut, que Google lit en premier et que les robots d’IA (ChatGPT, Perplexity, Claude) lisent quasi exclusivement. Rendez le contenu principal côté serveur.",
+      "constat": "Le navigateur affiche sensiblement plus de mots après JavaScript que le texte extrait de la réponse HTML.",
+      "pourquoi": "Le contenu dépend alors du chargement et de l'exécution des scripts. Google peut rendre JavaScript, mais un script bloqué, une API en erreur ou une interaction requise peut empêcher l'accès au contenu. Un robot qui n'exécute pas ces scripts n'obtiendra que le HTML initial.",
+      "action": "Servez le contenu principal dans la réponse HTML lorsque c'est adapté, puis vérifiez le résultat avant et après rendu.",
+      "gain": "Un contenu principal accessible dès la réponse du serveur, avec moins de dépendances au JavaScript pour sa lecture. Cela ne garantit pas son indexation ni sa citation.",
+      "seoTitle": "Contenu absent du HTML brut : vérifier le rendu JavaScript",
+      "h1": "Contenu chargé en JavaScript : vérifier ce qui manque au HTML brut",
+      "metaDescription": "Votre texte apparaît seulement après JavaScript ? Comparez le code source au DOM, vérifiez les dépendances et rendez le contenu principal côté serveur.",
+      "tldr": "Repérez le texte visible après JavaScript mais absent de la réponse HTML. Google peut rendre JavaScript : cette différence ne signifie pas automatiquement que votre contenu est invisible. Vérifiez surtout le contenu principal, les erreurs de chargement et les interactions nécessaires pour le faire apparaître.",
       "whenNotAProblem": [
-        "Seuls des éléments secondaires ou interactifs sont injectés en JS (carrousel, avis, recommandations), le contenu principal étant déjà dans le HTML brut.",
-        "La page est une interface applicative non destinée au référencement.",
-        "Le décalage est marginal : quelques mots injectés ne changent pas la compréhension de la page."
+        "Le contenu principal est dans le HTML et seuls des éléments interactifs ou personnalisés sont ajoutés après chargement.",
+        "La page est une interface applicative privée, sans objectif d'indexation.",
+        "La différence vient de quelques mots ou d'éléments d'interface. Un comptage de mots est un indice, pas une mesure du contenu indexé."
       ],
       "exemple": {
-        "avant": "<!-- HTML brut : coquille vide -->\n<section id=\"description\"></section>\n<!-- rempli plus tard par fetch() + JS -->",
-        "apres": "<!-- HTML brut : contenu déjà présent -->\n<section id=\"description\">\n  <p>Description complète du produit…</p>\n</section>",
-        "note": "Le cas catastrophique (page entièrement vide) relève de la fiche « SSR cassé » ; ici il s’agit d’une partie du contenu seulement."
+        "avant": "<section id=\"description\"></section>\n<!-- La description dépend ensuite de fetch() et de JavaScript. -->",
+        "apres": "<section id=\"description\">\n  <p>Comparez le HTML serveur au rendu JavaScript.</p>\n</section>",
+        "note": "L'exemple illustre où servir le contenu. Le test contrôlé du scanner mesure ensuite le nombre de mots des deux versions et la recommandation correspondante, avant et après correction."
       },
       "actionSteps": [
-        "Comparez le code source brut (Ctrl+U) et la page rendue : repérez les blocs présents à l’écran mais absents de la source.",
-        "Déplacez le contenu important vers le rendu serveur (SSR/SSG) plutôt qu’un chargement client après coup.",
-        "Gardez le JavaScript pour ce qui est réellement interactif.",
-        "Recrawlez pour vérifier que le contenu figure désormais dans le HTML brut."
+        "Comparez le texte du code source à celui du DOM après chargement. Repérez les blocs utiles qui manquent dans la réponse HTML.",
+        "Vérifiez les erreurs JavaScript, les appels API et les contenus qui exigent un clic ou une connexion.",
+        "Si ces blocs doivent être accessibles dès la réponse, chargez leurs données pendant le rendu serveur ou la génération statique (SSR/SSG).",
+        "Relancez l'analyse pour vérifier que le contenu attendu est présent dans le HTML brut et reste correct après JavaScript.",
+        "Vérifiez séparément l'indexation avec Search Console : un DOM complet ou une alerte disparue ne prouve pas que Google a indexé le texte."
       ],
-      "scanHook": "Votre contenu est-il dans le code source, ou seulement après le JS ? Entrez une URL : Seogard compare le HTML brut et le rendu et vous montre ce que les IA ne voient pas. Gratuit, sans carte bancaire.",
+      "scanHook": "Votre contenu principal est-il dans le HTML brut ou ajouté après JavaScript ? Vérifiez les deux versions avec le scanner SSR. Inscription requise, essai de 14 jours sans carte bancaire.",
       "faq": [
         {
-          "q": "ChatGPT et Perplexity lisent-ils le JavaScript de mon site ?",
-          "a": "Quasiment pas. La plupart des robots d’IA récupèrent le HTML brut sans exécuter le JavaScript : ce qui n’y figure pas leur est invisible."
+          "q": "Google peut-il indexer du contenu chargé en JavaScript ?",
+          "a": "Oui, si Google peut récupérer et rendre les ressources nécessaires. Du contenu derrière une interaction, une authentification ou des scripts en erreur peut rester inaccessible. Le rendu local ne prouve pas l'indexation."
         },
         {
-          "q": "Quelle différence avec un SSR cassé ?",
-          "a": "Un SSR cassé rend la page presque entièrement vide ; ici, une partie du contenu manque seulement dans le HTML brut. Le principe de correction est le même : rendre le contenu côté serveur."
+          "q": "Le nombre de mots manquants mesure-t-il ma visibilité dans les IA ?",
+          "a": "Non. Il compare le texte extrait du HTML au texte du DOM rendu. Les modalités d'accès varient selon les services et leurs robots ; cette mesure ne prédit pas les citations."
+        }
+      ],
+      "updatedAt": "2026-09-08",
+      "sources": [
+        {
+          "title": "Google : JavaScript et SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },
     "rec_title_missing_in_ssr": {
       "constat": "La balise title est absente du HTML brut mais remplie après exécution du JavaScript.",
-      "pourquoi": "Au premier passage, Google voit une page sans titre ; les IA ne verront jamais le vôtre. Le title est pourtant le signal le moins cher à servir en SSR.",
+      "pourquoi": "La balise title dépend de l’exécution du JavaScript. Google peut rendre JavaScript ; son absence du HTML brut ne prouve donc pas son absence de l’index.",
       "action": "Définir le title dans le head côté serveur.",
-      "gain": "Titre visible par toutes les machines dès la première requête.",
-      "seoTitle": "Title absent du HTML brut : le signal le moins cher à servir",
-      "h1": "Title rempli par JavaScript : une page sans titre au premier passage",
-      "metaDescription": "Votre balise title est absente du HTML brut mais remplie par JavaScript. Google voit une page sans titre au premier passage et les IA n'ont jamais le vôtre.",
-      "tldr": "Votre balise title est absente du HTML brut et n'est remplie qu'après exécution du JavaScript : au premier passage, Google voit une page sans titre et les IA ne verront jamais le vôtre. Le title est pourtant le signal le moins cher à servir en SSR : définissez-le dans le head côté serveur.",
+      "gain": "La balise title devient disponible dès la réponse HTML, sans attendre le JavaScript.",
+      "seoTitle": "Title absent du HTML brut : diagnostic et correction",
+      "h1": "Balise title présente uniquement après JavaScript",
+      "metaDescription": "Comparez la balise title du HTML brut et du DOM rendu, puis vérifiez une correction côté serveur. Un diagnostic distinct de l’indexation Google.",
+      "tldr": "La balise title apparaît après JavaScript mais manque dans le HTML initial. Pour la fournir sans cette dépendance, générez-la côté serveur et vérifiez les deux versions.",
       "whenNotAProblem": [
-        "La page est volontairement rendue côté client et n'a pas vocation à être indexée.",
-        "Le title est déjà présent dans le HTML brut et n'est que réécrit dynamiquement ensuite.",
-        "Vous êtes au tout premier crawl d'une nouvelle page : Seogard n'alerte pas sans référence."
+        "La page est une interface privée sans objectif de référencement.",
+        "Le rendu côté client est intentionnel et fonctionne. Ce signal ne démontre pas un défaut d’indexation."
       ],
       "exemple": {
         "avant": "<!-- HTML renvoye par le serveur -->\n<head>\n  <!-- pas de balise title, ajoutee ensuite par JavaScript -->\n</head>",
         "apres": "<!-- HTML renvoye par le serveur -->\n<head>\n  <title>Chaussures de trail homme : selection et guide</title>\n</head>",
-        "note": "Le title doit figurer dans le head servi par le serveur, pas être ajouté après coup par le JavaScript."
+        "note": "Après correction, la balise title est présente dans le HTML serveur. Cela ne garantit pas son affichage dans les résultats de recherche."
       },
       "actionSteps": [
-        "Affichez le code source réel de la page (Ctrl+U) et cherchez la balise title dans le head.",
+        "Comparez la balise title dans le code source et dans le DOM après JavaScript. Une absence dans les deux versions est un autre diagnostic.",
         "Si elle est absente, repérez le code qui définit le titre uniquement côté client.",
         "Définissez le title dans le head rendu côté serveur (SSR ou pré-rendu).",
         "Recrawlez pour confirmer que le title est présent dès le HTML brut."
       ],
-      "scanHook": "Votre title est-il dans le HTML brut ou ajouté par JavaScript ? Entrez une URL : Seogard compare ce que renvoie votre serveur et ce que rend le navigateur. Gratuit, sans carte bancaire.",
+      "scanHook": "Comparez HTML brut et rendu JavaScript. Inscription requise, essai Cloud de 14 jours sans carte bancaire.",
       "faq": [
         {
-          "q": "Pourquoi le title absent du HTML brut est-il un problème ?",
-          "a": "Au premier passage, Google indexe une page sans titre et les moteurs génératifs, qui lisent surtout le HTML brut, ne verront jamais le vôtre. Le title est le signal le moins cher à servir en SSR."
+          "q": "Faut-il un crawl précédent pour ce contrôle ?",
+          "a": "Non. Ce contrôle compare le HTML brut et le rendu JavaScript du même crawl."
         },
         {
-          "q": "Quelle différence avec l'alerte title manquant ?",
-          "a": "Ici le title existe dans le rendu mais pas dans le HTML brut (problème SSR/CSR). L'alerte title manquant concerne un title qui existait avant un déploiement et a totalement disparu."
+          "q": "Ce signal prouve-t-il un problème chez Google ?",
+          "a": "Non. Google peut rendre JavaScript. Consultez séparément l’inspection d’URL dans Search Console pour vérifier ses informations d’exploration et d’indexation."
+        }
+      ],
+      "updatedAt": "2026-09-09",
+      "sources": [
+        {
+          "title": "Google Search Central — JavaScript SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },
     "rec_description_missing_in_ssr": {
       "constat": "La meta description n’existe que dans le rendu JavaScript, pas dans le HTML brut.",
-      "pourquoi": "Le snippet Google et la lecture IA se basent surtout sur le HTML brut : votre description optimisée y est invisible. Impact CTR plus que ranking.",
+      "pourquoi": "La balise meta description dépend de l’exécution du JavaScript. Google peut rendre JavaScript ; son absence du HTML brut ne prouve donc pas son absence de l’index.",
       "action": "Rendre la meta description côté serveur.",
-      "gain": "Votre description est présente dès le HTML brut, donc réellement lue par Google et les IA.",
-      "seoTitle": "Meta description absente du HTML brut : quel impact ?",
-      "h1": "Meta description remplie par JavaScript : Google lit-il la bonne ?",
-      "metaDescription": "Une meta description injectée par JavaScript est absente du HTML brut, que Google lit en premier pour construire votre snippet. Diagnostic et correction.",
-      "tldr": "Votre meta description n'existe que dans le rendu JavaScript, pas dans le HTML brut que Google lit en premier : votre description optimisée risque de ne pas servir au snippet. Impact surtout sur le CTR, rarement sur le ranking. Rendez la meta description côté serveur.",
+      "gain": "La balise meta description devient disponible dès la réponse HTML, sans attendre le JavaScript.",
+      "seoTitle": "Meta description absente du HTML brut : diagnostic et correction",
+      "h1": "Balise meta description présente uniquement après JavaScript",
+      "metaDescription": "Comparez la balise meta description du HTML brut et du DOM rendu, puis vérifiez une correction côté serveur. Un diagnostic distinct de l’indexation Google.",
+      "tldr": "La balise meta description apparaît après JavaScript mais manque dans le HTML initial. Pour la fournir sans cette dépendance, générez-la côté serveur et vérifiez les deux versions.",
       "whenNotAProblem": [
-        "Une balise meta description correcte est déjà présente dans le HTML brut et le JavaScript ne fait que la dupliquer ou la confirmer.",
-        "Google réécrit de toute façon souvent le snippet à partir du contenu de la page selon la requête : l'enjeu est modéré.",
-        "La page n'a pas vocation à être indexée (interface applicative, back-office) : aucun snippet à soigner."
+        "La page est une interface privée sans objectif de référencement.",
+        "Le rendu côté client est intentionnel et fonctionne. Ce signal ne démontre pas un défaut d’indexation."
       ],
       "exemple": {
         "avant": "<!-- HTML brut renvoyé par le serveur -->\n<head>\n  <title>Chaussures de trail</title>\n  <!-- meta description injectée plus tard par le JS -->\n</head>",
         "apres": "<!-- HTML brut renvoyé par le serveur -->\n<head>\n  <title>Chaussures de trail</title>\n  <meta name=\"description\" content=\"Notre sélection de chaussures de trail, testées sur le terrain.\">\n</head>",
-        "note": "À gauche, le snippet dépend du JavaScript ; à droite, la description est déjà dans le HTML brut que Google lit en premier."
+        "note": "Après correction, la balise meta description est présente dans le HTML serveur. Cela ne garantit pas son affichage dans les résultats de recherche."
       },
       "actionSteps": [
-        "Affichez le code source brut de la page (Ctrl+U) et cherchez la balise meta name=description : si elle est absente ou vide, elle est injectée par le JS.",
+        "Comparez la balise meta description dans le code source et dans le DOM après JavaScript. Une absence dans les deux versions est un autre diagnostic.",
         "Déplacez la génération de la meta description vers le rendu serveur (SSR/SSG) plutôt qu'un ajout client après coup.",
         "Vérifiez qu'elle est unique et pertinente par page, pas une valeur générique globale.",
         "Recrawlez la page pour confirmer que la description figure désormais dans le HTML brut."
       ],
-      "scanHook": "Votre meta description est-elle dans le code source, ou seulement après le JavaScript ? Entrez une URL : Seogard compare le HTML brut et le rendu et vous dit ce que Google lit vraiment. Gratuit, sans carte bancaire.",
+      "scanHook": "Comparez HTML brut et rendu JavaScript. Inscription requise, essai Cloud de 14 jours sans carte bancaire.",
       "faq": [
         {
-          "q": "Google utilise-t-il une meta description ajoutée par JavaScript ?",
-          "a": "Il peut la voir à son second passage de rendu, mais il construit souvent le snippet dès le premier crawl du HTML brut. Mieux vaut qu'elle y soit dès le départ."
+          "q": "Faut-il un crawl précédent pour ce contrôle ?",
+          "a": "Non. Ce contrôle compare le HTML brut et le rendu JavaScript du même crawl."
         },
         {
-          "q": "Est-ce un problème grave pour mon référencement ?",
-          "a": "Non, l'impact est surtout sur le taux de clic dans les résultats, pas sur le classement. C'est une amélioration d'hygiène, pas une urgence critique."
+          "q": "Ce signal prouve-t-il un problème chez Google ?",
+          "a": "Non. Google peut rendre JavaScript. Consultez séparément l’inspection d’URL dans Search Console pour vérifier ses informations d’exploration et d’indexation."
+        }
+      ],
+      "updatedAt": "2026-09-09",
+      "sources": [
+        {
+          "title": "Google Search Central — JavaScript SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },

@@ -24,7 +24,7 @@
         "ariaLabel": "Fil d'Ariane"
       },
       "cookieConsent": {
-        "text": "Ce site utilise des cookies de session pour améliorer votre expérience et faciliter le diagnostic en cas de problème. Aucune donnée n'est partagée avec des tiers.",
+        "text": "Avec votre accord, PostHog mesure votre utilisation du site et enregistre les interactions pour nous aider à corriger les problèmes. Vous pouvez refuser ces mesures facultatives et continuer à utiliser Seogard.",
         "refuse": "Refuser",
         "accept": "Accepter"
       },

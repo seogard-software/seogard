@@ -20,6 +20,8 @@ export interface RuleFaqItem {
 }
 
 export interface RuleKnowledge {
+  updatedAt?: string
+  sources?: { title: string, url: string }[]
   constat: string
   pourquoi: string
   action: string

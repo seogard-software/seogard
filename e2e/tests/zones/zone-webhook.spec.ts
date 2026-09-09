@@ -9,14 +9,14 @@ test.describe('Webhook page access by role', () => {
     test.skip(testInfo.project.name !== 'owner')
     await page.goto(webhookUrl)
     await expect(page.getByTestId('zone-denied')).not.toBeVisible()
-    await expect(page.getByText('API Key')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Clé API', exact: true })).toBeVisible()
   })
 
   test('admin sees webhook content', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'zone-admin')
     await page.goto(webhookUrl)
     await expect(page.getByTestId('zone-denied')).not.toBeVisible()
-    await expect(page.getByText('API Key')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Clé API', exact: true })).toBeVisible()
   })
 
   test('member sees permission denied', async ({ page }, testInfo) => {

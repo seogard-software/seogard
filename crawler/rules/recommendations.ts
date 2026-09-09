@@ -84,7 +84,7 @@ registerRule({
 })
 
 // SSR-vs-CSR : H1 vide en HTML brut mais rempli après JS.
-// Google retarde l'indexation, les LLM lisent le HTML brut donc ne le voient pas.
+// Compare la présence du H1 dans le HTML initial et le rendu, sans déduire son indexation.
 registerRule({
   id: 'rec_h1_missing_in_ssr',
   run(ctx) {
@@ -104,7 +104,7 @@ registerRule({
     return [{
       type: 'rec_h1_missing_in_ssr',
       severity: 'warning',
-      message: `H1 missing or empty in SSR but filled by JavaScript ("${csrH1Text}"). Google may only see it after a delay (24h to several weeks). LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read raw HTML.`,
+      message: `H1 missing or empty in the raw HTML but present after JavaScript ("${csrH1Text}"). Check whether this heading should be served in the initial HTML. This difference does not establish what a search engine indexed.`,
       previousValue: null,
       currentValue: csrH1Text,
     }]
@@ -118,7 +118,7 @@ const CONTENT_SSR_MAX_RAW_RATIO = 0.5 // < 50% du texte dans le HTML brut → si
 const CONTENT_SSR_MIN_ABS_GAP = 200 // écart absolu mini (mots) — évite le bruit de mesure SSR/CSR
 
 // rec_content_missing_in_ssr — une part majoritaire du CORPS DE TEXTE n'apparaît qu'après JS.
-// Les IA lisent le HTML brut → ce texte leur est probablement invisible. Recommandation info.
+// Constat de dépendance au rendu JavaScript, sans inférence sur l'indexation ou les citations IA.
 // Ne couvre QUE la bande intermédiaire : le cas catastrophique (SSR quasi vide) est déjà géré
 // par ssr_content_mismatch / ssr_rendering_failed → on skip pour ne JAMAIS doublonner.
 registerRule({
@@ -144,7 +144,7 @@ registerRule({
     return [{
       type: 'rec_content_missing_in_ssr',
       severity: 'warning',
-      message: `${missing} of ${csr} words only appear after JavaScript execution. AI crawlers (ChatGPT, Perplexity, Claude) read raw HTML and will probably never see this content.`,
+      message: `${missing} of ${csr} words only appear after JavaScript execution. Check whether the main content should also be present in the server HTML. This comparison does not establish search indexing or AI citations.`,
       previousValue: null,
       currentValue: `SSR ${ssr} words / CSR ${csr} words`,
     }]
@@ -169,7 +169,7 @@ registerRule({
     return [{
       type: 'rec_title_missing_in_ssr',
       severity: 'warning',
-      message: `The <title> is missing from raw HTML but filled after JavaScript ("${csrTitle}"). Google may only see it after a delay and LLMs (ChatGPT, Perplexity, Claude) probably never do — they mostly read raw HTML. Render the title server-side (SSR).`,
+      message: `The <title> is missing from raw HTML but present after JavaScript ("${csrTitle}"). Render it server-side to make it available without JavaScript execution. This check does not establish the title used in search results.`,
       previousValue: null,
       currentValue: csrTitle,
     }]
@@ -191,7 +191,7 @@ registerRule({
     return [{
       type: 'rec_description_missing_in_ssr',
       severity: 'info',
-      message: 'The meta description is missing from raw HTML but present after JavaScript. Google and LLMs mostly read raw HTML — your search snippet and AI visibility may suffer. Render the meta description server-side (SSR).',
+      message: 'The meta description is missing from raw HTML but present after JavaScript. Render it server-side to make it available in the initial HTML. Search engines may choose a different snippet.',
       previousValue: null,
       currentValue: csrDescription,
     }]
@@ -292,7 +292,7 @@ registerRule({
     return [{
       type: 'rec_structured_data_missing_in_ssr',
       severity: 'warning',
-      message: `Structured data (${csrTypes.join(', ')}) injected by JavaScript only. AIs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read raw HTML. For better AI visibility, render JSON-LD server-side.`,
+      message: `Structured data (${csrTypes.join(', ')}) is present after JavaScript but absent from raw HTML. Consider serving JSON-LD in the initial HTML to remove this rendering dependency. This check does not measure rich results or AI citations.`,
       previousValue: null,
       currentValue: csrTypes.join(', '),
     }]
@@ -353,7 +353,7 @@ registerRule({
     return [{
       type: 'rec_internal_links_missing_in_ssr',
       severity: 'info',
-      message: `Your internal links are not in the raw HTML sent by your server (${ssrCount} links) — they only appear after JavaScript loads (${csrCount} links). Google discovers your pages more slowly because it scans raw HTML first. Fix: render menu, footer and navigation links server-side (SSR).`,
+      message: `Internal link counts differ between raw HTML (${ssrCount}) and JavaScript rendering (${csrCount}). Check that important navigation links are available in the initial HTML. This check does not measure Google crawl timing.`,
       previousValue: `${ssrCount} in raw HTML`,
       currentValue: `${csrCount} after JavaScript`,
     }]
@@ -380,7 +380,7 @@ registerRule({
     return [{
       type: 'rec_img_alt_missing_in_ssr',
       severity: 'info',
-      message: `${newlyAddedWithoutAlt.length} image(s) added by JavaScript have no alt attribute. Google Image Search will probably not index them (it reads raw HTML), and visually impaired users cannot understand them. Fix: add a descriptive alt attribute to every image, and render them server-side when possible.`,
+      message: `${newlyAddedWithoutAlt.length} image(s) added by JavaScript have no alt attribute. Add a meaningful text alternative for informative images, or an empty alt for decorative images. This check does not establish image indexing.`,
       previousValue: null,
       currentValue: `${newlyAddedWithoutAlt.length} JS images without alt`,
     }]

@@ -94,7 +94,7 @@ $prism-code: #eef1ff;
     padding: 6px 0;
     border-radius: $radius-full;
     text-decoration: none;
-    opacity: 0.42;
+    opacity: 0.65;
     filter: grayscale(0.75);
     transition: opacity $transition-base, filter $transition-base;
 

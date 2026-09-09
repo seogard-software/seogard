@@ -1,12 +1,12 @@
 {
   "common": {
     "scanBar": {
-      "placeholder": "Saisissez votre site Web",
+      "placeholder": "votresite.fr",
       "placeholderCompact": "votresite.fr",
       "ariaLabel": "Adresse de votre site Web",
-      "badge": "Gratuit",
+      "badge": "Essai",
       "submit": "Analyser",
-      "consent": "En cliquant sur Analyser, je certifie être propriétaire du site ou disposer d'une autorisation pour le crawler.",
+      "consent": "Créez votre compte et essayez 14 jours gratuitement, sans carte bancaire. En continuant, je confirme être propriétaire du site ou autorisé à l’analyser.",
       "errorInvalid": "Entrez une adresse valide (ex. votresite.fr)",
       "errorGeneric": "Une erreur est survenue. Réessayez."
     },
@@ -18,9 +18,9 @@
       "formations": "Formations",
       "tools": "Outils",
       "toolMonitoring": "Monitoring",
-      "toolMonitoringDesc": "Surveillance continue, alerte avant Google",
+      "toolMonitoringDesc": "Repérez les régressions de votre site",
       "toolAudit": "Audit",
-      "toolAuditDesc": "Scan + rapport SEO/GEO complet",
+      "toolAuditDesc": "Identifiez les erreurs et les corrections",
       "dashboard": "Dashboard",
       "login": "Connexion",
       "tryFree": "Tester gratuitement",

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, globSync } from 'node:fs'
-import { RULES_COUNT, RULES } from '../../shared/utils/rules-catalog'
+import { RULES } from '../../shared/utils/rules-catalog'
+import { RULES_COUNT } from '../../shared/utils/rules-list'
 
 // TRIPWIRE anti-divergence de comptage : le nombre de règles affiché sur le site vient
 // TOUJOURS de RULES_COUNT (source unique = le catalogue). Ce test échoue si un littéral

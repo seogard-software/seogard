@@ -16,7 +16,7 @@
         },
         "cloud": {
           "name": "Cloud",
-          "price": "${price}",
+          "price": "EUR {price}",
           "subtitle": "per monitored page / month (billed in EUR)"
         },
         "enterprise": {
@@ -33,9 +33,9 @@
       "estimateLabel": "Cloud estimate for {pages} pages",
       "features": {
         "ssrDiff": "Raw HTML vs JS render comparison",
-        "rulesCount": "{count} SEO and GEO (AI visibility) rules",
-        "alerts": "Instant, smart alerts (Email, Slack, Teams, Jira)",
-        "diff": "Exact before/after diff on every regression",
+        "rulesCount": "{count} SEO and technical GEO checks",
+        "alerts": "Email alerts after each crawl",
+        "diff": "Before/after values for detected changes",
         "metaDetection": "Detects missing metas, broken canonicals, noindex",
         "statusDetection": "Detects 5xx errors, soft 404s, status changes",
         "severity": "Smart severity levels (critical, warning, info)",
@@ -81,114 +81,100 @@
     },
     "index": {
       "hero": {
-        "badge": "Continuous SEO & GEO regression monitoring",
-        "title": "Catch SEO regressions",
-        "titleAccent": "before Google does.",
-        "subtitle": "Seogard diffs the raw HTML Google indexes against your JavaScript-rendered page — metas, canonicals, noindex, status codes — and alerts you the moment they drift apart.",
+        "badge": "SEO audits and monitoring",
+        "title": "Stay in control",
+        "titleAccent": "of your website’s SEO.",
+        "subtitle": "Find technical issues, prioritize fixes and track SEO regressions. Seogard analyzes your pages, compares HTML with JavaScript rendering and sends email alerts.",
         "ctaDemo": "Book a demo",
         "ctaDownload": "Get the source",
         "ctaPricing": "See pricing",
-        "noCc": "Self-hosted, free forever. Or Cloud from ${price}/page/month — 14-day trial, no credit card."
+        "noCc": "Start a free 14-day Cloud trial with your account. No credit card. Then from €{price}/page/month. Free self-hosting."
       },
       "problem": {
         "label": "The problem",
-        "title1": "You ship on Friday.",
-        "title2": "Monday, Google sees an empty page.",
-        "story1": "Friday, 5pm. The team ships a header refactor. In the browser, everything works. But server-side, SSR silently broke on 200 product pages — the metas are gone. Google indexes empty HTML. Nobody notices.",
-        "story2": "Three weeks later, organic traffic is down 40%.",
-        "card1Value": "200K",
-        "card1Label": "clicks lost — a real incident at a major French company",
-        "card2Value": "$170K",
-        "card2Label": "in SEO revenue gone from a single regression",
-        "card3Value": "21 days",
-        "card3Label": "average time-to-detection without automated monitoring",
-        "footer": "With Seogard, the alert would have landed Friday at 5:30pm.",
-        "monitorLine": "Seogard's {link} catches these regressions the day you deploy — not three weeks later.",
+        "title1": "Your page looks unchanged.",
+        "title2": "Its HTML may tell a different story.",
+        "story1": "A possible scenario: after a redesign, the browser still displays the content, but the server response no longer contains the description or main heading. A visual check alone can miss this change.",
+        "story2": "Google can execute JavaScript. The difference does not prove deindexing: it reveals a rendering dependency worth checking.",
+        "card1Value": "Metas",
+        "card1Label": "a title or description disappears",
+        "card2Value": "Content",
+        "card2Label": "an H1 depends on JavaScript rendering",
+        "card3Value": "Canonical",
+        "card3Label": "a reference URL changes",
+        "footer": "Seogard checks these differences during the crawl and compares them with the saved baseline.",
+        "monitorLine": "Seogard’s {link} tracks these changes across crawls.",
         "monitorAnchor": "continuous SEO monitoring"
       },
       "features": {
         "label": "Features",
-        "title": "What Seogard audits and monitors, continuously",
-        "desc": "{count} SEO/GEO audit rules checked on every crawl, on every page. Instant alerts the moment a regression appears.",
-        "heroBadge": "Exclusive",
-        "heroTitle": "Raw HTML vs JavaScript render comparison",
-        "heroDesc1": "Google indexes the raw HTML your server sends — not the JavaScript render you see in Chrome. If your SSR breaks, Google sees an empty page while everything looks fine in your browser.",
-        "heroDesc2": "Seogard automatically compares both versions of every page, continuously, on every crawl. It catches regressions before Google re-renders your pages.",
-        "panelSsrLabel": "Raw HTML — what Google sees",
-        "panelSsrVerdict": "SSR broken",
-        "panelCsrLabel": "JS render — what you see",
+        "title": "Find the issues. Know what to fix.",
+        "desc": "{count} SEO and technical GEO checks, depending on enabled rules and accessible pages. Detected regressions are reported after the crawl.",
+        "heroBadge": "SSR check",
+        "heroTitle": "Catch differences you cannot see on screen",
+        "heroDesc1": "Raw HTML is the server response. The rendered DOM is the page after JavaScript execution. Content can exist in the latter while being absent from the former.",
+        "heroDesc2": "A page can look right while losing key tags in its server HTML. Compare it with the JavaScript render to spot missing titles, links and content.",
+        "panelSsrLabel": "Example · raw server HTML",
+        "panelSsrVerdict": "Empty elements in raw HTML",
+        "panelCsrLabel": "Example · DOM after JavaScript",
         "panelCsrCode": "<title>My Product</title>\n<meta name=\"description\"\n  content=\"Discover our...\">\n<h1>My Premium Product</h1>\n<div id=\"app\">\n  <section>...</section>\n</div>",
-        "panelCsrVerdict": "Render OK",
-        "item1Title": "Instant alerts",
-        "item1Desc": "Email, exact before/after diff with severity",
+        "panelCsrVerdict": "Elements present after rendering",
+        "item1Title": "Get alerts you can act on",
+        "item1Desc": "See affected pages, severity and before-and-after changes in your report. Email alerts flag detected regressions.",
         "item2Title": "Continuous monitoring",
-        "item2Desc": "On every deploy + scheduled — full SSR + CSR",
-        "item3Title": "Metas, canonicals, noindex",
-        "item3Desc": "Title, description, canonical, hreflang, Open Graph",
+        "item2Desc": "Scheduled, on-demand or webhook-triggered crawls",
+        "item3Title": "Find what holds your SEO back",
+        "item3Desc": "Missing tags, accidental noindex directives, incorrect canonicals: find technical issues and the pages that need attention.",
         "item4Title": "Status codes & soft 404s",
-        "item4Desc": "404, 500, redirects — alerted before deindexing",
+        "item4Desc": "404s, 500s, redirects and HTTP status changes",
         "item5Title": "Web performance",
         "item5Desc": "LCP, CLS, TTFB and page weight shown for every page — alert on weight spikes",
         "item6Title": "CI/CD webhook",
-        "item6Desc": "Block a deploy when an SEO regression is detected",
+        "item6Desc": "Use the crawl verdict as a condition in your deployment pipeline",
         "item7Title": "Real-time dashboard",
         "item7Desc": "All your sites, alerts and crawls at a glance",
-        "item8Title": "AI visibility (GEO)",
-        "item8Desc": "llms.txt, AI citation crawlers (OAI-SearchBot, PerplexityBot...), FAQ & structured data"
+        "item8Title": "Technical GEO checks",
+        "item8Desc": "llms.txt, AI crawler access, FAQs and structured data"
       },
       "comparison": {
         "label": "Why Seogard",
-        "title": "What the others don't do",
-        "desc": "One of the few tools with native raw HTML vs JS render comparison, CI/CD integration and a free, source-available self-hosted version.",
-        "feature1": "Raw HTML vs JS render comparison",
-        "feature2": "JavaScript rendering (browser)",
-        "feature3": "24/7 monitoring",
-        "feature4": "Web performance (Core Web Vitals + page weight)",
-        "feature5": "GEO optimization & AI visibility",
-        "feature6": "Crawl on deploy (CI/CD)",
-        "feature7": "Source available (BSL 1.1)",
-        "feature8": "Free self-hosted",
-        "feature9": "Price",
-        "valueAuto": "Auto",
-        "valuePartial": "Partial",
-        "valueFree": "Free",
-        "valueQuote": "Custom quote",
-        "valueLumarPrice": "From {'$'}250/month",
-        "valueBotifyPrice": "From {'$'}500/month"
+        "title": "Why choose Seogard?",
+        "desc": "HTML/JavaScript comparison, regression alerts and CI/CD checks. Choose managed Cloud or host Seogard yourself for free.",
+        "cta": "See Seogard in action"
       },
       "pricing": {
         "cta": "Estimate your price"
       },
       "finalCta": {
-        "title1": "Don't find out about your SEO regressions",
-        "title2": "three weeks too late.",
-        "desc": "Continuous monitoring. Real-time alerts. Self-hosted free, Cloud with no commitment.",
-        "ctaRegister": "Create a Cloud account",
+        "title1": "Your website keeps changing.",
+        "title2": "Keep an eye on its SEO.",
+        "desc": "Find what needs fixing today and monitor for the next regression. Try Seogard free for 14 days. No credit card required.",
+        "ctaRegister": "Start my free trial",
         "trust1": "Source available (BSL 1.1)",
         "trust2": "Exportable data",
         "trust3": "No commitment"
       },
       "faq": {
         "q1": "What exactly does Seogard monitor and audit?",
-        "a1": "Seogard continuously monitors {count} SEO and GEO rules on every page: meta title and description, canonical, accidental noindex, status codes (404, 500, redirects), SSR/CSR regressions, hreflang, Open Graph, llms.txt, blocked AI citation crawlers (OAI-SearchBot, PerplexityBot, Claude-SearchBot) and much more. Every regression triggers a real-time email alert, ranked by severity. Beyond regression monitoring, Seogard runs a technical audit on every crawl (title length, image alt text, internal linking, structured data, llms.txt, FAQ schema...) consolidated into an SEO health report.",
+        "a1": "Seogard runs {count} SEO and technical GEO checks: metas, canonical, noindex, HTTP status codes, raw HTML versus rendered DOM differences, hreflang, Open Graph, llms.txt and AI crawler access. Enabled rules apply to pages accessible during the crawl. The report distinguishes regressions, existing issues and recommendations; email notifications are sent after the crawl according to your settings.",
         "q2": "Is Seogard free?",
         "a2": "The self-hosted version is free, under the BSL 1.1 license (source available), with no page limit. You install it on your own server with Docker. The Cloud version is usage-based, for teams that prefer not to run the infrastructure.",
-        "q3": "How is Seogard different from a classic crawler?",
-        "a3": "Classic crawlers (Screaming Frog, Sitebulb) analyze either the raw HTML or the JavaScript render, but not both at once. Seogard automatically compares both versions of every page to catch invisible regressions, like broken SSR that the browser hides.",
+        "q3": "Why compare HTML with JavaScript rendering?",
+        "a3": "To catch issues a visual check can miss: a changed title, missing links or content absent from the initial HTML. Seogard shows the differences so you can fix how your pages render.",
         "q4": "How do alerts work?",
-        "a4": "Seogard crawls on three triggers: on every deploy (via the CI/CD webhook), on a schedule (daily to monthly, configurable per zone) and on demand. As soon as a regression is detected, an alert with the exact before/after diff is sent by email, with the affected page, the rule that fired and the severity level.",
+        "a4": "Schedule crawls or trigger them on demand and from your CI/CD pipeline. Enable notifications to receive detected regressions and resolved issues by email, with affected pages and severity.",
         "q5": "How do I plug Seogard into a CI/CD pipeline?",
-        "a5": "Seogard ships a native SEO deployment gate. A POST webhook triggers a crawl of the zone on every deploy, and a GET endpoint returns a pass/fail verdict. Three strictness levels (strict, standard, relaxed) let you BLOCK a production deploy that introduces an SEO/SSR regression. Unlike generic synthetic checks (Checkly-style) where you write and maintain your own scripts, Seogard natively applies {count} SEO/GEO rules with zero scripts to write.",
+        "a5": "A POST webhook starts a zone crawl; a GET endpoint then returns its pass/fail verdict. Your pipeline can wait for this verdict and use it to allow or block the next deployment step. Seogard applies enabled rules from the {count} available checks, with three thresholds: strict, standard and relaxed.",
         "q6": "Can Seogard block a deploy that breaks SEO?",
-        "a6": "Yes. Through the CI/CD webhook, Seogard crawls the zone on every deploy and returns a pass/fail verdict. In strict mode, any critical regression blocks the production deploy; standard and relaxed modes adjust the threshold. It is an SEO-native deployment gate: no scripts to write, unlike generic synthetic monitoring tools.",
+        "a6": "Yes, if your pipeline waits for the crawl verdict and blocks the next step on failure. Strict fails on any critical alert or warning; standard on any critical alert; relaxed on five or more critical alerts. The verdict covers the completed crawl, not pages the crawler could not analyse.",
         "q7": "How often does Seogard crawl my site?",
-        "a7": "Three triggers you can combine: on every deploy (CI/CD webhook), on a schedule (daily, weekly, twice-monthly or monthly, configurable per zone) and on demand from the dashboard. You never wait for a scheduled crawl to catch a post-deploy regression: the webhook catches it at deploy time.",
+        "a7": "Choose daily, weekly, twice-monthly or monthly crawls. Add an on-demand scan or deployment webhook to check your SEO after an update.",
         "q8": "Can I apply different rules and crawl frequencies per site section?",
         "a8": "Yes, with zones. A zone groups pages by URL pattern (e.g. /blog, /products, /checkout) and has its own configuration: SEO/GEO rules on or off, scheduled crawl frequency, CI/CD gate strictness, notifications and team access. The deploy webhook can crawl a single targeted zone, for faster CI feedback. You monitor your critical pages (checkout, categories) more strictly than the rest of the site.",
         "q9": "How many pages can I monitor?",
         "a9": "Self-hosted, there is no limit: it only depends on your server resources. On Cloud, you only pay for pages actually crawled during the month — re-crawling the same pages costs nothing extra. No commitment, no minimum.",
         "q10": "Does the crawler respect robots.txt?",
-        "a10": "Yes. Seogard-Bot respects robots.txt directives and never overloads your servers. It identifies itself with the User-Agent \"Seogard-Bot/1.0\" and uses a single fixed IP address to make whitelisting easy.",
+        "a10": "Seogard-Bot respects robots.txt directives and identifies itself with the User-Agent “Seogard-Bot/1.0”. The Cloud crawler uses a documented IP to help you allow it through your firewall; a self-hosted crawler uses your server’s IP.",
         "q11": "Which integrations are available?",
         "a11": "Email, with the before/after diff for every alert. The CI/CD webhook also lets you connect Seogard to any deployment pipeline.",
         "label": "FAQ",
@@ -197,24 +183,24 @@
     },
     "outilsMonitoring": {
       "hero": {
-        "badge": "Raw HTML vs JS render, continuous",
-        "title": "The SEO monitoring that compares what Google indexes with what your browser shows",
-        "subtitle": "Seogard continuously watches the raw HTML (SSR) against the JavaScript render. When a deploy breaks your metas, canonicals or <code>noindex</code> server-side, you know the same day — not three weeks after traffic drops.",
-        "ctaPrimary": "Start free trial",
-        "ctaSecondary": "Scan your site free"
+        "badge": "SEO regression monitoring",
+        "title": "SEO monitoring that keeps you in control",
+        "subtitle": "A missing tag, a changed canonical, an unexpected <code>noindex</code>? Seogard monitors your pages and alerts you to regressions detected during each crawl. See exactly what changed and which pages need fixing.",
+        "ctaPrimary": "Start my free trial",
+        "ctaSecondary": "Analyze my site"
       },
       "features": {
-        "sectionTitle": "What your SEO monitoring watches",
-        "feature1Title": "Raw HTML vs JavaScript render",
-        "feature1Desc": "The continuous SSR/CSR comparison that catches invisible regressions when SSR breaks but the browser still renders everything fine.",
-        "feature2Title": "Metas, canonicals, noindex, status codes",
-        "feature2Desc": "The critical indexing elements, checked on every crawl. A meta that disappears or a noindex added by mistake? Instant alert.",
-        "feature3Title": "Instant alerts",
-        "feature3Desc": "Email the moment a regression appears or gets fixed. Event-driven channel: we only notify you when something changes.",
-        "feature4Title": "CI/CD gate",
-        "feature4Desc": "Block a regressive deploy before it hits production, with three strictness levels per zone.",
-        "feature5Title": "AI visibility (GEO)",
-        "feature5Desc": "llms.txt, ChatGPT/Perplexity crawlers, FAQ and structured data: we also watch what generative engines see on your site.",
+        "sectionTitle": "Spot regressions. Focus your fixes.",
+        "feature1Title": "Monitor JavaScript rendering too",
+        "feature1Desc": "Compare server HTML with JavaScript rendering to catch title, link and content differences that a visual check can miss.",
+        "feature2Title": "Keep watch over your SEO tags",
+        "feature2Desc": "Track meta tags, canonicals, noindex directives and HTTP status codes. Find changes that need attention after your updates.",
+        "feature3Title": "Alerts that help you act",
+        "feature3Desc": "Enable emails to receive detected regressions and resolved issues when a crawl completes. See affected pages and their severity.",
+        "feature4Title": "Make SEO part of your CI/CD checks",
+        "feature4Desc": "Trigger a crawl from your pipeline and use its verdict to stop a deployment from proceeding when regressions exceed your chosen threshold.",
+        "feature5Title": "Technical GEO checks",
+        "feature5Desc": "Check llms.txt, AI crawler access, FAQs and structured data. These checks do not measure citations of your site in AI answers.",
         "feature6Title": "Multi-zone",
         "feature6Desc": "Different rules per site section: monitor your critical pages (checkout, categories) more strictly than the rest."
       },
@@ -222,124 +208,124 @@
         "sectionTitle": "How it works",
         "step1": "You add your site: Seogard discovers your pages and establishes a baseline.",
         "step2": "On every crawl, it diffs the raw HTML against the JavaScript render and checks every page against its baseline.",
-        "step3": "A regression shows up? You get an alert and a report — before Google re-indexes."
+        "step3": "A regression is detected during the crawl? It appears in the report and can trigger an email notification."
       },
       "final": {
-        "title": "Monitor your SEO continuously",
-        "desc": "Self-hosted, free forever. Or Cloud from ${price}/page/month — 14-day trial, no credit card.",
-        "cta": "Start free trial"
+        "title": "Keep watch over your next updates",
+        "desc": "Try Cloud monitoring free for 14 days. No credit card. Then from €{price}/page/month. Prefer your own infrastructure? Self-hosting is free.",
+        "cta": "Start my free trial"
       }
     },
     "outilsAudit": {
       "hero": {
         "badge": "SEO & GEO audit",
-        "title": "The <em>complete</em> SEO health check",
-        "subtitle": "Seogard scans your site against {count} SEO, GEO and performance rules and produces a clear SEO health report (Markdown and PDF). You see exactly what Google and AI see — and fix issues without coding with the AI export, ready to paste into ChatGPT or your CMS assistant.",
-        "ctaPrimary": "Scan your site free",
-        "ctaSecondary": "Create an account"
+        "title": "Your SEO audit.<br><em>A clear path to fixes.</em>",
+        "subtitle": "Check your tags, indexability, JavaScript rendering and performance with {count} SEO and GEO rules. Get a report organized by severity, with affected pages and suggested fixes.",
+        "ctaPrimary": "Analyze my site",
+        "ctaSecondary": "Start my free trial"
       },
       "features": {
-        "sectionTitle": "What the audit analyzes",
+        "sectionTitle": "An audit that helps you act",
         "feature1Title": "{count} SEO, GEO & performance rules",
-        "feature1Desc": "Metas, canonicals, indexing, headings, structured data, hreflang, page weight... plus the GEO rules (llms.txt, AI crawlers, FAQ, citation signals).",
-        "feature2Title": "Raw HTML vs JS render comparison",
-        "feature2Desc": "The audit reveals what only exists in the JavaScript render and stays invisible to Google on first pass — and to AI.",
-        "feature3Title": "SEO health report",
-        "feature3Desc": "An exhaustive Markdown (every rule + URLs) and a business-friendly PDF summary, frozen at every crawl and downloadable.",
-        "feature4Title": "AI export to fix without coding",
-        "feature4Desc": "The AI-readable report pastes into ChatGPT, Claude or your CMS assistant, which applies the fix — even if you are not a developer.",
+        "feature1Desc": "Metas, canonicals, indexability, headings, structured data, hreflang, page weight… plus llms.txt and AI crawler access.",
+        "feature2Title": "Find rendering issues",
+        "feature2Desc": "A page can look correct while losing content in its server HTML. HTML/JavaScript comparison reveals which titles, tags and content need attention.",
+        "feature3Title": "A report you can share with your team",
+        "feature3Desc": "See issues by severity, affected pages and suggested fixes. Download the Markdown report or PDF summary to organize your next steps.",
+        "feature4Title": "A report you can use with an AI assistant",
+        "feature4Desc": "Share the report with your team or AI assistant to prepare fixes suited to your site. Proposed changes still need to be reviewed and tested.",
         "feature5Title": "\"Understand & fix\" guidance",
-        "feature5Desc": "Every alert is documented: what was found, why it matters for Google and LLMs, and the action to take.",
+        "feature5Desc": "Rule guides explain the technical finding, why it matters and actions to consider.",
         "feature6Title": "Severity-based prioritization",
-        "feature6Desc": "Root causes cut the noise: a failing page doesn't spawn ten \"missing\" alerts. You see what matters first."
+        "feature6Desc": "Findings are ranked by severity, with secondary alerts filtered when a known root cause explains them."
       },
       "steps": {
         "sectionTitle": "From audit to fix",
         "step1": "You launch a scan: Seogard crawls your pages and checks them against the {count} rules.",
         "step2": "You get the SEO health report (Markdown + PDF), sorted by severity.",
-        "step3": "You paste the AI export into your assistant to fix the issues, then turn on continuous monitoring."
+        "step3": "Prepare and test fixes with your team or an AI assistant, then use monitoring to track changes."
       },
       "final": {
-        "title": "Audit your site now",
-        "desc": "Self-hosted, free forever. Or Cloud from ${price}/page/month — 14-day trial, no credit card.",
-        "cta": "Scan your site free"
+        "title": "Know where to start",
+        "desc": "Run your first audit with a free 14-day Cloud trial. No credit card. Then from €{price}/page/month, or self-host for free.",
+        "cta": "Analyze my site"
       }
     },
     "scanner": {
       "hero": {
-        "badge": "Free scan · no credit card",
-        "title": "The free SSR checker that sees",
-        "titleAccent": "what Google really sees.",
-        "subtitle": "Enter your URL. Seogard diffs the <strong>raw HTML</strong> — what Google and AI index — against the <strong>JavaScript render</strong> your browser sees, and surfaces the invisible regressions. Instant results on your dashboard.",
-        "trust": "Self-hosted free · Cloud from ${price}/page/month · 14-day trial, no commitment"
+        "badge": "Technical SEO scanner",
+        "title": "Check your technical SEO.",
+        "titleAccent": "Know what to fix.",
+        "subtitle": "Find <strong>missing tags, indexability issues and page errors</strong>. Seogard also compares <strong>HTML with JavaScript rendering</strong> to reveal differences you cannot see on screen.",
+        "trust": "Free self-hosted · Cloud from EUR {price}/page/month"
       },
       "compare": {
-        "eyebrow": "The blind spot of other tools",
-        "title": "Your page looks great in the browser.<br>But what does Google read?",
-        "rawTag": "Raw HTML · what Google indexes",
+        "eyebrow": "An example of a rendering difference",
+        "title": "Is the content in the raw HTML<br>or added by JavaScript?",
+        "rawTag": "Raw HTML · server response",
         "rawLine1": "<title>Running shoes</title>",
         "rawLine2": "<!-- meta description: empty -->",
         "rawLine3": "<!-- h1: injected by JS -->",
         "rawLine4": "<!-- canonical: missing -->",
-        "rawVerdict": "Google indexes a half-empty page.",
-        "renderedTag": "JS render · what you see",
+        "rawVerdict": "These elements are absent from raw HTML.",
+        "renderedTag": "Rendered DOM · after JavaScript",
         "renderedLine1": "<title>Running shoes</title>",
         "renderedLine2": "<meta name=\"description\" …>",
         "renderedLine3": "<h1>Men's running shoes</h1>",
         "renderedLine4": "<link rel=\"canonical\" …>",
-        "renderedVerdict": "Everything is there — in the browser only.",
-        "note": "That is exactly the window where broken SSR gets indexed as empty HTML. Oncrawl, Lumar, ContentKing crawl without continuously comparing the two. <strong>Seogard does.</strong>",
-        "monitorLine": "A scan is a snapshot. To watch this permanently, there's {link}.",
+        "renderedVerdict": "These elements are present after rendering.",
+        "note": "This example illustrates a JavaScript dependency. Google can render JavaScript and use the result to index the page. <strong>The comparison does not prove what a search engine has indexed or whether an AI will cite the page.</strong>",
+        "monitorLine": "After fixing an issue, watch for the next regression with {link}.",
         "monitorAnchor": "continuous SEO monitoring"
       },
       "steps": {
-        "eyebrow": "In 30 seconds",
+        "eyebrow": "From URL to report",
         "title": "How it works",
-        "step1Title": "Enter your URL",
-        "step1Text": "No install, no configuration. Just your site's address.",
-        "step2Title": "We crawl both versions",
-        "step2Text": "Seogard reads your sitemap, fetches the raw HTML and the JavaScript render of every page, then compares them.",
-        "step3Title": "Your regressions, ranked",
-        "step3Text": "SEO/GEO gaps and errors land on your dashboard, sorted by severity, with the steps to fix them."
+        "step1Title": "Enter your URL and create an account",
+        "step1Text": "Signing up lets you start the scan and begins a 14-day Cloud trial, no credit card required.",
+        "step2Title": "The crawler analyzes your pages",
+        "step2Text": "Seogard discovers pages from your sitemap and runs the enabled SEO checks. When JavaScript rendering succeeds, it also compares the resulting DOM with the raw HTML.",
+        "step3Title": "Review findings and coverage",
+        "step3Text": "The dashboard shows crawl results ranked by severity, with suggested actions. The report identifies pages that could not be analysed."
       },
       "checks": {
-        "eyebrow": "{count} rules, checked on every crawl",
-        "title": "What the SEO site scan detects",
-        "check1Title": "SSR / CSR regressions",
-        "check1Text": "Metas, H1, canonical or content present in the browser but missing from the indexed raw HTML.",
-        "check2Title": "Metas & titles",
-        "check2Text": "Title, meta description, Open Graph missing, empty or changed without you knowing.",
-        "check3Title": "Indexability",
-        "check3Text": "Accidental noindex, broken canonicals, robots.txt blocking Googlebot.",
-        "check4Title": "Status codes",
-        "check4Text": "404, 500, soft 404s, redirects to the homepage, redirect chains.",
+        "eyebrow": "{count} rules to check your website",
+        "title": "Find the issues. Pinpoint the pages.",
+        "check1Title": "Content missing from HTML",
+        "check1Text": "Find titles, links and content that appear after JavaScript runs but are missing from the server response.",
+        "check2Title": "Titles and SEO tags",
+        "check2Text": "Find missing, empty or changed titles, descriptions and Open Graph tags.",
+        "check3Title": "Indexability issues",
+        "check3Text": "Detect accidental noindex directives, incorrect canonicals and robots.txt blocks.",
+        "check4Title": "Page errors and redirects",
+        "check4Text": "Spot 404 and 500 errors, soft 404s and redirects to your homepage.",
         "check5Title": "Structured data",
-        "check5Text": "JSON-LD missing, invalid, or injected by JavaScript only.",
-        "check6Title": "AI visibility (GEO)",
-        "check6Text": "llms.txt, blocked AI citation crawlers, the signals ChatGPT and Perplexity rely on."
+        "check5Text": "Find missing or invalid JSON-LD, including markup only available after JavaScript rendering.",
+        "check6Title": "AI crawler access",
+        "check6Text": "Check AI crawler access, llms.txt and how your content is structured."
       },
       "faq": {
         "title": "Frequently asked questions",
         "q1": "Is the scan really free?",
-        "a1": "Yes. The scan starts a 14-day trial, no credit card. You can also install Seogard self-hosted, free forever (source available, BSL 1.1).",
-        "q2": "How is this different from Screaming Frog, Oncrawl or Lumar?",
-        "a2": "Those tools crawl one version of the page. Seogard continuously compares the raw HTML (what Google and AI read) with the JavaScript render (what you see) — the only way to catch broken SSR before it gets indexed as empty HTML.",
+        "a1": "Yes, with the 14-day Cloud trial: create your account and run your scan, no credit card needed. After the trial, choose a paid Cloud plan or install Seogard on your own server for free.",
+        "q2": "What does the scanner check beyond SSR?",
+        "a2": "Titles, descriptions, indexability, canonicals, HTTP status codes and structured data. HTML/JavaScript comparison adds rendering checks. Your report brings the issues and suggested fixes together.",
         "q3": "How long until I get results?",
-        "a3": "The crawl starts as soon as you sign up. The first pages and alerts show up within seconds; the full scan follows depending on site size.",
+        "a3": "Your scan starts after you create your account. Track its progress and view results in your dashboard. Duration depends on site size and page rendering.",
         "q4": "Do I need to own the site?",
         "a4": "You must own the site or have permission to crawl it. The scan respects your robots.txt.",
         "q5": "What if my site is behind a firewall / anti-bot protection?",
-        "a5": "Some protections (strict Cloudflare, BitNinja...) can block our crawler. In that case, just allow our IP — the steps are shown on your dashboard."
+        "a5": "Allow Seogard through your anti-bot protection to analyze your pages. The dashboard flags detected blocks and helps you identify which access to allow."
       },
       "cta": {
-        "title": "Run your scan now",
-        "subtitle": "Free, no credit card. You see the regressions before Google does."
+        "title": "Find out what needs fixing",
+        "subtitle": "Enter your URL and create your account to get your first SEO assessment. Free for 14 days. No credit card required."
       }
     },
     "tarifs": {
       "badge": "Free estimate · no credit card",
       "title": "How much does SEO audit & monitoring cost for your site?",
-      "subtitle": "Enter your site URL: we analyze your sitemap and send you a volume-based estimate. Self-hosted, free forever, or Cloud from ${price}/page/month. No commitment, 14-day trial, no credit card."
+      "subtitle": "Enter your site URL: we analyze your sitemap and send you a volume-based estimate. Self-hosted, free forever, or Cloud from EUR {price}/page/month. No commitment, 14-day trial, no credit card."
     },
     "bot": {
       "header": {
@@ -419,9 +405,9 @@
     "layout": {
       "menuAria": "Menu",
       "footer": {
-        "tagline1": "is a continuous SEO and GEO monitoring tool: it compares the raw HTML Google and AI models index with the JavaScript render, and alerts you the moment a regression appears.",
+        "tagline1": "is an SEO regression monitoring tool: it compares raw HTML with the DOM rendered after JavaScript, tracks changes across crawls and reports them by email.",
         "legalLine": "Published by SAVEPNP SAS. Source-available code under the BSL 1.1 license — all other rights reserved.",
-        "mission": "Our mission is to protect every indexed page from invisible SEO regressions — before Google finds them.",
+        "mission": "Our mission is to help teams identify and understand SEO regressions on their pages.",
         "objective": "Goal: 10,000 monitored sites by 2028.",
         "needHelp": "Need help?",
         "linksHeading": "Links",
@@ -430,7 +416,7 @@
         "linkFormations": "Courses",
         "linkMonitoring": "Monitoring",
         "linkAudit": "Audit",
-        "linkScanner": "Free SSR checker",
+        "linkScanner": "SSR checker",
         "linkPricing": "Pricing",
         "linkDocs": "Docs",
         "linkBot": "Bot / Crawler",
@@ -444,90 +430,115 @@
     },
     "formations": {
       "hero": {
-        "badge": "Free courses · Technical SEO & GEO",
-        "title": "Technical SEO & GEO courses: make your site visible to Google <em>and</em> to AI",
-        "subtitle": "Short, hands-on courses to understand what Google and AI engines (ChatGPT, Perplexity, Google AI Overviews) actually see of your site — and to fix SEO regressions before they cost you traffic. No dev skills needed: you check with our free tools, you fix with the AI export.",
-        "ctaPrimary": "Start the free trial",
-        "ctaSecondary": "Scan my site for free"
+        "badge": "Technical SEO & GEO training · in preparation",
+        "title": "Understand your SEO.<br><em>Put it into practice.</em>",
+        "subtitle": "We are preparing training on JavaScript rendering, crawler access and SEO regressions. Get started today with our free guides and check your site with the scanner.",
+        "ctaPrimary": "Read the SEO guides",
+        "ctaSecondary": "Analyze my site"
       },
-      "intro": "SEO is no longer only about Google. Answers from ChatGPT, Perplexity and AI Overviews read the <strong>raw HTML</strong> of your pages — not the JavaScript render you see in your browser. A modern site (misconfigured SSR/CSR, structured data injected via JavaScript, a <code>robots.txt</code> that blocks AI crawlers) can go invisible without anyone noticing. These courses teach you to catch it and fix it.",
+      "intro": "The planned programme focuses on <strong>verifiable technical findings</strong>: what the HTML response contains, what changes after JavaScript and access directives in <code>robots.txt</code>. Google can render JavaScript; these measurements alone cannot establish whether a page is indexed or cited in an AI answer.",
       "program": {
-        "title": "The first course",
-        "intro": "A complete course in {count} modules, released one at a time. Each module = one concrete problem, a demo on a real site, and the method to check then fix your own. Free — the first modules are coming soon."
+        "title": "What we are preparing",
+        "intro": "{count} topics connecting the theory to your pages. The program is in preparation; courses are not open yet."
       },
       "course": {
         "tag": "GEO / AI",
-        "soon": "Soon",
+        "soon": "In preparation",
         "title": "Your site and AI",
-        "desc": "Make your site visible and citable by ChatGPT, Perplexity and Google's AI Overviews. From diagnosis (\"can AI see my site?\") to the fix — no jargon, no coding required.",
-        "metaModules": "{count} modules",
-        "metaFree": "Free",
-        "metaLevel": "Beginner → Advanced"
+        "desc": "A planned programme on data accessible to crawlers, rendering differences and the limits of AI visibility diagnostics.",
+        "metaModules": "{count} topics",
+        "metaFree": "Planned as a free course",
+        "metaLevel": "Not published yet"
       },
       "why": {
-        "title": "Why these courses are different"
+        "title": "The approach behind the programme"
       },
       "final": {
-        "title": "Check your site while you learn",
-        "desc": "Seogard continuously monitors your site for SEO and GEO regressions and alerts you before Google does. 14-day trial, no credit card.",
-        "cta": "Get started for free"
+        "title": "Use the resources already available",
+        "desc": "The guides explain SEO rules. The scanner compares raw HTML with the rendered DOM and reports crawl findings. The Cloud scan requires sign-up: 14-day trial, no credit card.",
+        "cta": "Open the SSR checker"
       },
       "lessons": [
         {
-          "title": "Your site is invisible to AI: the 30-second test",
-          "desc": "Start with the diagnosis: in 30 seconds, check what AI actually reads from your pages (the raw HTML, not your browser)."
+          "title": "Compare raw HTML and JavaScript rendering",
+          "desc": "Planned topic: observe what depends on JavaScript and understand the limits of this measurement."
         },
         {
-          "title": "The 5 reasons AI doesn't cite you",
-          "desc": "The big picture: the 5 causes that make a site invisible to AI, and where to start."
+          "title": "Distinguish crawler access from AI citations",
+          "desc": "Planned topic: separate observable technical obstacles from citation decisions a scan cannot measure."
         },
         {
-          "title": "You're blocking ChatGPT and Perplexity without knowing it (1 line in robots.txt)",
-          "desc": "The difference between training and citation, and the robots.txt line that makes you invisible in AI answers."
+          "title": "Read robots.txt rules for AI crawlers",
+          "desc": "Planned topic: understand per-crawler directives and distinguish search from training uses."
         },
         {
-          "title": "llms.txt: the file that gets you cited… or pure hype?",
-          "desc": "An honest teardown of a trendy file: what it does, what it doesn't, and when it's worth your time."
+          "title": "llms.txt: purpose and limitations",
+          "desc": "Planned topic: examine the role of this file without presenting it as a guarantee of citation."
         },
         {
-          "title": "AI cites your competitors, not you: the real reason (author, date, sources)",
-          "desc": "The citation signals that decide who AI features — and how to add them to your pages."
+          "title": "Authors, dates and sources: document your content",
+          "desc": "Planned topic: make information verifiable without promising that an AI will cite the page."
         },
         {
-          "title": "Write your article so AI copies it: the first 30% decide everything",
-          "desc": "The citable structure: answer up front, clear headings, questions and answers. What makes your content get copied."
+          "title": "Structure an article for its readers",
+          "desc": "Planned topic: give a clear answer, organise headings and identify sources."
         },
         {
-          "title": "Where to find the questions that get you cited by AI (without making them up)",
-          "desc": "Where to gather your audience's real questions for FAQs that AI cites — without inventing any."
+          "title": "Collect questions from your audience",
+          "desc": "Planned topic: use real questions to build a useful FAQ."
         },
         {
-          "title": "Your JavaScript hides your structured data from AI (and your links from Google)",
-          "desc": "Why JSON-LD or links injected via JavaScript stay invisible, and how to serve them in the raw HTML."
+          "title": "Check structured data and links after JavaScript",
+          "desc": "Planned topic: compare their presence in raw HTML and the rendered DOM, then check their validity."
         },
         {
-          "title": "Redesign or update: the day you go invisible to AI without noticing",
-          "desc": "How a deploy silently breaks your AI visibility, and how to catch it before it's too late."
+          "title": "Track changes after an update",
+          "desc": "Planned topic: compare crawls to identify rendering changes and SEO regressions."
         }
       ],
       "benefits": [
         {
-          "title": "Open to everyone",
-          "desc": "Even without coding. You check with our free tools and fix by pasting Seogard's AI export into ChatGPT, Claude or your CMS assistant."
+          "title": "Accessible explanations",
+          "desc": "Teaching goal: connect each check to an observation and explain possible actions with or without a technical team."
         },
         {
-          "title": "On real sites",
-          "desc": "No theory: we open real pages, prove the flaw on screen, show the fix. You leave with a repeatable method."
+          "title": "Verifiable demonstrations",
+          "desc": "Planned approach: examples with inspectable HTML and results, including the limits of the diagnosis."
         },
         {
-          "title": "SEO + GEO together",
-          "desc": "Google visibility and visibility in AI answers (ChatGPT, Perplexity, AI Overviews) handled together, because both depend on your raw HTML."
+          "title": "SEO and AI crawler access",
+          "desc": "The programme will distinguish what a technical scan observes from actual indexing and citations."
         },
         {
-          "title": "Honest, no magic promises",
-          "desc": "No fake traffic or ranking promises. We give you the real mechanics; you decide what to prioritize."
+          "title": "Explicit limitations",
+          "desc": "No traffic, ranking or citation results are promised. Examples will help explain and verify findings."
         }
       ]
+    },
+    "publicComparison": {
+      "label": "SEO feature comparison, scrollable table",
+      "caption": "Rendering, monitoring and CI/CD: compare features",
+      "feature": "Feature",
+      "source": "Official source",
+      "rows": {
+        "javascript": "JavaScript rendering",
+        "comparison": "Raw HTML / rendered DOM",
+        "monitoring": "Change monitoring",
+        "ci": "CI/CD checks"
+      },
+      "values": {
+        "yes": "Yes",
+        "comparison": "Comparison",
+        "bothVersions": "Both versions available",
+        "perCrawl": "On each crawl",
+        "monitor": "Monitor",
+        "alertPanel": "AlertPanel",
+        "webhook": "Webhook + verdict",
+        "protect": "Protect",
+        "unverified": "Not verified"
+      },
+      "note": "Sources checked September 9, 2026, without testing competing tools. “Not verified” does not mean unavailable. Availability depends on plan and configuration.",
+      "selfHosted": "Your infrastructure, your data: self-host Seogard for free. Source code available under BSL 1.1."
     }
   }
 }

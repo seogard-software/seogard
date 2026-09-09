@@ -1,18 +1,20 @@
 <template>
   <div class="app-input">
-    <label v-if="label" :for="id" class="app-input__label">
+    <label v-if="label" :for="inputId" class="app-input__label">
       {{ label }}
     </label>
     <input
-      :id="id"
+      :id="inputId"
       v-model="model"
       :type="type"
       :placeholder="placeholder"
       :disabled="disabled"
+      :aria-invalid="!!error"
+      :aria-describedby="error ? `${inputId}-error` : undefined"
       class="app-input__field"
       :class="{ 'app-input__field--error': error }"
     >
-    <span v-if="error" class="app-input__error">{{ error }}</span>
+    <span v-if="error" :id="`${inputId}-error`" class="app-input__error">{{ error }}</span>
   </div>
 </template>
 
@@ -26,7 +28,7 @@ interface Props {
   id?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: undefined,
   type: 'text',
   placeholder: undefined,
@@ -36,6 +38,8 @@ withDefaults(defineProps<Props>(), {
 })
 
 const model = defineModel<string>({ default: '' })
+const generatedId = useId()
+const inputId = computed(() => props.id ?? generatedId)
 </script>
 
 <style scoped lang="scss">

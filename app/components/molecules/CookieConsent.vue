@@ -5,9 +5,10 @@
         <div class="cookie-consent__panel">
           <p class="cookie-consent__text">
             {{ $t('dashboard.c.cookieConsent.text') }}
+            <NuxtLink :to="localePath({ name: 'legal-cookies' })">{{ $t('common.cookieBanner.learnMore') }}</NuxtLink>
           </p>
           <div class="cookie-consent__actions">
-            <AppButton variant="ghost" size="sm" @click="refuse">
+            <AppButton variant="secondary" size="sm" @click="refuse">
               {{ $t('dashboard.c.cookieConsent.refuse') }}
             </AppButton>
             <AppButton variant="accent" size="sm" @click="accept">
@@ -24,6 +25,7 @@
 // L'état + les effets (opt-in/opt-out PostHog) vivent dans useCookieConsent (source unique).
 // Ce composant ne gère plus que l'affichage de la bannière.
 const { state, accept: grant, refuse: deny } = useCookieConsent()
+const localePath = useLocalePath()
 
 const visible = ref(false)
 
@@ -74,12 +76,18 @@ onMounted(() => {
     font-size: $font-size-sm;
     line-height: $line-height-normal;
     flex: 1;
+    a { color: inherit; text-decoration: underline; }
   }
 
   &__actions {
     display: flex;
     gap: $spacing-2;
     flex-shrink: 0;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    &__panel { flex-direction: column; align-items: stretch; gap: $spacing-3; padding: $spacing-4; }
+    &__actions { justify-content: flex-end; }
   }
 }
 

@@ -66,7 +66,6 @@
       </div>
     </footer>
 
-    <CookieBanner />
   </div>
 </template>
 
@@ -164,7 +163,7 @@ onUnmounted(() => {
 
   &__footer-tagline {
     font-size: $font-size-sm;
-    color: $color-gray-500;
+    color: $color-gray-600;
     line-height: $line-height-normal;
     margin: 0;
   }
@@ -188,12 +187,12 @@ onUnmounted(() => {
     margin-top: $spacing-3;
     font-size: $font-size-xs;
     line-height: $line-height-normal;
-    color: $color-gray-400;
+    color: $color-gray-600;
   }
 
   &__footer-link {
     font-size: $font-size-sm;
-    color: $color-gray-500;
+    color: $color-gray-600;
     text-decoration: none;
     transition: color $transition-fast;
 
@@ -204,11 +203,11 @@ onUnmounted(() => {
   }
 
   &__footer-contact {
-    color: #09f;
+    color: $color-info;
     text-decoration: underline;
 
     &:hover {
-      color: #07d;
+      color: $color-gray-900;
     }
   }
 

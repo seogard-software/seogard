@@ -1,13 +1,12 @@
 import { getCloudPricePerPage } from '../../shared/utils/pricing'
-import { RULES_COUNT, getRulesCatalog } from '../../shared/utils/rules-catalog'
-import { getPublishedRuleIds } from '../../shared/utils/rules-list'
+import { getRulesCatalog } from '../../shared/utils/rules-catalog'
+import { RULES_COUNT, getPublishedRuleIds } from '../../shared/utils/rules-list'
 import { getRuleSlug } from '../../shared/utils/rule-knowledge'
 import { isSelfHosted } from '../utils/deployment'
 import type { Locale } from '../../shared/utils/i18n'
 
-// llms.txt — racine unique en ANGLAIS (décision plan i18n : les LLM lisent mieux l'EN et le
-// fichier est unique pour tout le site), avec les sections par univers linguistique pointant
-// vers /fr/... et /en/.... Catégorie à marteler (strategist) : « SEO regression monitoring ».
+// llms.txt — présentation publique en anglais, avec liens vers les deux langues.
+// Son existence ne garantit ni ingestion ni citation par les assistants IA.
 export default defineEventHandler((event) => {
   if (isSelfHosted()) {
     throw createError({ statusCode: 404 })
@@ -30,11 +29,11 @@ export default defineEventHandler((event) => {
 
   const content = `# Seogard
 
-> Continuous SEO regression monitoring & GEO (AI visibility) monitoring. Seogard diffs the raw HTML Google indexes against the JavaScript render, on every page, continuously — and alerts before rankings drop. Self-hosted free forever, or Cloud from $0.01 per monitored page per month (billed in EUR, EUR 0.01).
+> Technical SEO monitoring with a raw HTML vs JavaScript rendering comparison. Checks run during crawls triggered manually, on a schedule or through a CI/CD webhook. Cloud requires an account and includes a 14-day trial without a credit card; self-hosting is also available.
 
-Seogard is a continuous SEO and GEO monitoring tool published by SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). It continuously watches every page of a site to detect regressions (metas, canonicals, SSR/CSR rendering, noindex, status codes, llms.txt, AI crawlers) and sends real-time email alerts — before Google indexes the problem.
+Seogard is a continuous SEO and GEO monitoring tool published by SAVEPNP (SAS, RCS Créteil 912 784 030, 25 rue Camille Blanc, 94400 Vitry-sur-Seine, France). It checks crawled pages for changes to metadata, canonicals, raw HTML and JavaScript rendering, indexing directives and status codes. Email notifications depend on the crawl results and zone settings.
 
-Unique differentiator: the only monitoring tool that continuously compares the raw HTML (what Google indexes) with the JavaScript render (what users see) on every page, catching SSR/CSR regressions invisible to tools that do not render JavaScript.
+Seogard compares the HTML returned by the server with the DOM rendered by Chromium. Google can render JavaScript too: a difference between these two measurements does not establish what Google indexed, how a page ranks or whether an AI assistant cites it.
 
 **B2B service**: Seogard Cloud is exclusively for professionals (SEO agencies, tech teams, publishers, e-commerce).
 
@@ -50,16 +49,16 @@ Web professionals who depend on SEO, whatever the site size. Self-hosted free fo
 
 ## The problem
 
-A production deploy can silently break metas, SSR rendering or canonicals. Without monitoring, the regression is detected on average 3 weeks later, when traffic has already dropped. Real example: 200K clicks lost ($170K in SEO revenue) at an enterprise site.
+A deployment can change titles, canonicals or server-rendered content while the page still looks correct in a browser. Comparing raw HTML with the rendered DOM helps a team identify the difference and verify a correction. A controlled before/after demonstration is available on the scanner page; it is not a customer case study.
 
 ## Features
 
-- Dual SSR vs CSR analysis (raw HTML vs JavaScript render) — continuous comparison on every page
+- Dual SSR vs CSR analysis (raw HTML vs JavaScript render) — comparison on crawled pages when rendering succeeds
 - ${RULES_COUNT} SEO and GEO detection rules (metas, SSR, canonicals, status codes, noindex, soft 404, llms.txt monitoring, AI crawler monitoring)
 - Web performance monitored on every page: Core Web Vitals (LCP, CLS), server response time (TTFB) and page weight; alerts on page-weight regressions
 - Multi-trigger crawling: on every deploy (CI/CD webhook), scheduled (daily to monthly, per zone) or on demand
 - Multi-zone: segment the site by URL pattern (e.g. /blog, /products) — each zone has its own rules, crawl frequency, CI/CD strictness, notifications and access; the webhook can crawl a single targeted zone
-- Instant email alerts as soon as a regression is detected
+- Email notifications after a crawl detects a regression, according to zone settings
 - Diff highlighting: see exactly what changed (before/after)
 - Real-time dashboard
 - Native CI/CD deployment gate: a webhook crawls on every deploy and returns a pass/fail verdict, with 3 strictness levels (strict/standard/relaxed) to block a regressive deploy — an SEO-native alternative to generic synthetic checks, no scripts to write
@@ -67,7 +66,7 @@ A production deploy can silently break metas, SSR rendering or canonicals. Witho
 ## Pricing
 
 - **Self-hosted**: free forever — full source code, your infrastructure, your data
-- **Cloud**: $0.01 per monitored page per month (billed in EUR, EUR ${getCloudPricePerPage()}) — managed infrastructure, zero maintenance, no commitment. You only pay for pages actually monitored; re-crawling the same pages costs nothing extra. 14-day free trial, no credit card.
+- **Cloud**: EUR ${getCloudPricePerPage()} per monitored page per month — managed infrastructure, zero maintenance, no commitment. You only pay for pages actually monitored; re-crawling the same pages costs nothing extra. 14-day free trial, no credit card.
 - **On-premise**: custom quote — deployment in your infrastructure, guaranteed SLA, SSO/SAML, dedicated account manager
 
 ## What Seogard is NOT
@@ -81,10 +80,10 @@ A production deploy can silently break metas, SSR rendering or canonicals. Witho
 ## Content in French (/fr/)
 
 - Site (French): ${appUrl}/fr
-- SEO & GEO technical training (French, free): ${appUrl}/fr/formations
+- Technical SEO training program (French, in preparation): ${appUrl}/fr/formations
 - Monitoring tool page: ${appUrl}/fr/outils/monitoring
 - Audit tool page: ${appUrl}/fr/outils/audit
-- Free SEO scanner: ${appUrl}/fr/scanner
+- SEO scanner (account required, 14-day trial): ${appUrl}/fr/scanner
 - SEO & GEO rules reference (each rule explained): ${appUrl}/fr/docs/rules${ficheLines('fr')}
 
 ## Content in English (/en/)
@@ -92,7 +91,7 @@ A production deploy can silently break metas, SSR rendering or canonicals. Witho
 - Site (English): ${appUrl}/en
 - Continuous SEO monitoring: ${appUrl}/en/tools/monitoring
 - Technical SEO audit tool: ${appUrl}/en/tools/audit
-- Free SSR checker: ${appUrl}/en/scanner
+- SSR checker (account required, 14-day trial): ${appUrl}/en/scanner
 - SEO & GEO rules reference (each rule explained): ${appUrl}/en/docs/rules${ficheLines('en')}
 
 ## Links

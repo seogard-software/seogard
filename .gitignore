@@ -14,3 +14,15 @@ e2e/.auth/
 e2e/.test-ids.json
 playwright-report/
 test-results/
+
+# Private AI instructions and working context (never commit)
+AGENTS.md
+AGENTS.override.md
+CLAUDE.md
+CLAUDE.local.md
+CODEX.md
+SKILL.md
+.claude/
+.codex/
+.agents/
+/context/

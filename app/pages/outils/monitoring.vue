@@ -30,16 +30,6 @@
       </ul>
     </section>
 
-    <section class="outils-page__steps">
-      <h2 class="outils-page__section-title">{{ $t('landing.outilsMonitoring.steps.sectionTitle') }}</h2>
-      <ol class="outils-page__steps-list">
-        <li v-for="(step, i) in steps" :key="step" class="outils-page__step">
-          <span class="outils-page__step-num">{{ i + 1 }}</span>
-          <span class="outils-page__step-text">{{ step }}</span>
-        </li>
-      </ol>
-    </section>
-
     <section class="outils-page__final">
       <h2 class="outils-page__final-title">{{ $t('landing.outilsMonitoring.final.title') }}</h2>
       <p class="outils-page__final-desc">
@@ -62,6 +52,8 @@ defineI18nRoute({ paths: { fr: '/outils/monitoring', en: '/tools/monitoring' } }
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const appUrl = useRuntimeConfig().public.appUrl || 'https://seogard.io'
+const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en.png' : '/og-image.png'}`)
 
 const cloudPriceDisplay = formatCloudPrice(locale.value)
 
@@ -70,14 +62,6 @@ const features: { title: string, desc: string, icon: IconName }[] = [
   { title: t('landing.outilsMonitoring.features.feature2Title'), desc: t('landing.outilsMonitoring.features.feature2Desc'), icon: 'shield-check' },
   { title: t('landing.outilsMonitoring.features.feature3Title'), desc: t('landing.outilsMonitoring.features.feature3Desc'), icon: 'bell' },
   { title: t('landing.outilsMonitoring.features.feature4Title'), desc: t('landing.outilsMonitoring.features.feature4Desc'), icon: 'activity' },
-  { title: t('landing.outilsMonitoring.features.feature5Title'), desc: t('landing.outilsMonitoring.features.feature5Desc'), icon: 'zap' },
-  { title: t('landing.outilsMonitoring.features.feature6Title'), desc: t('landing.outilsMonitoring.features.feature6Desc'), icon: 'folder' },
-]
-
-const steps = [
-  t('landing.outilsMonitoring.steps.step1'),
-  t('landing.outilsMonitoring.steps.step2'),
-  t('landing.outilsMonitoring.steps.step3'),
 ]
 
 useSeoMeta({
@@ -86,10 +70,10 @@ useSeoMeta({
   ogTitle: t('seo.outilsMonitoring.ogTitle'),
   ogDescription: t('seo.outilsMonitoring.ogDescription'),
   ogType: 'website',
-  ogUrl: 'https://seogard.io/fr/outils/monitoring',
-  ogImage: 'https://seogard.io/og-image.png',
+  ogUrl: () => `${appUrl}${localePath({ name: 'outils-monitoring' })}`,
+  ogImage,
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://seogard.io/og-image.png',
+  twitterImage: ogImage,
   twitterTitle: t('seo.outilsMonitoring.twitterTitle'),
   twitterDescription: t('seo.outilsMonitoring.twitterDescription'),
   robots: 'index, follow',
@@ -105,7 +89,7 @@ useHead({
       'name': t('seo.outilsMonitoring.jsonld.name'),
       'serviceType': t('seo.outilsMonitoring.jsonld.serviceType'),
       'description': t('seo.outilsMonitoring.jsonld.description'),
-      'provider': { '@type': 'Organization', 'name': 'Seogard', 'url': 'https://seogard.io/fr' },
+      'provider': { '@type': 'Organization', 'name': 'Seogard', 'url': `${appUrl}${localePath({ name: 'index' })}` },
       'areaServed': 'FR',
     }),
   }],
@@ -114,4 +98,17 @@ useHead({
 
 <style scoped lang="scss">
 @use '~/assets/styles/outils-page';
+@use '~/assets/styles/variables' as *;
+
+.outils-page {
+  gap: $spacing-10;
+
+  &__title { max-width: 22ch; }
+  &__grid { margin-top: $spacing-6; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  &__final { padding: $spacing-8 $spacing-6; }
+}
+
+@media (max-width: 640px) {
+  .outils-page__grid { grid-template-columns: minmax(0, 1fr); }
+}
 </style>

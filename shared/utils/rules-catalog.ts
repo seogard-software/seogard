@@ -4,12 +4,9 @@ import type { Locale } from './i18n'
 import { ALERT_TYPE_LABELS, getRuleCategory } from './constants'
 import { RAW_RULES } from './rules-list'
 
-// RULES_COUNT vit dans rules-list.ts (module léger, sans rules.json) → la landing l'importe de LÀ
-// pour ne pas embarquer le wording des règles. Re-exporté ici pour le serveur et les tests existants.
-export { RULES_COUNT } from './rules-list'
-
-// Catalogue officiel des règles (source unique : endpoint /api/public/rules,
-// rapport de zone, docs). Le wording (label/description) est ajouté depuis rules.json.
+// Catalogue officiel des règles pour les rapports et les fiches.
+// RULES_COUNT s'importe directement depuis rules-list.ts : un seul export pour les auto-imports Nuxt.
+// Le wording (label/description) est ajouté depuis rules.json.
 export const RULES = RAW_RULES.map(r => ({
   ...r,
   // Wording (label + description) : i18n/locales/<locale>/rules.json — RULES = vue FR historique.
@@ -45,4 +42,3 @@ export const PRIORITY_META: PriorityMeta = frRules.priorities
 export function getPriorityMeta(locale: Locale): PriorityMeta {
   return locale === 'en' ? { ...frRules.priorities, ...(enRules as { priorities?: PriorityMeta }).priorities } : frRules.priorities
 }
-

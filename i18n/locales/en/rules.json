@@ -110,7 +110,7 @@
     "lang_attribute_changed": "The lang attribute changed (e.g. fr to en). Can break language targeting if accidental.",
     "word_count_changed": "The word count changed by 30 to 50%. Notable change but not catastrophic — worth checking.",
     "charset_missing": "The charset declaration is gone. Risk of garbled characters (accents, emojis) in some browsers.",
-    "ssr_title_mismatch": "The title in the raw HTML (sent by the server) differs from the title displayed after JavaScript loads. Google indexes the raw HTML version.",
+    "ssr_title_mismatch": "The title in the HTTP response differs from the title measured after JavaScript runs. Set the page title during server-side rendering, then check that it remains consistent after JavaScript runs.",
     "ssr_meta_description_mismatch": "The meta description in the raw HTML differs from the one rendered after JavaScript loads. Google uses the raw HTML version.",
     "meta_title_changed": "The meta title was modified. May be intentional (A/B test, rebrand) or accidental (template bug).",
     "meta_description_changed": "The meta description was modified. Rarely a problem — usually an editorial update.",
@@ -125,9 +125,9 @@
     "rec_description_length_audit": "The meta description is too short (< 50 characters) or too long (> 160 characters). Ideally between 120 and 155 characters.",
     "rec_h1_missing_audit": "No H1 on the page (checked on the rendered DOM after JavaScript hydration). The main title is a strong SEO signal — every page should have one.",
     "rec_h1_missing_in_ssr": "The H1 is missing or empty in the raw HTML sent by your server but filled in after JavaScript loads. Google may see it with a delay (24 hours to several weeks). LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML.",
-    "rec_content_missing_in_ssr": "Most of the body text only exists after JavaScript runs (absent from the raw HTML). AI crawlers (ChatGPT, Perplexity, Claude) read the raw HTML and will probably never see this content.",
-    "rec_title_missing_in_ssr": "The <title> is missing from the raw HTML sent by your server but filled in after JavaScript loads. Google may see it with a delay and LLMs (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML. Fix: render the title server-side (SSR).",
-    "rec_description_missing_in_ssr": "The meta description is missing from the raw HTML but present after JavaScript loads. Google and LLMs mostly read the raw HTML — your search snippet and AI visibility may suffer. Fix: render the meta description server-side (SSR).",
+    "rec_content_missing_in_ssr": "The browser displays substantially more words after JavaScript than the text extracted from the HTTP response. Serve the main content in the initial HTML when appropriate, then verify it before and after rendering.",
+    "rec_title_missing_in_ssr": "The title tag is missing from the raw HTML but filled in after JavaScript executes.",
+    "rec_description_missing_in_ssr": "The meta description exists only in the JavaScript render, not in the raw HTML.",
     "rec_internal_links_missing_in_ssr": "Your internal links are not in the raw HTML sent by your server — they only appear after JavaScript loads. Google discovers your pages more slowly. Fix: render menu, footer and navigation links server-side (SSR).",
     "rec_structured_data_missing_in_ssr": "Structured data (JSON-LD) injected by JavaScript only. AI systems (ChatGPT, Perplexity, Claude) probably never see it — they mostly read the raw HTML. For better AI visibility (GEO), render the JSON-LD server-side.",
     "rec_img_alt_missing_in_ssr": "Images added by JavaScript have no alt attribute. Google Image Search will probably not index them (it reads the raw HTML), and visually impaired users cannot understand them. Fix: add an alt attribute and render the images server-side if possible.",
@@ -1480,39 +1480,51 @@
       ]
     },
     "ssr_title_mismatch": {
-      "constat": "The title in the raw HTML differs from the one displayed after JavaScript executes.",
-      "pourquoi": "Google may index the raw version's title (often a generic one like \"App\"), not the one you think you have. LLMs see almost only the raw title. You are optimizing around a title the machines never read.",
-      "action": "Set the title server-side (SSR head), not via a client-side script.",
-      "gain": "The title that gets indexed and cited finally matches the one you wrote.",
-      "seoTitle": "SSR vs CSR Title Mismatch: Google Indexes the Wrong One",
-      "h1": "Different title in raw HTML and after JavaScript: which one does Google read?",
-      "metaDescription": "When the raw HTML title differs from the JavaScript-rendered one, Google indexes the raw version, often a generic title. Detection and fix.",
-      "tldr": "Your raw HTML title is not the same as the one shown after JavaScript runs: Google and AI systems read the raw title, often a generic fallback. You need to set the title server-side so the indexed version is the one you actually wrote.",
+      "constat": "The title in the HTTP response differs from the title measured after JavaScript runs.",
+      "pourquoi": "A generic server-side title can indicate incomplete SSR configuration. Google can render JavaScript and uses several sources to choose title links. This difference does not reveal which title Google selected.",
+      "action": "Set the page title during server-side rendering, then check that it remains consistent after JavaScript runs.",
+      "gain": "A descriptive title available in the HTTP response and a reproducible check of its consistency after rendering.",
+      "seoTitle": "SSR Title Mismatch: Check and Fix JavaScript Title Changes",
+      "h1": "SSR title mismatch: compare raw HTML and JavaScript rendering",
+      "metaDescription": "Compare the title in your page source and rendered DOM. Find a generic server-side title and fix its SSR definition, with a Nuxt example.",
+      "tldr": "Compare the title tag in the server response with document.title after JavaScript rendering. If they differ, check the server-side title definition and any client-side rewrite. This check does not reveal the title Google has chosen.",
       "whenNotAProblem": [
-        "The raw HTML title is already correct and the JavaScript version just repeats it identically: no real gap.",
-        "The page is not meant to be indexed or cited (app interface, logged-in screen): the title Google sees barely matters.",
-        "The gap is only a difference in spacing or casing with no change in meaning: cosmetic, with no SEO impact."
+        "The title changes intentionally after an interaction, for example to show a notification count.",
+        "The page is a private application screen that is not intended to appear in search results.",
+        "A casing difference may not change the meaning, but Seogard still reports it. HTML entities and whitespace are normalized before comparison."
       ],
       "exemple": {
-        "avant": "<!-- Raw HTML returned by the server -->\n<title>App</title>\n<!-- after JavaScript, in the browser -->\n<title>Men's trail running shoes - Brand</title>",
-        "apres": "<!-- Raw HTML returned by the server -->\n<title>Men's trail running shoes - Brand</title>",
-        "note": "On the left, Google indexes \"App\". On the right, the real title is present in the raw HTML, before any JavaScript runs."
+        "avant": "<title>App</title>\n<!-- After JavaScript: -->\n<title>SSR Checker | Seogard</title>",
+        "apres": "// Nuxt: in page setup, also executed on the server\nuseHead({ title: 'SSR Checker | Seogard' })",
+        "note": "Nuxt fix example: avoid defining the title only in onMounted. The scanner test below verifies the same principle using a demonstration page."
       },
       "actionSteps": [
-        "View the page's real source (right-click then View page source, not the inspector) and read the <title> tag as it arrives from the server.",
-        "Find the client component that rewrites the title afterwards (SPA router, browser-side head hook).",
-        "Move the title definition into server-side rendering (SSR head) so it is correct in the HTTP response itself.",
-        "Re-crawl the page and confirm the raw title now matches the displayed title."
+        "Read the title in the page source. Compare it with document.title in the browser console after rendering.",
+        "Check whether a router, component or script replaces the title after loading.",
+        "In Nuxt, set the title with useHead or useSeoMeta in setup, which also runs on the server. If it depends on a request, make those data available during SSR.",
+        "Run the check again: both titles should match the intended title. A failed render means incomplete evidence, not a pass.",
+        "Use Search Console URL inspection to examine what Google has recorded. Google may still rewrite the title shown in search results."
       ],
-      "scanHook": "Is the title Google indexes really the one you wrote? Enter a URL: Seogard compares the raw HTML title with the JavaScript-rendered one and shows you the gap in 30 seconds. Free, no credit card.",
+      "scanHook": "Does your page title change after JavaScript runs? Compare both versions with the SSR checker. Account required, 14-day trial with no credit card.",
       "faq": [
         {
-          "q": "Does Google eventually see the JavaScript-rendered title?",
-          "a": "It may see it on its second rendering pass, but it has already indexed the raw title in the meantime, and AI answer engines almost only read the raw version."
+          "q": "Can Google use a title changed by JavaScript?",
+          "a": "Yes, Google can execute JavaScript. That does not guarantee a successful render or the exact title displayed in search. A descriptive title in the initial HTML is also accessible to tools that do not render JavaScript."
         },
         {
-          "q": "How do I know which title is actually indexed?",
-          "a": "Look at the title in the source (Ctrl+U) without running JavaScript: that is the one Google prioritizes, not the one in the browser tab."
+          "q": "Does a title mismatch prove an SEO loss?",
+          "a": "No. It is a measured difference between two versions. Check whether it is intentional, whether it changes the title's meaning and what the search data show."
+        }
+      ],
+      "updatedAt": "2026-09-08",
+      "sources": [
+        {
+          "title": "Google: JavaScript SEO basics",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
+        },
+        {
+          "title": "Google: title links",
+          "url": "https://developers.google.com/search/docs/appearance/title-link"
         }
       ]
     },
@@ -2035,113 +2047,133 @@
       ]
     },
     "rec_content_missing_in_ssr": {
-      "constat": "A significant share of the page's text exists only in the JavaScript render.",
-      "pourquoi": "Google eventually sees it (second pass, with a delay); LLMs almost never do. The larger the JS-injected share, the more invisible your content is to AI answer engines — the fastest-growing channel.",
-      "action": "Render the main content server-side; reserve JS for interactive elements.",
-      "gain": "Content fully indexable without delay and citable by AI systems.",
-      "seoTitle": "JS-Loaded Content: Invisible to Google and AI?",
-      "h1": "JavaScript-injected content: what Google and AI crawlers miss",
-      "metaDescription": "Content that only appears after JavaScript is absent from the raw HTML, which Google reads first and AI crawlers read almost exclusively. Diagnosis and fix.",
-      "tldr": "If part of your content only appears after JavaScript runs, it is absent from the raw HTML that Google reads first and that AI crawlers (ChatGPT, Perplexity, Claude) read almost exclusively. Render the main content server-side.",
+      "constat": "The browser displays substantially more words after JavaScript than the text extracted from the HTTP response.",
+      "pourquoi": "The content depends on scripts loading and running. Google can render JavaScript, but a blocked script, failed API request or required interaction may prevent access. A crawler that does not execute those scripts receives only the initial HTML.",
+      "action": "Serve the main content in the initial HTML when appropriate, then verify it before and after rendering.",
+      "gain": "Main content available in the server response, with fewer JavaScript dependencies for reading it. This does not guarantee indexing or citation.",
+      "seoTitle": "Content Missing from Raw HTML: Check JavaScript Rendering",
+      "h1": "JavaScript-loaded content: check what is missing from raw HTML",
+      "metaDescription": "Does your text appear only after JavaScript? Compare the source and DOM, check loading dependencies and serve the main content in the initial HTML.",
+      "tldr": "Identify text that appears after JavaScript but is missing from the HTTP response. Google can render JavaScript, so this difference does not automatically make your content invisible. Focus on the main content, loading errors and interactions required to reveal it.",
       "whenNotAProblem": [
-        "Only secondary or interactive elements are JS-injected (carousel, reviews, recommendations), with the main content already in the raw HTML.",
-        "The page is an application interface not meant for search.",
-        "The gap is marginal: a few injected words don’t change how the page is understood."
+        "The main content is in the HTML and only interactive or personalized elements are added after loading.",
+        "The page is a private application screen with no indexing objective.",
+        "The difference consists of a few words or interface elements. A word count is a clue, not a measurement of indexed content."
       ],
       "exemple": {
-        "avant": "<!-- Raw HTML: empty shell -->\n<section id=\"description\"></section>\n<!-- filled later by fetch() + JS -->",
-        "apres": "<!-- Raw HTML: content already present -->\n<section id=\"description\">\n  <p>Full product description…</p>\n</section>",
-        "note": "The catastrophic case (fully empty page) belongs to the \"Broken SSR\" guide; here only part of the content is missing."
+        "avant": "<section id=\"description\"></section>\n<!-- The description then depends on fetch() and JavaScript. -->",
+        "apres": "<section id=\"description\">\n  <p>Compare server HTML with JavaScript rendering.</p>\n</section>",
+        "note": "This example illustrates where to serve content. The scanner's controlled test then measures word counts in both versions and the related recommendation before and after the fix."
       },
       "actionSteps": [
-        "Compare the raw source (Ctrl+U) with the rendered page: spot blocks visible on screen but missing from the source.",
-        "Move important content to server-side rendering (SSR/SSG) instead of a client-side load after the fact.",
-        "Keep JavaScript for what is genuinely interactive.",
-        "Re-crawl to confirm the content now appears in the raw HTML."
+        "Compare the text in the page source with the loaded DOM. Identify useful blocks missing from the HTTP response.",
+        "Check JavaScript errors, API requests and content that requires a click or login.",
+        "If those blocks need to be available in the initial response, load their data during server-side rendering or static generation (SSR/SSG).",
+        "Run the analysis again to confirm the intended content is present in the raw HTML and still correct after JavaScript.",
+        "Check indexing separately in Search Console: a complete DOM or a resolved alert does not prove that Google indexed the text."
       ],
-      "scanHook": "Is your content in the page source, or only after JS runs? Enter a URL: Seogard compares the raw HTML and the render and shows you what AI systems don’t see. Free, no credit card.",
+      "scanHook": "Is your main content in the raw HTML or added after JavaScript? Check both versions with the SSR checker. Account required, 14-day trial with no credit card.",
       "faq": [
         {
-          "q": "Do ChatGPT and Perplexity read my site’s JavaScript?",
-          "a": "Barely. Most AI crawlers fetch the raw HTML without running JavaScript: whatever isn’t there is invisible to them."
+          "q": "Can Google index JavaScript-loaded content?",
+          "a": "Yes, if it can retrieve and render the required resources. Content behind an interaction, authentication or failed scripts may remain inaccessible. A local render does not prove indexing."
         },
         {
-          "q": "How is this different from broken SSR?",
-          "a": "Broken SSR leaves the page almost entirely empty; here only part of the content is missing from the raw HTML. The fix is the same: render content server-side."
+          "q": "Do missing word counts measure my visibility in AI answers?",
+          "a": "No. They compare text extracted from HTML with text in the rendered DOM. Access methods vary across services and crawlers; this measurement does not predict citations."
+        }
+      ],
+      "updatedAt": "2026-09-08",
+      "sources": [
+        {
+          "title": "Google: JavaScript SEO basics",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },
     "rec_title_missing_in_ssr": {
       "constat": "The title tag is missing from the raw HTML but filled in after JavaScript executes.",
-      "pourquoi": "On the first pass, Google sees a page without a title; AI systems will never see yours. Yet the title is the cheapest signal to serve via SSR.",
+      "pourquoi": "The title depends on JavaScript execution. Google can render JavaScript, so absence from raw HTML does not prove absence from its index.",
       "action": "Set the title in the head server-side.",
-      "gain": "A title visible to every machine from the very first request.",
-      "seoTitle": "Title Missing from Raw HTML: The Cheapest Signal to Serve",
-      "h1": "JS-only title: a page with no title on the first pass",
-      "metaDescription": "Your title tag is missing from the raw HTML but filled in by JavaScript. Google sees a page with no title on the first pass and AI never gets yours. The fix.",
-      "tldr": "Your title tag is missing from the raw HTML and only filled in after JavaScript runs: on the first pass Google sees a page with no title, and AI systems never see yours. Yet the title is the cheapest signal to serve via SSR: set it in the head server-side.",
+      "gain": "The title is available in the HTML response without waiting for JavaScript.",
+      "seoTitle": "Title Missing from Raw HTML: Diagnose and Fix",
+      "h1": "Title present only after JavaScript",
+      "metaDescription": "Compare the title in raw HTML and the rendered DOM, then verify a server-side fix. This diagnosis is separate from Google indexing.",
+      "tldr": "The title appears after JavaScript but is missing from the initial HTML. To remove that dependency, generate it on the server and check both versions.",
       "whenNotAProblem": [
-        "The page is intentionally client-rendered and not meant to be indexed.",
-        "The title is already present in the raw HTML and only rewritten dynamically afterward.",
-        "You are on the very first crawl of a new page: Seogard does not alert without a baseline."
+        "The page is a private application screen with no search visibility goal.",
+        "Client rendering is intentional and works. This signal does not establish an indexing problem."
       ],
       "exemple": {
         "avant": "<!-- HTML returned by the server -->\n<head>\n  <!-- no title tag, added later by JavaScript -->\n</head>",
         "apres": "<!-- HTML returned by the server -->\n<head>\n  <title>Men's trail running shoes: picks and guide</title>\n</head>",
-        "note": "The title must sit in the head served by the server, not be added afterward by JavaScript."
+        "note": "After the fix, the title is present in the server HTML. This does not guarantee its appearance in search results."
       },
       "actionSteps": [
-        "View the page's real source (Ctrl+U) and look for the title tag in the head.",
+        "Compare the title in page source and in the DOM after JavaScript. Absence from both versions is a different diagnosis.",
         "If it is missing, find the code that sets the title client-side only.",
         "Set the title in the server-rendered head (SSR or pre-render).",
         "Re-crawl to confirm the title is present in the raw HTML."
       ],
-      "scanHook": "Is your title in the raw HTML or added by JavaScript? Enter a URL: Seogard compares what your server returns with what the browser renders. Free, no credit card.",
+      "scanHook": "Compare raw HTML and JavaScript rendering. Sign-up required, 14-day Cloud trial with no credit card.",
       "faq": [
         {
-          "q": "Why is a title missing from the raw HTML a problem?",
-          "a": "On the first pass Google indexes a page with no title, and generative engines, which read mostly the raw HTML, never see yours. The title is the cheapest signal to serve via SSR."
+          "q": "Does this check need a previous crawl?",
+          "a": "No. It compares raw HTML and JavaScript rendering from the same crawl."
         },
         {
-          "q": "How is this different from the missing-title alert?",
-          "a": "Here the title exists in the rendered page but not in the raw HTML (an SSR/CSR issue). The missing-title alert covers a title that existed before a deploy and then fully disappeared."
+          "q": "Does this signal prove a problem in Google?",
+          "a": "No. Google can render JavaScript. Use Search Console URL inspection separately to check Google’s crawl and indexing information."
+        }
+      ],
+      "updatedAt": "2026-09-09",
+      "sources": [
+        {
+          "title": "Google Search Central — JavaScript SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },
     "rec_description_missing_in_ssr": {
       "constat": "The meta description exists only in the JavaScript render, not in the raw HTML.",
-      "pourquoi": "The Google snippet and AI reading are mostly based on the raw HTML: your optimized description is invisible there. CTR impact more than ranking.",
+      "pourquoi": "The meta description depends on JavaScript execution. Google can render JavaScript, so absence from raw HTML does not prove absence from its index.",
       "action": "Render the meta description server-side.",
-      "gain": "Your description is present in the raw HTML, so actually read by Google and AI systems.",
-      "seoTitle": "Meta Description Missing From Raw HTML: What Impact?",
-      "h1": "Meta description filled by JavaScript: does Google read the right one?",
-      "metaDescription": "A meta description injected by JavaScript is absent from the raw HTML, which Google reads first to build your snippet. Diagnosis and fix.",
-      "tldr": "Your meta description exists only in the JavaScript render, not in the raw HTML that Google reads first, so your optimized description may not feed the snippet. Impact is mostly on click-through, rarely on ranking. Render the meta description server-side.",
+      "gain": "The meta description is available in the HTML response without waiting for JavaScript.",
+      "seoTitle": "Meta description Missing from Raw HTML: Diagnose and Fix",
+      "h1": "Meta description present only after JavaScript",
+      "metaDescription": "Compare the meta description in raw HTML and the rendered DOM, then verify a server-side fix. This diagnosis is separate from Google indexing.",
+      "tldr": "The meta description appears after JavaScript but is missing from the initial HTML. To remove that dependency, generate it on the server and check both versions.",
       "whenNotAProblem": [
-        "A correct meta description is already present in the raw HTML and the JavaScript only duplicates or confirms it.",
-        "Google often rewrites the snippet from page content based on the query anyway: the stakes are moderate.",
-        "The page is not meant to be indexed (app interface, back office): no snippet to polish."
+        "The page is a private application screen with no search visibility goal.",
+        "Client rendering is intentional and works. This signal does not establish an indexing problem."
       ],
       "exemple": {
         "avant": "<!-- Raw HTML returned by the server -->\n<head>\n  <title>Trail running shoes</title>\n  <!-- meta description injected later by JS -->\n</head>",
         "apres": "<!-- Raw HTML returned by the server -->\n<head>\n  <title>Trail running shoes</title>\n  <meta name=\"description\" content=\"Our selection of trail running shoes, field-tested.\">\n</head>",
-        "note": "On the left, the snippet depends on JavaScript; on the right, the description is already in the raw HTML that Google reads first."
+        "note": "After the fix, the meta description is present in the server HTML. This does not guarantee its appearance in search results."
       },
       "actionSteps": [
-        "View the raw page source (Ctrl+U) and look for the meta name=description tag: if it is absent or empty, it is injected by JavaScript.",
+        "Compare the meta description in page source and in the DOM after JavaScript. Absence from both versions is a different diagnosis.",
         "Move meta description generation to server-side rendering (SSR/SSG) instead of a client-side add-on after load.",
         "Make sure it is unique and relevant per page, not a single generic global value.",
         "Re-crawl the page to confirm the description is now in the raw HTML."
       ],
-      "scanHook": "Is your meta description in the source code, or only after JavaScript? Enter a URL: Seogard compares the raw HTML and the render and tells you what Google actually reads. Free, no credit card.",
+      "scanHook": "Compare raw HTML and JavaScript rendering. Sign-up required, 14-day Cloud trial with no credit card.",
       "faq": [
         {
-          "q": "Does Google use a meta description added by JavaScript?",
-          "a": "It may see it on its second rendering pass, but it often builds the snippet from the first crawl of the raw HTML. It is better to have it there from the start."
+          "q": "Does this check need a previous crawl?",
+          "a": "No. It compares raw HTML and JavaScript rendering from the same crawl."
         },
         {
-          "q": "Is this a serious SEO problem?",
-          "a": "No, the impact is mostly on click-through rate in results, not on ranking. It is a hygiene improvement, not a critical emergency."
+          "q": "Does this signal prove a problem in Google?",
+          "a": "No. Google can render JavaScript. Use Search Console URL inspection separately to check Google’s crawl and indexing information."
+        }
+      ],
+      "updatedAt": "2026-09-09",
+      "sources": [
+        {
+          "title": "Google Search Central — JavaScript SEO",
+          "url": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"
         }
       ]
     },

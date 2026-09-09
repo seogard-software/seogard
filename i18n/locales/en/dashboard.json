@@ -24,7 +24,7 @@
         "ariaLabel": "Breadcrumb"
       },
       "cookieConsent": {
-        "text": "This site uses session cookies to improve your experience and help us diagnose issues. No data is shared with third parties.",
+        "text": "With your consent, PostHog measures site usage and records interactions to help us fix problems. You can decline this optional measurement and continue using Seogard.",
         "refuse": "Decline",
         "accept": "Accept"
       },

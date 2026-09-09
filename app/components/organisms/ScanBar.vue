@@ -152,7 +152,7 @@ async function onAuthSuccess() {
     font-size: $font-size-base;
     transition: border-color 0.15s;
 
-    &::placeholder { color: $color-gray-400; }
+    &::placeholder { color: $color-gray-600; }
     &:focus {
       outline: none;
       border-color: $color-accent;
@@ -169,7 +169,7 @@ async function onAuthSuccess() {
   &__consent {
     margin-top: $spacing-2;
     font-size: $font-size-xs;
-    color: $color-gray-500;
+    color: $color-gray-600;
   }
 
   &--hero {

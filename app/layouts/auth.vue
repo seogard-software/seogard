@@ -18,7 +18,6 @@
         <slot />
       </div>
     </div>
-    <CookieBanner />
   </div>
 </template>
 

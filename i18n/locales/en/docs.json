@@ -99,7 +99,7 @@
       "crumbRules": "SEO rules",
       "inBrief": "In brief",
       "definitionHeading": "What is it?",
-      "whyHeading": "Why it hurts SEO and AI",
+      "whyHeading": "Why check this signal?",
       "notProblemHeading": "When it is NOT a problem",
       "exampleBefore": "Before",
       "exampleAfter": "After",
@@ -111,16 +111,16 @@
         "meta": "the meta tags: title, description and Open Graph",
         "content": "the content structure: H1, headings and text volume",
         "ssr": "what is missing from the raw HTML but appears in the JavaScript render",
-        "geo": "the signals AI reads: structured data, llms.txt, author",
+        "geo": "robots directives and structured elements on the page",
         "tech": "technical compliance: viewport, charset, HTTPS, hreflang"
       },
       "scanTrustNoCard": "No credit card",
-      "scanTrustFast": "Result in ~30 s",
-      "scanFallback": "Enter a URL: Seogard compares the raw HTML and the JavaScript-rendered page and tells you within 30 seconds whether the issue is present. Free, no credit card.",
+      "scanTrustFast": "Account required · 14-day trial",
+      "scanFallback": "Compare your site's raw HTML and JavaScript rendering. Account required, 14-day trial with no credit card.",
       "gainHeading": "What you get back",
       "signalLabel": "How Seogard detects it:",
-      "signalText": "Seogard continuously compares the raw HTML (what Google indexes) and the JavaScript-rendered page (what you see) on every page, and alerts you the moment this issue appears.",
-      "maillageSentence": "Seogard catches this regression automatically — through its {link}.",
+      "signalText": "Seogard analyses raw HTML and, when rendering succeeds, the JavaScript-rendered page. These checks describe what it measures; they do not read Google's index.",
+      "maillageSentence": "Check this signal with Seogard's {link}.",
       "maillageLink": {
         "ssr": "SSR checker",
         "geo": "GEO monitoring",
@@ -137,7 +137,10 @@
         "warning": "Warning",
         "info": "Info"
       },
-      "stickyText": "What about your site? Check this issue in 30 seconds — free, no credit card."
+      "stickyText": "Check your site · 14-day trial, no credit card",
+      "sourcesHeading": "Sources and verification",
+      "demoLink": "See the SSR test before and after",
+      "demoLead": "An example measured with the Seogard crawler:"
     },
     "author": {
       "role": "Vue.js Lead Dev · founder of Seogard",
@@ -175,6 +178,30 @@
         "paymentFailed": "Payment failed",
         "invite": "Invitation organisation"
       }
+    },
+    "ssrDemo": {
+      "eyebrow": "Seogard in action · SSR demo",
+      "title": "2 issues detected. A verified fix.",
+      "intro": "On this demo page, Seogard detects a title and content that depend on JavaScript. After adding them to the initial HTML, both checks pass.",
+      "before": "Before the fix",
+      "after": "After the fix",
+      "rawTitle": "Title in raw HTML",
+      "renderedTitle": "Title after JavaScript",
+      "rawWords": "Words extracted from raw HTML",
+      "renderedWords": "Visible words in the rendered page body",
+      "findings": "Findings across the two checks: {count}",
+      "resolved": "Neither of the two targeted differences is detected after the fix.",
+      "source": "View the full HTML for this test",
+      "method": "Example reproduced with the Seogard crawler on {date}.",
+      "countNote": "The HTML word count includes the four words in the title; the rendered count covers the page body. This explains the four-word difference after the fix.",
+      "limit": "Reproduce this test of the two rendering rules with the code and guides below.",
+      "guides": "Guides to reproduce the fix",
+      "guide": {
+        "ssr_title_mismatch": "Fix a title mismatch between HTML and JavaScript",
+        "rec_content_missing_in_ssr": "Check content missing from raw HTML"
+      },
+      "rawWordSummary": "Raw HTML: {count} words extracted",
+      "details": "View measurements and code"
     }
   }
 }

@@ -19,30 +19,30 @@
       "title": "Invitation"
     },
     "index": {
-      "title": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
-      "description": "Seogard compares the raw HTML Google indexes with your JavaScript render, and alerts you the moment an SEO or GEO regression appears. Free self-hosted or Cloud.",
-      "ogTitle": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
-      "ogDescription": "Continuous SEO regression monitoring: {count} rules checked on every crawl + raw HTML vs JS render comparison. Self-hosted free or Cloud from ${price}/page/month.",
-      "twitterTitle": "SEO Regression Monitoring — Catch Issues Before Google {'|'} Seogard",
-      "twitterDescription": "Continuous SEO regression monitoring. {count} rules on every crawl. Catch regressions before Google. Self-hosted free or Cloud from ${price}/page/month.",
+      "title": "Seogard — Technical SEO audits and monitoring",
+      "description": "Find SEO issues, prioritize fixes and monitor your pages. HTML/JavaScript comparison, reports and alerts. Try Seogard free for 14 days.",
+      "ogTitle": "Seogard — Technical SEO audits and monitoring",
+      "ogDescription": "Find SEO issues, prioritize fixes and monitor your pages. HTML/JavaScript comparison, reports and alerts. Try Seogard free for 14 days.",
+      "twitterTitle": "Seogard — Technical SEO audits and monitoring",
+      "twitterDescription": "Find SEO issues, prioritize fixes and monitor your pages. HTML/JavaScript comparison, reports and alerts. Try Seogard free for 14 days.",
       "jsonld": {
-        "appDescription": "Continuous SEO regression monitoring: compares the raw HTML and the JavaScript render to catch invisible regressions. Self-hosted free or Cloud from ${price}/page/month.",
+        "appDescription": "SEO audits and monitoring: find technical issues, compare HTML with JavaScript rendering and track regressions. Free self-hosting or Cloud from €{price}/page/month.",
         "offerSelfHostedDesc": "Free self-hosted version, full source code",
-        "offerCloudDesc": "${price} per monitored page per month (billed in EUR), managed infrastructure",
+        "offerCloudDesc": "EUR {price} per monitored page per month (billed in EUR), managed infrastructure",
         "feature1": "Raw HTML vs JavaScript render comparison",
         "feature2": "Meta and canonical monitoring",
         "feature3": "Accidental noindex detection",
-        "feature4": "Instant email alerts",
-        "feature5": "Automatic daily crawl",
+        "feature4": "Email notifications after the crawl",
+        "feature5": "Scheduled crawls, including a daily option",
         "feature6": "Real-time dashboard",
         "feature7": "{count} SEO and GEO detection rules",
-        "feature8": "GEO optimization and AI visibility",
+        "feature8": "Technical GEO checks and AI crawler access",
         "feature9": "Free self-hosted version",
         "feature10": "Built-in CI/CD webhook",
         "nav1": "SEO & GEO courses",
         "nav2": "Continuous SEO monitoring",
         "nav3": "SEO & GEO audit",
-        "nav4": "Free SSR checker",
+        "nav4": "SSR checker",
         "nav5": "Pricing",
         "nav6": "Documentation",
         "nav7": "SEO rules",
@@ -50,29 +50,29 @@
       }
     },
     "outilsMonitoring": {
-      "title": "Continuous SEO Monitoring — Catch Regressions Before Google",
-      "description": "Continuous SEO monitoring: Seogard diffs raw HTML against the JavaScript render on every crawl, and alerts you the same day a deploy breaks your metas.",
-      "ogTitle": "Continuous SEO Monitoring — Catch Regressions Before Google",
-      "ogDescription": "Continuous SSR vs CSR monitoring, instant alerts, CI/CD gate. Catch SEO regressions before Google.",
-      "twitterTitle": "Continuous SEO Monitoring — Catch Regressions Before Google",
-      "twitterDescription": "Continuous SSR vs CSR monitoring, alerts, CI/CD gate. Before Google.",
+      "title": "SEO monitoring — Catch regressions on your site",
+      "description": "Monitor your tags, indexability and JavaScript rendering. Get email alerts and add SEO checks to your CI/CD pipeline. Try it free for 14 days.",
+      "ogTitle": "SEO monitoring — Catch regressions on your site",
+      "ogDescription": "Monitor your tags, indexability and JavaScript rendering. Get email alerts and add SEO checks to your CI/CD pipeline. Try it free for 14 days.",
+      "twitterTitle": "SEO monitoring — Catch regressions on your site",
+      "twitterDescription": "Monitor your tags, indexability and JavaScript rendering. Get email alerts and add SEO checks to your CI/CD pipeline. Try it free for 14 days.",
       "jsonld": {
         "name": "Continuous SEO Monitoring — Seogard",
         "serviceType": "SEO and GEO regression monitoring",
-        "description": "Continuous SEO monitoring that compares the raw HTML and the JavaScript render to catch SEO regressions before Google."
+        "description": "SEO monitoring with HTML/JavaScript comparison, change tracking and email alerts to focus your fixes."
       }
     },
     "outilsAudit": {
-      "title": "Technical SEO Audit Tool — Your Site's SEO Health Report",
-      "description": "SEO and GEO audit across {count} rules: an SEO health report (Markdown and PDF) showing what Google and AI models really read on your site.",
-      "ogTitle": "Technical SEO Audit Tool — the complete health check of your site",
-      "ogDescription": "One scan against {count} SEO/GEO rules, SEO health report (Markdown + PDF), AI export to fix without coding.",
-      "twitterTitle": "Technical SEO Audit Tool — the complete health check of your site",
-      "twitterDescription": "Scan {count} SEO/GEO rules, SEO health report (md + PDF), AI export.",
+      "title": "Technical SEO audit — Know what to fix",
+      "description": "Find issues on your site with {count} SEO and GEO rules. Get a report with severity, affected pages and suggested fixes. Try it free for 14 days.",
+      "ogTitle": "Technical SEO audit — Know what to fix",
+      "ogDescription": "Find issues on your site with {count} SEO and GEO rules. Get a report with severity, affected pages and suggested fixes. Try it free for 14 days.",
+      "twitterTitle": "Technical SEO audit — Know what to fix",
+      "twitterDescription": "Find issues on your site with {count} SEO and GEO rules. Get a report with severity, affected pages and suggested fixes. Try it free for 14 days.",
       "jsonld": {
         "name": "SEO & GEO Audit — Seogard",
         "serviceType": "Technical SEO and GEO audit",
-        "description": "One scan of a site against {count} SEO, GEO and performance rules, with an SEO health report (Markdown + PDF) and an AI export."
+        "description": "Technical audit with {count} SEO, GEO and performance rules. A report with severity, affected pages and suggested fixes, available in Markdown and PDF."
       }
     },
     "docsSelfHosted": {
@@ -85,40 +85,40 @@
       "description": "The {count} SEO and GEO rules checked on every crawl: metas, SSR/CSR, status codes, structured data, hreflang, llms.txt. Severity and fix."
     },
     "scanner": {
-      "title": "Free SSR Checker — Test SSR vs JavaScript Rendering",
-      "description": "Free instant SEO scan: see the gap between the raw HTML Google indexes and the JavaScript render in your browser. No credit card required.",
-      "ogTitle": "Free SSR Checker — see your site the way Google does",
-      "ogDescription": "Compare raw HTML and JavaScript render, catch SEO/GEO regressions before Google. Free scan, no credit card.",
-      "twitterTitle": "Free SSR Checker — see your site the way Google does",
-      "twitterDescription": "Compare raw HTML and JS render, catch regressions before Google. Free, no card.",
+      "title": "Technical SEO scanner — Analyze your site with Seogard",
+      "description": "Find SEO issues, HTTP errors and HTML/JavaScript differences. See which pages need fixing in your report. Free 14-day trial. No credit card.",
+      "ogTitle": "Technical SEO scanner — Analyze your site with Seogard",
+      "ogDescription": "Find SEO issues, HTTP errors and HTML/JavaScript differences. See which pages need fixing in your report. Free 14-day trial. No credit card.",
+      "twitterTitle": "Technical SEO scanner — Analyze your site with Seogard",
+      "twitterDescription": "Find SEO issues, HTTP errors and HTML/JavaScript differences. See which pages need fixing in your report. Free 14-day trial. No credit card.",
       "jsonld": {
         "breadcrumbHome": "Home",
-        "breadcrumbScanner": "Free SSR checker"
+        "breadcrumbScanner": "SEO scanner"
       }
     },
     "tarifs": {
-      "title": "Pricing — SEO Monitoring from ${price}/page",
+      "title": "Pricing — SEO Monitoring from EUR {price}/page",
       "description": "Self-hosted free with unlimited pages, or Cloud at €{price} per monitored page/month. 14-day trial, no credit card.",
       "ogTitle": "Pricing — Seogard",
-      "ogDescription": "Continuous SEO regression monitoring and audit. Self-hosted free or Cloud from ${price}/page/month. Estimate your volume-based price."
+      "ogDescription": "Continuous SEO regression monitoring and audit. Self-hosted free or Cloud from EUR {price}/page/month. Estimate your volume-based price."
     },
     "bot": {
       "title": "Seogard-Bot — Crawler Documentation & User Agent",
       "description": "Seogard-Bot scans your pages to detect SEO regressions. User-Agent, IP address and whitelisting guides for Cloudflare, Akamai and AWS WAF."
     },
     "default": {
-      "description": "SEO regression monitoring. Catch SEO regressions before Google does."
+      "description": "Find SEO issues, prioritize fixes and monitor regressions with Seogard. HTML/JavaScript comparison, reports and alerts."
     },
     "formations": {
-      "title": "Free Technical SEO & GEO Courses — Google and AI Visibility",
-      "description": "Free technical SEO and GEO courses: SSR vs CSR, AI crawlers, llms.txt, structured data. Concrete, and accessible without writing any code.",
-      "ogTitle": "Technical SEO & GEO Courses — make your site visible to Google and to AI",
-      "ogDescription": "Free SEO/GEO courses: what Google and AI see of your site, and how to fix regressions before they cost you traffic.",
-      "twitterTitle": "Free Technical SEO & GEO Courses",
-      "twitterDescription": "SSR/CSR, AI crawlers, llms.txt, structured data, SEO regressions. Free, no coding needed.",
+      "title": "Technical SEO & GEO training — Seogard",
+      "description": "Technical SEO and GEO training in preparation. Start with our free guides on JavaScript rendering, crawler access and SEO fixes.",
+      "ogTitle": "Technical SEO & GEO training — Seogard",
+      "ogDescription": "Technical SEO and GEO training in preparation. Start with our free guides on JavaScript rendering, crawler access and SEO fixes.",
+      "twitterTitle": "Technical SEO & GEO training — Seogard",
+      "twitterDescription": "Technical SEO and GEO training in preparation. Start with our free guides on JavaScript rendering, crawler access and SEO fixes.",
       "jsonld": {
         "name": "Your site and AI",
-        "desc": "A free modular course to make your site visible and citable by ChatGPT, Perplexity and Google's AI Overviews."
+        "desc": "Technical SEO and GEO program in preparation: understand JavaScript rendering, crawler access and SEO fixes."
       }
     }
   }

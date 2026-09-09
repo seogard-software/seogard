@@ -2,6 +2,7 @@ import { Crawl, CrawlSchedule } from '~~/server/database/models'
 import { computeNextCrawlAt } from '~~/shared/utils/crawl-schedule'
 import { triggerSiteCrawl } from '~~/server/utils/crawl-trigger'
 
+// Nitro découvre crawl:scheduler à partir du chemin tasks/crawl/scheduler.ts.
 const log = createLogger('web', 'crawl-scheduler')
 
 export default defineTask({

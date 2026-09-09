@@ -58,6 +58,18 @@
     </ol>
     <p v-else class="fiche__p">{{ knowledge.action }}</p>
 
+    <p v-if="hasSsrDemo" class="fiche__maillage">
+      {{ $t('docs.fiche.demoLead') }}
+      <NuxtLink :to="`${localePath({ name: 'scanner' })}#ssr-demo`">{{ $t('docs.fiche.demoLink') }}</NuxtLink>
+    </p>
+
+    <section v-if="knowledge.sources?.length">
+      <h2 class="fiche__h2">{{ $t('docs.fiche.sourcesHeading') }}</h2>
+      <ul class="fiche__list">
+        <li v-for="source in knowledge.sources" :key="source.url"><a :href="source.url">{{ source.title }}</a></li>
+      </ul>
+    </section>
+
     <!-- 10. Conversion ① — CTA inline (point le plus fort) -->
     <RuleScanCta :hook="knowledge.scanHook ?? $t('docs.fiche.scanFallback')" :target="ctaTarget" :source="`fiche:${rule.id}`" />
 
@@ -156,6 +168,7 @@ if (!ruleId.value || !isRulePublished(ruleId.value) || !ruleRef.value || !knowle
 // TS narrowing : garanti non-null après le 404 ci-dessus → exposés non-null au template.
 const rule = ruleRef as ComputedRef<NonNullable<typeof ruleRef.value>>
 const knowledge = knowledgeRef as ComputedRef<NonNullable<typeof knowledgeRef.value>>
+const hasSsrDemo = computed(() => ['ssr_title_mismatch', 'rec_content_missing_in_ssr'].includes(rule.value.id))
 
 const label = computed(() => rule.value.label)
 const h1 = computed(() => knowledge.value.h1 ?? rule.value.label)
@@ -219,7 +232,8 @@ const twin = computed(() => {
 })
 
 // ── dateModified ──
-const updatedDisplay = computed(() => new Date(FICHE_UPDATED_AT).toLocaleDateString(INTL_LOCALE[loc.value], { year: 'numeric', month: 'long', day: 'numeric' }))
+const updatedAt = computed(() => knowledge.value.updatedAt ?? FICHE_UPDATED_AT)
+const updatedDisplay = computed(() => new Date(updatedAt.value).toLocaleDateString(INTL_LOCALE[loc.value], { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }))
 
 // ── Barre sticky (apparaît après un peu de scroll) ──
 const showSticky = ref(false)
@@ -261,7 +275,7 @@ useHead(() => ({
           'identifier': rule.value.id,
           'inLanguage': loc.value,
           'datePublished': FICHE_UPDATED_AT,
-          'dateModified': FICHE_UPDATED_AT,
+          'dateModified': updatedAt.value,
           'mainEntityOfPage': selfUrl.value,
           'author': buildPersonNode(appUrl, { jobTitle: t('docs.author.role'), aboutUrl: abs('a-propos') }),
           'publisher': { '@type': 'Organization', 'name': 'Seogard', 'url': appUrl },

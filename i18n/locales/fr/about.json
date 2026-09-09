@@ -3,10 +3,10 @@
     "eyebrow": "À propos",
     "title": "L'auteur derrière Seogard",
     "role": "Lead Dev Vue.js · fondateur de Seogard",
-    "intro": "Je développe des interfaces Vue.js à temps plein, et je construis Seogard en parallèle — un gardien qui détecte les régressions SEO et GEO avant Google. Ni consultant SEO, ni marketeur : un développeur qui a vu trop de sites casser silencieusement leur référencement à chaque déploiement.",
+    "intro": "Je développe des interfaces Vue.js et je construis Seogard pour aider les équipes à repérer les erreurs SEO, comprendre ce qui change et savoir quoi corriger.",
     "whyHeading": "Pourquoi j'ai créé Seogard",
-    "why1": "Un vendredi soir, une équipe pousse une refonte. Dans le navigateur, tout marche. Mais côté serveur, le rendu SSR a cassé sur des centaines de pages — les metas ont disparu. Google indexe du vide, et personne ne s'en aperçoit. Trois semaines plus tard, le trafic organique a chuté.",
-    "why2": "Aucun outil du marché ne surveille ça en continu, parce qu'aucun ne compare le HTML brut que Google indexe et le rendu JavaScript que vous voyez. J'ai construit celui qui le fait.",
+    "why1": "Un déploiement peut laisser une page impeccable à l’écran tout en cassant ses titres, ses balises ou son contenu côté serveur. Ces problèmes passent facilement sous le radar d’une vérification visuelle.",
+    "why2": "J’ai créé Seogard pour rendre ces changements visibles : comparaison HTML/JavaScript, suivi des régressions et rapports pour agir. Moins de vérifications à la main, des corrections mieux ciblées.",
     "masteryHeading": "Ce que je maîtrise",
     "factTerrainKey": "Terrain",
     "factTerrainValue": "Vue 3 · Nuxt · SSR/CSR",
@@ -16,11 +16,11 @@
     "factCrawlerValue": "Workers Playwright distribués",
     "factApproachKey": "Approche",
     "factApproachValue": "Build in public",
-    "rules": "Les fiches de règles de ce site, je les écris une par une : chacune décrit une régression réelle, sa mécanique côté Google et côté modèles de langage, et le correctif. Pas de promesse de position, pas de pourcentage inventé — juste la mécanique, honnêtement.",
+    "rules": "Les guides relient chaque problème à une explication, une méthode de vérification et des pistes de correction. De quoi avancer avec votre équipe technique ou votre assistant IA.",
     "linksHeading": "Où me suivre",
-    "ctaTitle": "Vérifiez votre site en 30 secondes",
-    "ctaText": "Seogard compare le HTML brut et le rendu JavaScript de vos pages et vous dit ce que Google voit vraiment. Gratuit, sans compte.",
+    "ctaTitle": "Découvrez les points à corriger sur votre site",
+    "ctaText": "Entrez votre URL, créez votre compte et lancez votre première analyse. Essai Cloud gratuit de 14 jours, sans carte bancaire.",
     "seoTitle": "À propos — l'auteur derrière Seogard",
-    "seoDescription": "Aadil Talbi, Lead Dev Vue.js et fondateur de Seogard. Pourquoi je construis un outil qui compare le HTML brut de Google au rendu JavaScript."
+    "seoDescription": "Aadil Talbi, Lead Dev Vue.js et fondateur de Seogard. Une approche du monitoring SEO fondée sur la comparaison HTML brut et rendu JavaScript."
   }
 }

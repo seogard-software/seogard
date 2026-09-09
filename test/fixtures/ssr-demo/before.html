@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seogard demo</title>
+</head>
+<body>
+<main id="content"></main>
+<script>
+document.title = 'SSR demonstration | Seogard'
+document.querySelector('#content').innerHTML = `<h1>SSR demonstration</h1>
+<p>This controlled document describes a small rendering experiment. The browser receives one HTML response and then executes the JavaScript included in that response. The experiment compares the title and the extracted text at those two stages. The page is deliberately simple so that the source of each difference remains visible. It contains no remote images, analytics, external fonts, authentication, or third party requests. All content belongs to this demonstration and is served from a temporary local HTTP server during the automated test.</p>
+<p>In the first version, the initial document contains an empty main element and a short generic title. An inline script replaces the title and inserts these paragraphs into the main element. A reader inspecting the initial response can find the text inside JavaScript source, but the raw HTML text extractor intentionally excludes script elements. The browser executes the script and exposes the paragraphs as ordinary document content. This makes the difference between the two extraction stages directly observable without requiring a live website.</p>
+<p>In the second version, the response already contains the final title, heading, and paragraphs as HTML elements. There is no script that inserts the same content a second time. The browser therefore displays the same main content as in the first version while the initial response now provides that content directly. The test verifies both the detected differences before the change and their absence after the change. The comparison uses the existing crawler fetcher, Chromium renderer, and selected rule implementations without replacing their measurements.</p>
+<p>The recorded word counts follow the extraction methods used by the crawler. The raw HTML method includes title text and removes script and style contents. The browser method reads the visible body text after JavaScript execution. These methods can produce slightly different totals even when all main content is already present in the response. The fixture demonstrates only these local observations and the behavior of two selected checks. It does not measure search engine indexing, rankings, traffic, or the behavior of an external crawling service.</p>`
+</script>
+</body>
+</html>

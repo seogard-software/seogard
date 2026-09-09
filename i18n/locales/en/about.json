@@ -3,10 +3,10 @@
     "eyebrow": "About",
     "title": "The author behind Seogard",
     "role": "Vue.js Lead Dev · founder of Seogard",
-    "intro": "I build Vue.js interfaces full-time, and I build Seogard on the side — a guardian that catches SEO and GEO regressions before Google does. Not an SEO consultant, not a marketer: a developer who watched too many sites quietly break their own rankings on every deploy.",
+    "intro": "I build Vue.js interfaces and Seogard to help teams find SEO issues, understand what changed and know what to fix.",
     "whyHeading": "Why I built Seogard",
-    "why1": "One Friday evening, a team ships a redesign. In the browser, everything works. But on the server, SSR broke on hundreds of pages — the metas were gone. Google indexes empty pages, and nobody notices. Three weeks later, organic traffic has dropped.",
-    "why2": "No tool on the market watches this continuously, because none compares the raw HTML Google indexes with the JavaScript render you see. I built the one that does.",
+    "why1": "A deployment can leave a page looking perfect while breaking its titles, tags or server-rendered content. These issues can easily slip past a visual check.",
+    "why2": "I created Seogard to make those changes visible: HTML/JavaScript comparison, regression monitoring and reports you can act on. Fewer manual checks, more focused fixes.",
     "masteryHeading": "What I know",
     "factTerrainKey": "Ground",
     "factTerrainValue": "Vue 3 · Nuxt · SSR/CSR",
@@ -16,11 +16,11 @@
     "factCrawlerValue": "Distributed Playwright workers",
     "factApproachKey": "Approach",
     "factApproachValue": "Build in public",
-    "rules": "The rule guides on this site, I write one by one: each describes a real regression, how it plays out for Google and for language models, and how to fix it. No ranking promises, no made-up percentages — just the mechanics, honestly.",
+    "rules": "The guides connect each issue to an explanation, a way to verify it and suggested fixes. Work through them with your technical team or AI assistant.",
     "linksHeading": "Where to follow me",
-    "ctaTitle": "Check your site in 30 seconds",
-    "ctaText": "Seogard compares the raw HTML and the JavaScript render of your pages and tells you what Google actually sees. Free, no account.",
+    "ctaTitle": "Find what needs fixing on your site",
+    "ctaText": "Enter your URL and create your account to run your first scan with a free 14-day Cloud trial. No credit card required.",
     "seoTitle": "About — the author behind Seogard",
-    "seoDescription": "Aadil Talbi, Vue.js Lead Dev and founder of Seogard. Why I build a tool that compares the raw HTML Google reads with the JavaScript render."
+    "seoDescription": "Aadil Talbi, Vue.js Lead Dev and founder of Seogard. Technical SEO monitoring through raw HTML and JavaScript rendering comparisons."
   }
 }

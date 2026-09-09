@@ -99,7 +99,7 @@
       "crumbRules": "Règles SEO",
       "inBrief": "En bref",
       "definitionHeading": "De quoi s'agit-il ?",
-      "whyHeading": "Pourquoi c'est un problème pour le SEO et les IA",
+      "whyHeading": "Pourquoi vérifier ce signal",
       "notProblemHeading": "Quand ce n'est PAS un problème",
       "exampleBefore": "Avant",
       "exampleAfter": "Après",
@@ -111,16 +111,16 @@
         "meta": "les balises meta : title, description et Open Graph",
         "content": "la structure de contenu : H1, titres et volume de texte",
         "ssr": "ce qui manque dans le HTML brut mais apparaît au rendu JavaScript",
-        "geo": "les signaux lus par les IA : données structurées, llms.txt, auteur",
+        "geo": "les directives robots et les éléments structurés de la page",
         "tech": "la conformité technique : viewport, charset, HTTPS, hreflang"
       },
       "scanTrustNoCard": "Sans carte bancaire",
-      "scanTrustFast": "Résultat en ~30 s",
-      "scanFallback": "Entrez une URL : Seogard compare le HTML brut et le rendu JavaScript et vous dit en 30 s si le défaut est présent. Gratuit, sans carte bancaire.",
+      "scanTrustFast": "Compte requis · essai 14 jours",
+      "scanFallback": "Comparez le HTML brut et le rendu JavaScript de votre site. Inscription requise, essai de 14 jours sans carte bancaire.",
       "gainHeading": "Ce que vous récupérez",
       "signalLabel": "Comment Seogard le détecte :",
-      "signalText": "Seogard compare en continu le HTML brut (ce que Google indexe) et le rendu JavaScript (ce que vous voyez) sur chaque page, et vous alerte dès que ce défaut apparaît.",
-      "maillageSentence": "Seogard détecte cette régression automatiquement — via le {link}.",
+      "signalText": "Seogard analyse le HTML brut et, lorsque le rendu aboutit, la page exécutée en JavaScript. Les contrôles documentés ici décrivent ces mesures ; ils ne lisent pas l'index de Google.",
+      "maillageSentence": "Vérifiez ce signal avec le {link} de Seogard.",
       "maillageLink": {
         "ssr": "scanner SSR",
         "geo": "monitoring GEO",
@@ -137,7 +137,10 @@
         "warning": "Avertissement",
         "info": "Info"
       },
-      "stickyText": "Et votre site ? Vérifiez ce défaut en 30 s — gratuit, sans carte bancaire."
+      "stickyText": "Vérifiez votre site · essai 14 jours sans carte bancaire",
+      "sourcesHeading": "Sources et vérification",
+      "demoLink": "Voir le test SSR avant/après",
+      "demoLead": "Un exemple mesuré avec le crawler Seogard :"
     },
     "author": {
       "role": "Lead Dev Vue.js · fondateur de Seogard",
@@ -175,6 +178,30 @@
         "paymentFailed": "Échec paiement",
         "invite": "Invitation organisation"
       }
+    },
+    "ssrDemo": {
+      "eyebrow": "Seogard en action · démonstration SSR",
+      "title": "2 problèmes détectés. Une correction vérifiée.",
+      "intro": "Sur cette page de démonstration, Seogard repère un titre et du contenu dépendants du JavaScript. Après leur ajout au HTML initial, les deux contrôles passent.",
+      "before": "Avant correction",
+      "after": "Après correction",
+      "rawTitle": "Titre du HTML brut",
+      "renderedTitle": "Titre après JavaScript",
+      "rawWords": "Mots extraits du HTML brut",
+      "renderedWords": "Mots visibles dans le corps de page rendu",
+      "findings": "{count} écart(s) sur les deux contrôles",
+      "resolved": "Les deux écarts ciblés ne sont plus détectés.",
+      "source": "Voir le HTML complet de ce test",
+      "method": "Exemple reproduit avec le crawler Seogard le {date}.",
+      "countNote": "Le comptage HTML inclut ici les quatre mots du titre ; le comptage après rendu porte sur le corps de page. C'est pourquoi les totaux corrigés diffèrent de quatre mots.",
+      "limit": "Reproduisez ce test sur les deux règles de rendu avec le code et les guides ci-dessous.",
+      "guides": "Guides pour reproduire la correction",
+      "guide": {
+        "ssr_title_mismatch": "Corriger un titre différent entre HTML et JavaScript",
+        "rec_content_missing_in_ssr": "Vérifier le contenu absent du HTML brut"
+      },
+      "rawWordSummary": "HTML brut : {count} mots extraits",
+      "details": "Voir les mesures et le code"
     }
   }
 }

@@ -1,12 +1,12 @@
 {
   "common": {
     "scanBar": {
-      "placeholder": "Enter your website",
+      "placeholder": "your-site.com",
       "placeholderCompact": "yoursite.com",
       "ariaLabel": "Your website address",
-      "badge": "Free",
-      "submit": "Scan",
-      "consent": "By clicking Scan, I certify that I own this site or have permission to crawl it.",
+      "badge": "Trial",
+      "submit": "Scan site",
+      "consent": "Create your account and try it free for 14 days. No credit card. By continuing, I confirm that I own this site or have permission to analyze it.",
       "errorInvalid": "Enter a valid address (e.g. yoursite.com)",
       "errorGeneric": "Something went wrong. Try again."
     },
@@ -18,9 +18,9 @@
       "formations": "Courses",
       "tools": "Tools",
       "toolMonitoring": "Monitoring",
-      "toolMonitoringDesc": "Continuous monitoring, alerts before Google",
+      "toolMonitoringDesc": "Catch SEO regressions on your site",
       "toolAudit": "Audit",
-      "toolAuditDesc": "Scan + full SEO/GEO report",
+      "toolAuditDesc": "Find issues and plan your fixes",
       "dashboard": "Dashboard",
       "login": "Log in",
       "tryFree": "Try for free",

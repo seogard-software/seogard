@@ -5,3 +5,15 @@ node_modules
 .env*
 *.md
 test
+
+# Keep private AI context out of local Docker build contexts too
+**/AGENTS.md
+**/AGENTS.override.md
+**/CLAUDE.md
+**/CLAUDE.local.md
+**/CODEX.md
+**/SKILL.md
+**/.claude
+**/.codex
+**/.agents
+context

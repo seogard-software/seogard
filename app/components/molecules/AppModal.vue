@@ -6,10 +6,10 @@
         class="app-modal"
         @mousedown.self="handleBackdropClick"
       >
-        <div :class="['app-modal__panel', { 'app-modal__panel--wide': wide }]">
+        <div ref="panel" :class="['app-modal__panel', { 'app-modal__panel--wide': wide }]" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
           <div class="app-modal__header">
-            <h2 class="app-modal__title">{{ title }}</h2>
-            <button class="app-modal__close" @click="close">
+            <h2 :id="titleId" class="app-modal__title">{{ title }}</h2>
+            <button type="button" class="app-modal__close" :aria-label="$t('common.aria.close')" @click="close">
               <AppIcon name="x" size="sm" />
             </button>
           </div>
@@ -27,6 +27,11 @@
   </Teleport>
 </template>
 
+<script lang="ts">
+// Only the last opened dialog handles focus and keys, including nested dialogs.
+const activeDialogs: HTMLElement[] = []
+</script>
+
 <script setup lang="ts">
 interface Props {
   title: string
@@ -43,6 +48,39 @@ const model = defineModel<boolean>({ required: true })
 // `close` n'est émis QUE sur fermeture volontaire (backdrop / croix / Échap) — pas quand le parent
 // met le v-model à false (navigation « se connecter », succès…). Permet de distinguer un abandon.
 const emit = defineEmits<{ close: [] }>()
+const titleId = useId()
+const panel = ref<HTMLElement | null>(null)
+let registeredPanel: HTMLElement | null = null
+let previousFocus: HTMLElement | null = null
+
+function focusableElements(): HTMLElement[] {
+  return Array.from(panel.value?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]') ?? [])
+    .filter(element => element.tabIndex >= 0 && element.getClientRects().length > 0 && !element.closest('[inert]'))
+}
+
+function releaseFocus() {
+  if (!registeredPanel) return
+  const wasTop = activeDialogs.at(-1) === registeredPanel
+  const index = activeDialogs.indexOf(registeredPanel)
+  if (index !== -1) activeDialogs.splice(index, 1)
+  registeredPanel = null
+  if (wasTop && previousFocus?.isConnected) previousFocus.focus()
+  previousFocus = null
+}
+
+watch(model, async (isOpen) => {
+  if (!import.meta.client) return
+  if (!isOpen) {
+    releaseFocus()
+    return
+  }
+  previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  await nextTick()
+  if (!model.value || !panel.value) return
+  registeredPanel = panel.value
+  activeDialogs.push(registeredPanel)
+  ;(focusableElements()[0] ?? registeredPanel).focus()
+}, { flush: 'post', immediate: true })
 
 function close() {
   model.value = false
@@ -56,17 +94,44 @@ function handleBackdropClick() {
 }
 
 function handleKeydown(e: KeyboardEvent) {
+  if (!model.value || activeDialogs.at(-1) !== panel.value || e.defaultPrevented) return
   if (e.key === 'Escape' && props.closeOnBackdrop) {
+    e.preventDefault()
     close()
   }
+  if (e.key === 'Tab') {
+    const elements = focusableElements()
+    const first = elements[0]
+    const last = elements.at(-1)
+    if (!first || !last) {
+      e.preventDefault()
+      panel.value?.focus()
+    }
+    else if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.value)) {
+      e.preventDefault()
+      last.focus()
+    }
+    else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
+function handleFocusIn(e: FocusEvent) {
+  if (!model.value || activeDialogs.at(-1) !== panel.value || panel.value?.contains(e.target as Node)) return
+  ;(focusableElements()[0] ?? panel.value)?.focus()
 }
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  document.addEventListener('focusin', handleFocusIn)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('focusin', handleFocusIn)
+  releaseFocus()
 })
 </script>
 

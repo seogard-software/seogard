@@ -12,7 +12,7 @@ function cookies(authFile: string): string {
 }
 
 // Tout le parcours scan est testé avec la session OWNER (a une orga active + un site example.com).
-test.describe('Scan onboarding — barre Analyser', () => {
+test.describe('Scan onboarding — barre de scan', () => {
   test.beforeEach(({ page: _page }, testInfo) => {
     test.skip(testInfo.project.name !== 'owner', 'Parcours testé avec la session owner')
   })
@@ -57,8 +57,8 @@ test.describe('Scan onboarding — barre Analyser', () => {
 
   test('UI : scanner un site déjà présent redirige vers son overview', async ({ page }) => {
     await gotoHydrated(page, '/')
-    await page.getByPlaceholder('Saisissez votre site Web').fill('example.com')
-    await page.getByRole('button', { name: 'Analyser' }).click()
+    await page.getByPlaceholder('votresite.fr').fill('example.com')
+    await page.getByRole('button', { name: 'Analyser', exact: true }).click()
     // Valide TOUTE la chaîne de navigation (runScan → /api/scan → [id]/index → zone pages).
     await page.waitForURL(`**/dashboard/sites/${ids.siteId}/**`, { timeout: 20_000 })
     expect(page.url()).toContain(`/dashboard/sites/${ids.siteId}/`)
@@ -66,8 +66,8 @@ test.describe('Scan onboarding — barre Analyser', () => {
 
   test('UI : URL invalide → erreur inline, aucune navigation', async ({ page }) => {
     await gotoHydrated(page, '/')
-    await page.getByPlaceholder('Saisissez votre site Web').fill('pas une url !!')
-    await page.getByRole('button', { name: 'Analyser' }).click()
+    await page.getByPlaceholder('votresite.fr').fill('pas une url !!')
+    await page.getByRole('button', { name: 'Analyser', exact: true }).click()
     await expect(page.getByText(/adresse valide/i)).toBeVisible()
     expect(page.url()).not.toContain('/dashboard')
   })

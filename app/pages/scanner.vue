@@ -25,60 +25,6 @@
       </div>
     </section>
 
-    <!-- ═══════ DIFFÉRENCIATEUR — HTML brut vs rendu JS ═══════ -->
-    <section class="scanner__section">
-      <div class="scanner__container">
-        <span class="scanner__eyebrow">{{ $t('landing.scanner.compare.eyebrow') }}</span>
-        <h2 class="scanner__h2" v-html="$t('landing.scanner.compare.title')" />
-        <div class="scanner__compare">
-          <article class="scanner__pane scanner__pane--raw">
-            <header class="scanner__pane-head">
-              <span class="scanner__pane-tag">{{ $t('landing.scanner.compare.rawTag') }}</span>
-            </header>
-            <pre class="scanner__code"><span class="scanner__code-ok">{{ $t('landing.scanner.compare.rawLine1') }}</span>
-<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine2') }}</span>
-<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine3') }}</span>
-<span class="scanner__code-bad">{{ $t('landing.scanner.compare.rawLine4') }}</span></pre>
-            <p class="scanner__pane-verdict scanner__pane-verdict--bad">{{ $t('landing.scanner.compare.rawVerdict') }}</p>
-          </article>
-
-          <article class="scanner__pane scanner__pane--rendered">
-            <header class="scanner__pane-head">
-              <span class="scanner__pane-tag">{{ $t('landing.scanner.compare.renderedTag') }}</span>
-            </header>
-            <pre class="scanner__code"><span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine1') }}</span>
-<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine2') }}</span>
-<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine3') }}</span>
-<span class="scanner__code-ok">{{ $t('landing.scanner.compare.renderedLine4') }}</span></pre>
-            <p class="scanner__pane-verdict scanner__pane-verdict--ok">{{ $t('landing.scanner.compare.renderedVerdict') }}</p>
-          </article>
-        </div>
-        <p class="scanner__compare-note" v-html="$t('landing.scanner.compare.note')" />
-        <p class="scanner__compare-monitor">
-          <i18n-t keypath="landing.scanner.compare.monitorLine" tag="span" scope="global">
-            <template #link>
-              <NuxtLink :to="localePath({ name: 'outils-monitoring' })">{{ $t('landing.scanner.compare.monitorAnchor') }}</NuxtLink>
-            </template>
-          </i18n-t>
-        </p>
-      </div>
-    </section>
-
-    <!-- ═══════ ÉTAPES ═══════ -->
-    <section class="scanner__section scanner__section--muted">
-      <div class="scanner__container">
-        <span class="scanner__eyebrow">{{ $t('landing.scanner.steps.eyebrow') }}</span>
-        <h2 class="scanner__h2">{{ $t('landing.scanner.steps.title') }}</h2>
-        <ol class="scanner__steps">
-          <li v-for="(step, i) in steps" :key="step.title" class="scanner__step">
-            <span class="scanner__step-num">{{ i + 1 }}</span>
-            <h3 class="scanner__step-title">{{ step.title }}</h3>
-            <p class="scanner__step-text">{{ step.text }}</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
     <!-- ═══════ CE QU'ON ANALYSE ═══════ -->
     <section class="scanner__section">
       <div class="scanner__container">
@@ -93,6 +39,19 @@
             </div>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section class="scanner__section">
+      <div class="scanner__container">
+        <SsrDemo />
+        <p class="scanner__compare-monitor">
+          <i18n-t keypath="landing.scanner.compare.monitorLine" tag="span" scope="global">
+            <template #link>
+              <NuxtLink :to="localePath({ name: 'outils-monitoring' })">{{ $t('landing.scanner.compare.monitorAnchor') }}</NuxtLink>
+            </template>
+          </i18n-t>
+        </p>
       </div>
     </section>
 
@@ -136,12 +95,6 @@ const ogImage = computed(() => `${appUrl}${locale.value === 'en' ? '/og-image-en
 
 const cloudPriceDisplay = formatCloudPrice(locale.value)
 
-const steps = [
-  { title: t('landing.scanner.steps.step1Title'), text: t('landing.scanner.steps.step1Text') },
-  { title: t('landing.scanner.steps.step2Title'), text: t('landing.scanner.steps.step2Text') },
-  { title: t('landing.scanner.steps.step3Title'), text: t('landing.scanner.steps.step3Text') },
-]
-
 const checks: { icon: IconName, title: string, text: string }[] = [
   { icon: 'code', title: t('landing.scanner.checks.check1Title'), text: t('landing.scanner.checks.check1Text') },
   { icon: 'file', title: t('landing.scanner.checks.check2Title'), text: t('landing.scanner.checks.check2Text') },
@@ -153,9 +106,7 @@ const checks: { icon: IconName, title: string, text: string }[] = [
 
 const faq = [
   { q: t('landing.scanner.faq.q1'), a: t('landing.scanner.faq.a1') },
-  { q: t('landing.scanner.faq.q2'), a: t('landing.scanner.faq.a2') },
   { q: t('landing.scanner.faq.q3'), a: t('landing.scanner.faq.a3') },
-  { q: t('landing.scanner.faq.q4'), a: t('landing.scanner.faq.a4') },
   { q: t('landing.scanner.faq.q5'), a: t('landing.scanner.faq.a5') },
 ]
 
@@ -205,6 +156,7 @@ useSeoMeta({
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
 @use '~/assets/styles/variables' as *;
 
 .scanner {
@@ -273,7 +225,7 @@ useSeoMeta({
   }
 
   &__title-accent {
-    background: linear-gradient(120deg, $color-info, $color-success);
+    background: linear-gradient(120deg, $color-info, color.scale($color-success, $lightness: -15%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -303,7 +255,7 @@ useSeoMeta({
     z-index: 1;
     margin-top: $spacing-5;
     font-size: $font-size-sm;
-    color: $color-gray-500;
+    color: $color-gray-600;
   }
 
   // ── SECTIONS ──
@@ -337,133 +289,18 @@ useSeoMeta({
   }
 
   // ── COMPARE ──
-  &__compare {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: $spacing-5;
-    max-width: 880px;
-    margin: 0 auto;
-
-    @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
-  }
-
-  &__pane {
-    border-radius: $radius-2xl;
-    border: 1px solid $color-gray-200;
-    background: $color-white;
-    overflow: hidden;
-    box-shadow: $shadow-lg;
-
-    &--raw { border-color: rgba($color-danger, 0.3); }
-    &--rendered { border-color: rgba($color-success, 0.3); }
-  }
-
-  &__pane-head {
-    padding: $spacing-3 $spacing-4;
-    border-bottom: 1px solid $color-gray-100;
-    background: $surface-elevated;
-  }
-
-  &__pane-tag {
-    font-size: $font-size-xs;
-    font-weight: $font-weight-semibold;
-    color: $color-gray-600;
-  }
-
-  &__code {
-    margin: 0;
-    padding: $spacing-4;
-    font-family: $font-family-mono;
-    font-size: $font-size-xs;
-    line-height: 1.9;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  &__code-ok { color: $color-gray-700; display: block; }
-  &__code-bad { color: $color-danger; display: block; }
-
-  &__pane-verdict {
-    margin: 0;
-    padding: $spacing-3 $spacing-4 $spacing-4;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-
-    &--bad { color: $color-danger; }
-    &--ok { color: $color-success; }
-  }
-
-  &__compare-note {
-    max-width: 640px;
-    margin: $spacing-8 auto 0;
-    text-align: center;
-    font-size: $font-size-base;
-    line-height: $line-height-normal;
-    color: $color-gray-600;
-
-    strong { color: $color-gray-900; }
-  }
-
   &__compare-monitor {
     max-width: 640px;
     margin: $spacing-3 auto 0;
     text-align: center;
     font-size: $font-size-sm;
-    color: $color-gray-500;
+    color: $color-gray-600;
 
     a { color: $color-gray-900; text-decoration: underline; text-underline-offset: 2px; }
     a:hover { color: $color-accent; }
   }
 
   // ── STEPS ──
-  &__steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: $spacing-6;
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 0;
-    list-style: none;
-    counter-reset: none;
-
-    @media (max-width: $breakpoint-md) { grid-template-columns: 1fr; }
-  }
-
-  &__step {
-    padding: $spacing-6;
-    background: $color-white;
-    border: 1px solid $color-gray-200;
-    border-radius: $radius-xl;
-  }
-
-  &__step-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    margin-bottom: $spacing-4;
-    font-size: $font-size-base;
-    font-weight: $font-weight-bold;
-    color: $color-white;
-    background: $color-accent;
-    border-radius: $radius-full;
-  }
-
-  &__step-title {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    color: $color-gray-900;
-    margin-bottom: $spacing-2;
-  }
-
-  &__step-text {
-    font-size: $font-size-sm;
-    line-height: $line-height-normal;
-    color: $color-gray-600;
-  }
-
-  // ── CHECKS ──
   &__checks {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
