@@ -13,25 +13,28 @@ for (const locale of ['fr', 'en'] as const) {
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
     try {
-      const response = await page.goto(`http://localhost:3333/${locale}/scanner`)
+      const response = await page.goto(`http://localhost:3333/${locale}/demo/ssr`)
       expect(response?.status()).toBe(200)
       await expect(page.locator('h1')).toHaveCount(1)
-      await expect(page.locator('#ssr-demo h2')).toBeVisible()
-      await expect(page.locator('#ssr-demo article')).toHaveCount(2)
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `http://localhost:3333/${locale}/scanner`)
+      await expect(page.locator('#demo-example-title')).toBeVisible()
+      await page.locator('.ssr-demo__evidence > summary').click()
+      await expect(page.locator('.ssr-demo__measurements article')).toHaveCount(2)
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `http://localhost:3333/${locale}/demo/ssr`)
+      await expect(page.locator('link[rel="alternate"][hreflang="' + (locale === 'fr' ? 'en' : 'fr') + '"]')).toHaveAttribute('href', `http://localhost:3333/${locale === 'fr' ? 'en' : 'fr'}/demo/ssr`)
       await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute('content', /noindex/)
       for (const id of ['ssr_title_mismatch', 'rec_content_missing_in_ssr']) {
         const path = `/${locale}/docs/rules/${getRuleSlug(id, locale)}`
-        await expect(page.locator(`#ssr-demo a[href="${path}"]`)).toBeVisible()
+        await expect(page.locator(`.ssr-demo a[href="${path}"]`)).toBeVisible()
         await page.goto(`http://localhost:3333${path}`)
         await expect(page.locator('h1')).toHaveCount(1)
-        await expect(page.locator(`a[href="/${locale}/scanner#ssr-demo"]`)).toBeVisible()
+        await expect(page.locator(`a[href="/${locale}/demo/ssr"]`)).toBeVisible()
         await expect(page.locator('article a[href^="https://developers.google.com/search/docs/"]').first()).toBeVisible()
         const other = locale === 'fr' ? 'en' : 'fr'
         await expect(page.locator(`link[rel="alternate"][hreflang="${other}"]`)).toHaveAttribute('href', `http://localhost:3333/${other}/docs/rules/${getRuleSlug(id, other)}`)
         const structured = await page.locator('script[type="application/ld+json"]').allTextContents()
         expect(structured.some(value => value.includes('"dateModified":"2026-09-08"'))).toBeTruthy()
-        await page.goto(`http://localhost:3333/${locale}/scanner`)
+        await page.goto(`http://localhost:3333/${locale}/demo/ssr`)
+        await page.locator('.ssr-demo__evidence > summary').click()
       }
       for (const tool of ['audit', 'monitoring']) {
         const path = `/${locale}/${locale === 'fr' ? 'outils' : 'tools'}/${tool}`
@@ -87,15 +90,16 @@ for (const locale of ['fr', 'en'] as const) {
 
   test(`${locale}: evidence remains readable on mobile and formations links to available content`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    await gotoHydrated(page, `/${locale}/scanner#ssr-demo`)
+    await gotoHydrated(page, `/${locale}/demo/ssr`)
     await expect(page.locator('.cookie-banner')).toHaveCount(0)
     await page.locator('.cookie-consent').getByRole('button', { name: locale === 'fr' ? 'Refuser' : 'Decline', exact: true }).click()
     await expect(page.locator('.cookie-consent')).not.toBeVisible()
-    await page.locator('#ssr-demo summary').first().click()
-    await expect(page.locator('#ssr-demo pre').first()).toBeVisible()
+    await page.locator('.ssr-demo__evidence > summary').click()
+    await page.locator('.ssr-demo__source > summary').first().click()
+    await expect(page.locator('.ssr-demo pre').first()).toBeVisible()
     const dimensions = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: innerWidth }))
     expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport + 1)
-    if (process.env.SEO_QA_DIR) await page.locator('#ssr-demo').screenshot({ path: `${process.env.SEO_QA_DIR}/${locale}-demo-mobile.png` })
+    if (process.env.SEO_QA_DIR) await page.locator('.ssr-demo').screenshot({ path: `${process.env.SEO_QA_DIR}/${locale}-demo-mobile.png` })
     await gotoHydrated(page, `/${locale}/formations`)
     // The program is not published: both CTAs must lead to existing localized resources.
     const links = page.locator('main a')

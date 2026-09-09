@@ -60,7 +60,7 @@
 
     <p v-if="hasSsrDemo" class="fiche__maillage">
       {{ $t('docs.fiche.demoLead') }}
-      <NuxtLink :to="`${localePath({ name: 'scanner' })}#ssr-demo`">{{ $t('docs.fiche.demoLink') }}</NuxtLink>
+      <NuxtLink :to="localePath({ name: 'demo-ssr' })">{{ $t('docs.fiche.demoLink') }}</NuxtLink>
     </p>
 
     <section v-if="knowledge.sources?.length">

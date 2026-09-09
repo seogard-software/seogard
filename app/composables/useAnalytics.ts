@@ -9,6 +9,7 @@ import type { PostHog } from 'posthog-js'
 export type ScanSource =
   | 'home_hero'
   | 'scanner_page'
+  | 'ssr_demo'
   | 'about'
   | 'monitoring'
   | 'audit'

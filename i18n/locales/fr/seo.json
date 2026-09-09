@@ -120,6 +120,10 @@
         "name": "Ton site et l'IA",
         "desc": "Programme SEO technique et GEO en préparation : comprendre le rendu JavaScript, l’accès des robots et les corrections SEO."
       }
+    },
+    "ssrDemo": {
+      "title": "Démo HTML et JavaScript : avant/après",
+      "description": "Voyez comment Seogard compare le HTML initial au rendu JavaScript : une vraie page de test, deux écarts détectés et une correction vérifiée."
     }
   }
 }

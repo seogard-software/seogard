@@ -44,7 +44,7 @@
 
     <section class="scanner__section">
       <div class="scanner__container">
-        <SsrDemo />
+        <SsrDemoTeaser />
         <p class="scanner__compare-monitor">
           <i18n-t keypath="landing.scanner.compare.monitorLine" tag="span" scope="global">
             <template #link>

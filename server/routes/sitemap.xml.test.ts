@@ -20,6 +20,8 @@ describe('GET /sitemap.xml — pages statiques (blog supprimé)', () => {
     expect(xml).toContain('https://seogard.io/fr/outils/monitoring')
     expect(xml).toContain('https://seogard.io/fr/outils/audit')
     expect(xml).toContain('https://seogard.io/fr/scanner')
+    expect(xml).toContain('<loc>https://seogard.io/fr/demo/ssr</loc>')
+    expect(xml).toContain('<loc>https://seogard.io/en/demo/ssr</loc>')
     expect(xml).toContain('https://seogard.io/fr/tarifs')
     expect(xml).toContain('https://seogard.io/fr/docs/rules')
     expect(xml).toContain('https://seogard.io/fr/docs/self-hosted')

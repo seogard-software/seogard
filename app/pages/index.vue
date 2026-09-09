@@ -81,7 +81,7 @@
         </p>
 
         <PublicComparison />
-        <NuxtLink :to="`${localePath({ name: 'scanner' })}#ssr-demo`" class="hero__cta hero__cta--ghost compare__demo">
+        <NuxtLink :to="localePath({ name: 'demo-ssr' })" class="hero__cta hero__cta--ghost compare__demo">
           {{ $t('landing.index.comparison.cta') }}
         </NuxtLink>
       </div>

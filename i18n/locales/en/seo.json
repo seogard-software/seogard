@@ -120,6 +120,10 @@
         "name": "Your site and AI",
         "desc": "Technical SEO and GEO program in preparation: understand JavaScript rendering, crawler access and SEO fixes."
       }
+    },
+    "ssrDemo": {
+      "title": "HTML vs JavaScript: a before-and-after demo",
+      "description": "See how Seogard compares initial HTML with JavaScript rendering: a real test page, two differences detected, and a verified fix."
     }
   }
 }

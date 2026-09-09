@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     { path: '/outils/monitoring', priority: '0.9', changefreq: 'monthly' },
     { path: '/outils/audit', priority: '0.9', changefreq: 'monthly' },
     { path: '/scanner', priority: '0.9', changefreq: 'monthly' },
+    { path: '/demo/ssr', priority: '0.7', changefreq: 'monthly' },
     { path: '/formations', priority: '0.9', changefreq: 'weekly' },
     { path: '/tarifs', priority: '0.8', changefreq: 'monthly' },
     { path: '/a-propos', priority: '0.6', changefreq: 'monthly' },
